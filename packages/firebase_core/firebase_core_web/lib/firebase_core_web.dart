@@ -2,67 +2,22 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+library firebase_core_web;
+
 import 'dart:async';
 
-import 'package:firebase/firebase.dart' as fb;
+import 'package:firebase/firebase.dart' as firebase;
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:js/js_util.dart' as js_util;
 
-/// The implementation of `firebase_core` for web.
-class FirebaseCoreWeb extends FirebaseCorePlatform {
-  /// Registers that [FirebaseCoreWeb] is the platform implementation.
-  static void registerWith(Registrar registrar) {
-    FirebaseCorePlatform.instance = FirebaseCoreWeb();
-  }
+part 'src/firebase_core_web.dart';
+part 'src/firebase_app_web.dart';
 
-  @override
-  Future<FirebaseAppPlatform> appNamed(String name) async {
-    try {
-      final fb.App jsApp = fb.app(name);
-      if (jsApp == null) {
-        return null;
-      }
-      return _createFromJsApp(jsApp);
-    } catch (e) {
-      if (_isFirebaseError(e)) {
-        return null;
-      }
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> configure(String name, FirebaseOptions options) async {
-    return fb.initializeApp(
-      name: name,
-      apiKey: options.apiKey,
-      databaseURL: options.databaseURL,
-      projectId: options.projectID,
-      storageBucket: options.storageBucket,
-      messagingSenderId: options.gcmSenderID,
-      measurementId: options.trackingID,
-      appId: options.googleAppID,
-    );
-  }
-
-  @override
-  Future<List<FirebaseAppPlatform>> allApps() async {
-    final List<fb.App> jsApps = fb.apps;
-    return jsApps.map<FirebaseAppPlatform>(_createFromJsApp).toList();
-  }
+FirebaseAppPlatform _createFromJsApp(firebase.App jsApp) {
+  return FirebaseAppWeb(jsApp.name, _createFromJsOptions(jsApp.options));
 }
 
-/// Returns `true` if [e] is a `FirebaseError`.
-bool _isFirebaseError(dynamic e) {
-  return js_util.getProperty(e, 'name') == 'FirebaseError';
-}
-
-FirebaseAppPlatform _createFromJsApp(fb.App jsApp) {
-  return FirebaseAppPlatform(jsApp.name, _createFromJsOptions(jsApp.options));
-}
-
-FirebaseOptions _createFromJsOptions(fb.FirebaseOptions options) {
+FirebaseOptions _createFromJsOptions(firebase.FirebaseOptions options) {
   return FirebaseOptions(
     apiKey: options.apiKey,
     trackingID: options.measurementId,

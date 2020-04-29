@@ -1,0 +1,27 @@
+name: flutterfire
+description: The web implementation of firebase_core
+homepage: https://github.com/FirebaseExtended/flutterfire/tree/master/packages/firebase_core/firebase_core_web
+version: 0.0.1
+
+
+dependencies:
+  firebase_core:
+    path: packages/firebase_core/firebase_core
+  firebase_core_web:
+    path: packages/firebase_core/firebase_core_web
+  firebase_core_platform_interface:
+    path: packages/firebase_core/firebase_core_platform_interface
+  flutter:
+    sdk: flutter
+
+dependency_overrides:
+  firebase_core:
+    path: packages/firebase_core/firebase_core
+  firebase_core_web:
+    path: packages/firebase_core/firebase_core_web
+  firebase_core_platform_interface:
+    path: packages/firebase_core/firebase_core_platform_interface
+
+environment:
+  sdk: ">=2.0.0-dev.28.0 <3.0.0"
+  flutter: ">=1.12.13+hotfix.4 <2.0.0"

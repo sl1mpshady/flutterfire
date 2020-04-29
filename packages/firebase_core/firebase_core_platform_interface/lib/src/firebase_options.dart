@@ -2,8 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:meta/meta.dart' show required;
-import 'package:quiver/core.dart';
+part of firebase_core_platoform_interface;
 
 /// The options used to configure a Firebase app.
 class FirebaseOptions {

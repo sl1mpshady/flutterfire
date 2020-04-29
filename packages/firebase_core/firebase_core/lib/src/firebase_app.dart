@@ -4,9 +4,8 @@
 
 part of firebase_core;
 
-class FirebaseApp {
-  // TODO(jackson): We could assert here that an app with this name was configured previously.
-  FirebaseApp({@required this.name}) : assert(name != null);
+class FirebaseApp extends platform.FirebaseAppPlatform {
+  FirebaseApp(this.name, this.options) : super(name, options);
 
   /// The name of this app.
   final String name;
@@ -15,6 +14,8 @@ class FirebaseApp {
   ///
   /// This getter is asynchronous because apps can also be configured by native
   /// code.
+  ///
+  @override
   Future<platform.FirebaseOptions> get options async {
     final platform.FirebaseAppPlatform app =
         await platform.FirebaseCorePlatform.instance.appNamed(name);
@@ -22,62 +23,7 @@ class FirebaseApp {
     return app.options;
   }
 
-  /// Returns a previously created FirebaseApp instance with the given name,
-  /// or null if no such app exists.
-  static Future<FirebaseApp> appNamed(String name) async {
-    final platform.FirebaseAppPlatform app =
-        await platform.FirebaseCorePlatform.instance.appNamed(name);
-    return app == null ? null : FirebaseApp(name: app.name);
-  }
-
   /// Returns the default (first initialized) instance of the FirebaseApp.
   static final FirebaseApp instance = FirebaseApp(name: defaultAppName);
 
-  /// Configures an app with the given [name] and [options].
-  ///
-  /// Configuring the default app is not currently supported. Plugins that
-  /// can interact with the default app should configure it automatically at
-  /// plugin registration time.
-  ///
-  /// Changing the options of a configured app is not supported.
-  static Future<FirebaseApp> configure({
-    @required String name,
-    @required platform.FirebaseOptions options,
-  }) async {
-    assert(name != null);
-    assert(name != defaultAppName);
-    assert(options != null);
-    assert(options.googleAppID != null);
-    final FirebaseApp existingApp = await FirebaseApp.appNamed(name);
-    if (existingApp != null) {
-      return existingApp;
-    }
-    await platform.FirebaseCorePlatform.instance.configure(name, options);
-    return FirebaseApp(name: name);
-  }
-
-  /// Returns a list of all extant FirebaseApp instances, or null if there are
-  /// no FirebaseApp instances.
-  static Future<List<FirebaseApp>> allApps() async {
-    final List<platform.FirebaseAppPlatform> result =
-        await platform.FirebaseCorePlatform.instance.allApps();
-    return result
-        ?.map<FirebaseApp>(
-          (platform.FirebaseAppPlatform app) => FirebaseApp(name: app.name),
-        )
-        ?.toList();
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    if (identical(this, other)) return true;
-    if (other is! FirebaseApp) return false;
-    return other.name == name;
-  }
-
-  @override
-  int get hashCode => name.hashCode;
-
-  @override
-  String toString() => '$FirebaseApp($name)';
 }

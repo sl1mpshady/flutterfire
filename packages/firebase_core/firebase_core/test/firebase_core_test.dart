@@ -34,7 +34,7 @@ void main() {
       mock = MockFirebaseCore();
       FirebaseCorePlatform.instance = mock;
 
-      final PlatformFirebaseApp app = PlatformFirebaseApp(
+      final FirebaseAppPlatform app = FirebaseAppPlatform(
         'testApp',
         const FirebaseOptions(
           apiKey: 'testAPIKey',
@@ -52,11 +52,11 @@ void main() {
       );
 
       when(mock.appNamed('testApp')).thenAnswer((_) {
-        return Future<PlatformFirebaseApp>.value(app);
+        return Future<FirebaseAppPlatform>.value(app);
       });
 
       when(mock.allApps()).thenAnswer((_) =>
-          Future<List<PlatformFirebaseApp>>.value(<PlatformFirebaseApp>[app]));
+          Future<List<FirebaseAppPlatform>>.value(<FirebaseAppPlatform>[app]));
     });
 
     test('configure', () async {

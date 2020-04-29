@@ -4,54 +4,52 @@
 
 part of firebase_core;
 
-class FirebaseApp {
-  // TODO(jackson): We could assert here that an app with this name was configured previously.
-  FirebaseApp({@required this.name}) : assert(name != null);
+class FirebaseCore implements platform.FirebaseCorePlatform {
+  static Map<String, FirebaseApp> _appInstances = {};
 
-  /// The name of this app.
-  final String name;
-
-  /// A copy of the options for this app. These are non-modifiable.
-  ///
-  /// This getter is asynchronous because apps can also be configured by native
-  /// code.
-  Future<platform.FirebaseOptions> get options async {
-    final platform.FirebaseAppPlatform app =
-        await platform.FirebaseCorePlatform.instance.appNamed(name);
-    assert(app != null);
-    return app.options;
-  }
+  static bool _coreInitialized = false;
 
   /// Returns a previously created FirebaseApp instance with the given name,
   /// or null if no such app exists.
-  static Future<FirebaseApp> appNamed(String name) async {
-    final platform.FirebaseAppPlatform app =
-        await platform.FirebaseCorePlatform.instance.appNamed(name);
-    return app == null ? null : FirebaseApp(name: app.name);
+  static FirebaseApp app({String name = '[DEFAULT]'}) {
+    // TODO
+//    final platform.PlatformFirebaseApp app =
+//        await platform.FirebaseCorePlatform.instance.appNamed(name);
+//    return app == null ? null : FirebaseApp(name: app.name);
+    return null;
   }
 
-  /// Returns the default (first initialized) instance of the FirebaseApp.
-  static final FirebaseApp instance = FirebaseApp(name: defaultAppName);
 
-  /// Configures an app with the given [name] and [options].
+
+  /// Initialize a Firebase app with the given [name] and [options].
   ///
   /// Configuring the default app is not currently supported. Plugins that
   /// can interact with the default app should configure it automatically at
   /// plugin registration time.
   ///
   /// Changing the options of a configured app is not supported.
-  static Future<FirebaseApp> configure({
-    @required String name,
-    @required platform.FirebaseOptions options,
+  static Future<FirebaseApp> initializeApp({
+    String name = '[DEFAULT]',
+    platform.FirebaseOptions options,
   }) async {
     assert(name != null);
-    assert(name != defaultAppName);
-    assert(options != null);
-    assert(options.googleAppID != null);
-    final FirebaseApp existingApp = await FirebaseApp.appNamed(name);
+    if (options != null) {
+      assert(name != defaultAppName);
+      assert(options.googleAppID != null);
+    }
+
+    // TODO if core not inited, await core
+    if (!_coreInitialized) {
+    }
+
+
+    final FirebaseApp existingApp = _appInstances[name];
     if (existingApp != null) {
       return existingApp;
     }
+
+    // TODO call native initializeApp
+
     await platform.FirebaseCorePlatform.instance.configure(name, options);
     return FirebaseApp(name: name);
   }
@@ -60,11 +58,11 @@ class FirebaseApp {
   /// no FirebaseApp instances.
   static Future<List<FirebaseApp>> allApps() async {
     final List<platform.FirebaseAppPlatform> result =
-        await platform.FirebaseCorePlatform.instance.allApps();
+    await platform.FirebaseCorePlatform.instance.allApps();
     return result
         ?.map<FirebaseApp>(
           (platform.FirebaseAppPlatform app) => FirebaseApp(name: app.name),
-        )
+    )
         ?.toList();
   }
 

@@ -17,7 +17,7 @@ class FirebaseCoreWeb extends FirebaseCorePlatform {
   }
 
   @override
-  Future<PlatformFirebaseApp> appNamed(String name) async {
+  Future<FirebaseAppPlatform> appNamed(String name) async {
     try {
       final fb.App jsApp = fb.app(name);
       if (jsApp == null) {
@@ -47,9 +47,9 @@ class FirebaseCoreWeb extends FirebaseCorePlatform {
   }
 
   @override
-  Future<List<PlatformFirebaseApp>> allApps() async {
+  Future<List<FirebaseAppPlatform>> allApps() async {
     final List<fb.App> jsApps = fb.apps;
-    return jsApps.map<PlatformFirebaseApp>(_createFromJsApp).toList();
+    return jsApps.map<FirebaseAppPlatform>(_createFromJsApp).toList();
   }
 }
 
@@ -58,8 +58,8 @@ bool _isFirebaseError(dynamic e) {
   return js_util.getProperty(e, 'name') == 'FirebaseError';
 }
 
-PlatformFirebaseApp _createFromJsApp(fb.App jsApp) {
-  return PlatformFirebaseApp(jsApp.name, _createFromJsOptions(jsApp.options));
+FirebaseAppPlatform _createFromJsApp(fb.App jsApp) {
+  return FirebaseAppPlatform(jsApp.name, _createFromJsOptions(jsApp.options));
 }
 
 FirebaseOptions _createFromJsOptions(fb.FirebaseOptions options) {

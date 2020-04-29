@@ -44,10 +44,10 @@ abstract class FirebaseCorePlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  /// Returns the data for the Firebase app with the given [name].
+  /// Returns a Firebase app with the given [name].
   ///
   /// If there is no such app, returns null.
-  Future<PlatformFirebaseApp> appNamed(String name) {
+  static FirebaseAppPlatform app({String name = '[DEFAULT]'}) {
     throw UnimplementedError('appNamed() has not been implemented.');
   }
 
@@ -59,7 +59,7 @@ abstract class FirebaseCorePlatform extends PlatformInterface {
   /// Returns a list of all extant Firebase app instances.
   ///
   /// If there are no live Firebase apps, returns `null`.
-  Future<List<PlatformFirebaseApp>> allApps() {
+  Future<List<FirebaseAppPlatform>> allApps() {
     throw UnimplementedError('allApps() has not been implemented.');
   }
 }

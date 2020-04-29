@@ -26,8 +26,8 @@ void main() {
       deepLinkURLScheme: 'testDeepLinkURLScheme',
       storageBucket: 'testStorageBucket',
     );
-    final PlatformFirebaseApp testApp =
-        PlatformFirebaseApp('testApp', testOptions);
+    final FirebaseAppPlatform testApp =
+        FirebaseAppPlatform('testApp', testOptions);
 
     setUp(() async {
       MethodChannelFirebaseCore.channel
@@ -109,11 +109,11 @@ void main() {
     });
 
     test('appNamed', () async {
-      final PlatformFirebaseApp existingApp =
+      final FirebaseAppPlatform existingApp =
           await channelPlatform.appNamed('testApp');
       expect(existingApp.name, equals('testApp'));
       expect(existingApp.options, equals(testOptions));
-      final PlatformFirebaseApp missingApp =
+      final FirebaseAppPlatform missingApp =
           await channelPlatform.appNamed('missingApp');
       expect(missingApp, isNull);
       expect(
@@ -132,8 +132,8 @@ void main() {
     });
 
     test('allApps', () async {
-      final List<PlatformFirebaseApp> allApps = await channelPlatform.allApps();
-      expect(allApps, equals(<PlatformFirebaseApp>[testApp]));
+      final List<FirebaseAppPlatform> allApps = await channelPlatform.allApps();
+      expect(allApps, equals(<FirebaseAppPlatform>[testApp]));
       expect(
         log,
         <Matcher>[

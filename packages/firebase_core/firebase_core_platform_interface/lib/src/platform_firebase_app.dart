@@ -17,8 +17,8 @@ import 'firebase_options.dart';
 /// the options for the app are obtained via a call that returns
 /// `Future<FirebaseOptions>`. This class is the platform representation of a
 /// Firebase app.
-class PlatformFirebaseApp {
-  PlatformFirebaseApp(this.name, this.options);
+class FirebaseAppPlatform {
+  FirebaseAppPlatform(this.name, this.options);
 
   /// The name of this Firebase app.
   final String name;
@@ -29,7 +29,7 @@ class PlatformFirebaseApp {
   @override
   bool operator ==(dynamic other) {
     if (identical(this, other)) return true;
-    if (other is! PlatformFirebaseApp) return false;
+    if (other is! FirebaseAppPlatform) return false;
     return other.name == name && other.options == options;
   }
 
@@ -37,5 +37,5 @@ class PlatformFirebaseApp {
   int get hashCode => hash2(name, options);
 
   @override
-  String toString() => '$PlatformFirebaseApp($name)';
+  String toString() => '$FirebaseAppPlatform($name)';
 }

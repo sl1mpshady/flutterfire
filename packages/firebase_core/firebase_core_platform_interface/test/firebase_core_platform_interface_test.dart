@@ -32,10 +32,10 @@ void main() {
 
 class ImplementsFirebaseCorePlatform implements FirebaseCorePlatform {
   @override
-  Future<List<PlatformFirebaseApp>> allApps() => null;
+  Future<List<FirebaseAppPlatform>> allApps() => null;
 
   @override
-  Future<PlatformFirebaseApp> appNamed(String name) => null;
+  Future<FirebaseAppPlatform> appNamed(String name) => null;
 
   @override
   Future<void> configure(String name, FirebaseOptions options) => null;

@@ -9,25 +9,23 @@ import 'package:meta/meta.dart' show visibleForTesting;
 
 import '../firebase_core_platform_interface.dart';
 
-class MethodChannelFirebaseCore extends FirebaseCorePlatform {
+class MethodChannelFirebaseCore implements FirebaseCorePlatform {
   @visibleForTesting
   static const MethodChannel channel = MethodChannel(
     'plugins.flutter.io/firebase_core',
   );
 
-  @override
-  Future<PlatformFirebaseApp> appNamed(String name) async {
+  Future<FirebaseAppPlatform> apsdsdps(String name) async {
     final Map<String, dynamic> app =
         await channel.invokeMapMethod<String, dynamic>(
       'FirebaseApp#appNamed',
       name,
     );
     if (app == null) return null;
-    return PlatformFirebaseApp(
+    return FirebaseAppPlatform(
         app['name'], FirebaseOptions.from(app['options']));
   }
 
-  @override
   Future<void> configure(String name, FirebaseOptions options) {
     return channel.invokeMethod<void>(
       'FirebaseApp#configure',
@@ -35,14 +33,13 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
     );
   }
 
-  @override
-  Future<List<PlatformFirebaseApp>> allApps() async {
+  Future<List<FirebaseAppPlatform>> allApps() async {
     final List<dynamic> result = await channel.invokeListMethod<dynamic>(
       'FirebaseApp#allApps',
     );
     return result
-        ?.map<PlatformFirebaseApp>(
-          (dynamic app) => PlatformFirebaseApp(
+        ?.map<FirebaseAppPlatform>(
+          (dynamic app) => FirebaseAppPlatform(
             app['name'],
             FirebaseOptions.from(app['options']),
           ),

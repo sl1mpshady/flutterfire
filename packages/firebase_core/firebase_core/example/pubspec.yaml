@@ -13,13 +13,6 @@ dependencies:
     path: ../
   cupertino_icons: ^0.1.3
 
-dependency_overrides:
-  firebase_core:
-    path: ../
-
-  firebase_core_platform_interface:
-    path: ../../firebase_core_platform_interface
-
 dev_dependencies:
   e2e: ^0.4.2
   flutter_driver:

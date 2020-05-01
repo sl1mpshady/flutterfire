@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executors;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
@@ -28,7 +29,8 @@ import io.flutter.plugin.common.PluginRegistry;
  *
  * <p>Instantiate this in an add to app scenario to gracefully handle activity and context changes.
  */
-public class FirebaseCorePlugin implements FlutterPlugin, FirebasePlugin, MethodChannel.MethodCallHandler {
+public class FirebaseCorePlugin
+    implements FlutterPlugin, FirebasePlugin, MethodChannel.MethodCallHandler {
   private static final String CHANNEL_NAME = "plugins.flutter.io/firebase_core";
 
   private MethodChannel channel;
@@ -93,6 +95,7 @@ public class FirebaseCorePlugin implements FlutterPlugin, FirebasePlugin, Method
 
   private Task<List<Map<String, Object>>> initializeCore() {
     return Tasks.call(
+        Executors.newSingleThreadExecutor(),
         () -> {
           List<FirebaseApp> firebaseApps = FirebaseApp.getApps(applicationContext);
           List<Map<String, Object>> firebaseAppsList = new ArrayList<>(firebaseApps.size());
@@ -164,16 +167,16 @@ public class FirebaseCorePlugin implements FlutterPlugin, FirebasePlugin, Method
     Task methodCallTask;
 
     switch (call.method) {
-      case "FirebaseApp#initializeApp":
+      case "FirebaseCore#initializeApp":
         methodCallTask = initializeApp(call.arguments());
         break;
-      case "FirebaseApp#initializeCore":
+      case "FirebaseCore#initializeCore":
         methodCallTask = initializeCore();
         break;
-      case "FirebaseApp#setAutomaticDataCollectionEnabled":
+      case "FirebaseCore#setAutomaticDataCollectionEnabled":
         methodCallTask = setAutomaticDataCollectionEnabled(call.arguments());
         break;
-      case "FirebaseApp#setAutomaticResourceManagementEnabled":
+      case "FirebaseCore#setAutomaticResourceManagementEnabled":
         methodCallTask = setAutomaticResourceManagementEnabled(call.arguments());
         break;
       case "FirebaseApp#deleteApp":
@@ -196,9 +199,7 @@ public class FirebaseCorePlugin implements FlutterPlugin, FirebasePlugin, Method
   }
 
   @Override
-  public Task<Map<String, Object>> getPluginConstantsForFirebaseApp(
-      FirebaseApp firebaseApp
-  ) {
+  public Task<Map<String, Object>> getPluginConstantsForFirebaseApp(FirebaseApp firebaseApp) {
     return null;
   }
 }

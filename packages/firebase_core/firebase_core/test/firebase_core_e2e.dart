@@ -10,7 +10,7 @@ void main() {
   E2EWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('configure', (WidgetTester tester) async {
-    await FirebaseApp.configure(
+    await FirebaseCore.instance.initializeApp(
       name: 'foo',
       options: const FirebaseOptions(
         googleAppID: '1:297855924061:ios:c6de2b69b03a5be8',
@@ -19,7 +19,7 @@ void main() {
       ),
     );
 
-    final List<FirebaseApp> apps = await FirebaseApp.allApps();
+    final List<FirebaseApp> apps = await FirebaseCore.instance.apps;
     expect(apps, hasLength(1));
 
     final FirebaseOptions options = await apps[0].options;

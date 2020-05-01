@@ -5,23 +5,19 @@
 part of firebase_core_web;
 
 /// The implementation of `firebase_core` for web.
-class FirebaseCoreWeb implements FirebaseCorePlatform {
-  /// TODO
-  static List<FirebaseAppPlatform> get apps {
-    final List<firebase.App> jsApps = firebase.apps;
-    return jsApps.map<FirebaseAppPlatform>(_createFromJsApp).toList();
+class FirebaseCoreWeb extends FirebaseCorePlatform {
+  /// Registers that [FirebaseCoreWeb] is the platform implementation.
+  static void registerWith(Registrar registrar) {
+    FirebaseCorePlatform.instance = FirebaseCoreWeb();
   }
 
-  /// TODO
-  static FirebaseAppPlatform app(String name) {
-    firebase.App app = firebase.app(name);
-    if (app == null) return null;
-    // TODO is firebase error?
-    return _createFromJsApp(app);
+  @override
+  List<FirebaseAppPlatform> get apps {
+    return firebase.apps.map(_createFromJsApp).toList(growable: false);
   }
 
-  /// TODO
-  static Future<FirebaseAppPlatform> initializeApp({ String name, FirebaseOptions options }) async {
+  @override
+  Future<FirebaseAppPlatform> initializeApp({ String name, FirebaseOptions options }) async {
     firebase.App app = firebase.initializeApp(
       name: name,
       apiKey: options.apiKey,
@@ -32,6 +28,15 @@ class FirebaseCoreWeb implements FirebaseCorePlatform {
       measurementId: options.trackingID,
       appId: options.googleAppID,
     );
+
+    return _createFromJsApp(app);
+  }
+
+  @override
+  FirebaseAppPlatform app(String name) {
+    firebase.App app = firebase.app(name);
+    if (app == null) return null;
     return _createFromJsApp(app);
   }
 }
+

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-part of firebase_core_platoform_interface;
+part of firebase_core_platform_interface;
 
 /// The options used to configure a Firebase app.
 class FirebaseOptions {
@@ -20,7 +20,7 @@ class FirebaseOptions {
     this.storageBucket,
   }) : assert(googleAppID != null);
 
-  FirebaseOptions.from(Map<dynamic, dynamic> map)
+  FirebaseOptions.fromMap(Map<dynamic, dynamic> map)
       : apiKey = map['APIKey'],
         bundleID = map['bundleID'],
         clientID = map['clientID'],

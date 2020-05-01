@@ -6,9 +6,8 @@ part of firebase_core_web;
 
 /// TODO
 class FirebaseAppWeb extends FirebaseAppPlatform {
-
   /// TODO
-  FirebaseAppWeb(String name, FirebaseOptions options) : super(name, options);
+  FirebaseAppWeb._(String name, FirebaseOptions options) : super(name, options);
 
   @override
   Future<void> delete() async {

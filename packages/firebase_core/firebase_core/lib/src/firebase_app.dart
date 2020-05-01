@@ -4,26 +4,54 @@
 
 part of firebase_core;
 
-class FirebaseApp extends platform.FirebaseAppPlatform {
-  FirebaseApp(this.name, this.options) : super(name, options);
-
-  /// The name of this app.
-  final String name;
-
-  /// A copy of the options for this app. These are non-modifiable.
-  ///
-  /// This getter is asynchronous because apps can also be configured by native
-  /// code.
-  ///
-  @override
-  Future<platform.FirebaseOptions> get options async {
-    final platform.FirebaseAppPlatform app =
-        await platform.FirebaseCorePlatform.instance.appNamed(name);
-    assert(app != null);
-    return app.options;
+class FirebaseApp implements FirebaseAppPlatform {
+  @deprecated
+  FirebaseApp({@required String name}) {
+    assert(name != null);
+    _delegate = FirebaseAppPlatform(name, FirebaseOptions.fromMap({}));
   }
 
-  /// Returns the default (first initialized) instance of the FirebaseApp.
-  static final FirebaseApp instance = FirebaseApp(name: defaultAppName);
+  FirebaseAppPlatform _delegate;
 
+  FirebaseApp._(this._delegate) {
+    FirebaseAppPlatform.verifyExtends(_delegate);
+  }
+
+  Future<void> delete() async {
+    await _delegate.delete();
+  }
+
+  @Deprecated("Deprecated in favor of FirebaseCore.instance.app()")
+  static FirebaseApp appNamed(String name) {
+    return FirebaseCore.instance.app(name);
+  }
+
+  @Deprecated("Deprecated in favor of FirebaseCore.instance.apps")
+  static Future<List<FirebaseApp>> allApps() async {
+    return FirebaseCore.instance.apps;
+  }
+
+  @Deprecated("Deprecated in favor of FirebaseCore.instance.initializeApp()")
+  static Future<FirebaseApp> configure({
+    @required String name,
+    @required FirebaseOptions options,
+  }) {
+    return FirebaseCore.instance.initializeApp(name: name, options: options);
+  }
+
+  @Deprecated("Deprecated in favor of FirebaseCore.instance.app()")
+  static FirebaseApp get instance {
+    return FirebaseCore.instance.app();
+  }
+
+  @Deprecated("Deprecated in favor of defaultFirebaseAppName")
+  static String get defaultAppName {
+    return defaultFirebaseAppName;
+  }
+
+  @override
+  String get name => _delegate.name;
+
+  @override
+  FirebaseOptions get options => _delegate.options;
 }

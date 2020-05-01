@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-part of firebase_core_platoform_interface;
+part of firebase_core_platform_interface;
 
 /// A data class storing the name and options of a Firebase app.
 ///
@@ -15,21 +15,13 @@ part of firebase_core_platoform_interface;
 /// the options for the app are obtained via a call that returns
 /// `Future<FirebaseOptions>`. This class is the platform representation of a
 /// Firebase app.
-abstract class FirebaseAppPlatform extends PlatformInterface {
+class FirebaseAppPlatform extends PlatformInterface {
   FirebaseAppPlatform(this.name, this.options) : super(token: _token);
 
   static final Object _token = Object();
 
-  /// Throws an [AssertionError] if [instance] does not extend
-  /// [FirebaseAppPlatform].
-  ///
-  /// This is used by the app-facing [FirebaseApp] to ensure that
-  /// the object in which it's going to delegate calls has been
-  /// constructed properly.
   static verifyExtends(FirebaseAppPlatform instance) {
-    if (instance is! FirebaseAppPlatform) {
-      PlatformInterface.verifyToken(instance, _token);
-    }
+    PlatformInterface.verifyToken(instance, _token);
   }
 
   /// The name of this Firebase app.
@@ -37,6 +29,8 @@ abstract class FirebaseAppPlatform extends PlatformInterface {
 
   /// The options that this app was configured with.
   final FirebaseOptions options;
+
+  bool get _isDefault => name == defaultFirebaseAppName;
 
   /// Deletes the current FirebaseApp instance.
   Future<void> delete() async {

@@ -5,14 +5,13 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
+import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_field_value.dart';
+import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_firestore.dart';
+import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_transaction.dart';
+import 'package:cloud_firestore_platform_interface/src/method_channel/utils/firestore_message_codec.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_firestore.dart';
-import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_transaction.dart';
-import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_field_value.dart';
-import 'package:cloud_firestore_platform_interface/src/method_channel/utils/firestore_message_codec.dart';
 
 import 'test_common.dart';
 import 'test_firestore_message_codec.dart';
@@ -44,7 +43,7 @@ void main() {
       firebaseCoreChannel.setMockMethodCallHandler(
         (MethodCall methodCall) async {},
       );
-      app = await FirebaseApp.configure(
+      app = await FirebaseCore.instance.initializeApp(
         name: 'testApp',
         options: const FirebaseOptions(
           googleAppID: '1:1234567890:ios:42424242424242',

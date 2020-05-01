@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-part of firebase_core_platoform_interface;
+part of firebase_core_platform_interface;
 
 /// The interface that implementations of `firebase_core` must extend.
 ///
@@ -12,22 +12,43 @@ part of firebase_core_platoform_interface;
 /// will get the default implementation, while platform implementations that
 /// `implements` this interface will be broken by newly added
 /// [FirebaseCorePlatform] methods.
-abstract class FirebaseCorePlatform {
+abstract class FirebaseCorePlatform extends PlatformInterface {
+
+  FirebaseCorePlatform() : super(token: _token);
+
+  static final Object _token = Object();
+
+  /// The default instance of [FirebaseCorePlatform] to use.
+  ///
+  /// Platform-specific plugins should override this with their own class
+  /// that extends [FirebaseCorePlatform] when they register themselves.
+  ///
+  /// Defaults to [MethodChannelFirebaseCore].
+  static FirebaseCorePlatform get instance => _instance;
+
+  static FirebaseCorePlatform _instance = MethodChannelFirebaseCore();
+
+  // TODO(amirh): Extract common platform interface logic.
+  // https://github.com/flutter/flutter/issues/43368
+  static set instance(FirebaseCorePlatform instance) {
+    PlatformInterface.verifyToken(instance, _token);
+    _instance = instance;
+  }
 
   /// Returns all initialized FirebaseApp instances.
-  static List<FirebaseAppPlatform> get apps {
+  List<FirebaseAppPlatform> get apps {
     throw UnimplementedError('apps has not been implemented.');
   }
 
   /// Initializes a new FirebaseApp with the given [name].
-  static Future<FirebaseAppPlatform> initializeApp({ String name, FirebaseOptions options }) {
+  Future<FirebaseAppPlatform> initializeApp({ String name, FirebaseOptions options }) {
     throw UnimplementedError('initializeApp() has not been implemented.');
   }
 
   /// Returns a Firebase app with the given [name].
   ///
   /// If there is no such app, returns null.
-  static FirebaseAppPlatform app(String name) {
+  FirebaseAppPlatform app(String name) {
     throw UnimplementedError('app() has not been implemented.');
   }
 }

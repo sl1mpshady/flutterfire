@@ -8,13 +8,14 @@ import 'dart:async';
 
 import 'package:firebase/firebase.dart' as firebase;
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 part 'src/firebase_core_web.dart';
 part 'src/firebase_app_web.dart';
 
 FirebaseAppPlatform _createFromJsApp(firebase.App jsApp) {
-  return FirebaseAppWeb(jsApp.name, _createFromJsOptions(jsApp.options));
+  return FirebaseAppWeb._(jsApp.name, _createFromJsOptions(jsApp.options));
 }
 
 FirebaseOptions _createFromJsOptions(firebase.FirebaseOptions options) {

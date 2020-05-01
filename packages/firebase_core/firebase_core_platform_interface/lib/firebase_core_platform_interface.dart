@@ -2,20 +2,25 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-library firebase_core_platoform_interface;
+library firebase_core_platform_interface;
 
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart' show required, visibleForTesting;
+import 'package:meta/meta.dart' show required;
 import 'package:quiver/core.dart';
 
 part 'src/firebase_options.dart';
 
+part 'src/platform_interface/platform_interface_firebase_plugin.dart';
 part 'src/platform_interface/platform_interface_firebase_core.dart';
 part 'src/platform_interface/platform_interface_firebase_app.dart';
 
+part 'src/method_channel/method_channel_firebase_plugin.dart';
 part 'src/method_channel/method_channel_firebase_core.dart';
 part 'src/method_channel/method_channel_firebase_app.dart';
+
+const String defaultFirebaseAppName = '[DEFAULT]';

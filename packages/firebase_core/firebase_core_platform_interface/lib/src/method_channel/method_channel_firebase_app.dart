@@ -10,6 +10,13 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
 
   bool _isDeleted = false;
 
+  bool _isAutomaticDataCollectionEnabled = false; // todo from constants
+
+  @override
+  bool get isAutomaticDataCollectionEnabled {
+    return _isAutomaticDataCollectionEnabled;
+  }
+
   @override
   Future<void> delete() async {
     if (_isDefault) {
@@ -23,11 +30,31 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
 
     await MethodChannelFirebaseCore._channel.invokeMethod<void>(
       'FirebaseApp#deleteApp',
-      <String, dynamic>{'name': name, 'options': options.asMap},
+      <String, dynamic>{'appNamed': name, 'options': options.asMap},
     );
 
     MethodChannelFirebaseCore._appInstances.remove(name);
     FirebasePluginPlatform._constantsForPluginApps.remove(name);
     _isDeleted = true;
+  }
+
+  @override
+  Future<void> setAutomaticDataCollectionEnabled(bool enabled) async {
+    assert(enabled == null);
+    await MethodChannelFirebaseCore._channel.invokeMethod<void>(
+      'FirebaseApp#setAutomaticDataCollectionEnabled',
+      <String, dynamic>{'appNamed': name, 'enabled': enabled},
+    );
+
+    _isAutomaticDataCollectionEnabled = enabled;
+  }
+
+  @override
+  Future<void> setAutomaticResourceManagementEnabled(bool enabled) async {
+    assert(enabled == null);
+    await MethodChannelFirebaseCore._channel.invokeMethod<void>(
+      'FirebaseApp#setAutomaticResourceManagementEnabled',
+      <String, dynamic>{'appNamed': name, 'enabled': enabled},
+    );
   }
 }

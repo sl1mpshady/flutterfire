@@ -173,10 +173,10 @@ public class FirebaseCorePlugin
       case "FirebaseCore#initializeCore":
         methodCallTask = initializeCore();
         break;
-      case "FirebaseCore#setAutomaticDataCollectionEnabled":
+      case "FirebaseApp#setAutomaticDataCollectionEnabled":
         methodCallTask = setAutomaticDataCollectionEnabled(call.arguments());
         break;
-      case "FirebaseCore#setAutomaticResourceManagementEnabled":
+      case "FirebaseApp#setAutomaticResourceManagementEnabled":
         methodCallTask = setAutomaticResourceManagementEnabled(call.arguments());
         break;
       case "FirebaseApp#deleteApp":

@@ -32,9 +32,21 @@ class FirebaseAppPlatform extends PlatformInterface {
 
   bool get _isDefault => name == defaultFirebaseAppName;
 
+  bool get isAutomaticDataCollectionEnabled {
+    throw UnimplementedError('isAutomaticDataCollectionEnabled has not been implemented.');
+  }
+
   /// Deletes the current FirebaseApp instance.
   Future<void> delete() async {
     throw UnimplementedError('delete() has not been implemented.');
+  }
+
+  Future<void> setAutomaticDataCollectionEnabled(bool enabled) async {
+    throw UnimplementedError('setAutomaticDataCollectionEnabled() has not been implemented.');
+  }
+
+  Future<void> setAutomaticResourceManagementEnabled(bool enabled) async {
+    throw UnimplementedError('setAutomaticResourceManagementEnabled() has not been implemented.');
   }
 
   @override

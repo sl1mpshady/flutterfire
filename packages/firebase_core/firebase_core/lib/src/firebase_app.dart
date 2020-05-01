@@ -54,4 +54,17 @@ class FirebaseApp implements FirebaseAppPlatform {
 
   @override
   FirebaseOptions get options => _delegate.options;
+
+  @override
+  bool get isAutomaticDataCollectionEnabled => _delegate.isAutomaticDataCollectionEnabled;
+
+  @override
+  Future<void> setAutomaticDataCollectionEnabled(bool enabled) {
+    return _delegate.setAutomaticDataCollectionEnabled(enabled);
+  }
+
+  @override
+  Future<void> setAutomaticResourceManagementEnabled(bool enabled) {
+    return _delegate.setAutomaticResourceManagementEnabled(enabled);
+  }
 }

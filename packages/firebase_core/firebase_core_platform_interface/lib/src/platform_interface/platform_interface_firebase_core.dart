@@ -13,7 +13,6 @@ part of firebase_core_platform_interface;
 /// `implements` this interface will be broken by newly added
 /// [FirebaseCorePlatform] methods.
 abstract class FirebaseCorePlatform extends PlatformInterface {
-
   FirebaseCorePlatform() : super(token: _token);
 
   static final Object _token = Object();
@@ -35,12 +34,12 @@ abstract class FirebaseCorePlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  /// Returns all initialized FirebaseApp instances.
+  /// Returns all initialized [FirebaseApp] instances.
   List<FirebaseAppPlatform> get apps {
     throw UnimplementedError('apps has not been implemented.');
   }
 
-  /// Initializes a new FirebaseApp with the given [name].
+  /// Initializes a new [FirebaseApp with] the given [name] and [FirebaseOptions].
   Future<FirebaseAppPlatform> initializeApp({ String name, FirebaseOptions options }) {
     throw UnimplementedError('initializeApp() has not been implemented.');
   }
@@ -48,7 +47,7 @@ abstract class FirebaseCorePlatform extends PlatformInterface {
   /// Returns a Firebase app with the given [name].
   ///
   /// If there is no such app, returns null.
-  FirebaseAppPlatform app(String name) {
+  FirebaseAppPlatform app([String name = defaultFirebaseAppName]) {
     throw UnimplementedError('app() has not been implemented.');
   }
 }

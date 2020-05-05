@@ -4,21 +4,25 @@
 
 part of firebase_core_platform_interface;
 
-/// The interface that implementations of `firebase_core` must extend.
+/// The interface that other FlutterFire plugins must extend.
 ///
-/// Platform implementations should extend this class rather than implement it
-/// as `firebase_core` does not consider newly added methods to be breaking
-/// changes. Extending this class (using `extends`) ensures that the subclass
-/// will get the default implementation, while platform implementations that
-/// `implements` this interface will be broken by newly added
-/// [FirebaseCorePlatform] methods.
+/// This class provides access to common plugin properties and constants which
+/// could be available.
 abstract class FirebasePluginPlatform extends PlatformInterface {
+  FirebasePluginPlatform(this._app, this._methodChannelName)
+      : super(token: _token);
 
+  /// The global data store for all constants, for each plugin and [FirebaseAppPlatform] instance.
+  ///
+  /// When Firebase is initialized by the user with [FirebaseCorePlatform.initializeApp],
+  /// any constant values which are required before the plugins can be consumed are registered
+  /// here. For example, calling [FirebaseAppPlatform.isAutomaticDataCollectionEnabled]
+  /// requires that the value is synchronously available for use after initialization.
   static Map<dynamic, dynamic> _constantsForPluginApps = {};
 
-  String _methodChannelName;
+  final FirebaseAppPlatform _app;
 
-  FirebasePluginPlatform(this._app, this._methodChannelName) : super(token: _token);
+  final String _methodChannelName;
 
   static final Object _token = Object();
 
@@ -26,12 +30,16 @@ abstract class FirebasePluginPlatform extends PlatformInterface {
     PlatformInterface.verifyToken(instance, _token);
   }
 
-  FirebaseAppPlatform _app;
-
-  // TODO docs: creates a readonly app instance
+  /// Returns the current [FirebaseAppPlatform] instance for this plugin.
   FirebaseAppPlatform get app => _app;
 
+  /// Returns any plugin constants this plugin app instance has initialized.
   Map<dynamic, dynamic> get pluginConstants {
-    return _constantsForPluginApps[_app.name][_methodChannelName];
+    if (_constantsForPluginApps[_app.name] != null &&
+        _constantsForPluginApps[_app.name][_methodChannelName] != null) {
+      return _constantsForPluginApps[_app.name][_methodChannelName];
+    }
+
+    return {};
   }
 }

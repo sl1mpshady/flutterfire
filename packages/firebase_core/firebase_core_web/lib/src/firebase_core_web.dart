@@ -11,32 +11,49 @@ class FirebaseCoreWeb extends FirebaseCorePlatform {
     FirebaseCorePlatform.instance = FirebaseCoreWeb();
   }
 
+  /// Returns all created [FirebaseAppPlatform] instances.
   @override
   List<FirebaseAppPlatform> get apps {
     return firebase.apps.map(_createFromJsApp).toList(growable: false);
   }
 
   @override
-  Future<FirebaseAppPlatform> initializeApp({ String name, FirebaseOptions options }) async {
-    firebase.App app = firebase.initializeApp(
-      name: name,
-      apiKey: options.apiKey,
-      databaseURL: options.databaseURL,
-      projectId: options.projectID,
-      storageBucket: options.storageBucket,
-      messagingSenderId: options.gcmSenderID,
-      measurementId: options.trackingID,
-      appId: options.googleAppID,
-    );
+  Future<FirebaseAppPlatform> initializeApp(
+      {String name, FirebaseOptions options}) async {
+    firebase.App app;
+
+    try {
+      app = firebase.initializeApp(
+        name: name,
+        apiKey: options.apiKey,
+        databaseURL: options.databaseURL,
+        projectId: options.projectID,
+        storageBucket: options.storageBucket,
+        messagingSenderId: options.gcmSenderID,
+        measurementId: options.trackingID,
+        appId: options.googleAppID,
+      );
+    } catch (e) {
+      // TODO...
+    }
 
     return _createFromJsApp(app);
   }
 
   @override
-  FirebaseAppPlatform app(String name) {
-    firebase.App app = firebase.app(name);
-    if (app == null) return null;
+  FirebaseAppPlatform app([String name = defaultFirebaseAppName]) {
+    firebase.App app;
+
+    try {
+      app = firebase.app(name);
+    } catch (e) {
+      if (_getJSErrorCode(e) == 'app/no-app') {
+        throw noAppExists(name);
+      }
+
+      throw _catchJSError(e);
+    }
+
     return _createFromJsApp(app);
   }
 }
-

@@ -5,15 +5,25 @@
 part of firebase_core_platform_interface;
 
 class MethodChannelFirebaseCore extends FirebaseCorePlatform {
+  /// Tracks local [MethodChannelFirebaseApp] instances.
   static Map<String, MethodChannelFirebaseApp> _appInstances = {};
+
+  /// Keeps track of whether users have initialized core.
   static bool _isCoreInitialized = false;
 
   static const MethodChannel _channel = MethodChannel(
     'plugins.flutter.io/firebase_core',
   );
 
+  /// Returns the [MethodChannelFirebaseCore] [MethodChannel] instance.
   MethodChannel get channel => _channel;
 
+  /// Calls the native FirebaseCore#initializeCore method.
+  ///
+  /// Before any plugins can be consumed, any platforms using the [MethodChannel]
+  /// can use initializeCore method to return any initialization data, such as
+  /// any Firebase apps created natively and any constants which are required
+  /// for a plugin to function correctly before usage.
   Future<void> _initializeCore() async {
     List<Map> apps = await _channel.invokeListMethod<Map>(
       'FirebaseCore#initializeCore',
@@ -23,6 +33,8 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
     _isCoreInitialized = true;
   }
 
+  /// Creates and attaches a new [MethodChannelFirebaseApp] to the [MethodChannelFirebaseCore]
+  /// and adds any constants to the [FirebasePluginPlatform] class.
   void _initializeFirebaseAppFromMap(Map<dynamic, dynamic> map) {
     MethodChannelFirebaseApp methodChannelFirebaseApp =
         MethodChannelFirebaseApp(
@@ -36,17 +48,20 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
         map['pluginConstants'];
   }
 
+  /// Returns the created [FirebaseAppPlatform] instances.
   @override
   List<FirebaseAppPlatform> get apps {
     return _appInstances.values.toList(growable: false);
   }
 
+  /// Initializes a Firebase app instance.
+  ///
+  /// Internally initializes core if it is not yet ready.
   @override
   Future<FirebaseAppPlatform> initializeApp(
       {String name, FirebaseOptions options}) async {
     if (name == defaultFirebaseAppName) {
-      // TODO
-      throw ("Default app cant be inited here");
+      throw noDefaultAppInitialization();
     }
 
     if (!_isCoreInitialized) {
@@ -54,15 +69,17 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
     }
 
     if (name == null) {
-      // TODO what if no default app?
-      // TODO warn user about incorrect setup (missing credentials)
+      MethodChannelFirebaseApp defaultApp =
+          _appInstances[defaultFirebaseAppName];
+
+      if (defaultApp == null) {
+        throw coreNotInitialized();
+      }
+
       return _appInstances[defaultFirebaseAppName];
     }
 
-    if (options == null) {
-      // TODO
-      throw ("Options cannot be null when a name is provided.");
-    }
+    assert(options != null);
 
     // Check whether the app has already been initialized
     if (_appInstances.containsKey(name)) {
@@ -77,12 +94,16 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
     return _appInstances[name];
   }
 
+  /// Returns a [FirebaseAppPlatform] by [name].
+  ///
+  /// Returns the default Firebase app no [name] is provided and throws a
+  /// [FirebaseException] if no app with the [name] has been created.
   @override
-  FirebaseAppPlatform app(String name) {
+  FirebaseAppPlatform app([String name = defaultFirebaseAppName]) {
     if (_appInstances.containsKey(name)) {
       return _appInstances[name];
     }
 
-    return _appInstances[defaultFirebaseAppName];
+    throw noAppExists(name);
   }
 }

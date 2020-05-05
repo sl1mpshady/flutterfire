@@ -12,9 +12,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('$FirebaseApp', () {
-    final FirebaseApp testApp = FirebaseApp(
-      name: 'testApp',
-    );
     const FirebaseOptions testOptions = FirebaseOptions(
       apiKey: 'testAPIKey',
       bundleID: 'testBundleID',
@@ -28,6 +25,11 @@ void main() {
       deepLinkURLScheme: 'testDeepLinkURLScheme',
       storageBucket: 'testStorageBucket',
     );
+    final FirebaseAppPlatform testApp = FirebaseAppPlatform(
+      'testApp',
+      testOptions,
+    );
+
     MockFirebaseCore mock;
 
     setUp(() async {
@@ -51,16 +53,15 @@ void main() {
         ),
       );
 
-      when(mock.appNamed('testApp')).thenAnswer((_) {
-        return Future<FirebaseAppPlatform>.value(app);
+      when(mock.app('testApp')).thenAnswer((_) {
+        return app;
       });
 
-      when(mock.allApps()).thenAnswer((_) =>
-          Future<List<FirebaseAppPlatform>>.value(<FirebaseAppPlatform>[app]));
+      when(mock.apps).thenAnswer((_) => <FirebaseAppPlatform>[app]);
     });
 
-    test('configure', () async {
-      final FirebaseApp reconfiguredApp = await FirebaseApp.configure(
+    test('initializeApp', () async {
+      final FirebaseApp reconfiguredApp = await FirebaseCore.instance.initializeApp(
         name: 'testApp',
         options: testOptions,
       );
@@ -73,31 +74,29 @@ void main() {
       // It's ugly to specify mockito verification types
       // ignore: always_specify_types
       verifyInOrder([
-        mock.appNamed('testApp'),
-        mock.appNamed('newApp'),
-        mock.configure('newApp', testOptions),
+        mock.app('testApp'),
+        mock.app('newApp'),
       ]);
     });
 
-    test('appNamed', () async {
-      final FirebaseApp existingApp = await FirebaseApp.appNamed('testApp');
+    test('app', () async {
+      final FirebaseApp existingApp = await FirebaseCore.instance.app('testApp');
       expect(existingApp.name, equals('testApp'));
       expect((await existingApp.options), equals(testOptions));
-      final FirebaseApp missingApp = await FirebaseApp.appNamed('missingApp');
+      final FirebaseApp missingApp = await FirebaseCore.instance.app('missingApp');
       expect(missingApp, isNull);
       // It's ugly to specify mockito verification types
       // ignore: always_specify_types
       verifyInOrder([
-        mock.appNamed('testApp'),
-        mock.appNamed('testApp'),
-        mock.appNamed('missingApp'),
+        mock.app('testApp'),
+        mock.app('missingApp'),
       ]);
     });
 
-    test('allApps', () async {
-      final List<FirebaseApp> allApps = await FirebaseApp.allApps();
-      expect(allApps, equals(<FirebaseApp>[testApp]));
-      verify(mock.allApps());
+    test('apps', () async {
+      final List<FirebaseApp> allApps = await FirebaseCore.instance.apps;
+      expect(allApps, equals(<FirebaseAppPlatform>[testApp]));
+      verify(mock.apps);
     });
   });
 }

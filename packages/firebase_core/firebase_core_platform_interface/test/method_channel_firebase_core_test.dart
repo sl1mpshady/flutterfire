@@ -26,10 +26,12 @@ void main() {
       deepLinkURLScheme: 'testDeepLinkURLScheme',
       storageBucket: 'testStorageBucket',
     );
+
     final FirebaseAppPlatform testApp =
         FirebaseAppPlatform('testApp', testOptions);
 
     setUp(() async {
+      // TODO: No longer static, needs fixing
       MethodChannelFirebaseCore.channel
           .setMockMethodCallHandler((MethodCall methodCall) async {
         log.add(methodCall);
@@ -79,13 +81,13 @@ void main() {
     });
 
     test('configure', () async {
-      await channelPlatform.configure(
-        'testApp',
-        testOptions,
+      await channelPlatform.initializeApp(
+        name: 'testApp',
+        options: testOptions,
       );
-      await channelPlatform.configure(
-        'newApp',
-        testOptions,
+      await channelPlatform.initializeApp(
+        name: 'newApp',
+        options: testOptions,
       );
       expect(
         log,
@@ -110,11 +112,11 @@ void main() {
 
     test('appNamed', () async {
       final FirebaseAppPlatform existingApp =
-          await channelPlatform.appNamed('testApp');
+          await channelPlatform.app('testApp');
       expect(existingApp.name, equals('testApp'));
       expect(existingApp.options, equals(testOptions));
       final FirebaseAppPlatform missingApp =
-          await channelPlatform.appNamed('missingApp');
+          await channelPlatform.app('missingApp');
       expect(missingApp, isNull);
       expect(
         log,
@@ -132,7 +134,7 @@ void main() {
     });
 
     test('allApps', () async {
-      final List<FirebaseAppPlatform> allApps = await channelPlatform.allApps();
+      final List<FirebaseAppPlatform> allApps = await channelPlatform.apps;
       expect(allApps, equals(<FirebaseAppPlatform>[testApp]));
       expect(
         log,

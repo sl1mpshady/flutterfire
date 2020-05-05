@@ -80,7 +80,7 @@ void main() {
       log.clear();
     });
 
-    test('configure', () async {
+    test('should initialize dynamic apps', () async {
       await channelPlatform.initializeApp(
         name: 'testApp',
         options: testOptions,
@@ -110,7 +110,7 @@ void main() {
       );
     });
 
-    test('appNamed', () async {
+    test('should provide app instance by name', () async {
       final FirebaseAppPlatform existingApp =
           await channelPlatform.app('testApp');
       expect(existingApp.name, equals('testApp'));
@@ -133,7 +133,7 @@ void main() {
       );
     });
 
-    test('allApps', () async {
+    test('should provide an array of apps', () async {
       final List<FirebaseAppPlatform> allApps = await channelPlatform.apps;
       expect(allApps, equals(<FirebaseAppPlatform>[testApp]));
       expect(

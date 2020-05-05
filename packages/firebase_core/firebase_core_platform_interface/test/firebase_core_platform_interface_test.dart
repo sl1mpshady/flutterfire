@@ -8,19 +8,30 @@ import 'package:mockito/mockito.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('$FirebaseCorePlatform', () {
+    // should allow read of default app from native
     test('$MethodChannelFirebaseCore is the default instance', () {
       expect(FirebaseCorePlatform.instance, isA<MethodChannelFirebaseCore>());
+    });
+
+    test('should create apps for natively initialized apps', () {
+      return null;
+    });
+
+    test('natively initialized apps should have options available in dart', () {
+      return null;
+    });
+
+    test('Can be extended', () {
+      FirebaseCorePlatform.instance = ExtendsFirebaseCorePlatform();
     });
 
     test('Cannot be implemented with `implements`', () {
       expect(() {
         FirebaseCorePlatform.instance = ImplementsFirebaseCorePlatform();
       }, throwsNoSuchMethodError);
-    });
-
-    test('Can be extended', () {
-      FirebaseCorePlatform.instance = ExtendsFirebaseCorePlatform();
     });
 
     test('Can be mocked with `implements`', () {

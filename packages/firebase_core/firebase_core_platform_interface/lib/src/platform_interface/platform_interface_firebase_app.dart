@@ -4,17 +4,9 @@
 
 part of firebase_core_platform_interface;
 
-/// A data class storing the name and options of a Firebase app.
+/// A class storing the name and options of a Firebase app.
 ///
-/// This is created as a result of calling
-/// [`firebase.initializeApp`](https://firebase.google.com/docs/reference/js/firebase#initialize-app)
-/// in the various platform implementations.
-///
-/// This class is different from `FirebaseApp` declared in
-/// `package:firebase_core`: `FirebaseApp` is initialized synchronously, and
-/// the options for the app are obtained via a call that returns
-/// `Future<FirebaseOptions>`. This class is the platform representation of a
-/// Firebase app.
+/// This is created as a result of calling [FirebaseCorePlatform.initializeApp].
 class FirebaseAppPlatform extends PlatformInterface {
   FirebaseAppPlatform(this.name, this.options) : super(token: _token);
 
@@ -27,24 +19,31 @@ class FirebaseAppPlatform extends PlatformInterface {
   /// The name of this Firebase app.
   final String name;
 
-  /// The options that this app was configured with.
+  /// Returns the [FirebaseOptions] that this app was configured with.
   final FirebaseOptions options;
 
+  /// Returns whether this instance is the default Firebase app.
   bool get _isDefault => name == defaultFirebaseAppName;
 
+  /// Returns true is automatic data collection is enabled for this app.
   bool get isAutomaticDataCollectionEnabled {
     throw UnimplementedError('isAutomaticDataCollectionEnabled has not been implemented.');
   }
 
-  /// Deletes the current FirebaseApp instance.
+  /// Deletes the current FirebaseApp app.
   Future<void> delete() async {
     throw UnimplementedError('delete() has not been implemented.');
   }
 
+  /// Sets whether automatic data collection is enabled or disabled for this app.
+  ///
+  /// It is possible to check whether data collection is currently enabled via
+  /// the [FirebaseAppPlatform.isAutomaticDataCollectionEnabled] property.
   Future<void> setAutomaticDataCollectionEnabled(bool enabled) async {
     throw UnimplementedError('setAutomaticDataCollectionEnabled() has not been implemented.');
   }
 
+  /// Sets whether automatic resource management is enabled or disabled for this app.
   Future<void> setAutomaticResourceManagementEnabled(bool enabled) async {
     throw UnimplementedError('setAutomaticResourceManagementEnabled() has not been implemented.');
   }

@@ -4,6 +4,7 @@
 
 part of firebase_core;
 
+/// Represents a single Firebase app instance.
 class FirebaseApp implements FirebaseAppPlatform {
   @deprecated
   FirebaseApp({@required String name}) {
@@ -17,6 +18,10 @@ class FirebaseApp implements FirebaseAppPlatform {
     FirebaseAppPlatform.verifyExtends(_delegate);
   }
 
+  /// Deletes this app and frees up system resources.
+  ///
+  /// Once deleted, any plugin functionality using this app instance will throw
+  /// an error.
   Future<void> delete() async {
     await _delegate.delete();
   }
@@ -49,20 +54,30 @@ class FirebaseApp implements FirebaseAppPlatform {
     return defaultFirebaseAppName;
   }
 
+  /// Returns the name of this app.
   @override
   String get name => _delegate.name;
 
+  /// Returns the [FirebaseOptions] this app was created with.
   @override
   FirebaseOptions get options => _delegate.options;
 
+  /// Returns whether automatic data collection is enabled or disabled for this
+  /// app.
   @override
   bool get isAutomaticDataCollectionEnabled => _delegate.isAutomaticDataCollectionEnabled;
 
+  /// Sets whether automatic data collection is enabled or disabled for this
+  /// app.
+  ///
+  /// To check whether it is currently enabled or not, call [isAutomaticDataCollectionEnabled].
   @override
   Future<void> setAutomaticDataCollectionEnabled(bool enabled) {
     return _delegate.setAutomaticDataCollectionEnabled(enabled);
   }
 
+  /// Sets whether automatic resource management is enabled or disabled for this
+  /// app.
   @override
   Future<void> setAutomaticResourceManagementEnabled(bool enabled) {
     return _delegate.setAutomaticResourceManagementEnabled(enabled);

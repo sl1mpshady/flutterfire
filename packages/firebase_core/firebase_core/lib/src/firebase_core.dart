@@ -7,20 +7,32 @@ part of firebase_core;
 class FirebaseCore implements FirebaseCorePlatform {
   FirebaseCorePlatform _delegate = FirebaseCorePlatform.instance;
 
+  /// Returns this entry point for accessing the class.
   static FirebaseCore get instance => FirebaseCore();
 
+  /// Returns a list of all [FirebaseApp] instances that have been created.
   List<FirebaseApp> get apps {
     return _delegate.apps
         .map((app) => FirebaseApp._(app))
         .toList(growable: false);
   }
 
+  /// Initializes a new [FirebaseApp] instance by [name] and [options] and returns
+  /// the created app. This method should be called before any usage of FlutterFire plugins.
+  ///
+  /// The default app instance cannot be initialized here and should be created
+  /// using the platform Firebase integration.
   Future<FirebaseApp> initializeApp(
       {String name, FirebaseOptions options}) async {
-    FirebaseAppPlatform app = await _delegate.initializeApp();
+    FirebaseAppPlatform app =
+        await _delegate.initializeApp(name: name, options: options);
     return FirebaseApp._(app);
   }
 
+  /// Returns a [FirebaseApp] instance.
+  ///
+  /// If no name is provided, the default app instance is returned.
+  /// Throws if the app does not exist.
   FirebaseApp app([String name = defaultFirebaseAppName]) {
     FirebaseAppPlatform app = _delegate.app(name);
     return app == null ? null : FirebaseApp._(app);

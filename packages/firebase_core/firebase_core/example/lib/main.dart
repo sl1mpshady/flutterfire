@@ -16,24 +16,31 @@ class MyApp extends StatelessWidget {
     apiKey: 'AIzaSyBq6mcufFXfyqr79uELCiqM_O_1-G72PVU',
   );
 
-  Future<void> _configure() async {
-    final FirebaseApp app = await FirebaseApp.configure(
-      name: name,
-      options: options,
-    );
+  Future<void> _initialize() async {
+    FirebaseApp app = await FirebaseCore.instance.initializeApp(
+          name: name,
+          options: options
+      );
+
     assert(app != null);
-    print('Configured $app');
+    print('Initialized $app');
   }
 
-  Future<void> _allApps() async {
-    final List<FirebaseApp> apps = await FirebaseApp.allApps();
-    print('Currently configured apps: $apps');
+  Future<void> _apps() async {
+    final List<FirebaseApp> apps = await FirebaseCore.instance.apps;
+    print('Currently initialized apps: $apps');
   }
 
   Future<void> _options() async {
-    final FirebaseApp app = await FirebaseApp.appNamed(name);
+    final FirebaseApp app = await FirebaseCore.instance.app(name);
     final FirebaseOptions options = await app?.options;
     print('Current options for app $name: $options');
+  }
+
+  Future<void> _delete() async {
+    final FirebaseApp app = await FirebaseCore.instance.app(name);
+    await app?.delete();
+    print('App $name deleted');
   }
 
   @override
@@ -49,10 +56,10 @@ class MyApp extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              RaisedButton(
-                  onPressed: _configure, child: const Text('initialize')),
-              RaisedButton(onPressed: _allApps, child: const Text('allApps')),
-              RaisedButton(onPressed: _options, child: const Text('options')),
+              RaisedButton(onPressed: _initialize, child: const Text('Initialize app')),
+              RaisedButton(onPressed: _apps, child: const Text('Get apps')),
+              RaisedButton(onPressed: _options, child: const Text('List options')),
+              RaisedButton(onPressed: _delete, child: const Text('Delete app')),
             ],
           ),
         ),

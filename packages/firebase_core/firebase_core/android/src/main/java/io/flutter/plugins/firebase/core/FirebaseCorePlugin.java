@@ -79,15 +79,17 @@ public class FirebaseCorePlugin
           String name = (String) Objects.requireNonNull(arguments.get("name"));
           Map<String, String> optionsMap =
               (Map<String, String>) Objects.requireNonNull(arguments.get("options"));
+
           FirebaseOptions options =
               new FirebaseOptions.Builder()
-                  .setApiKey(Objects.requireNonNull(optionsMap.get("APIKey")))
-                  .setApplicationId(Objects.requireNonNull(optionsMap.get("googleAppID")))
+                  .setApiKey(Objects.requireNonNull(optionsMap.get("apiKey")))
+                  .setApplicationId(Objects.requireNonNull(optionsMap.get("appId")))
                   .setDatabaseUrl(optionsMap.get("databaseURL"))
-                  .setGcmSenderId(optionsMap.get("GCMSenderID"))
-                  .setProjectId(optionsMap.get("projectID"))
+                  .setGcmSenderId(optionsMap.get("messagingSenderId"))
+                  .setProjectId(optionsMap.get("projectId"))
                   .setStorageBucket(optionsMap.get("storageBucket"))
                   .build();
+
           FirebaseApp firebaseApp = FirebaseApp.initializeApp(applicationContext, options, name);
           return Tasks.await(FirebasePluginRegistry.getPluginConstantsForFirebaseApp(firebaseApp));
         });
@@ -105,12 +107,12 @@ public class FirebaseCorePlugin
             Map<String, String> optionsMap = new HashMap<>();
             FirebaseOptions options = firebaseApp.getOptions();
 
-            optionsMap.put("googleAppID", options.getApplicationId());
-            optionsMap.put("GCMSenderID", options.getGcmSenderId());
-            optionsMap.put("APIKey", options.getApiKey());
+            optionsMap.put("apiKey", options.getApiKey());
+            optionsMap.put("appId", options.getApplicationId());
+            optionsMap.put("messagingSenderId", options.getGcmSenderId());
+            optionsMap.put("projectId", options.getProjectId());
             optionsMap.put("databaseURL", options.getDatabaseUrl());
             optionsMap.put("storageBucket", options.getStorageBucket());
-            optionsMap.put("projectID", options.getProjectId());
 
             appMap.put("name", firebaseApp.getName());
             appMap.put(

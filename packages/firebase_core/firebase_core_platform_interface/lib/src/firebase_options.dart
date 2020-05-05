@@ -20,10 +20,19 @@ class FirebaseOptions {
     this.deepLinkURLScheme,
     this.androidClientID,
     this.iosBundleId,
-  })  : assert(apiKey != null),
-        assert(appId != null),
-        assert(messagingSenderId != null),
-        assert(projectId != null);
+    // deprecated
+    @deprecated this.googleAppID,
+    @deprecated this.projectID,
+    @deprecated this.bundleID,
+    @deprecated this.clientID,
+    @deprecated this.trackingID,
+    @deprecated this.gcmSenderID,
+  })  {
+    assert(apiKey != null);
+    assert(appId != null);
+    assert(messagingSenderId != null);
+    assert(projectId != null);
+  }
 
   /// Named constructor to create [FirebaseOptions] from a Map.
   FirebaseOptions.fromMap(Map<dynamic, dynamic> map)
@@ -42,7 +51,13 @@ class FirebaseOptions {
         trackingId = map['trackingId'],
         deepLinkURLScheme = map['deepLinkURLScheme'],
         androidClientID = map['androidClientID'],
-        iosBundleId = map['iosBundleId'];
+        iosBundleId = map['iosBundleId'],
+        trackingID = map['trackingId'],
+        googleAppID = map['appId'],
+        projectID = map['projectId'],
+        bundleID = map['iosBundleId'],
+        clientID = map['androidClientID'],
+        gcmSenderID = map['messagingSenderId'];
 
   /// An API key used for authenticating requests from your app, for example
   /// "AIzaSyDdVgKwhZl0sTTTLZ7iTmt1r3N2cJLnaDk", used to identify your app to
@@ -98,20 +113,38 @@ class FirebaseOptions {
   /// This property is used on iOS only.
   final String iosBundleId;
 
+  @Deprecated("Deprecated in favor of appId")
+  final String googleAppID;
+
+  @Deprecated("Deprecated in favor of projectId")
+  final String projectID;
+
+  @Deprecated("Deprecated in favor of iosBundleId")
+  final String bundleID;
+
+  @Deprecated("Deprecated in favor of androidClientId")
+  final String clientID;
+
+  @Deprecated("Deprecated in favor of trackingId")
+  final String trackingID;
+
+  @Deprecated("Deprecated in favor of messagingSenderId")
+  final String gcmSenderID;
+
   Map<String, String> get asMap {
     return <String, String>{
-      'apiKey': apiKey,
+      'apiKey': googleAppID ?? apiKey,
       'appId': appId,
-      'messagingSenderId': messagingSenderId,
-      'projectId': projectId,
+      'messagingSenderId': gcmSenderID ?? messagingSenderId,
+      'projectId': projectID ?? projectId,
       'authDomain': authDomain,
       'databaseURL': databaseURL,
       'storageBucket': storageBucket,
       'measurementId': measurementId,
-      'trackingId': trackingId,
+      'trackingId': trackingID ?? trackingId,
       'deepLinkURLScheme': deepLinkURLScheme,
-      'androidClientID': androidClientID,
-      'iosBundleId': iosBundleId,
+      'androidClientID': clientID ?? androidClientID,
+      'iosBundleId': bundleID ?? iosBundleId,
     };
   }
 
@@ -135,22 +168,7 @@ class FirebaseOptions {
 
   @override
   int get hashCode {
-    return hashObjects(
-      <String>[
-        apiKey,
-        appId,
-        messagingSenderId,
-        projectId,
-        authDomain,
-        databaseURL,
-        storageBucket,
-        measurementId,
-        trackingId,
-        deepLinkURLScheme,
-        androidClientID,
-        iosBundleId,
-      ],
-    );
+    return hashObjects(asMap.entries);
   }
 
   @override

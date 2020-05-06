@@ -16,14 +16,6 @@ void main() {
       expect(FirebaseCorePlatform.instance, isA<MethodChannelFirebaseCore>());
     });
 
-    test('should create apps for natively initialized apps', () {
-      return null;
-    });
-
-    test('natively initialized apps should have options available in dart', () {
-      return null;
-    });
-
     test('Can be extended', () {
       FirebaseCorePlatform.instance = ExtendsFirebaseCorePlatform();
     });

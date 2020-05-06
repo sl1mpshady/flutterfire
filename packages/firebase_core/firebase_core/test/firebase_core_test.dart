@@ -57,7 +57,7 @@ void main() {
         return app;
       });
 
-      when(mock.apps).thenAnswer((_) => <FirebaseAppPlatform>[app]);
+      when(mock.apps).thenAnswer((_) => <FirebaseApp>[app]);
     });
 
     test('should initialize dynamic apps', () async {

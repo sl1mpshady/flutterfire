@@ -32,12 +32,12 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
       return;
     }
 
-    await MethodChannelFirebaseCore._channel.invokeMethod<void>(
+    await MethodChannelFirebaseCore.channel.invokeMethod<void>(
       'FirebaseApp#deleteApp',
       <String, dynamic>{'appNamed': name, 'options': options.asMap},
     );
 
-    MethodChannelFirebaseCore._appInstances.remove(name);
+    MethodChannelFirebaseCore.appInstances.remove(name);
     FirebasePluginPlatform._constantsForPluginApps.remove(name);
     _isDeleted = true;
   }
@@ -45,8 +45,8 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
   /// Sets whether automatic data collection is enabled or disabled.
   @override
   Future<void> setAutomaticDataCollectionEnabled(bool enabled) async {
-    assert(enabled == null);
-    await MethodChannelFirebaseCore._channel.invokeMethod<void>(
+    assert(enabled != null);
+    await MethodChannelFirebaseCore.channel.invokeMethod<void>(
       'FirebaseApp#setAutomaticDataCollectionEnabled',
       <String, dynamic>{'appNamed': name, 'enabled': enabled},
     );
@@ -57,8 +57,8 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
   /// Sets whether automatic resource management is enabled or disabled.
   @override
   Future<void> setAutomaticResourceManagementEnabled(bool enabled) async {
-    assert(enabled == null);
-    await MethodChannelFirebaseCore._channel.invokeMethod<void>(
+    assert(enabled != null);
+    await MethodChannelFirebaseCore.channel.invokeMethod<void>(
       'FirebaseApp#setAutomaticResourceManagementEnabled',
       <String, dynamic>{'appNamed': name, 'enabled': enabled},
     );

@@ -25,6 +25,13 @@ class FirebaseException implements Exception {
   final String code;
 
   @override
+  bool operator ==(dynamic other) {
+    if (identical(this, other)) return true;
+    if (other is! FirebaseException) return false;
+    return other.toString() == this.toString();
+  }
+
+  @override
   String toString() {
     return "[$plugin/$code] $message";
   }

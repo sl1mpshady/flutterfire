@@ -13,17 +13,10 @@ void main() {
     final List<MethodCall> methodCallLog = <MethodCall>[];
 
     const FirebaseOptions testOptions = FirebaseOptions(
-      apiKey: 'testAPIKey',
-      bundleID: 'testBundleID',
-      clientID: 'testClientID',
-      trackingID: 'testTrackingID',
-      gcmSenderID: 'testGCMSenderID',
-      projectID: 'testProjectID',
-      androidClientID: 'testAndroidClientID',
-      googleAppID: 'testGoogleAppID',
-      databaseURL: 'testDatabaseURL',
-      deepLinkURLScheme: 'testDeepLinkURLScheme',
-      storageBucket: 'testStorageBucket',
+      apiKey: 'testing',
+      appId: 'testing',
+      messagingSenderId: 'testing',
+      projectId: 'testing',
     );
 
     final MethodChannelFirebaseApp methodChannelFirebaseApp =

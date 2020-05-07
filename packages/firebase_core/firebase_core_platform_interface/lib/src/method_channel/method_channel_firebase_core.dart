@@ -72,6 +72,7 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
       MethodChannelFirebaseApp defaultApp =
           appInstances[defaultFirebaseAppName];
 
+      // TODO should this throw?
       if (defaultApp == null) {
         throw coreNotInitialized();
       }

@@ -82,4 +82,17 @@ class FirebaseApp implements FirebaseAppPlatform {
   Future<void> setAutomaticResourceManagementEnabled(bool enabled) {
     return _delegate.setAutomaticResourceManagementEnabled(enabled);
   }
+
+  @override
+  bool operator ==(dynamic other) {
+    if (identical(this, other)) return true;
+    if (other is! FirebaseAppPlatform) return false;
+    return other.name == name && other.options == options;
+  }
+
+  @override
+  int get hashCode => hash2(name, options);
+
+  @override
+  String toString() => '$FirebaseApp($name)';
 }

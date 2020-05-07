@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 @TestOn('browser')
-
 import 'dart:js' as js;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -53,15 +52,20 @@ void main() {
       });
       js.context['firebase']['initializeApp'] =
           js.allowInterop((js.JsObject options, String name) {
-        appConfigured = true;
-        return js.JsObject.jsify(<String, dynamic>{
-          'name': name,
-          'options': options,
-        });
-      });
+            appConfigured = true;
+            return js.JsObject.jsify(<String, dynamic>{
+              'name': name,
+              'options': options,
+            });
+          });
       final FirebaseApp app = await FirebaseApp.configure(
         name: 'foo',
-        options: const FirebaseOptions(googleAppID: '123'),
+        options: const FirebaseOptions(
+          apiKey: 'testing',
+          appId: 'testing',
+          messagingSenderId: 'testing',
+          projectId: 'testing',
+        ),
       );
       expect(app.name, equals('foo'));
 

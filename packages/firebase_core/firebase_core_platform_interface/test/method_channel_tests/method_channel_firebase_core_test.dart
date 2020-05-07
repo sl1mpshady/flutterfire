@@ -15,17 +15,10 @@ void main() {
     final List<MethodCall> methodCallLog = <MethodCall>[];
 
     const FirebaseOptions testOptions = FirebaseOptions(
-      apiKey: 'testAPIKey',
-      bundleID: 'testBundleID',
-      clientID: 'testClientID',
-      trackingID: 'testTrackingID',
-      gcmSenderID: 'testGCMSenderID',
-      projectID: 'testProjectID',
-      androidClientID: 'testAndroidClientID',
-      googleAppID: 'testGoogleAppID',
-      databaseURL: 'testDatabaseURL',
-      deepLinkURLScheme: 'testDeepLinkURLScheme',
-      storageBucket: 'testStorageBucket',
+      apiKey: 'testing',
+      appId: 'testing',
+      messagingSenderId: 'testing',
+      projectId: 'testing',
     );
 
     setUp(() async {
@@ -42,17 +35,10 @@ void main() {
               {
                 'name': defaultFirebaseAppName,
                 'options': <dynamic, dynamic>{
-                  'APIKey': 'testAPIKey',
-                  'bundleID': 'testBundleID',
-                  'clientID': 'testClientID',
-                  'trackingID': 'testTrackingID',
-                  'GCMSenderID': 'testGCMSenderID',
-                  'projectID': 'testProjectID',
-                  'androidClientID': 'testAndroidClientID',
-                  'googleAppID': 'testGoogleAppID',
-                  'databaseURL': 'testDatabaseURL',
-                  'deepLinkURLScheme': 'testDeepLinkURLScheme',
-                  'storageBucket': 'testStorageBucket',
+                  'apiKey': 'testAPIKey',
+                  'appId': 'testBundleID',
+                  'messagingSenderId': 'testClientID',
+                  'projectId': 'testTrackingID',
                 },
               }
             ];
@@ -60,17 +46,10 @@ void main() {
             return <dynamic, dynamic>{
               'name': methodCall.arguments['name'] ?? defaultFirebaseAppName,
               'options': <dynamic, dynamic>{
-                'APIKey': 'testAPIKey',
-                'bundleID': 'testBundleID',
-                'clientID': 'testClientID',
-                'trackingID': 'testTrackingID',
-                'GCMSenderID': 'testGCMSenderID',
-                'projectID': 'testProjectID',
-                'androidClientID': 'testAndroidClientID',
-                'googleAppID': 'testGoogleAppID',
-                'databaseURL': 'testDatabaseURL',
-                'deepLinkURLScheme': 'testDeepLinkURLScheme',
-                'storageBucket': 'testStorageBucket',
+                'apiKey': 'testAPIKey',
+                'appId': 'testBundleID',
+                'messagingSenderId': 'testClientID',
+                'projectId': 'testTrackingID',
               },
             };
           default:

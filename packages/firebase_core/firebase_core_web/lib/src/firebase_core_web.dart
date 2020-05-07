@@ -26,15 +26,16 @@ class FirebaseCoreWeb extends FirebaseCorePlatform {
       app = firebase.initializeApp(
         name: name,
         apiKey: options.apiKey,
+        authDomain: options.authDomain,
         databaseURL: options.databaseURL,
-        projectId: options.projectID,
+        projectId: options.projectId,
         storageBucket: options.storageBucket,
-        messagingSenderId: options.gcmSenderID,
-        measurementId: options.trackingID,
-        appId: options.googleAppID,
+        messagingSenderId: options.messagingSenderId,
+        appId: options.appId,
+        measurementId: options.measurementId,
       );
     } catch (e) {
-      // TODO...
+      // TODO catch & log error
     }
 
     return _createFromJsApp(app);

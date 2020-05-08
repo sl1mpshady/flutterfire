@@ -89,9 +89,10 @@ public class FirebaseCorePlugin
           optionsMap.put("storageBucket", options.getStorageBucket());
 
           appMap.put("name", firebaseApp.getName());
-          appMap.put(
-              "isDataCollectionDefaultEnabled", firebaseApp.isDataCollectionDefaultEnabled());
           appMap.put("options", optionsMap);
+
+          appMap.put(
+              "isAutomaticDataCollectionEnabled", firebaseApp.isDataCollectionDefaultEnabled());
           appMap.put(
               "pluginConstants",
               Tasks.await(FirebasePluginRegistry.getPluginConstantsForFirebaseApp(firebaseApp)));
@@ -104,7 +105,7 @@ public class FirebaseCorePlugin
     return Tasks.call(
         Executors.newSingleThreadExecutor(),
         () -> {
-          String name = (String) Objects.requireNonNull(arguments.get("name"));
+          String name = (String) Objects.requireNonNull(arguments.get("appName"));
           Map<String, String> optionsMap =
               (Map<String, String>) Objects.requireNonNull(arguments.get("options"));
 
@@ -192,7 +193,7 @@ public class FirebaseCorePlugin
       case "FirebaseApp#setAutomaticResourceManagementEnabled":
         methodCallTask = setAutomaticResourceManagementEnabled(call.arguments());
         break;
-      case "FirebaseApp#deleteApp":
+      case "FirebaseApp#delete":
         methodCallTask = deleteApp(call.arguments());
         break;
       default:

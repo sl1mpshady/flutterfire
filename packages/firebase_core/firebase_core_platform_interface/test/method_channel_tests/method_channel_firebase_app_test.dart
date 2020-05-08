@@ -64,7 +64,7 @@ void main() {
             isMethodCall(
               'FirebaseApp#setAutomaticDataCollectionEnabled',
               arguments: <String, dynamic>{
-                'appNamed': 'foo',
+                'appName': 'foo',
                 'enabled': true,
               },
             ),
@@ -86,7 +86,7 @@ void main() {
             isMethodCall(
               'FirebaseApp#setAutomaticResourceManagementEnabled',
               arguments: <String, dynamic>{
-                'appNamed': 'foo',
+                'appName': 'foo',
                 'enabled': true,
               },
             ),
@@ -119,9 +119,9 @@ void main() {
           methodCallLog,
           <Matcher>[
             isMethodCall(
-              'FirebaseApp#deleteApp',
+              'FirebaseApp#delete',
               arguments: <String, dynamic>{
-                'appNamed': 'foo',
+                'appName': 'foo',
                 'options': testOptions.asMap,
               },
             ),

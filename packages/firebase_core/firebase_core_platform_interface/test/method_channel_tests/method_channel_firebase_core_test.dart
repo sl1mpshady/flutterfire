@@ -150,14 +150,14 @@ void main() {
               isMethodCall(
                 'FirebaseCore#initializeApp',
                 arguments: <String, dynamic>{
-                  'name': 'foo',
+                  'appName': 'foo',
                   'options': testOptions.asMap,
                 },
               ),
               isMethodCall(
                 'FirebaseCore#initializeApp',
                 arguments: <String, dynamic>{
-                  'name': 'bar',
+                  'appName': 'bar',
                   'options': testOptions.asMap,
                 },
               ),

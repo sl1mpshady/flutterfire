@@ -44,4 +44,16 @@ void main() {
     await app.delete();
     expect(core.apps.length, 1);
   });
+
+  testWidgets('FirebaseApp.setAutomaticDataCollectionEnabled()', (WidgetTester tester) async {
+    FirebaseApp app = core.app(testAppName);
+    bool enabled = app.isAutomaticDataCollectionEnabled;
+    await app.setAutomaticDataCollectionEnabled(!enabled);
+    expect(app.isAutomaticDataCollectionEnabled, !enabled);
+  });
+
+  testWidgets('FirebaseApp.setAutomaticResourceManagementEnabled()', (WidgetTester tester) async {
+    FirebaseApp app = core.app(testAppName);
+    await app.setAutomaticResourceManagementEnabled(true);
+  });
 }

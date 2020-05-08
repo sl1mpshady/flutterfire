@@ -38,7 +38,10 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
   void _initializeFirebaseAppFromMap(Map<dynamic, dynamic> map) {
     MethodChannelFirebaseApp methodChannelFirebaseApp =
         MethodChannelFirebaseApp(
-            map['name'], FirebaseOptions.fromMap(map['options']));
+      map['name'],
+      FirebaseOptions.fromMap(map['options']),
+      isAutomaticDataCollectionEnabled: map['isAutomaticDataCollectionEnabled'],
+    );
 
     MethodChannelFirebaseCore.appInstances[methodChannelFirebaseApp.name] =
         methodChannelFirebaseApp;
@@ -72,7 +75,7 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
       MethodChannelFirebaseApp defaultApp =
           appInstances[defaultFirebaseAppName];
 
-      // TODO should this throw?
+      // TODO(ehesp): should this throw?
       if (defaultApp == null) {
         throw coreNotInitialized();
       }
@@ -90,7 +93,7 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
 
     _initializeFirebaseAppFromMap(await channel.invokeMapMethod(
       'FirebaseCore#initializeApp',
-      <String, dynamic>{'name': name, 'options': options.asMap},
+      <String, dynamic>{'appName': name, 'options': options.asMap},
     ));
 
     return appInstances[name];

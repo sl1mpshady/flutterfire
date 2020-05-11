@@ -24,12 +24,13 @@ FirebaseAppPlatform _createFromJsApp(firebase.App jsApp) {
 FirebaseOptions _createFromJsOptions(firebase.FirebaseOptions options) {
   return FirebaseOptions(
     apiKey: options.apiKey,
-    trackingID: options.measurementId,
-    gcmSenderID: options.messagingSenderId,
-    projectID: options.projectId,
-    googleAppID: options.appId,
+    authDomain: options.authDomain,
     databaseURL: options.databaseURL,
+    projectId: options.projectId,
     storageBucket: options.storageBucket,
+    messagingSenderId: options.messagingSenderId,
+    appId: options.appId,
+    measurementId: options.measurementId,
   );
 }
 

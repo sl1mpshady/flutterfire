@@ -25,7 +25,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-# For information on the generic Dart part of this file, see the
+dependency_overrides:
+  firebase_core_platform_interface:
+    path: "../../firebase_core_platform_interface"
+
+# For information on the generic Dartn part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter.

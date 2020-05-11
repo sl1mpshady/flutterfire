@@ -6,17 +6,17 @@ part of firebase_core_platform_interface;
 
 class MethodChannelFirebaseCore extends FirebaseCorePlatform {
   /// Tracks local [MethodChannelFirebaseApp] instances.
-  static Map<String, MethodChannelFirebaseApp> _appInstances = {};
+  @visibleForTesting
+  static Map<String, MethodChannelFirebaseApp> appInstances = {};
 
   /// Keeps track of whether users have initialized core.
-  static bool _isCoreInitialized = false;
+  @visibleForTesting
+  static bool isCoreInitialized = false;
 
-  static const MethodChannel _channel = MethodChannel(
+  @visibleForTesting
+  static const MethodChannel channel = MethodChannel(
     'plugins.flutter.io/firebase_core',
   );
-
-  /// Returns the [MethodChannelFirebaseCore] [MethodChannel] instance.
-  MethodChannel get channel => _channel;
 
   /// Calls the native FirebaseCore#initializeCore method.
   ///
@@ -25,12 +25,12 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
   /// any Firebase apps created natively and any constants which are required
   /// for a plugin to function correctly before usage.
   Future<void> _initializeCore() async {
-    List<Map> apps = await _channel.invokeListMethod<Map>(
+    List<Map> apps = await channel.invokeListMethod<Map>(
       'FirebaseCore#initializeCore',
     );
 
     apps.forEach(_initializeFirebaseAppFromMap);
-    _isCoreInitialized = true;
+    isCoreInitialized = true;
   }
 
   /// Creates and attaches a new [MethodChannelFirebaseApp] to the [MethodChannelFirebaseCore]
@@ -38,9 +38,12 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
   void _initializeFirebaseAppFromMap(Map<dynamic, dynamic> map) {
     MethodChannelFirebaseApp methodChannelFirebaseApp =
         MethodChannelFirebaseApp(
-            map['name'], FirebaseOptions.fromMap(map['options']));
+      map['name'],
+      FirebaseOptions.fromMap(map['options']),
+      isAutomaticDataCollectionEnabled: map['isAutomaticDataCollectionEnabled'],
+    );
 
-    MethodChannelFirebaseCore._appInstances[methodChannelFirebaseApp.name] =
+    MethodChannelFirebaseCore.appInstances[methodChannelFirebaseApp.name] =
         methodChannelFirebaseApp;
 
     FirebasePluginPlatform
@@ -51,7 +54,7 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
   /// Returns the created [FirebaseAppPlatform] instances.
   @override
   List<FirebaseAppPlatform> get apps {
-    return _appInstances.values.toList(growable: false);
+    return appInstances.values.toList(growable: false);
   }
 
   /// Initializes a Firebase app instance.
@@ -64,34 +67,36 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
       throw noDefaultAppInitialization();
     }
 
-    if (!_isCoreInitialized) {
+    if (!isCoreInitialized) {
       await _initializeCore();
     }
 
     if (name == null) {
       MethodChannelFirebaseApp defaultApp =
-          _appInstances[defaultFirebaseAppName];
+          appInstances[defaultFirebaseAppName];
 
+      // TODO(ehesp): should this throw?
       if (defaultApp == null) {
         throw coreNotInitialized();
       }
 
-      return _appInstances[defaultFirebaseAppName];
+      return appInstances[defaultFirebaseAppName];
     }
 
-    assert(options != null);
+    assert(options != null,
+        "FirebaseOptions cannot be null when creating a secondary Firebase app.");
 
     // Check whether the app has already been initialized
-    if (_appInstances.containsKey(name)) {
-      return _appInstances[name];
+    if (appInstances.containsKey(name)) {
+      return appInstances[name];
     }
 
-    _initializeFirebaseAppFromMap(await _channel.invokeMapMethod(
+    _initializeFirebaseAppFromMap(await channel.invokeMapMethod(
       'FirebaseCore#initializeApp',
-      <String, dynamic>{'name': name, 'options': options.asMap},
+      <String, dynamic>{'appName': name, 'options': options.asMap},
     ));
 
-    return _appInstances[name];
+    return appInstances[name];
   }
 
   /// Returns a [FirebaseAppPlatform] by [name].
@@ -100,8 +105,8 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
   /// [FirebaseException] if no app with the [name] has been created.
   @override
   FirebaseAppPlatform app([String name = defaultFirebaseAppName]) {
-    if (_appInstances.containsKey(name)) {
-      return _appInstances[name];
+    if (appInstances.containsKey(name)) {
+      return appInstances[name];
     }
 
     throw noAppExists(name);

@@ -5,13 +5,19 @@
 part of firebase_core_platform_interface;
 
 class MethodChannelFirebaseApp extends FirebaseAppPlatform {
-  MethodChannelFirebaseApp(String name, FirebaseOptions options)
-      : super(name, options);
+  MethodChannelFirebaseApp(
+    String name,
+    FirebaseOptions options, {
+    isAutomaticDataCollectionEnabled,
+  }) : super(name, options) {
+    _isAutomaticDataCollectionEnabled = isAutomaticDataCollectionEnabled ?? false;
+  }
 
   /// Keeps track of whether this app has been deleted by the user.
   bool _isDeleted = false;
 
-  bool _isAutomaticDataCollectionEnabled = false; // todo from constants
+  ///
+  bool _isAutomaticDataCollectionEnabled;
 
   /// Returns whether automatic data collection enabled or disabled.
   @override
@@ -32,12 +38,12 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
       return;
     }
 
-    await MethodChannelFirebaseCore._channel.invokeMethod<void>(
-      'FirebaseApp#deleteApp',
-      <String, dynamic>{'appNamed': name, 'options': options.asMap},
+    await MethodChannelFirebaseCore.channel.invokeMethod<void>(
+      'FirebaseApp#delete',
+      <String, dynamic>{'appName': name, 'options': options.asMap},
     );
 
-    MethodChannelFirebaseCore._appInstances.remove(name);
+    MethodChannelFirebaseCore.appInstances.remove(name);
     FirebasePluginPlatform._constantsForPluginApps.remove(name);
     _isDeleted = true;
   }
@@ -45,10 +51,10 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
   /// Sets whether automatic data collection is enabled or disabled.
   @override
   Future<void> setAutomaticDataCollectionEnabled(bool enabled) async {
-    assert(enabled == null);
-    await MethodChannelFirebaseCore._channel.invokeMethod<void>(
+    assert(enabled != null);
+    await MethodChannelFirebaseCore.channel.invokeMethod<void>(
       'FirebaseApp#setAutomaticDataCollectionEnabled',
-      <String, dynamic>{'appNamed': name, 'enabled': enabled},
+      <String, dynamic>{'appName': name, 'enabled': enabled},
     );
 
     _isAutomaticDataCollectionEnabled = enabled;
@@ -57,10 +63,10 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
   /// Sets whether automatic resource management is enabled or disabled.
   @override
   Future<void> setAutomaticResourceManagementEnabled(bool enabled) async {
-    assert(enabled == null);
-    await MethodChannelFirebaseCore._channel.invokeMethod<void>(
+    assert(enabled != null);
+    await MethodChannelFirebaseCore.channel.invokeMethod<void>(
       'FirebaseApp#setAutomaticResourceManagementEnabled',
-      <String, dynamic>{'appNamed': name, 'enabled': enabled},
+      <String, dynamic>{'appName': name, 'enabled': enabled},
     );
   }
 }

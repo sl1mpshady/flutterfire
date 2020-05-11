@@ -73,10 +73,39 @@ public class FirebaseCorePlugin
     applicationContext = null;
   }
 
+  private Task<Map<String, Object>> firebaseAppToMap(FirebaseApp firebaseApp) {
+    return Tasks.call(
+        Executors.newSingleThreadExecutor(),
+        () -> {
+          Map<String, Object> appMap = new HashMap<>();
+          Map<String, String> optionsMap = new HashMap<>();
+          FirebaseOptions options = firebaseApp.getOptions();
+
+          optionsMap.put("apiKey", options.getApiKey());
+          optionsMap.put("appId", options.getApplicationId());
+          optionsMap.put("messagingSenderId", options.getGcmSenderId());
+          optionsMap.put("projectId", options.getProjectId());
+          optionsMap.put("databaseURL", options.getDatabaseUrl());
+          optionsMap.put("storageBucket", options.getStorageBucket());
+
+          appMap.put("name", firebaseApp.getName());
+          appMap.put("options", optionsMap);
+
+          appMap.put(
+              "isAutomaticDataCollectionEnabled", firebaseApp.isDataCollectionDefaultEnabled());
+          appMap.put(
+              "pluginConstants",
+              Tasks.await(FirebasePluginRegistry.getPluginConstantsForFirebaseApp(firebaseApp)));
+
+          return appMap;
+        });
+  }
+
   private Task<Map<String, Object>> initializeApp(Map<String, Object> arguments) {
     return Tasks.call(
+        Executors.newSingleThreadExecutor(),
         () -> {
-          String name = (String) Objects.requireNonNull(arguments.get("name"));
+          String name = (String) Objects.requireNonNull(arguments.get("appName"));
           Map<String, String> optionsMap =
               (Map<String, String>) Objects.requireNonNull(arguments.get("options"));
 
@@ -91,7 +120,7 @@ public class FirebaseCorePlugin
                   .build();
 
           FirebaseApp firebaseApp = FirebaseApp.initializeApp(applicationContext, options, name);
-          return Tasks.await(FirebasePluginRegistry.getPluginConstantsForFirebaseApp(firebaseApp));
+          return Tasks.await(firebaseAppToMap(firebaseApp));
         });
   }
 
@@ -103,26 +132,9 @@ public class FirebaseCorePlugin
           List<Map<String, Object>> firebaseAppsList = new ArrayList<>(firebaseApps.size());
 
           for (FirebaseApp firebaseApp : firebaseApps) {
-            Map<String, Object> appMap = new HashMap<>();
-            Map<String, String> optionsMap = new HashMap<>();
-            FirebaseOptions options = firebaseApp.getOptions();
-
-            optionsMap.put("apiKey", options.getApiKey());
-            optionsMap.put("appId", options.getApplicationId());
-            optionsMap.put("messagingSenderId", options.getGcmSenderId());
-            optionsMap.put("projectId", options.getProjectId());
-            optionsMap.put("databaseURL", options.getDatabaseUrl());
-            optionsMap.put("storageBucket", options.getStorageBucket());
-
-            appMap.put("name", firebaseApp.getName());
-            appMap.put(
-                "isDataCollectionDefaultEnabled", firebaseApp.isDataCollectionDefaultEnabled());
-            appMap.put("options", optionsMap);
-            appMap.put(
-                "pluginConstants",
-                Tasks.await(FirebasePluginRegistry.getPluginConstantsForFirebaseApp(firebaseApp)));
-            firebaseAppsList.add(appMap);
+            firebaseAppsList.add(Tasks.await(firebaseAppToMap(firebaseApp)));
           }
+
           return firebaseAppsList;
         });
   }
@@ -181,7 +193,7 @@ public class FirebaseCorePlugin
       case "FirebaseApp#setAutomaticResourceManagementEnabled":
         methodCallTask = setAutomaticResourceManagementEnabled(call.arguments());
         break;
-      case "FirebaseApp#deleteApp":
+      case "FirebaseApp#delete":
         methodCallTask = deleteApp(call.arguments());
         break;
       default:

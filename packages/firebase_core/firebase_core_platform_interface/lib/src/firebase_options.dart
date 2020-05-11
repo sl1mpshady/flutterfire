@@ -6,7 +6,7 @@ part of firebase_core_platform_interface;
 
 /// The options used to configure a Firebase app.
 class FirebaseOptions {
-  FirebaseOptions({
+  const FirebaseOptions({
     @required this.apiKey,
     @required this.appId,
     @required this.messagingSenderId,
@@ -18,7 +18,7 @@ class FirebaseOptions {
     // ios specific
     this.trackingId,
     this.deepLinkURLScheme,
-    this.androidClientID,
+    this.androidClientId,
     this.iosBundleId,
     // deprecated
     @deprecated this.googleAppID,
@@ -27,12 +27,10 @@ class FirebaseOptions {
     @deprecated this.clientID,
     @deprecated this.trackingID,
     @deprecated this.gcmSenderID,
-  })  {
-    assert(apiKey != null);
-    assert(appId != null);
-    assert(messagingSenderId != null);
-    assert(projectId != null);
-  }
+  })  : assert(apiKey != null),
+        assert(appId != null),
+        assert(messagingSenderId != null),
+        assert(projectId != null);
 
   /// Named constructor to create [FirebaseOptions] from a Map.
   FirebaseOptions.fromMap(Map<dynamic, dynamic> map)
@@ -50,7 +48,7 @@ class FirebaseOptions {
         measurementId = map['measurementId'],
         trackingId = map['trackingId'],
         deepLinkURLScheme = map['deepLinkURLScheme'],
-        androidClientID = map['androidClientID'],
+        androidClientId = map['androidClientId'],
         iosBundleId = map['iosBundleId'],
         trackingID = map['trackingId'],
         googleAppID = map['appId'],
@@ -105,7 +103,7 @@ class FirebaseOptions {
   /// The Android client ID from the Firebase Console, for example "12345.apps.googleusercontent.com."
   ///
   /// This value is used by iOS only.
-  final String androidClientID;
+  final String androidClientId;
 
   /// The iOS bundle ID for the application. Defaults to `[[NSBundle mainBundle] bundleID]`
   /// when not set manually or in a plist.
@@ -131,6 +129,7 @@ class FirebaseOptions {
   @Deprecated("Deprecated in favor of messagingSenderId")
   final String gcmSenderID;
 
+  /// Returns this instance into a Map
   Map<String, String> get asMap {
     return <String, String>{
       'apiKey': googleAppID ?? apiKey,
@@ -143,11 +142,12 @@ class FirebaseOptions {
       'measurementId': measurementId,
       'trackingId': trackingID ?? trackingId,
       'deepLinkURLScheme': deepLinkURLScheme,
-      'androidClientID': clientID ?? androidClientID,
+      'androidClientId': clientID ?? androidClientId,
       'iosBundleId': bundleID ?? iosBundleId,
     };
   }
 
+  // Required from `fromMap` comparison
   @override
   bool operator ==(dynamic other) {
     if (identical(this, other)) return true;
@@ -162,7 +162,7 @@ class FirebaseOptions {
         other.measurementId == measurementId &&
         other.trackingId == trackingId &&
         other.deepLinkURLScheme == deepLinkURLScheme &&
-        other.androidClientID == androidClientID &&
+        other.androidClientId == androidClientId &&
         other.iosBundleId == iosBundleId;
   }
 

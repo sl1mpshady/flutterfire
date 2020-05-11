@@ -21,6 +21,7 @@ dependencies:
   firebase_core_platform_interface: ^1.0.4
   flutter:
     sdk: flutter
+  quiver: ">=2.0.0 <3.0.0"
   meta: "^1.0.5"
   # The design on https://flutter.dev/go/federated-plugins was to leave
   # this constraint as "any". We cannot do it right now as it fails pub publish
@@ -37,7 +38,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   mockito: ^4.1.1
-  plugin_platform_interface: ^1.0.2
 
 environment:
   sdk: ">=2.0.0-dev.28.0 <3.0.0"

@@ -11,15 +11,15 @@ static NSDictionary *getDictionaryFromFIROptions(FIROptions *options) {
     return nil;
   }
   return @{
-    @"googleAppID" : options.googleAppID ?: [NSNull null],
-    @"bundleID" : options.bundleID ?: [NSNull null],
-    @"GCMSenderID" : options.GCMSenderID ?: [NSNull null],
-    @"APIKey" : options.APIKey ?: [NSNull null],
-    @"clientID" : options.clientID ?: [NSNull null],
-    @"trackingID" : options.trackingID ?: [NSNull null],
-    @"projectID" : options.projectID ?: [NSNull null],
-    @"androidClientID" : options.androidClientID ?: [NSNull null],
-    @"databaseUrl" : options.databaseURL ?: [NSNull null],
+    @"apiKey" : options.APIKey ?: [NSNull null],
+    @"appId" : options.googleAppID ?: [NSNull null],
+    @"messagingSenderId" : options.GCMSenderID ?: [NSNull null],
+    @"projectId" : options.projectID ?: [NSNull null],
+    @"iosBundleId" : options.bundleID ?: [NSNull null],
+    //@"authDomain" : options.clientID ?: [NSNull null],
+    @"trackingId" : options.trackingID ?: [NSNull null],
+    @"androidClientId" : options.androidClientID ?: [NSNull null],
+    @"databaseURL" : options.databaseURL ?: [NSNull null],
     @"storageBucket" : options.storageBucket ?: [NSNull null],
     @"deepLinkURLScheme" : options.deepLinkURLScheme ?: [NSNull null],
   };
@@ -50,21 +50,22 @@ static NSDictionary *getDictionaryFromFIRApp(FIRApp *app) {
   if ([@"FirebaseApp#configure" isEqualToString:call.method]) {
     NSString *name = call.arguments[@"name"];
     NSDictionary *optionsDictionary = call.arguments[@"options"];
+
     FIROptions *options =
-        [[FIROptions alloc] initWithGoogleAppID:optionsDictionary[@"googleAppID"]
-                                    GCMSenderID:optionsDictionary[@"GCMSenderID"]];
-    if (![optionsDictionary[@"bundleID"] isEqual:[NSNull null]])
-      options.bundleID = optionsDictionary[@"bundleID"];
-    if (![optionsDictionary[@"APIKey"] isEqual:[NSNull null]])
-      options.APIKey = optionsDictionary[@"APIKey"];
-    if (![optionsDictionary[@"clientID"] isEqual:[NSNull null]])
-      options.clientID = optionsDictionary[@"clientID"];
-    if (![optionsDictionary[@"trackingID"] isEqual:[NSNull null]])
-      options.trackingID = optionsDictionary[@"trackingID"];
-    if (![optionsDictionary[@"projectID"] isEqual:[NSNull null]])
-      options.projectID = optionsDictionary[@"projectID"];
-    if (![optionsDictionary[@"androidClientID"] isEqual:[NSNull null]])
-      options.androidClientID = optionsDictionary[@"androidClientID"];
+        [[FIROptions alloc] initWithGoogleAppID:optionsDictionary[@"appId"]
+                                    GCMSenderID:optionsDictionary[@"messagingSenderId"]];
+    if (![optionsDictionary[@"iosBundleId"] isEqual:[NSNull null]])
+      options.bundleID = optionsDictionary[@"iosBundleId"];
+    if (![optionsDictionary[@"apiKey"] isEqual:[NSNull null]])
+      options.APIKey = optionsDictionary[@"apiKey"];
+    //if (![optionsDictionary[@"clientId"] isEqual:[NSNull null]]) // TODO(ehesp): what is this?
+      //options.clientID = optionsDictionary[@"androidClientId"];
+    if (![optionsDictionary[@"trackingId"] isEqual:[NSNull null]])
+      options.trackingID = optionsDictionary[@"trackingId"];
+    if (![optionsDictionary[@"projectId"] isEqual:[NSNull null]])
+      options.projectID = optionsDictionary[@"projectId"];
+    if (![optionsDictionary[@"androidClientId"] isEqual:[NSNull null]])
+      options.androidClientID = optionsDictionary[@"androidClientId"];
     if (![optionsDictionary[@"databaseURL"] isEqual:[NSNull null]])
       options.databaseURL = optionsDictionary[@"databaseURL"];
     if (![optionsDictionary[@"storageBucket"] isEqual:[NSNull null]])

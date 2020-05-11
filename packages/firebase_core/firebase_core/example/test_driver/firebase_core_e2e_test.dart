@@ -4,12 +4,14 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter_driver/flutter_driver.dart';
 
 Future<void> main() async {
   final FlutterDriver driver = await FlutterDriver.connect();
-  final String result =
+  final String resultString =
       await driver.requestData(null, timeout: const Duration(minutes: 1));
   await driver.close();
-  exit(result == 'pass' ? 0 : 1);
+  final  Map result = json.decode(resultString);
+  exit(result['result'] == 'true' ? 0 : 1);
 }

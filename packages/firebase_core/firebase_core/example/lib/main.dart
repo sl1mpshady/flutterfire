@@ -10,10 +10,11 @@ void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   final String name = 'foo';
-  final FirebaseOptions options = const FirebaseOptions(
-    googleAppID: '1:297855924061:ios:c6de2b69b03a5be8',
-    gcmSenderID: '297855924061',
-    apiKey: 'AIzaSyBq6mcufFXfyqr79uELCiqM_O_1-G72PVU',
+  final FirebaseOptions options = FirebaseOptions(
+    appId: '1:448618578101:web:0b650370bb29e29cac3efc',
+    apiKey: 'AIzaSyAgUhHU8wSJgO5MVNy95tMT07NEjzMOfz0',
+    projectId: 'react-native-firebase-testing',
+    messagingSenderId: '448618578101',
   );
 
   Future<void> _initialize() async {

@@ -11,12 +11,11 @@ import 'package:js/js.dart';
 @anonymous
 class FirebaseAppOptionsMock {
   // mock with minimum required fields for testing
-  external factory FirebaseAppOptionsMock({
-    String apiKey,
-    String appId,
-    String messagingSenderId,
-    String projectId
-  });
+  external factory FirebaseAppOptionsMock(
+      {String apiKey,
+      String appId,
+      String messagingSenderId,
+      String projectId});
   external String get apiKey;
   external String get appId;
   external String get messagingSenderId;

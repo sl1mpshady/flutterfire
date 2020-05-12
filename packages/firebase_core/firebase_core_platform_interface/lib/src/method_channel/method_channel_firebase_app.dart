@@ -10,7 +10,8 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
     FirebaseOptions options, {
     isAutomaticDataCollectionEnabled,
   }) : super(name, options) {
-    _isAutomaticDataCollectionEnabled = isAutomaticDataCollectionEnabled ?? false;
+    _isAutomaticDataCollectionEnabled =
+        isAutomaticDataCollectionEnabled ?? false;
   }
 
   /// Keeps track of whether this app has been deleted by the user.

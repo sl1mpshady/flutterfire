@@ -65,7 +65,8 @@ class FirebaseApp implements FirebaseAppPlatform {
   /// Returns whether automatic data collection is enabled or disabled for this
   /// app.
   @override
-  bool get isAutomaticDataCollectionEnabled => _delegate.isAutomaticDataCollectionEnabled;
+  bool get isAutomaticDataCollectionEnabled =>
+      _delegate.isAutomaticDataCollectionEnabled;
 
   /// Sets whether automatic data collection is enabled or disabled for this
   /// app.

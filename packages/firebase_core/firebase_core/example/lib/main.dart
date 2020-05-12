@@ -17,10 +17,8 @@ class MyApp extends StatelessWidget {
   );
 
   Future<void> _initialize() async {
-    FirebaseApp app = await FirebaseCore.instance.initializeApp(
-          name: name,
-          options: options
-      );
+    FirebaseApp app =
+        await FirebaseCore.instance.initializeApp(name: name, options: options);
 
     assert(app != null);
     print('Initialized $app');
@@ -56,9 +54,11 @@ class MyApp extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              RaisedButton(onPressed: _initialize, child: const Text('Initialize app')),
+              RaisedButton(
+                  onPressed: _initialize, child: const Text('Initialize app')),
               RaisedButton(onPressed: _apps, child: const Text('Get apps')),
-              RaisedButton(onPressed: _options, child: const Text('List options')),
+              RaisedButton(
+                  onPressed: _options, child: const Text('List options')),
               RaisedButton(onPressed: _delete, child: const Text('Delete app')),
             ],
           ),

@@ -26,19 +26,21 @@ void main() {
       mock = MockFirebaseCore();
       FirebaseCorePlatform.instance = mock;
 
-      final FirebaseAppPlatform platformApp = FirebaseAppPlatform(testAppName, testOptions);
+      final FirebaseAppPlatform platformApp =
+          FirebaseAppPlatform(testAppName, testOptions);
 
       when(mock.apps).thenReturn([platformApp]);
       when(mock.app(testAppName)).thenReturn(platformApp);
-      when(mock.initializeApp(name: testAppName, options: testOptions)).thenAnswer((_) {
+      when(mock.initializeApp(name: testAppName, options: testOptions))
+          .thenAnswer((_) {
         return Future.value(platformApp);
       });
     });
 
     test('.apps', () {
-        List<FirebaseApp> apps = FirebaseCore.instance.apps;
-        verify(mock.apps);
-        expect(apps[0], FirebaseCore.instance.app(testAppName));
+      List<FirebaseApp> apps = FirebaseCore.instance.apps;
+      verify(mock.apps);
+      expect(apps[0], FirebaseCore.instance.app(testAppName));
     });
 
     test('.app()', () {
@@ -50,10 +52,8 @@ void main() {
     });
 
     test('.initializeApp()', () async {
-      FirebaseApp initializedApp = await FirebaseCore.instance.initializeApp(
-        name: testAppName,
-        options: testOptions
-      );
+      FirebaseApp initializedApp = await FirebaseCore.instance
+          .initializeApp(name: testAppName, options: testOptions);
       FirebaseApp app = FirebaseCore.instance.app(testAppName);
 
       expect(initializedApp, app);
@@ -62,9 +62,6 @@ void main() {
         mock.app(testAppName),
       ]);
     });
-
-
-
 
 //
 //

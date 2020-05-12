@@ -31,4 +31,3 @@ part 'src/platform_interface/platform_interface_firebase_plugin.dart';
 
 /// The default Firebase application name.
 const String defaultFirebaseAppName = '[DEFAULT]';
-

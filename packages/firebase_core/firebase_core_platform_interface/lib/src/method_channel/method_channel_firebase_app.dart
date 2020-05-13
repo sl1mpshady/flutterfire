@@ -4,6 +4,7 @@
 
 part of firebase_core_platform_interface;
 
+/// TODO
 class MethodChannelFirebaseApp extends FirebaseAppPlatform {
   MethodChannelFirebaseApp(
     String name,

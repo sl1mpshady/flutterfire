@@ -4,6 +4,7 @@
 
 part of firebase_core_platform_interface;
 
+/// TODO
 class MethodChannelFirebasePlugin extends FirebasePluginPlatform {
   MethodChannelFirebasePlugin(FirebaseAppPlatform app, String methodChannelName)
       : super(app, methodChannelName);

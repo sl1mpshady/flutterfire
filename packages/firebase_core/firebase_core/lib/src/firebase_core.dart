@@ -4,6 +4,7 @@
 
 part of firebase_core;
 
+/// TODO
 class FirebaseCore implements FirebaseCorePlatform {
   FirebaseCorePlatform _delegate = FirebaseCorePlatform.instance;
 

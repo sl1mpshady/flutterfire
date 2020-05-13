@@ -7,8 +7,10 @@ part of firebase_core;
 class FirebaseCore implements FirebaseCorePlatform {
   FirebaseCorePlatform _delegate = FirebaseCorePlatform.instance;
 
+  FirebaseCore._();
+
   /// Returns this entry point for accessing the class.
-  static FirebaseCore get instance => FirebaseCore();
+  static FirebaseCore get instance => FirebaseCore._();
 
   /// Returns a list of all [FirebaseApp] instances that have been created.
   List<FirebaseApp> get apps {

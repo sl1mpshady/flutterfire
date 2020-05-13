@@ -19,33 +19,21 @@ void main() {
     });
 
     test('should return a formatted message with a custom code', () async {
-      FirebaseException e = FirebaseException(
-        plugin: 'foo',
-        message: 'bar',
-        code: 'baz'
-      );
+      FirebaseException e =
+          FirebaseException(plugin: 'foo', message: 'bar', code: 'baz');
 
       expect(e.toString(), '[foo/baz] bar');
     });
 
     test('should override the == operator', () async {
-      FirebaseException e1 = FirebaseException(
-          plugin: 'foo',
-          message: 'bar',
-          code: 'baz'
-      );
+      FirebaseException e1 =
+          FirebaseException(plugin: 'foo', message: 'bar', code: 'baz');
 
-      FirebaseException e2 = FirebaseException(
-          plugin: 'foo',
-          message: 'bar',
-          code: 'baz'
-      );
+      FirebaseException e2 =
+          FirebaseException(plugin: 'foo', message: 'bar', code: 'baz');
 
-      FirebaseException e3 = FirebaseException(
-          plugin: 'foo',
-          message: 'bar',
-          code: 'baz'
-      );
+      FirebaseException e3 =
+          FirebaseException(plugin: 'foo', message: 'bar', code: 'baz');
 
       expect(e1 == e2, true);
       expect(e1 != e3, false);

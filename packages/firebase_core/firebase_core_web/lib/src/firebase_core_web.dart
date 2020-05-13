@@ -22,20 +22,55 @@ class FirebaseCoreWeb extends FirebaseCorePlatform {
       {String name, FirebaseOptions options}) async {
     firebase.App app;
 
-    try {
-      app = firebase.initializeApp(
-        name: name,
-        apiKey: options.apiKey,
-        authDomain: options.authDomain,
-        databaseURL: options.databaseURL,
-        projectId: options.projectId,
-        storageBucket: options.storageBucket,
-        messagingSenderId: options.messagingSenderId,
-        appId: options.appId,
-        measurementId: options.measurementId,
-      );
-    } catch (e) {
-      // TODO catch & log error
+    if (name == defaultFirebaseAppName) {
+      throw noDefaultAppInitialization();
+    }
+
+    if (name == null) {
+      try {
+        app = firebase.app();
+      } catch (e) {
+        // TODO(ehesp): Catch JsNotLoadedError error once firebase-dart supports
+        // it. See https://github.com/FirebaseExtended/firebase-dart/issues/97
+        if (e.toString().contains("Cannot read property 'app' of undefined")) {
+          throw coreNotInitialized();
+        }
+
+        rethrow;
+      }
+
+      if (app == null) {
+        throw coreNotInitialized();
+      }
+    } else {
+      assert(options != null,
+          "FirebaseOptions cannot be null when creating a secondary Firebase app.");
+
+      try {
+        app = firebase.initializeApp(
+          name: name,
+          apiKey: options.apiKey,
+          authDomain: options.authDomain,
+          databaseURL: options.databaseURL,
+          projectId: options.projectId,
+          storageBucket: options.storageBucket,
+          messagingSenderId: options.messagingSenderId,
+          appId: options.appId,
+          measurementId: options.measurementId,
+        );
+      } catch (e) {
+        // TODO(ehesp): Catch JsNotLoadedError error once firebase-dart supports
+        // it. See https://github.com/FirebaseExtended/firebase-dart/issues/97
+        if (e.toString().contains("Cannot read property 'initializeApp' of undefined")) {
+          throw coreNotInitialized();
+        }
+
+        if (_getJSErrorCode(e) == 'app/duplicate-app') {
+          throw duplicateApp(name);
+        }
+
+        throw _catchJSError(e);
+      }
     }
 
     return _createFromJsApp(app);
@@ -48,6 +83,12 @@ class FirebaseCoreWeb extends FirebaseCorePlatform {
     try {
       app = firebase.app(name);
     } catch (e) {
+      // TODO(ehesp): Catch JsNotLoadedError error once firebase-dart supports
+      // it. See https://github.com/FirebaseExtended/firebase-dart/issues/97
+      if (e.toString().contains("Cannot read property 'app' of undefined")) {
+        throw coreNotInitialized();
+      }
+      
       if (_getJSErrorCode(e) == 'app/no-app') {
         throw noAppExists(name);
       }

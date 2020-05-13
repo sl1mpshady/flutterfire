@@ -35,7 +35,9 @@ void main() {
 
 class ImplementsFirebaseCorePlatform implements FirebaseCorePlatform {
   @override
-  Future<FirebaseAppPlatform> initializeApp({String name, FirebaseOptions options}) => null;
+  Future<FirebaseAppPlatform> initializeApp(
+          {String name, FirebaseOptions options}) =>
+      null;
 
   @override
   FirebaseAppPlatform app([String name = defaultFirebaseAppName]) {

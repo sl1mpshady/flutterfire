@@ -4,7 +4,24 @@
 
 part of firebase_core_platform_interface;
 
-/// Throws a consistent cross-platform error message
+bool _isWeb() {
+  bool isWeb;
+
+  try {
+    if (Platform.isAndroid || Platform.isIOS) {
+      isWeb = false;
+    } else {
+      isWeb = true;
+    }
+  } catch (e) {
+    isWeb = true;
+  }
+
+  return isWeb;
+}
+
+/// Throws a consistent cross-platform error message when usage of an app occurs but
+/// no app has been created.
 FirebaseException noAppExists(String appName) {
   return FirebaseException(
       plugin: 'core',
@@ -13,6 +30,17 @@ FirebaseException noAppExists(String appName) {
           "No Firebase App '${appName}' has been created - call FirebaseCore.instance.initializeApp()");
 }
 
+/// Throws a consistent cross-platform error message when an app is being created
+/// which already exists.
+FirebaseException duplicateApp(String appName) {
+  return FirebaseException(
+      plugin: 'core',
+      code: 'duplicate-app',
+      message: 'A Firebase App named "$appName" already exists');
+}
+
+/// Throws a consistent cross-platform error message if the user attempts to
+/// initialize the default app from FlutterFire.
 FirebaseException noDefaultAppInitialization() {
   return FirebaseException(
       plugin: 'core',
@@ -20,14 +48,40 @@ FirebaseException noDefaultAppInitialization() {
           'The $defaultFirebaseAppName app cannot be initialized here. To initialize the default app, follow the installation instructions for the specific platform you are developing with.');
 }
 
+/// Throws a consistent platform specific error message if the user attempts to
+/// initializes core without it being available on the underlying platform.z
 FirebaseException coreNotInitialized() {
+  String message;
+
+  if (_isWeb()) {
+    message =
+        '''Firebase has not been correctly initialized. Have you added the Firebase import scripts to your index.html file? 
+    
+    View the Web Installation documentation for more information: https://firebaseextended.github.io/flutterfire/docs/installation/web
+    ''';
+  } else if (Platform.isAndroid) {
+    message =
+        '''Firebase has not been correctly initialized. Have you added the "google-services.json" file to the project? 
+    
+    View the Android Installation documentation for more information: https://firebaseextended.github.io/flutterfire/docs/installation/android
+    ''';
+  } else if (Platform.isIOS) {
+    message =
+        '''Firebase has not been correctly initialized. Have you added the "GoogleService-Info.plist" file to the project? 
+    
+    View the iOS Installation documentation for more information: https://firebaseextended.github.io/flutterfire/docs/installation/ios
+    ''';
+  } else {
+    message =
+        'Firebase has not been initialized. Please check the documentation for your platform.';
+  }
+
   return FirebaseException(
-      plugin: 'core',
-      code: 'not-initialized',
-      message:
-          'Firebase has not been initialized for this application. Please view the getting started documentation (https://firebaseextended.github.io/flutterfire/docs/overview) to learn how to initialize Firebase for your platform.');
+      plugin: 'core', code: 'not-initialized', message: message);
 }
 
+/// Throws a consistent cross-platform error message if the user attempts
+/// to delete the default app.
 FirebaseException noDefaultAppDelete() {
   return FirebaseException(
       plugin: 'core',

@@ -6,6 +6,7 @@
 library firebase_core_platform_interface;
 
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';

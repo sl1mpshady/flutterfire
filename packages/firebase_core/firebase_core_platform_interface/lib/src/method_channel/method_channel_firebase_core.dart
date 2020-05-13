@@ -75,7 +75,6 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
       MethodChannelFirebaseApp defaultApp =
           appInstances[defaultFirebaseAppName];
 
-      // TODO(ehesp): should this throw?
       if (defaultApp == null) {
         throw coreNotInitialized();
       }
@@ -88,7 +87,7 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
 
     // Check whether the app has already been initialized
     if (appInstances.containsKey(name)) {
-      return appInstances[name];
+      throw duplicateApp(name);
     }
 
     _initializeFirebaseAppFromMap(await channel.invokeMapMethod(

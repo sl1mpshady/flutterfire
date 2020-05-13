@@ -109,7 +109,7 @@ void main() {
 
         test('should throw if no default app is available', () async {
           try {
-             await channelPlatform.initializeApp();
+            await channelPlatform.initializeApp();
           } on FirebaseException catch (e) {
             expect(e, coreNotInitialized());
             return;
@@ -117,7 +117,6 @@ void main() {
 
           fail("FirebaseException not thrown");
         });
-
       });
 
       group('secondary apps', () {
@@ -182,9 +181,7 @@ void main() {
 
       test('should remove a deleted app from the List', () async {
         FirebaseAppPlatform app = await channelPlatform.initializeApp(
-          name: 'foo',
-          options: testOptions
-        );
+            name: 'foo', options: testOptions);
 
         // Default & foo
         expect(channelPlatform.apps.length, 2);

@@ -6,6 +6,7 @@
 library firebase_core_platform_interface;
 
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -31,4 +32,3 @@ part 'src/platform_interface/platform_interface_firebase_plugin.dart';
 
 /// The default Firebase application name.
 const String defaultFirebaseAppName = '[DEFAULT]';
-

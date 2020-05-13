@@ -27,7 +27,8 @@ class FirebaseAppPlatform extends PlatformInterface {
 
   /// Returns true is automatic data collection is enabled for this app.
   bool get isAutomaticDataCollectionEnabled {
-    throw UnimplementedError('isAutomaticDataCollectionEnabled has not been implemented.');
+    throw UnimplementedError(
+        'isAutomaticDataCollectionEnabled has not been implemented.');
   }
 
   /// Deletes the current FirebaseApp app.
@@ -40,12 +41,14 @@ class FirebaseAppPlatform extends PlatformInterface {
   /// It is possible to check whether data collection is currently enabled via
   /// the [FirebaseAppPlatform.isAutomaticDataCollectionEnabled] property.
   Future<void> setAutomaticDataCollectionEnabled(bool enabled) async {
-    throw UnimplementedError('setAutomaticDataCollectionEnabled() has not been implemented.');
+    throw UnimplementedError(
+        'setAutomaticDataCollectionEnabled() has not been implemented.');
   }
 
   /// Sets whether automatic resource management is enabled or disabled for this app.
   Future<void> setAutomaticResourceManagementEnabled(bool enabled) async {
-    throw UnimplementedError('setAutomaticResourceManagementEnabled() has not been implemented.');
+    throw UnimplementedError(
+        'setAutomaticResourceManagementEnabled() has not been implemented.');
   }
 
   @override

@@ -52,7 +52,6 @@ void main() {
 
     group('setAutomaticDataCollectionEnabled()', () {
       test('should update the local instance property', () async {
-        // TODO(ehesp): mock constant value
         expect(
             methodChannelFirebaseApp.isAutomaticDataCollectionEnabled, false);
 

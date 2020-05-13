@@ -59,21 +59,21 @@ void main() {
   });
 
   // TODO(ehesp): needs reenabling once firebase.js can be initialized within the test
-//  group('.app()', () {
-//    setUp(() async {
-//      FirebaseCorePlatform.instance = FirebaseCoreWeb();
-//    });
-//
-//    test('should throw if no named app was found', () async {
-//      String name = 'foo';
-//      try {
-//        FirebaseCore.instance.app(name);
-//      } on FirebaseException catch (e) {
-//        expect(e, noAppExists(name));
-//        return;
-//      }
-//
-//      fail("FirebaseException not thrown");
-//    });
-//  });
+  group('.app()', () {
+    setUp(() async {
+      FirebaseCorePlatform.instance = FirebaseCoreWeb();
+    });
+
+    test('should throw if no named app was found', () async {
+      String name = 'foo';
+      try {
+        FirebaseCore.instance.app(name);
+      } on FirebaseException catch (e) {
+        expect(e, noAppExists(name));
+        return;
+      }
+
+      fail("FirebaseException not thrown");
+    });
+  });
 }

@@ -5,6 +5,18 @@
 part of firebase_core_platform_interface;
 
 /// The options used to configure a Firebase app.
+///
+/// ```dart
+/// await FirebaseCore.instance.initializeApp(
+///   name: 'SecondaryApp',
+///   options: const FirebaseOptions(
+///     apiKey: '...',
+///     appId: '...',
+///     messagingSenderId: '...',
+///     projectId: '...',
+///   )
+/// );
+/// ```
 class FirebaseOptions {
   const FirebaseOptions({
     @required this.apiKey,
@@ -33,6 +45,10 @@ class FirebaseOptions {
         assert(projectId != null);
 
   /// Named constructor to create [FirebaseOptions] from a Map.
+  ///
+  /// This constructor is used when platforms cannot directly return a
+  /// [FirebaseOptions] instance, for example when data is sent back from a
+  /// [MethodChannel].
   FirebaseOptions.fromMap(Map<dynamic, dynamic> map)
       : assert(map['apiKey'] != null),
         assert(map['appId'] != null),
@@ -130,7 +146,7 @@ class FirebaseOptions {
   @Deprecated("Deprecated in favor of messagingSenderId")
   final String gcmSenderID;
 
-  /// Returns this instance into a Map
+  /// The current instance as a [Map].
   Map<String, String> get asMap {
     return <String, String>{
       'apiKey': googleAppID ?? apiKey,

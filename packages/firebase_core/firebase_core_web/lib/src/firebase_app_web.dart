@@ -4,9 +4,15 @@
 
 part of firebase_core_web;
 
-/// TODO
+/// The entry point for accessing a Firebase app instance.
+///
+/// To get an instance, call the the `app` method on the [FirebaseCore]
+/// instance, for example:
+///
+/// ```dart
+/// FirebaseCore.instance.app('SecondaryApp`);
+/// ```
 class FirebaseAppWeb extends FirebaseAppPlatform {
-  /// TODO
   FirebaseAppWeb._(String name, FirebaseOptions options) : super(name, options);
 
   /// Deletes this app and frees up system resources.

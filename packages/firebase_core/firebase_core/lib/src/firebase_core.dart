@@ -4,13 +4,16 @@
 
 part of firebase_core;
 
-/// TODO
+/// The entry point for accessing Firebase.
+///
+/// You can get an instance by calling [FirebaseCore.instance].
 class FirebaseCore implements FirebaseCorePlatform {
   FirebaseCorePlatform _delegate = FirebaseCorePlatform.instance;
 
+  // Ensures end-users cannot initialize the class.
   FirebaseCore._();
 
-  /// Returns this entry point for accessing the class.
+  /// Returns the entry point for accessing the class.
   static FirebaseCore get instance => FirebaseCore._();
 
   /// Returns a list of all [FirebaseApp] instances that have been created.

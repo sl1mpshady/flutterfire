@@ -4,7 +4,9 @@
 
 part of firebase_core_platform_interface;
 
-/// [FirebaseCorePlatform] implementation that delegates to a [MethodChannel].
+/// The [FirebaseCorePlatform] implementation that delegates to a [MethodChannel].
+///
+/// You can get an instance by calling [FirebaseCore.instance].
 class MethodChannelFirebaseCore extends FirebaseCorePlatform {
   /// Tracks local [MethodChannelFirebaseApp] instances.
   @visibleForTesting
@@ -69,10 +71,15 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
       throw noDefaultAppInitialization();
     }
 
+    // Ensure that core has been initialized on the first usage of
+    // initializeApp
     if (!isCoreInitialized) {
       await _initializeCore();
     }
 
+    // If no name is provided, attempt to get the default Firebase app instance.
+    // If no instance is available, the user has not setup Firebase correctly for
+    // their platform.
     if (name == null) {
       MethodChannelFirebaseApp defaultApp =
           appInstances[defaultFirebaseAppName];

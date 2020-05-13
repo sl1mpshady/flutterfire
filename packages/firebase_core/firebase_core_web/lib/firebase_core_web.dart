@@ -15,12 +15,12 @@ import 'package:js/js_util.dart' as js_util;
 part 'src/firebase_app_web.dart';
 part 'src/firebase_core_web.dart';
 
-/// Returns a [FirebaseAppWeb] from a [firebase.App].
+/// Returns a [FirebaseAppWeb] instance from [firebase.App].
 FirebaseAppPlatform _createFromJsApp(firebase.App jsApp) {
   return FirebaseAppWeb._(jsApp.name, _createFromJsOptions(jsApp.options));
 }
 
-/// Returns a [FirebaseOptions] from a [firebase.FirebaseOptions].
+/// Returns a [FirebaseOptions] instance from [firebase.FirebaseOptions].
 FirebaseOptions _createFromJsOptions(firebase.FirebaseOptions options) {
   return FirebaseOptions(
     apiKey: options.apiKey,
@@ -49,7 +49,9 @@ String _getJSErrorCode(dynamic e) {
 
 /// Returns a [FirebaseException] if the error is a Firebase Error.
 ///
-/// To keep the error messages consistent across different platforms,
+/// If a JavaScript error is thrown and not manually handled using the code,
+/// this function ensures that if the error is Firebase related, it is instead
+/// re-created as a [FirebaseException] with a familiar code and message.
 FirebaseException _catchJSError(dynamic e) {
   if (js_util.getProperty(e, 'name') == 'FirebaseError') {
     String rawCode = js_util.getProperty(e, 'code');

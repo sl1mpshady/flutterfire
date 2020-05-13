@@ -4,7 +4,14 @@
 
 part of firebase_core_platform_interface;
 
-/// TODO
+/// The entry point for accessing a Firebase app instance.
+///
+/// To get an instance, call the the `app` method on the [FirebaseCore]
+/// instance, for example:
+///
+/// ```dart
+/// FirebaseCore.instance.app('SecondaryApp`);
+/// ```
 class MethodChannelFirebaseApp extends FirebaseAppPlatform {
   MethodChannelFirebaseApp(
     String name,

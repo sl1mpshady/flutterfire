@@ -14,15 +14,15 @@ import 'package:meta/meta.dart' show required;
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:quiver/core.dart';
 
-part 'src/firebase_exception.dart';
 part 'src/firebase_core_exceptions.dart';
+
+part 'src/firebase_exception.dart';
+
 part 'src/firebase_options.dart';
 
 part 'src/method_channel/method_channel_firebase_app.dart';
 
 part 'src/method_channel/method_channel_firebase_core.dart';
-
-part 'src/method_channel/method_channel_firebase_plugin.dart';
 
 part 'src/platform_interface/platform_interface_firebase_app.dart';
 

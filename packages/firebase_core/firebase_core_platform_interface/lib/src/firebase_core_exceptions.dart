@@ -49,7 +49,7 @@ FirebaseException noDefaultAppInitialization() {
 }
 
 /// Throws a consistent platform specific error message if the user attempts to
-/// initializes core without it being available on the underlying platform.z
+/// initializes core without it being available on the underlying platform.
 FirebaseException coreNotInitialized() {
   String message;
 

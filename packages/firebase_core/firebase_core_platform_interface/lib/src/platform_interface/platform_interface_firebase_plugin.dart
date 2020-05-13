@@ -7,7 +7,7 @@ part of firebase_core_platform_interface;
 /// The interface that other FlutterFire plugins must extend.
 ///
 /// This class provides access to common plugin properties and constants which
-/// could be available.
+/// are available once the user has initialized FlutterFire.
 abstract class FirebasePluginPlatform extends PlatformInterface {
   FirebasePluginPlatform(this._app, this._methodChannelName)
       : super(token: _token);

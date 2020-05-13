@@ -5,6 +5,8 @@
 part of firebase_core;
 
 /// Represents a single Firebase app instance.
+///
+/// You can get an instance by calling [FirebaseCore.instance.app()].
 class FirebaseApp implements FirebaseAppPlatform {
   @deprecated
   FirebaseApp({@required String name}) {
@@ -12,10 +14,13 @@ class FirebaseApp implements FirebaseAppPlatform {
     _delegate = FirebaseAppPlatform(name, FirebaseOptions.fromMap({}));
   }
 
-  /// TODO
   FirebaseAppPlatform _delegate;
 
-  /// TODO
+  /// A [FirebaseApp] instance can only be accessed from a call to `app()` on
+  /// [FirebaseCore].
+  ///
+  /// This constructor ensures that the delegate instance it is
+  /// constructed with is one which extends [FirebaseAppPlatform].
   FirebaseApp._(this._delegate) {
     FirebaseAppPlatform.verifyExtends(_delegate);
   }
@@ -56,16 +61,18 @@ class FirebaseApp implements FirebaseAppPlatform {
     return defaultFirebaseAppName;
   }
 
-  /// Returns the name of this app.
+  /// The name of this [FirebaseApp].
   @override
   String get name => _delegate.name;
 
-  /// Returns the [FirebaseOptions] this app was created with.
+  /// The [FirebaseOptions] this app was created with.
   @override
   FirebaseOptions get options => _delegate.options;
 
   /// Returns whether automatic data collection is enabled or disabled for this
   /// app.
+  ///
+  /// Automatic data collection can be enabled or disabled via `setAutomaticDataCollectionEnabled`.
   @override
   bool get isAutomaticDataCollectionEnabled =>
       _delegate.isAutomaticDataCollectionEnabled;

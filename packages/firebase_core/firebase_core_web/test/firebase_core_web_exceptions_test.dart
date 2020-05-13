@@ -1,6 +1,7 @@
 // Copyright 2019 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+import 'package:firebase_core/firebase_core.dart';
 @TestOn('browser')
 
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
@@ -15,7 +16,7 @@ void main() {
 
     test('should throw if no default app is available', () async {
       try {
-        await FirebaseCorePlatform.instance.initializeApp();
+        await FirebaseCore.instance.initializeApp();
       } on FirebaseException catch (e) {
         expect(e, coreNotInitialized());
         return;
@@ -32,7 +33,7 @@ void main() {
 
     test('should throw if trying to initialize default app', () async {
       try {
-        await FirebaseCorePlatform.instance
+        await FirebaseCore.instance
             .initializeApp(name: defaultFirebaseAppName);
       } on FirebaseException catch (e) {
         expect(e, noDefaultAppInitialization());
@@ -46,7 +47,7 @@ void main() {
       test('should throw if no options are provided with a named app',
           () async {
         try {
-          await FirebaseCorePlatform.instance.initializeApp(name: 'foo');
+          await FirebaseCore.instance.initializeApp(name: 'foo');
         } catch (e) {
           assert(
               e.toString().contains(
@@ -65,7 +66,7 @@ void main() {
     test('should throw if no named app was found', () async {
       String name = 'foo';
       try {
-        FirebaseCorePlatform.instance.app(name);
+        FirebaseCore.instance.app(name);
       } on FirebaseException catch (e) {
         expect(e, noAppExists(name));
         return;
@@ -74,4 +75,5 @@ void main() {
       fail("FirebaseException not thrown");
     });
   });
+
 }

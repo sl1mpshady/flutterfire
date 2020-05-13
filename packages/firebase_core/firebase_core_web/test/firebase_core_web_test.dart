@@ -32,7 +32,7 @@ void main() {
 
     test('.apps', () {
       js.context['firebase']['apps'] = js.JsArray<dynamic>();
-      final List<FirebaseApp> apps = FirebaseCorePlatform.instance.apps;
+      final List<FirebaseApp> apps = FirebaseCore.instance.apps;
       expect(apps, hasLength(0));
     });
 
@@ -48,7 +48,7 @@ void main() {
           },
         });
       });
-      final FirebaseApp app = FirebaseCorePlatform.instance.app('foo');
+      final FirebaseApp app = FirebaseCore.instance.app('foo');
       expect(app.name, equals('foo'));
 
       final FirebaseOptions options = await app.options;
@@ -84,7 +84,7 @@ void main() {
           'options': options,
         });
       });
-      final FirebaseApp app = await FirebaseCorePlatform.instance.initializeApp(
+      final FirebaseApp app = await FirebaseCore.instance.initializeApp(
         name: 'foo',
         options: const FirebaseOptions(
           apiKey: 'abc',

@@ -79,7 +79,7 @@ class FirebaseOptions {
   /// platforms, for example "my-awesome-app.firebaseapp.com".
   final String authDomain;
 
-  /// The database root URL, e.g. "https://my-awesome-app.firebaseio.com."
+  /// The database root URL, for example "https://my-awesome-app.firebaseio.com."
   ///
   /// This property should be set for apps that use Firebase Database.
   final String databaseURL;
@@ -91,7 +91,7 @@ class FirebaseOptions {
   /// The project measurement ID value used on web platforms with analytics.
   final String measurementId;
 
-  /// The tracking ID for Google Analytics, e.g. "UA-12345678-1", used to
+  /// The tracking ID for Google Analytics, for example "UA-12345678-1", used to
   /// configure Google Analytics.
   ///
   /// This property is used on iOS only.
@@ -100,7 +100,8 @@ class FirebaseOptions {
   /// The URL scheme used by iOS secondary apps for Dynamic Links.
   final String deepLinkURLScheme;
 
-  /// The Android client ID from the Firebase Console, for example "12345.apps.googleusercontent.com."
+  /// The Android client ID from the Firebase Console, for example
+  /// "12345.apps.googleusercontent.com."
   ///
   /// This value is used by iOS only.
   final String androidClientId;

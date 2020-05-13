@@ -17,6 +17,11 @@ class FirebaseCoreWeb extends FirebaseCorePlatform {
     return firebase.apps.map(_createFromJsApp).toList(growable: false);
   }
 
+  /// Initializes a new [FirebaseAppPlatform] instance by [name] and [options] and returns
+  /// the created app. This method should be called before any usage of FlutterFire plugins.
+  ///
+  /// The default app instance cannot be initialized here and should be created
+  /// using the platform Firebase integration.
   @override
   Future<FirebaseAppPlatform> initializeApp(
       {String name, FirebaseOptions options}) async {
@@ -76,6 +81,10 @@ class FirebaseCoreWeb extends FirebaseCorePlatform {
     return _createFromJsApp(app);
   }
 
+  /// Returns a [FirebaseAppPlatform] instance.
+  ///
+  /// If no name is provided, the default app instance is returned.
+  /// Throws if the app does not exist.
   @override
   FirebaseAppPlatform app([String name = defaultFirebaseAppName]) {
     firebase.App app;

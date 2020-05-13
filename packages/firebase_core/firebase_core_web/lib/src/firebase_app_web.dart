@@ -9,6 +9,10 @@ class FirebaseAppWeb extends FirebaseAppPlatform {
   /// TODO
   FirebaseAppWeb._(String name, FirebaseOptions options) : super(name, options);
 
+  /// Deletes this app and frees up system resources.
+  ///
+  /// Once deleted, any plugin functionality using this app instance will throw
+  /// an error.
   @override
   Future<void> delete() async {
     await firebase.app(name).delete();

@@ -4,6 +4,7 @@
 
 part of firebase_core_platform_interface;
 
+/// [FirebaseCorePlatform] implementation that delegates to a [MethodChannel].
 class MethodChannelFirebaseCore extends FirebaseCorePlatform {
   /// Tracks local [MethodChannelFirebaseApp] instances.
   @visibleForTesting
@@ -13,6 +14,7 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
   @visibleForTesting
   static bool isCoreInitialized = false;
 
+  /// The [MethodChannel] to which calls will be delegated.
   @visibleForTesting
   static const MethodChannel channel = MethodChannel(
     'plugins.flutter.io/firebase_core',

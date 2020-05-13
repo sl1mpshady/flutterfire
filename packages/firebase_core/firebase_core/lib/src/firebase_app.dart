@@ -12,8 +12,10 @@ class FirebaseApp implements FirebaseAppPlatform {
     _delegate = FirebaseAppPlatform(name, FirebaseOptions.fromMap({}));
   }
 
+  /// TODO
   FirebaseAppPlatform _delegate;
 
+  /// TODO
   FirebaseApp._(this._delegate) {
     FirebaseAppPlatform.verifyExtends(_delegate);
   }

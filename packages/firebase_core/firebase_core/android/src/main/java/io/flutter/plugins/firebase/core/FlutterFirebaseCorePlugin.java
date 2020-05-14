@@ -99,10 +99,26 @@ public class FlutterFirebaseCorePlugin implements FlutterPlugin, MethodChannel.M
 
           optionsMap.put(KEY_API_KEY, options.getApiKey());
           optionsMap.put(KEY_APP_ID, options.getApplicationId());
-          optionsMap.put(KEY_MESSAGING_SENDER_ID, options.getGcmSenderId());
-          optionsMap.put(KEY_PROJECT_ID, options.getProjectId());
-          optionsMap.put(KEY_DATABASE_URL, options.getDatabaseUrl());
-          optionsMap.put(KEY_STORAGE_BUCKET, options.getStorageBucket());
+
+          if (options.getGcmSenderId() != null) {
+            optionsMap.put(KEY_MESSAGING_SENDER_ID, options.getGcmSenderId());
+          }
+
+          if (options.getProjectId() != null) {
+            optionsMap.put(KEY_PROJECT_ID, options.getProjectId());
+          }
+
+          if (options.getDatabaseUrl() != null) {
+            optionsMap.put(KEY_DATABASE_URL, options.getDatabaseUrl());
+          }
+
+          if (options.getStorageBucket() != null) {
+            optionsMap.put(KEY_STORAGE_BUCKET, options.getStorageBucket());
+          }
+
+          if (options.getGaTrackingId() != null) {
+            optionsMap.put(KEY_TRACKING_ID, options.getGaTrackingId());
+          }
 
           appMap.put(KEY_NAME, firebaseApp.getName());
           appMap.put(KEY_OPTIONS, optionsMap);

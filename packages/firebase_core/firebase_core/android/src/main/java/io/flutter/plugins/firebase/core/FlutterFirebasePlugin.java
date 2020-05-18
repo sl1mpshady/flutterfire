@@ -4,10 +4,8 @@
 package io.flutter.plugins.firebase.core;
 
 import androidx.annotation.Keep;
-
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
-
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

@@ -31,7 +31,7 @@ void main() {
       FirebaseCorePlatform.instance = FirebaseCoreWeb();
     });
 
-    test('should throw if trying to initialize default app', () async {
+    test('should throw exception if trying to initialize default app', () async {
       try {
         await FirebaseCore.instance
             .initializeApp(name: defaultFirebaseAppName);
@@ -44,7 +44,7 @@ void main() {
     });
 
     group('secondary apps', () {
-      test('should throw if no options are provided with a named app',
+      test('should throw exception if no options are provided with a named app',
           () async {
         try {
           await FirebaseCore.instance.initializeApp(name: 'foo');
@@ -64,7 +64,7 @@ void main() {
       FirebaseCorePlatform.instance = FirebaseCoreWeb();
     });
 
-    test('should throw if no named app was found', () async {
+    test('should throw exception if no named app was found', () async {
       String name = 'foo';
       try {
         FirebaseCore.instance.app(name);

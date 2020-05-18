@@ -25,7 +25,7 @@ class FirebaseAppPlatform extends PlatformInterface {
   /// Returns whether this instance is the default Firebase app.
   bool get _isDefault => name == defaultFirebaseAppName;
 
-  /// Returns true is automatic data collection is enabled for this app.
+  /// Returns true if automatic data collection is enabled for this app.
   bool get isAutomaticDataCollectionEnabled {
     throw UnimplementedError(
         'isAutomaticDataCollectionEnabled has not been implemented.');

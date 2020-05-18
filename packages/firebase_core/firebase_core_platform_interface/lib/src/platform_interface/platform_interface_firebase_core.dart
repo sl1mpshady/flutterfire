@@ -39,7 +39,7 @@ abstract class FirebaseCorePlatform extends PlatformInterface {
     throw UnimplementedError('apps has not been implemented.');
   }
 
-  /// Initializes a new [FirebaseApp with] the given [name] and [FirebaseOptions].
+  /// Initializes a new [FirebaseApp] with the given [name] and [FirebaseOptions].
   Future<FirebaseAppPlatform> initializeApp(
       {String name, FirebaseOptions options}) {
     throw UnimplementedError('initializeApp() has not been implemented.');

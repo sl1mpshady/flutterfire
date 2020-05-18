@@ -78,7 +78,7 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
     }
 
     // If no name is provided, attempt to get the default Firebase app instance.
-    // If no instance is available, the user has not setup Firebase correctly for
+    // If no instance is available, the user has not set up Firebase correctly for
     // their platform.
     if (name == null) {
       MethodChannelFirebaseApp defaultApp =
@@ -109,7 +109,7 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
 
   /// Returns a [FirebaseAppPlatform] by [name].
   ///
-  /// Returns the default Firebase app no [name] is provided and throws a
+  /// Returns the default Firebase app if no [name] is provided and throws a
   /// [FirebaseException] if no app with the [name] has been created.
   @override
   FirebaseAppPlatform app([String name = defaultFirebaseAppName]) {

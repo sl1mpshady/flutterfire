@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 import 'package:firebase_core/firebase_core.dart';
 @TestOn('browser')
-
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'package:firebase_core_web/firebase_core_web.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,10 +30,10 @@ void main() {
       FirebaseCorePlatform.instance = FirebaseCoreWeb();
     });
 
-    test('should throw exception if trying to initialize default app', () async {
+    test('should throw exception if trying to initialize default app',
+        () async {
       try {
-        await FirebaseCore.instance
-            .initializeApp(name: defaultFirebaseAppName);
+        await FirebaseCore.instance.initializeApp(name: defaultFirebaseAppName);
       } on FirebaseException catch (e) {
         expect(e, noDefaultAppInitialization());
         return;
@@ -58,7 +57,7 @@ void main() {
     });
   });
 
-  // TODO(ehesp): needs reenabling once firebase.js can be initialized within the test
+  // TODO(ehesp): needs re-enabling once firebase.js can be initialized within the test
   group('.app()', () {
     setUp(() async {
       FirebaseCorePlatform.instance = FirebaseCoreWeb();

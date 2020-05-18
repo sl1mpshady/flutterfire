@@ -68,7 +68,9 @@ class FirebaseCoreWeb extends FirebaseCorePlatform {
       } catch (e) {
         // TODO(ehesp): Catch JsNotLoadedError error once firebase-dart supports
         // it. See https://github.com/FirebaseExtended/firebase-dart/issues/97
-        if (e.toString().contains("Cannot read property 'initializeApp' of undefined")) {
+        if (e
+            .toString()
+            .contains("Cannot read property 'initializeApp' of undefined")) {
           throw coreNotInitialized();
         }
 
@@ -99,7 +101,7 @@ class FirebaseCoreWeb extends FirebaseCorePlatform {
       if (e.toString().contains("Cannot read property 'app' of undefined")) {
         throw coreNotInitialized();
       }
-      
+
       if (_getJSErrorCode(e) == 'app/no-app') {
         throw noAppExists(name);
       }

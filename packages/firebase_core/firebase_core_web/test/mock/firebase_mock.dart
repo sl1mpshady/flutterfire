@@ -16,9 +16,13 @@ class FirebaseAppOptionsMock {
       String appId,
       String messagingSenderId,
       String projectId});
+
   external String get apiKey;
+
   external String get appId;
+
   external String get messagingSenderId;
+
   external String get projectId;
 }
 
@@ -29,7 +33,9 @@ class FirebaseAppMock {
     String name,
     FirebaseAppOptionsMock options,
   });
+
   external String get name;
+
   external FirebaseAppOptionsMock get options;
 }
 
@@ -37,17 +43,20 @@ class FirebaseAppMock {
 @anonymous
 class FirebaseMock {
   external factory FirebaseMock({Function app});
+
   external Function get app;
 }
 
 @JS()
 class Promise<T> {
   external Promise(void executor(void resolve(T result), Function reject));
+
   external Promise then(void onFulfilled(T result), [Function onRejected]);
 }
 
 // Wire to the global 'window.firebase' object.
 @JS('firebase')
 external set firebaseMock(FirebaseMock mock);
+
 @JS('firebase')
 external FirebaseMock get firebaseMock;

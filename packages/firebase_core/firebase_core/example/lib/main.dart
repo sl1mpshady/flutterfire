@@ -18,7 +18,8 @@ class MyApp extends StatelessWidget {
   );
 
   Future<void> _initialize() async {
-    FirebaseApp app = await FirebaseCore.instance.initializeApp(name: name, options: options);
+    FirebaseApp app =
+        await FirebaseCore.instance.initializeApp(name: name, options: options);
 
     assert(app != null);
     print('Initialized $app');

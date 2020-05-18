@@ -19,10 +19,10 @@ part of firebase_core_platform_interface;
 /// ```
 class FirebaseOptions {
   const FirebaseOptions({
-    @required this.apiKey,
-    @required this.appId,
-    @required this.messagingSenderId,
-    @required this.projectId,
+    this.apiKey,
+    this.appId,
+    this.messagingSenderId,
+    this.projectId,
     this.authDomain,
     this.databaseURL,
     this.storageBucket,
@@ -33,16 +33,16 @@ class FirebaseOptions {
     this.androidClientId,
     this.iosBundleId,
     // deprecated
-    @deprecated this.googleAppID,
-    @deprecated this.projectID,
-    @deprecated this.bundleID,
-    @deprecated this.clientID,
-    @deprecated this.trackingID,
-    @deprecated this.gcmSenderID,
-  })  : assert(apiKey != null),
-        assert(appId != null),
-        assert(messagingSenderId != null),
-        assert(projectId != null);
+    @Deprecated("Deprecated in favor of 'appId'") this.googleAppID,
+    @Deprecated("Deprecated in favor of 'projectId'") this.projectID,
+    @Deprecated("Deprecated in favor of 'iosBundleId'") this.bundleID,
+    @Deprecated("Deprecated in favor of 'androidClientId'") this.clientID,
+    @Deprecated("Deprecated in favor of 'trackingId'") this.trackingID,
+    @Deprecated("Deprecated in favor of 'messagingSenderId'") this.gcmSenderID,
+  })  : assert(apiKey != null, "'apiKey' cannot be null"),
+        assert(appId != null || googleAppID != null, "'appId' and 'googleAppID' cannot be null."),
+        assert(messagingSenderId != null || gcmSenderID != null, "'messagingSenderId' and 'gcmSenderID' cannot be null."),
+        assert(projectId != null || projectID != null, "'projectId' and 'projectID' cannot be null.");
 
   /// Named constructor to create [FirebaseOptions] from a Map.
   ///
@@ -50,10 +50,10 @@ class FirebaseOptions {
   /// [FirebaseOptions] instance, for example when data is sent back from a
   /// [MethodChannel].
   FirebaseOptions.fromMap(Map<dynamic, dynamic> map)
-      : assert(map['apiKey'] != null),
-        assert(map['appId'] != null),
-        assert(map['messagingSenderId'] != null),
-        assert(map['projectId'] != null),
+      : assert(map['apiKey'] != null, "'apiKey' cannot be null."),
+        assert(map['appId'] != null || map['googleAppID'], "'appId' and 'googleAppID' cannot be null."),
+        assert(map['messagingSenderId'] != null || map['gcmSenderID'], "'messagingSenderId' and 'gcmSenderID' cannot be null."),
+        assert(map['projectId'] != null || map['projectID'], "'projectId' and 'projectID' cannot be null."),
         apiKey = map['apiKey'],
         appId = map['appId'],
         messagingSenderId = map['messagingSenderId'],
@@ -66,12 +66,12 @@ class FirebaseOptions {
         deepLinkURLScheme = map['deepLinkURLScheme'],
         androidClientId = map['androidClientId'],
         iosBundleId = map['iosBundleId'],
-        trackingID = map['trackingId'],
-        googleAppID = map['appId'],
-        projectID = map['projectId'],
-        bundleID = map['iosBundleId'],
-        clientID = map['androidClientID'],
-        gcmSenderID = map['messagingSenderId'];
+        trackingID = map['trackingID'],
+        googleAppID = map['googleAppID'],
+        projectID = map['projectID'],
+        bundleID = map['bundleID'],
+        clientID = map['clientID'],
+        gcmSenderID = map['gcmSenderID'];
 
   /// An API key used for authenticating requests from your app, for example
   /// "AIzaSyDdVgKwhZl0sTTTLZ7iTmt1r3N2cJLnaDk", used to identify your app to
@@ -128,39 +128,39 @@ class FirebaseOptions {
   /// This property is used on iOS only.
   final String iosBundleId;
 
-  @Deprecated("Deprecated in favor of appId")
+  @Deprecated("Deprecated in favor of 'appId'")
   final String googleAppID;
 
-  @Deprecated("Deprecated in favor of projectId")
+  @Deprecated("Deprecated in favor of 'projectId'")
   final String projectID;
 
-  @Deprecated("Deprecated in favor of iosBundleId")
+  @Deprecated("Deprecated in favor of 'iosBundleId'")
   final String bundleID;
 
-  @Deprecated("Deprecated in favor of androidClientId")
+  @Deprecated("Deprecated in favor of 'androidClientId'")
   final String clientID;
 
-  @Deprecated("Deprecated in favor of trackingId")
+  @Deprecated("Deprecated in favor of 'trackingId'")
   final String trackingID;
 
-  @Deprecated("Deprecated in favor of messagingSenderId")
+  @Deprecated("Deprecated in favor of 'messagingSenderId'")
   final String gcmSenderID;
 
   /// The current instance as a [Map].
   Map<String, String> get asMap {
     return <String, String>{
-      'apiKey': googleAppID ?? apiKey,
+      'apiKey': apiKey ?? googleAppID,
       'appId': appId,
-      'messagingSenderId': gcmSenderID ?? messagingSenderId,
-      'projectId': projectID ?? projectId,
+      'messagingSenderId': messagingSenderId ?? gcmSenderID,
+      'projectId': projectId ?? projectID,
       'authDomain': authDomain,
       'databaseURL': databaseURL,
       'storageBucket': storageBucket,
       'measurementId': measurementId,
-      'trackingId': trackingID ?? trackingId,
+      'trackingId': trackingId ?? trackingID,
       'deepLinkURLScheme': deepLinkURLScheme,
-      'androidClientId': clientID ?? androidClientId,
-      'iosBundleId': bundleID ?? iosBundleId,
+      'androidClientId': androidClientId ?? clientID,
+      'iosBundleId': iosBundleId ?? bundleID,
     };
   }
 
@@ -180,7 +180,13 @@ class FirebaseOptions {
         other.trackingId == trackingId &&
         other.deepLinkURLScheme == deepLinkURLScheme &&
         other.androidClientId == androidClientId &&
-        other.iosBundleId == iosBundleId;
+        other.iosBundleId == iosBundleId &&
+        other.googleAppID == googleAppID &&
+        other.projectID == projectID &&
+        other.bundleID == bundleID &&
+        other.clientID == clientID &&
+        other.trackingID == trackingID &&
+        other.gcmSenderID == gcmSenderID;
   }
 
   @override

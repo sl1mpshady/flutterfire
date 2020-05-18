@@ -6,7 +6,7 @@ part of firebase_core_platform_interface;
 
 /// The entry point for accessing a Firebase app instance.
 ///
-/// To get an instance, call the the `app` method on the [FirebaseCore]
+/// To get an instance, call the `app` method on the [FirebaseCore]
 /// instance, for example:
 ///
 /// ```dart

@@ -27,8 +27,6 @@ abstract class FirebaseCorePlatform extends PlatformInterface {
 
   static FirebaseCorePlatform _instance = MethodChannelFirebaseCore();
 
-  // TODO(amirh): Extract common platform interface logic.
-  // https://github.com/flutter/flutter/issues/43368
   static set instance(FirebaseCorePlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;

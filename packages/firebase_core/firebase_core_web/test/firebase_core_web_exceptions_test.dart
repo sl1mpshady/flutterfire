@@ -57,7 +57,6 @@ void main() {
     });
   });
 
-  // TODO(ehesp): needs re-enabling once firebase.js can be initialized within the test
   group('.app()', () {
     setUp(() async {
       FirebaseCorePlatform.instance = FirebaseCoreWeb();

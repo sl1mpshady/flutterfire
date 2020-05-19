@@ -58,8 +58,8 @@ static NSDictionary *getDictionaryFromFIRApp(FIRApp *app) {
       options.bundleID = optionsDictionary[@"iosBundleId"];
     if (![optionsDictionary[@"apiKey"] isEqual:[NSNull null]])
       options.APIKey = optionsDictionary[@"apiKey"];
-    //if (![optionsDictionary[@"clientId"] isEqual:[NSNull null]]) // TODO(ehesp): what is this?
-      //options.clientID = optionsDictionary[@"androidClientId"];
+    // if (![optionsDictionary[@"clientId"] isEqual:[NSNull null]]) // TODO(ehesp): what is this?
+    // options.clientID = optionsDictionary[@"androidClientId"];
     if (![optionsDictionary[@"trackingId"] isEqual:[NSNull null]])
       options.trackingID = optionsDictionary[@"trackingId"];
     if (![optionsDictionary[@"projectId"] isEqual:[NSNull null]])

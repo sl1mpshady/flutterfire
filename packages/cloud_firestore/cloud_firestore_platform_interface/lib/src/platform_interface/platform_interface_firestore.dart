@@ -10,11 +10,6 @@ import 'package:meta/meta.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import '../method_channel/method_channel_firestore.dart';
-import 'collection_reference.dart';
-import 'document_reference.dart';
-import 'query.dart';
-import 'transaction.dart';
-import 'write_batch.dart';
 
 /// Defines an interface to work with [FirestorePlatform] on web and mobile
 abstract class FirestorePlatform extends PlatformInterface {

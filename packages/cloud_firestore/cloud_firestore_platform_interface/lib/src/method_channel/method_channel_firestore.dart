@@ -3,9 +3,9 @@
 // BSD-style license that can be found in the LICENSE file.
 import 'dart:async';
 
+import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
-import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 
 import 'method_channel_collection_reference.dart';
 import 'method_channel_document_reference.dart';
@@ -22,33 +22,34 @@ import 'utils/maps.dart';
 class MethodChannelFirestore extends FirestorePlatform {
   /// Create an instance of [MethodChannelFirestore] with optional [FirebaseApp]
   MethodChannelFirestore({FirebaseApp app})
-      : super(app: app ?? FirebaseApp.instance) {
+      : assert(app != null),
+        super(app: app) {
     if (_initialized) return;
-    channel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == 'QuerySnapshot') {
-        final QuerySnapshotPlatform snapshot =
-            MethodChannelQuerySnapshot(call.arguments, this);
-        queryObservers[call.arguments['handle']].add(snapshot);
-      } else if (call.method == 'DocumentSnapshot') {
-        final DocumentSnapshotPlatform snapshot = DocumentSnapshotPlatform(
-          call.arguments['path'],
-          asStringKeyedMap(call.arguments['data']),
-          SnapshotMetadataPlatform(
-              call.arguments['metadata']['hasPendingWrites'],
-              call.arguments['metadata']['isFromCache']),
-          this,
-        );
-        documentObservers[call.arguments['handle']].add(snapshot);
-      } else if (call.method == 'DoTransaction') {
-        final int transactionId = call.arguments['transactionId'];
-        final TransactionPlatform transaction =
-            MethodChannelTransaction(transactionId, call.arguments["app"]);
-        final dynamic result =
-            await _transactionHandlers[transactionId](transaction);
-        await transaction.finish();
-        return result;
-      }
-    });
+//    channel.setMethodCallHandler((MethodCall call) async {
+//      if (call.method == 'QuerySnapshot') {
+//        final QuerySnapshotPlatform snapshot =
+//            MethodChannelQuerySnapshot(call.arguments, this);
+//        queryObservers[call.arguments['handle']].add(snapshot);
+//      } else if (call.method == 'DocumentSnapshot') {
+//        final DocumentSnapshotPlatform snapshot = DocumentSnapshotPlatform(
+//          call.arguments['path'],
+//          asStringKeyedMap(call.arguments['data']),
+//          SnapshotMetadataPlatform(
+//              call.arguments['metadata']['hasPendingWrites'],
+//              call.arguments['metadata']['isFromCache']),
+//          this,
+//        );
+//        documentObservers[call.arguments['handle']].add(snapshot);
+//      } else if (call.method == 'DoTransaction') {
+//        final int transactionId = call.arguments['transactionId'];
+//        final TransactionPlatform transaction =
+//            MethodChannelTransaction(transactionId, call.arguments["app"]);
+//        final dynamic result =
+//            await _transactionHandlers[transactionId](transaction);
+//        await transaction.finish();
+//        return result;
+//      }
+//    });
     _initialized = true;
   }
 
@@ -80,35 +81,45 @@ class MethodChannelFirestore extends FirestorePlatform {
       <int, TransactionHandler>{};
   static int _transactionHandlerId = 0;
 
+  /// Gets a [FirestorePlatform] with specific arguments such as a different
+  /// [FirebaseApp].
   @override
-  FirestorePlatform withApp(FirebaseApp app) =>
-      MethodChannelFirestore(app: app);
-
-  @override
-  CollectionReferencePlatform collection(String path) {
-    assert(path != null);
-    return MethodChannelCollectionReference(this, path.split('/'));
-  }
-
-  @override
-  QueryPlatform collectionGroup(String path) {
-    assert(path != null);
-    assert(!path.contains("/"), "Collection IDs must not contain '/'.");
-    return MethodChannelQuery(
-      firestore: this,
-      isCollectionGroup: true,
-      pathComponents: path.split('/'),
-    );
-  }
-
-  @override
-  DocumentReferencePlatform document(String path) {
-    assert(path != null);
-    return MethodChannelDocumentReference(this, path.split('/'));
+  FirestorePlatform delegateFor({FirebaseApp app}) {
+    return MethodChannelFirestore(app: app);
   }
 
   @override
   WriteBatchPlatform batch() => MethodChannelWriteBatch(this);
+
+  @override
+  Future<void> clearPersistence() async {
+    await channel.invokeMethod<void>('Firestore#clearPersistence');
+  }
+
+  @override
+  CollectionReferencePlatform collection(String path) {
+    return MethodChannelCollectionReference(this, path);
+  }
+
+  @override
+  QueryPlatform collectionGroup(String path) {
+//    return MethodChannelQuery(this, Pointer(path), isCollectionGroup: true);
+  }
+
+  @override
+  Future<void> disableNetwork() async {
+    await channel.invokeMethod<void>('Firestore#disableNetwork');
+  }
+
+  @override
+  DocumentReferencePlatform document(String path) {
+    return MethodChannelDocumentReference(this, path);
+  }
+
+  @override
+  Future<void> enableNetwork() async {
+    await channel.invokeMethod<void>('Firestore#enableNetwork');
+  }
 
   @override
   Future<Map<String, dynamic>> runTransaction(
@@ -130,28 +141,7 @@ class MethodChannelFirestore extends FirestorePlatform {
   }
 
   @override
-  Future<void> enablePersistence(bool enable) async {
-    assert(enable != null);
-    await channel
-        .invokeMethod<void>('Firestore#enablePersistence', <String, dynamic>{
-      'app': app.name,
-      'enable': enable,
-    });
-  }
-
-  @override
-  Future<void> settings({
-    bool persistenceEnabled,
-    String host,
-    bool sslEnabled,
-    int cacheSizeBytes,
-  }) async {
-    await channel.invokeMethod<void>('Firestore#settings', <String, dynamic>{
-      'app': app.name,
-      'persistenceEnabled': persistenceEnabled,
-      'host': host,
-      'sslEnabled': sslEnabled,
-      'cacheSizeBytes': cacheSizeBytes,
-    });
+  Future<void> settings(Settings settings) async {
+    await channel.invokeMethod<void>('Firestore#settings', settings.asMap);
   }
 }

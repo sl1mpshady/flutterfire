@@ -36,4 +36,9 @@ class QuerySnapshotPlatform extends PlatformInterface {
 
   /// Metadata for the document
   final SnapshotMetadataPlatform metadata;
+
+  /// The number of documents in the [QuerySnapshotPlatform].
+  int get size {
+    return documents.length;
+  }
 }

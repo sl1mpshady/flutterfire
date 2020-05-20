@@ -10,20 +10,28 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 /// inherited from [QueryPlatform]).
 /// Note: QueryPlatform extends PlatformInterface already.
 abstract class CollectionReferencePlatform extends QueryPlatform {
+  final Pointer _pointer;
+
   /// Create a [CollectionReferencePlatform] using [pathComponents]
   CollectionReferencePlatform(
     FirestorePlatform firestore,
-    List<String> pathComponents,
-  ) : super(firestore: firestore, pathComponents: pathComponents);
+    this._pointer,
+  ) : super(firestore);
 
   /// Identifier of the referenced collection.
-  String get id => pathComponents.isEmpty ? null : pathComponents.last;
+  String get id => _pointer.id;
 
   /// For subcollections, parent returns the containing [DocumentReferencePlatform].
   ///
   /// For root collections, `null` is returned.
-  DocumentReferencePlatform parent() {
-    throw UnimplementedError("parent() is not implemented");
+  DocumentReferencePlatform get parent {
+    String parentPath = _pointer.parentPath();
+
+    if (parentPath == null) {
+      return null;
+    }
+
+    return firestore.document(parentPath);
   }
 
   /// Returns a `DocumentReference` with the provided path.
@@ -33,6 +41,7 @@ abstract class CollectionReferencePlatform extends QueryPlatform {
   /// The unique key generated is prefixed with a client-generated timestamp
   /// so that the resulting list will be chronologically-sorted.
   DocumentReferencePlatform document([String path]) {
+    // TODO(ehesp): Can the auto ID not be created here and passed through the firestore instance? Would keep the IDs consistently generated on every platform
     throw UnimplementedError("document() is not implemented");
   }
 

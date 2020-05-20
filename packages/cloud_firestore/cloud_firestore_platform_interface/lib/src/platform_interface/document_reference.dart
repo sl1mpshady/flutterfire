@@ -3,11 +3,10 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:ui';
-
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
+import 'package:cloud_firestore_platform_interface/src/pointer.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// A [DocumentReferencePlatform] refers to a document location in a Firestore database
 /// and can be used to write, read, or listen to the location.
@@ -19,7 +18,7 @@ abstract class DocumentReferencePlatform extends PlatformInterface {
   /// Create instance of [DocumentReferencePlatform]
   DocumentReferencePlatform(
     this.firestore,
-    this._pathComponents,
+    this._pointer,
   ) : super(token: _token);
 
   static final Object _token = Object();
@@ -36,31 +35,45 @@ abstract class DocumentReferencePlatform extends PlatformInterface {
 
   /// The Firestore instance associated with this document reference
   final FirestorePlatform firestore;
-  final List<String> _pathComponents;
 
-  @override
-  bool operator ==(dynamic o) =>
-      o is DocumentReferencePlatform &&
-      o.firestore == firestore &&
-      o.path == path;
-
-  @override
-  int get hashCode => hashList(_pathComponents);
-
-  /// Parent returns the containing [CollectionReferencePlatform].
-  CollectionReferencePlatform parent() {
-    final parentPathComponents = List<String>.from(_pathComponents)
-      ..removeLast();
-    return firestore.collection(
-      parentPathComponents.join("/"),
-    );
-  }
+  final Pointer _pointer;
 
   /// Slash-delimited path representing the database location of this query.
-  String get path => _pathComponents.join('/');
+  String get path => _pointer.path;
 
   /// This document's given or generated ID in the collection.
-  String get documentID => _pathComponents.last;
+  String get id => _pointer.id;
+
+  /// Return the parent [CollectionReferencePlatform] of this document.
+//  CollectionReferencePlatform get parent {
+//    return firestore.collection(_pointer.parentPath());
+//  }
+
+  /// Returns a [CollectionReferencePlatform] starting from the current
+  /// document pointer.
+//  CollectionReferencePlatform collection(String collectionPath) {
+//    return firestore.collection(_pointer.collectionPath(collectionPath));
+//  }
+
+  /// Deletes the document referred to by this [DocumentReferencePlatform].
+  Future<void> delete() {
+    throw UnimplementedError("delete() is not implemented");
+  }
+
+  /// Reads the document referenced by this [DocumentReferencePlatform].
+  ///
+  /// If no document exists, the read will return null.
+  Future<DocumentSnapshotPlatform> get({
+    Source source = Source.serverAndCache,
+  }) async {
+    throw UnimplementedError("get() is not implemented");
+  }
+
+  /// Notifies of documents at this location
+  Stream<DocumentSnapshotPlatform> snapshots(
+      {bool includeMetadataChanges = false}) {
+    throw UnimplementedError("snapshots() is not implemented");
+  }
 
   /// Writes to the document referred to by this [DocumentReferencePlatform].
   ///
@@ -85,29 +98,15 @@ abstract class DocumentReferencePlatform extends PlatformInterface {
     throw UnimplementedError("updateData() is not implemented");
   }
 
-  /// Reads the document referenced by this [DocumentReferencePlatform].
-  ///
-  /// If no document exists, the read will return null.
-  Future<DocumentSnapshotPlatform> get({
-    Source source = Source.serverAndCache,
-  }) async {
-    throw UnimplementedError("get() is not implemented");
-  }
+  @override
+  bool operator ==(dynamic o) =>
+      o is DocumentReferencePlatform &&
+      o.firestore == firestore &&
+      o.path == path;
 
-  /// Deletes the document referred to by this [DocumentReferencePlatform].
-  Future<void> delete() {
-    throw UnimplementedError("delete() is not implemented");
-  }
+  @override
+  int get hashCode => path.hashCode;
 
-  /// Returns the reference of a collection contained inside of this
-  /// document.
-  CollectionReferencePlatform collection(String collectionPath) {
-    return firestore.collection('$path/$collectionPath');
-  }
-
-  /// Notifies of documents at this location
-  Stream<DocumentSnapshotPlatform> snapshots(
-      {bool includeMetadataChanges = false}) {
-    throw UnimplementedError("snapshots() is not implemented");
-  }
+  @override
+  String toString() => '$DocumentReferencePlatform($path)';
 }

@@ -54,8 +54,10 @@ class _CodecUtility {
   }
 
   static dynamic valueDecode(dynamic value, Firestore firestore) {
-    if (value is platform.DocumentReferencePlatform) {
-      return DocumentReference._(value, firestore);
+    if (value is DocumentReferencePlatform) {
+      // TODO(ehesp): re-enable once fixed
+      return null;
+//      return DocumentReference._(value, firestore);
     } else if (value is List) {
       return replaceDelegatesWithValueInArray(value, firestore);
     } else if (value is Map<dynamic, dynamic>) {

@@ -9,20 +9,20 @@ import 'utils/maps.dart';
 ///
 /// It contains the document affected and the type of change that occurred
 /// (added, modified, or removed).
-class MethodChannelDocumentChange extends DocumentChangePlatform {
-  /// Create instance of [MethodChannelDocumentChange] using [data]
-  MethodChannelDocumentChange(
-      Map<dynamic, dynamic> data, FirestorePlatform firestore)
-      : super(DocumentChangeType.values.firstWhere((DocumentChangeType type) {
-          return type.toString() == data['type'];
-        }),
-            data['oldIndex'],
-            data['newIndex'],
-            DocumentSnapshotPlatform(
-              data['path'],
-              asStringKeyedMap(data['document']),
-              SnapshotMetadataPlatform(data['metadata']['hasPendingWrites'],
-                  data['metadata']['isFromCache']),
-              firestore,
-            ));
-}
+//class MethodChannelDocumentChange extends DocumentChangePlatform {
+//  /// Create instance of [MethodChannelDocumentChange] using [data]
+//  MethodChannelDocumentChange(
+//      Map<dynamic, dynamic> data, FirestorePlatform firestore)
+//      : super(DocumentChangeType.values.firstWhere((DocumentChangeType type) {
+//          return type.toString() == data['type'];
+//        }),
+//            data['oldIndex'],
+//            data['newIndex'],
+//            DocumentSnapshotPlatform(
+//              data['path'],
+//              asStringKeyedMap(data['document']),
+//              SnapshotMetadataPlatform(data['metadata']['hasPendingWrites'],
+//                  data['metadata']['isFromCache']),
+//              firestore,
+//            ));
+//}

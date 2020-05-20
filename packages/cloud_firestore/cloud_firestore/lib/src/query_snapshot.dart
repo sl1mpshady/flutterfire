@@ -5,24 +5,28 @@
 part of cloud_firestore;
 
 /// A QuerySnapshot contains zero or more DocumentSnapshot objects.
-class QuerySnapshot {
-  final platform.QuerySnapshotPlatform _delegate;
+class QuerySnapshot implements QuerySnapshotPlatform {
+  final QuerySnapshotPlatform _delegate;
   final Firestore _firestore;
 
   QuerySnapshot._(this._delegate, this._firestore) {
-    platform.QuerySnapshotPlatform.verifyExtends(_delegate);
+    QuerySnapshotPlatform.verifyExtends(_delegate);
   }
 
   /// Gets a list of all the documents included in this snapshot
   List<DocumentSnapshot> get documents => _delegate.documents
-      .map((item) => DocumentSnapshot._(item, _firestore))
+      .map((documentDelegate) =>
+          DocumentSnapshot._(_firestore, documentDelegate))
       .toList();
 
   /// An array of the documents that changed since the last snapshot. If this
   /// is the first snapshot, all documents will be in the list as Added changes.
   List<DocumentChange> get documentChanges => _delegate.documentChanges
-      .map((item) => DocumentChange._(item, _firestore))
+      .map((documentDelegate) => DocumentChange._(_firestore, documentDelegate))
       .toList();
 
   SnapshotMetadata get metadata => SnapshotMetadata._(_delegate.metadata);
+
+  @override
+  int get size => _delegate.size;
 }

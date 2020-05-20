@@ -12,10 +12,10 @@ class Transaction {
   final Firestore _firestore;
 
   Transaction._(this._delegate, this._firestore) {
-    platform.TransactionPlatform.verifyExtends(_delegate);
+    TransactionPlatform.verifyExtends(_delegate);
   }
 
-  platform.TransactionPlatform _delegate;
+  TransactionPlatform _delegate;
 
   // ignore: unused_element
   Future<void> _finish() => _delegate.finish();
@@ -24,7 +24,7 @@ class Transaction {
   Future<DocumentSnapshot> get(DocumentReference documentReference) async {
     final result = await _delegate.get(documentReference._delegate);
     if (result != null) {
-      return DocumentSnapshot._(result, _firestore);
+      return DocumentSnapshot._(_firestore, result);
     } else {
       return null;
     }

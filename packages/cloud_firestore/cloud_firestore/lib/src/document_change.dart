@@ -8,16 +8,16 @@ part of cloud_firestore;
 ///
 /// It contains the document affected and the type of change that occurred
 /// (added, modified, or removed).
-class DocumentChange {
-  final platform.DocumentChangePlatform _delegate;
+class DocumentChange implements DocumentChangePlatform {
+  final DocumentChangePlatform _delegate;
   final Firestore _firestore;
 
-  DocumentChange._(this._delegate, this._firestore) {
-    platform.DocumentChangePlatform.verifyExtends(_delegate);
+  DocumentChange._(this._firestore, this._delegate) {
+    DocumentChangePlatform.verifyExtends(_delegate);
   }
 
   /// The type of change that occurred (added, modified, or removed).
-  platform.DocumentChangeType get type => _delegate.type;
+  DocumentChangeType get type => _delegate.type;
 
   /// The index of the changed document in the result set immediately prior to
   /// this [DocumentChange] (i.e. supposing that all prior DocumentChange objects
@@ -35,5 +35,5 @@ class DocumentChange {
 
   /// The document affected by this change.
   DocumentSnapshot get document =>
-      DocumentSnapshot._(_delegate.document, _firestore);
+      DocumentSnapshot._(_firestore, _delegate.document);
 }

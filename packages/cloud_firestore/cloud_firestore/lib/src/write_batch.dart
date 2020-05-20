@@ -10,26 +10,33 @@ part of cloud_firestore;
 ///
 /// Once committed, no further operations can be performed on the [WriteBatch],
 /// nor can it be committed again.
-
-class WriteBatch {
-  final platform.WriteBatchPlatform _delegate;
+class WriteBatch implements WriteBatchPlatform {
+  final WriteBatchPlatform _delegate;
 
   WriteBatch._(this._delegate) {
-    platform.WriteBatchPlatform.verifyExtends(_delegate);
+    WriteBatchPlatform.verifyExtends(_delegate);
   }
 
+  @override
   Future<void> commit() => _delegate.commit();
 
-  void delete(DocumentReference document) =>
-      _delegate.delete(document._delegate);
+  @override
+  void delete(DocumentReferencePlatform document) {
+    return _delegate.delete(document);
+  }
 
-  void setData(DocumentReference document, Map<String, dynamic> data,
-          {bool merge = false}) =>
-      _delegate.setData(document._delegate,
-          _CodecUtility.replaceValueWithDelegatesInMap(data),
-          merge: merge);
+  @override
+  void setData(DocumentReferencePlatform document, Map<String, dynamic> data,
+      {bool merge = false}) {
+    return _delegate.setData(
+        document, _CodecUtility.replaceValueWithDelegatesInMap(data),
+        merge: merge);
+  }
 
-  void updateData(DocumentReference document, Map<String, dynamic> data) =>
-      _delegate.updateData(document._delegate,
-          _CodecUtility.replaceValueWithDelegatesInMap(data));
+  @override
+  void updateData(
+      DocumentReferencePlatform document, Map<String, dynamic> data) {
+    return _delegate.updateData(
+        document, _CodecUtility.replaceValueWithDelegatesInMap(data));
+  }
 }

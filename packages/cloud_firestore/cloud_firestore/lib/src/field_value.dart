@@ -10,9 +10,9 @@ part of cloud_firestore;
 /// This class serves as a static factory for [FieldValuePlatform] instances, but also
 /// as a facade for the [FieldValue] type, so plugin users don't need to worry about
 /// the actual internal implementation of their [FieldValue]s after they're created.
-class FieldValue extends platform.FieldValuePlatform {
-  static final platform.FieldValueFactoryPlatform _factory =
-      platform.FieldValueFactoryPlatform.instance;
+class FieldValue extends FieldValuePlatform {
+  static final FieldValueFactoryPlatform _factory =
+      FieldValueFactoryPlatform.instance;
 
   FieldValue._(this._delegate) : super(_delegate);
 

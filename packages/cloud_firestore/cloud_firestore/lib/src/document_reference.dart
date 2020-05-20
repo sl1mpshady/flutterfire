@@ -10,33 +10,49 @@ part of cloud_firestore;
 /// The document at the referenced location may or may not exist.
 /// A [DocumentReference] can also be used to create a [CollectionReference]
 /// to a subcollection.
-class DocumentReference {
-  platform.DocumentReferencePlatform _delegate;
+class DocumentReference implements DocumentReferencePlatform {
+  DocumentReferencePlatform _delegate;
 
   /// The Firestore instance associated with this document reference
   final Firestore firestore;
 
-  DocumentReference._(this._delegate, this.firestore) {
-    platform.DocumentReferencePlatform.verifyExtends(_delegate);
+  DocumentReference._(this.firestore, this._delegate) {
+    DocumentReferencePlatform.verifyExtends(_delegate);
   }
 
-  @override
-  bool operator ==(dynamic o) =>
-      o is DocumentReference && o.firestore == firestore && o.path == path;
+//  @override
+//  CollectionReference collection(String collectionPath) {
+//    return _delegate.collection(collectionPath);
+//  }
 
   @override
-  int get hashCode => hashList(_delegate.path.split("/"));
+  String get id => _delegate.id;
 
-  /// Parent returns the containing [CollectionReference].
-  CollectionReference parent() {
-    return CollectionReference._(_delegate.parent(), firestore);
-  }
+//  @override
+//  CollectionReference get parent => _delegate.parent;
 
-  /// Slash-delimited path representing the database location of this query.
+  @override
   String get path => _delegate.path;
 
-  /// This document's given or generated ID in the collection.
-  String get documentID => _delegate.documentID;
+  /// Deletes the document referred to by this [DocumentReference].
+  Future<void> delete() => _delegate.delete();
+
+  /// Reads the document referenced by this [DocumentReference].
+  ///
+  /// If no document exists, the read will return null.
+  @override
+  Future<DocumentSnapshot> get({
+    Source source = Source.serverAndCache,
+  }) async {
+    return DocumentSnapshot._(firestore, await _delegate.get(source: source));
+  }
+
+  /// Notifies of documents at this location
+  @override
+  Stream<DocumentSnapshot> snapshots({bool includeMetadataChanges = false}) =>
+      _delegate.snapshots(includeMetadataChanges: includeMetadataChanges).map(
+          (delegateSnapshot) =>
+              DocumentSnapshot._(firestore, delegateSnapshot));
 
   /// Writes to the document referred to by this [DocumentReference].
   ///
@@ -44,6 +60,7 @@ class DocumentReference {
   ///
   /// If [merge] is true, the provided data will be merged into an
   /// existing document instead of overwriting.
+  @override
   Future<void> setData(Map<String, dynamic> data, {bool merge = false}) {
     return _delegate.setData(_CodecUtility.replaceValueWithDelegatesInMap(data),
         merge: merge);
@@ -55,34 +72,19 @@ class DocumentReference {
   /// special sentinel [FieldValue] type.
   ///
   /// If no document exists yet, the update will fail.
+  @override
   Future<void> updateData(Map<String, dynamic> data) {
     return _delegate
         .updateData(_CodecUtility.replaceValueWithDelegatesInMap(data));
   }
 
-  /// Reads the document referenced by this [DocumentReference].
-  ///
-  /// If no document exists, the read will return null.
-  Future<DocumentSnapshot> get({
-    platform.Source source = platform.Source.serverAndCache,
-  }) async {
-    return DocumentSnapshot._(await _delegate.get(source: source), firestore);
-  }
+  @override
+  bool operator ==(dynamic o) =>
+      o is DocumentReference && o.firestore == firestore && o.path == path;
 
-  /// Deletes the document referred to by this [DocumentReference].
-  Future<void> delete() => _delegate.delete();
+  @override
+  int get hashCode => _delegate.path.hashCode;
 
-  /// Returns the reference of a collection contained inside of this
-  /// document.
-  CollectionReference collection(String collectionPath) {
-    return firestore.collection(
-      <String>[path, collectionPath].join('/'),
-    );
-  }
-
-  /// Notifies of documents at this location
-  Stream<DocumentSnapshot> snapshots({bool includeMetadataChanges = false}) =>
-      _delegate
-          .snapshots(includeMetadataChanges: includeMetadataChanges)
-          .map((snapshot) => DocumentSnapshot._(snapshot, firestore));
+  @override
+  String toString() => '$DocumentReference($path)';
 }

@@ -7,18 +7,20 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 import 'package:flutter/services.dart';
 
 import 'method_channel_firestore.dart';
-import 'utils/maps.dart';
 import 'utils/source.dart';
 
 /// A [MethodChannelDocumentReference] is an implementation of
 /// [DocumentReferencePlatform] that uses [MethodChannel] to communicate with
 /// Firebase plugins.
 class MethodChannelDocumentReference extends DocumentReferencePlatform {
+  Pointer _pointer;
+
   /// Creates a [DocumentReferencePlatform] that is implemented using [MethodChannel].
-  MethodChannelDocumentReference(
-      FirestorePlatform firestore, List<String> pathComponents)
+  MethodChannelDocumentReference(FirestorePlatform firestore, String path)
       : assert(firestore != null),
-        super(firestore, pathComponents);
+        super(firestore, Pointer(path)) {
+    _pointer = Pointer(path);
+  }
 
   @override
   Future<void> setData(
@@ -61,13 +63,8 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
         'source': getSourceString(source),
       },
     );
-    return DocumentSnapshotPlatform(
-      data['path'],
-      asStringKeyedMap(data['data']),
-      SnapshotMetadataPlatform(data['metadata']['hasPendingWrites'],
-          data['metadata']['isFromCache']),
-      firestore,
-    );
+
+    return DocumentSnapshotPlatform(firestore, _pointer, data);
   }
 
   @override

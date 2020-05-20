@@ -5,8 +5,8 @@ import 'dart:async';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 
-import 'method_channel_query.dart';
 import 'method_channel_document_reference.dart';
+import 'method_channel_query.dart';
 import 'utils/auto_id_generator.dart';
 
 /// A CollectionReference object can be used for adding documents, getting
@@ -18,43 +18,27 @@ import 'utils/auto_id_generator.dart';
 /// (which *does* extend its Platform class). If you changed
 /// [CollectionReferencePlatform] and this class started throwing compilation
 /// errors, now you know why.
-class MethodChannelCollectionReference extends MethodChannelQuery
-    implements CollectionReferencePlatform {
+class MethodChannelCollectionReference extends CollectionReferencePlatform {
   /// Create a [MethodChannelCollectionReference] from [pathComponents]
-  MethodChannelCollectionReference(
-      FirestorePlatform firestore, List<String> pathComponents)
-      : super(firestore: firestore, pathComponents: pathComponents);
+  MethodChannelCollectionReference(FirestorePlatform firestore, String path)
+      : super(firestore, Pointer(path));
 
-  /// ID of the referenced collection.
-  String get id => pathComponents.isEmpty ? null : pathComponents.last;
+//  @override
+//  DocumentReferencePlatform document([String path]) {
+//    List<String> childPath;
+//    if (path == null) {
+//      final String key = AutoIdGenerator.autoId();
+//      childPath = List<String>.from(pathComponents)..add(key);
+//    } else {
+//      childPath = List<String>.from(pathComponents)..addAll(path.split(('/')));
+//    }
+//    return MethodChannelDocumentReference(firestore, childPath);
+//  }
 
-  @override
-  DocumentReferencePlatform parent() {
-    if (pathComponents.length < 2) {
-      return null;
-    }
-    return MethodChannelDocumentReference(
-      firestore,
-      (List<String>.from(pathComponents)..removeLast()),
-    );
-  }
-
-  @override
-  DocumentReferencePlatform document([String path]) {
-    List<String> childPath;
-    if (path == null) {
-      final String key = AutoIdGenerator.autoId();
-      childPath = List<String>.from(pathComponents)..add(key);
-    } else {
-      childPath = List<String>.from(pathComponents)..addAll(path.split(('/')));
-    }
-    return MethodChannelDocumentReference(firestore, childPath);
-  }
-
-  @override
-  Future<DocumentReferencePlatform> add(Map<String, dynamic> data) async {
-    final DocumentReferencePlatform newDocument = document();
-    await newDocument.setData(data);
-    return newDocument;
-  }
+//  @override
+//  Future<DocumentReferencePlatform> add(Map<String, dynamic> data) async {
+//    final DocumentReferencePlatform newDocument = document();
+//    await newDocument.setData(data);
+//    return newDocument;
+//  }
 }

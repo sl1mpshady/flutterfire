@@ -20,7 +20,7 @@ export 'src/platform_interface/platform_interface_transaction.dart';
 export 'src/platform_interface/platform_interface_write_batch.dart';
 export 'src/snapshot_metadata.dart';
 export 'src/source.dart';
+export 'src/pointer.dart';
 export 'src/timestamp.dart';
 export 'src/settings.dart';
-export 'src/pointer.dart';
 export 'src/query_modifiers.dart';

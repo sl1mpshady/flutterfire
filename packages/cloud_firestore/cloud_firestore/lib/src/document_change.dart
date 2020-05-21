@@ -8,7 +8,7 @@ part of cloud_firestore;
 ///
 /// It contains the document affected and the type of change that occurred
 /// (added, modified, or removed).
-class DocumentChange implements DocumentChangePlatform {
+class DocumentChange {
   final DocumentChangePlatform _delegate;
   final Firestore _firestore;
 

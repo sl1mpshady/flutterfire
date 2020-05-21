@@ -11,6 +11,7 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart' show FirebasePluginPlatform;
 import 'package:meta/meta.dart';
+import 'package:quiver/core.dart';
 
 export 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart'
     show FieldPath, Blob, GeoPoint, Timestamp, Source, DocumentChangeType;

@@ -15,7 +15,7 @@ part of cloud_firestore;
 ///
 /// Firestore firestore = Firestore.instanceFor(app: secondaryApp);
 /// ```
-class Firestore extends FirebasePluginPlatform implements FirestorePlatform {
+class Firestore extends FirebasePluginPlatform {
   // Cached and lazily loaded instance of [FirestorePlatform] to avoid
   // creating a [MethodChannelFirestore] when not needed or creating an
   // instance with the default app before a user specifies an app.
@@ -73,19 +73,16 @@ class Firestore extends FirebasePluginPlatform implements FirestorePlatform {
   ///
   /// Unlike transactions, write batches are persisted offline and therefore are
   /// preferable when you don’t need to condition your writes on read data.
-  @override
   WriteBatch batch() {
     return WriteBatch._(_delegate.batch());
   }
 
   // TODO docs
-  @override
   Future<void> clearPersistence() {
     return _delegate.clearPersistence();
   }
 
   /// Gets a [Query] for the specified collection group.
-//  @override
 //  Query collectionGroup(String collectionPath) {
 //    assert(collectionPath != null, "a collection path cannot be null");
 //    assert(collectionPath.isNotEmpty,
@@ -100,13 +97,11 @@ class Firestore extends FirebasePluginPlatform implements FirestorePlatform {
 //  }
 
   // TODO docs
-  @override
   Future<void> disableNetwork() {
     return _delegate.disableNetwork();
   }
 
   /// Gets a [DocumentReference] for the specified Firestore path.
-  @override
   DocumentReference document(String documentPath) {
     assert(documentPath != null, "a document path cannot be null");
     assert(
@@ -117,12 +112,10 @@ class Firestore extends FirebasePluginPlatform implements FirestorePlatform {
     return DocumentReference._(this, _delegate.document(documentPath));
   }
 
-  @override
   Future<void> enableNetwork() {
     return _delegate.enableNetwork();
   }
 
-  @override
   Future<void> onSnapshotsInSync() {
     return _delegate.onSnapshotsInSync();
   }
@@ -148,7 +141,6 @@ class Firestore extends FirebasePluginPlatform implements FirestorePlatform {
 //  ///
 //  /// By default transactions are limited to 5 seconds of execution time. This
 //  /// timeout can be adjusted by setting the timeout parameter.
-//  @override
 //  Future<Map<String, dynamic>> runTransaction(
 //      TransactionHandler transactionHandler,
 //      {Duration timeout = const Duration(seconds: 5)}) {
@@ -157,18 +149,15 @@ class Firestore extends FirebasePluginPlatform implements FirestorePlatform {
 //        timeout: timeout);
 //  }
 
-  @override
   Future<void> settings(Settings settings) {
     return _delegate.settings(settings);
   }
 
-  @override
   Future<void> terminate() {
     // TODO: implement terminate
     throw UnimplementedError();
   }
 
-  @override
   Future<void> waitForPendingWrites() {
     // TODO: implement waitForPendingWrites
     throw UnimplementedError();

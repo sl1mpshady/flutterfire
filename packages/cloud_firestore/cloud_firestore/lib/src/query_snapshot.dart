@@ -5,7 +5,7 @@
 part of cloud_firestore;
 
 /// A QuerySnapshot contains zero or more DocumentSnapshot objects.
-class QuerySnapshot implements QuerySnapshotPlatform {
+class QuerySnapshot {
   final QuerySnapshotPlatform _delegate;
   final Firestore _firestore;
 
@@ -27,6 +27,5 @@ class QuerySnapshot implements QuerySnapshotPlatform {
 
   SnapshotMetadata get metadata => SnapshotMetadata._(_delegate.metadata);
 
-  @override
   int get size => _delegate.size;
 }

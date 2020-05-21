@@ -9,7 +9,7 @@ part of cloud_firestore;
 ///
 /// The data can be extracted with the data property or by using subscript
 /// syntax to access a specific field.
-class DocumentSnapshot implements DocumentSnapshotPlatform {
+class DocumentSnapshot {
   final Firestore _firestore;
   final DocumentSnapshotPlatform _delegate;
 
@@ -17,29 +17,25 @@ class DocumentSnapshot implements DocumentSnapshotPlatform {
     DocumentSnapshotPlatform.verifyExtends(_delegate);
   }
 
-  @override
   String get id => _delegate.id;
 
-  @override
-  DocumentReference get reference => _delegate.reference;
+  DocumentReference get reference =>
+      _firestore.document(_delegate.reference.path);
 
   /// Metadata about this snapshot concerning its source and if it has local
   /// modifications.
-  @override
   SnapshotMetadata get metadata => SnapshotMetadata._(_delegate.metadata);
 
   /// Returns `true` if the document exists.
-  @override
   bool get exists => data != null;
 
   /// Contains all the data of this snapshot.
-  @override
   Map<String, dynamic> data() {
     // TODO(ehesp): Handle SnapshotOptions options:
     return _CodecUtility.replaceDelegatesWithValueInMap(
         _delegate.data(), _firestore);
   }
 
-  // TODO(ehesp): Confirm whether this is needed here to the platform interface can handle it
+  // TODO(ehesp): Confirm whether this is needed here - can the he platform interface can handle it
   dynamic operator [](String key) => data()[key];
 }

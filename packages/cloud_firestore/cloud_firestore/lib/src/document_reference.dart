@@ -10,7 +10,7 @@ part of cloud_firestore;
 /// The document at the referenced location may or may not exist.
 /// A [DocumentReference] can also be used to create a [CollectionReference]
 /// to a subcollection.
-class DocumentReference implements DocumentReferencePlatform {
+class DocumentReference {
   DocumentReferencePlatform _delegate;
 
   /// The Firestore instance associated with this document reference
@@ -20,18 +20,14 @@ class DocumentReference implements DocumentReferencePlatform {
     DocumentReferencePlatform.verifyExtends(_delegate);
   }
 
-//  @override
 //  CollectionReference collection(String collectionPath) {
 //    return _delegate.collection(collectionPath);
 //  }
 
-  @override
   String get id => _delegate.id;
 
-//  @override
 //  CollectionReference get parent => _delegate.parent;
 
-  @override
   String get path => _delegate.path;
 
   /// Deletes the document referred to by this [DocumentReference].
@@ -40,7 +36,6 @@ class DocumentReference implements DocumentReferencePlatform {
   /// Reads the document referenced by this [DocumentReference].
   ///
   /// If no document exists, the read will return null.
-  @override
   Future<DocumentSnapshot> get({
     Source source = Source.serverAndCache,
   }) async {
@@ -48,7 +43,6 @@ class DocumentReference implements DocumentReferencePlatform {
   }
 
   /// Notifies of documents at this location
-  @override
   Stream<DocumentSnapshot> snapshots({bool includeMetadataChanges = false}) =>
       _delegate.snapshots(includeMetadataChanges: includeMetadataChanges).map(
           (delegateSnapshot) =>
@@ -60,7 +54,6 @@ class DocumentReference implements DocumentReferencePlatform {
   ///
   /// If [merge] is true, the provided data will be merged into an
   /// existing document instead of overwriting.
-  @override
   Future<void> setData(Map<String, dynamic> data, {bool merge = false}) {
     return _delegate.setData(_CodecUtility.replaceValueWithDelegatesInMap(data),
         merge: merge);
@@ -72,7 +65,6 @@ class DocumentReference implements DocumentReferencePlatform {
   /// special sentinel [FieldValue] type.
   ///
   /// If no document exists yet, the update will fail.
-  @override
   Future<void> updateData(Map<String, dynamic> data) {
     return _delegate
         .updateData(_CodecUtility.replaceValueWithDelegatesInMap(data));

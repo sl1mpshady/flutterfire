@@ -10,12 +10,11 @@ typedef Future<dynamic> TransactionHandler(Transaction transaction);
 
 class Transaction {
   final Firestore _firestore;
+  final TransactionPlatform _delegate;
 
-  Transaction._(this._delegate, this._firestore) {
+  Transaction._(this._firestore, this._delegate) {
     TransactionPlatform.verifyExtends(_delegate);
   }
-
-  TransactionPlatform _delegate;
 
   // ignore: unused_element
   Future<void> _finish() => _delegate.finish();
@@ -56,8 +55,8 @@ class Transaction {
   /// Awaiting the returned [Future] is optional and will be done automatically
   /// when the transaction handler completes.
   Future<void> set(
-      DocumentReference documentReference, Map<String, dynamic> data) {
+      DocumentReference documentReference, Map<String, dynamic> data, [SetOptions options]) {
     return _delegate.set(documentReference._delegate,
-        _CodecUtility.replaceValueWithDelegatesInMap(data));
+        _CodecUtility.replaceValueWithDelegatesInMap(data), options);
   }
 }

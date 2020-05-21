@@ -34,6 +34,10 @@ abstract class CollectionReferencePlatform extends QueryPlatform {
     return firestore.document(parentPath);
   }
 
+  /// A string containing the slash-separated path to this [CollectionReferencePlatform]
+  /// (relative to the root of the database).
+  String get path => _pointer.path;
+
   /// Returns a `DocumentReference` with the provided path.
   ///
   /// If no [path] is provided, an auto-generated ID is used.
@@ -41,7 +45,6 @@ abstract class CollectionReferencePlatform extends QueryPlatform {
   /// The unique key generated is prefixed with a client-generated timestamp
   /// so that the resulting list will be chronologically-sorted.
   DocumentReferencePlatform document([String path]) {
-    // TODO(ehesp): Can the auto ID not be created here and passed through the firestore instance? Would keep the IDs consistently generated on every platform
     throw UnimplementedError("document() is not implemented");
   }
 

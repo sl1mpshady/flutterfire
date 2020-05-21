@@ -45,15 +45,15 @@ abstract class DocumentReferencePlatform extends PlatformInterface {
   String get id => _pointer.id;
 
   /// Return the parent [CollectionReferencePlatform] of this document.
-//  CollectionReferencePlatform get parent {
-//    return firestore.collection(_pointer.parentPath());
-//  }
+  CollectionReferencePlatform get parent {
+    return firestore.collection(_pointer.parentPath());
+  }
 
   /// Returns a [CollectionReferencePlatform] starting from the current
   /// document pointer.
-//  CollectionReferencePlatform collection(String collectionPath) {
-//    return firestore.collection(_pointer.collectionPath(collectionPath));
-//  }
+  CollectionReferencePlatform collection(String collectionPath) {
+    return firestore.collection(_pointer.collectionPath(collectionPath));
+  }
 
   /// Deletes the document referred to by this [DocumentReferencePlatform].
   Future<void> delete() {
@@ -63,9 +63,7 @@ abstract class DocumentReferencePlatform extends PlatformInterface {
   /// Reads the document referenced by this [DocumentReferencePlatform].
   ///
   /// If no document exists, the read will return null.
-  Future<DocumentSnapshotPlatform> get({
-    Source source = Source.serverAndCache,
-  }) async {
+  Future<DocumentSnapshotPlatform> get([GetOptions options]) async {
     throw UnimplementedError("get() is not implemented");
   }
 
@@ -82,9 +80,7 @@ abstract class DocumentReferencePlatform extends PlatformInterface {
   /// If [merge] is true, the provided data will be merged into an
   /// existing document instead of overwriting.
   Future<void> setData(
-    Map<String, dynamic> data, {
-    bool merge = false,
-  }) {
+    Map<String, dynamic> data, [SetOptions options]) {
     throw UnimplementedError("setData() is not implemented");
   }
 

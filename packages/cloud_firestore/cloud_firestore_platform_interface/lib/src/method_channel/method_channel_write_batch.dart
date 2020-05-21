@@ -57,9 +57,7 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
   @override
   void setData(
     DocumentReferencePlatform document,
-    Map<String, dynamic> data, {
-    bool merge = false,
-  }) {
+    Map<String, dynamic> data, [SetOptions options]) {
     _assertNotCommitted();
 
     _handle.then((dynamic handle) {
@@ -71,7 +69,10 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
             'handle': handle,
             'path': document.path,
             'data': data,
-            'options': <String, bool>{'merge': merge},
+            'options': <String, dynamic>{
+              'merge': options?.merge,
+              'mergeFields': options?.mergeFields,
+            },
           },
         ),
       );

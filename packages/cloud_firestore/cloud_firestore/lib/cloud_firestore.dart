@@ -14,7 +14,7 @@ import 'package:meta/meta.dart';
 import 'package:quiver/core.dart';
 
 export 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart'
-    show FieldPath, Blob, GeoPoint, Timestamp, Source, DocumentChangeType;
+    show FieldPath, Blob, GeoPoint, Timestamp, Source, GetOptions, SetOptions, DocumentChangeType;
 
 part 'src/collection_reference.dart';
 part 'src/document_change.dart';

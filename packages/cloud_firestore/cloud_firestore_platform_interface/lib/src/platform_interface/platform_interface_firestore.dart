@@ -67,14 +67,14 @@ abstract class FirestorePlatform extends PlatformInterface {
   }
 
   /// Gets a [CollectionReferencePlatform] for the specified Firestore path.
-//  CollectionReferencePlatform collection(String path) {
-//    throw UnimplementedError('collection() is not implemented');
-//  }
+  CollectionReferencePlatform collection(String collectionPath) {
+    throw UnimplementedError('collection() is not implemented');
+  }
 
-//  /// Gets a [QueryPlatform] for the specified collection group.
-//  QueryPlatform collectionGroup(String path) {
-//    throw UnimplementedError('collectionGroup() is not implemented');
-//  }
+  /// Gets a [QueryPlatform] for the specified collection group.
+  QueryPlatform collectionGroup(String collectionPath) {
+    throw UnimplementedError('collectionGroup() is not implemented');
+  }
 
   /// Disables network usage for this instance. It can be re-enabled via
   /// enableNetwork(). While the network is disabled, any snapshot listeners or
@@ -85,7 +85,7 @@ abstract class FirestorePlatform extends PlatformInterface {
   }
 
   /// Gets a [DocumentReferencePlatform] for the specified Firestore path.
-  DocumentReferencePlatform document(String path) {
+  DocumentReferencePlatform document(String documentPath) {
     throw UnimplementedError('document() is not implemented');
   }
 
@@ -121,18 +121,18 @@ abstract class FirestorePlatform extends PlatformInterface {
   ///
   /// By default transactions are limited to 5 seconds of execution time. This
   /// timeout can be adjusted by setting the [timeout] parameter.
-//  Future<Map<String, dynamic>> runTransaction(
-//      TransactionHandler transactionHandler,
-//      {Duration timeout = const Duration(seconds: 5)}) async {
-//    throw UnimplementedError('runTransaction() is not implemented');
-//  }
+  Future<Map<String, dynamic>> runTransaction(
+      TransactionHandler transactionHandler,
+      {Duration timeout = const Duration(seconds: 5)}) {
+    throw UnimplementedError('runTransaction() is not implemented');
+  }
 
   /// Setup [FirestorePlatform] with settings.
   ///
   /// If [sslEnabled] has a non-null value, the [host] must have non-null value as well.
   ///
   /// If [cacheSizeBytes] is `null`, then default values are used.
-  Future<void> settings(Settings settings) async {
+  Future<void> settings(Settings settings) {
     throw UnimplementedError('settings() is not implemented');
   }
 

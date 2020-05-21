@@ -23,4 +23,6 @@ export 'src/source.dart';
 export 'src/pointer.dart';
 export 'src/timestamp.dart';
 export 'src/settings.dart';
+export 'src/get_options.dart';
+export 'src/set_options.dart';
 export 'src/query_modifiers.dart';

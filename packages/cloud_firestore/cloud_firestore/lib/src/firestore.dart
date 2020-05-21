@@ -59,8 +59,7 @@ class Firestore extends FirebasePluginPlatform {
     assert(Pointer(collectionPath).isCollection(),
         "a collection path must point to a valid collection.");
 
-    return null;
-//    return CollectionReference._(this, _delegate.collection(collectionPath));
+    return CollectionReference._(this, _delegate.collection(collectionPath));
   }
 
   @protected
@@ -83,18 +82,17 @@ class Firestore extends FirebasePluginPlatform {
   }
 
   /// Gets a [Query] for the specified collection group.
-//  Query collectionGroup(String collectionPath) {
-//    assert(collectionPath != null, "a collection path cannot be null");
-//    assert(collectionPath.isNotEmpty,
-//        "a collection path must be a non-empty string");
-//    assert(!collectionPath.contains("/"),
-//        "a collection path passed to collectionGroup() cannot contain '/'");
-//    assert(Pointer(collectionPath).isCollection(),
-//        "a collection path must point to a valid collection.");
-//
-//    return Query._(this, _delegate.collectionGroup(collectionPath),
-//        isCollectionGroup: true);
-//  }
+  Query collectionGroup(String collectionPath) {
+    assert(collectionPath != null, "a collection path cannot be null");
+    assert(collectionPath.isNotEmpty,
+        "a collection path must be a non-empty string");
+    assert(!collectionPath.contains("/"),
+        "a collection path passed to collectionGroup() cannot contain '/'");
+    assert(Pointer(collectionPath).isCollection(),
+        "a collection path must point to a valid collection.");
+
+    return Query._(this, _delegate.collectionGroup(collectionPath));
+  }
 
   // TODO docs
   Future<void> disableNetwork() {
@@ -120,34 +118,34 @@ class Firestore extends FirebasePluginPlatform {
     return _delegate.onSnapshotsInSync();
   }
 
-//  /// Executes the given TransactionHandler and then attempts to commit the
-//  /// changes applied within an atomic transaction.
-//  ///
-//  /// In the TransactionHandler, a set of reads and writes can be performed
-//  /// atomically using the Transaction object passed to the TransactionHandler.
-//  /// After the TransactionHandler is run, Firestore will attempt to apply the
-//  /// changes to the server. If any of the data read has been modified outside
-//  /// of this transaction since being read, then the transaction will be
-//  /// retried by executing the updateBlock again. If the transaction still
-//  /// fails after 5 retries, then the transaction will fail.
-//  ///
-//  /// The TransactionHandler may be executed multiple times, it should be able
-//  /// to handle multiple executions.
-//  ///
-//  /// Data accessed with the transaction will not reflect local changes that
-//  /// have not been committed. For this reason, it is required that all
-//  /// reads are performed before any writes. Transactions must be performed
-//  /// while online. Otherwise, reads will fail, and the final commit will fail.
-//  ///
-//  /// By default transactions are limited to 5 seconds of execution time. This
-//  /// timeout can be adjusted by setting the timeout parameter.
-//  Future<Map<String, dynamic>> runTransaction(
-//      TransactionHandler transactionHandler,
-//      {Duration timeout = const Duration(seconds: 5)}) {
-//    return _delegate.runTransaction(
-//        (transaction) => transactionHandler(Transaction._(transaction, this)),
-//        timeout: timeout);
-//  }
+  /// Executes the given TransactionHandler and then attempts to commit the
+  /// changes applied within an atomic transaction.
+  ///
+  /// In the TransactionHandler, a set of reads and writes can be performed
+  /// atomically using the Transaction object passed to the TransactionHandler.
+  /// After the TransactionHandler is run, Firestore will attempt to apply the
+  /// changes to the server. If any of the data read has been modified outside
+  /// of this transaction since being read, then the transaction will be
+  /// retried by executing the updateBlock again. If the transaction still
+  /// fails after 5 retries, then the transaction will fail.
+  ///
+  /// The TransactionHandler may be executed multiple times, it should be able
+  /// to handle multiple executions.
+  ///
+  /// Data accessed with the transaction will not reflect local changes that
+  /// have not been committed. For this reason, it is required that all
+  /// reads are performed before any writes. Transactions must be performed
+  /// while online. Otherwise, reads will fail, and the final commit will fail.
+  ///
+  /// By default transactions are limited to 5 seconds of execution time. This
+  /// timeout can be adjusted by setting the timeout parameter.
+  Future<Map<String, dynamic>> runTransaction(
+      TransactionHandler transactionHandler,
+      {Duration timeout = const Duration(seconds: 5)}) {
+    return _delegate.runTransaction(
+        (transaction) => transactionHandler(Transaction._(this, transaction)),
+        timeout: timeout);
+  }
 
   Future<void> settings(Settings settings) {
     return _delegate.settings(settings);

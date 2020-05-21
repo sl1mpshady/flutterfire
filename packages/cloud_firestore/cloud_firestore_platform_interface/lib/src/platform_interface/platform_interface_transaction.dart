@@ -4,9 +4,8 @@
 
 import 'dart:async';
 
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// The TransactionHandler may be executed multiple times, it should be able
 /// to handle multiple executions.
@@ -50,7 +49,7 @@ abstract class TransactionPlatform extends PlatformInterface {
   /// Does not affect the _pendingResults.
   Future<DocumentSnapshotPlatform> doGet(
     DocumentReferencePlatform documentReference,
-  ) async {
+  ) {
     throw UnimplementedError("get() not implemented");
   }
 
@@ -94,7 +93,7 @@ abstract class TransactionPlatform extends PlatformInterface {
   Future<void> doUpdate(
     DocumentReferencePlatform documentReference,
     Map<String, dynamic> data,
-  ) async {
+  ) {
     throw UnimplementedError("updated() not implemented");
   }
 
@@ -105,9 +104,8 @@ abstract class TransactionPlatform extends PlatformInterface {
   /// Awaiting the returned [Future] is optional and will be done automatically
   /// when the transaction handler completes.
   Future<void> set(
-    DocumentReferencePlatform documentReference,
-    Map<String, dynamic> data,
-  ) {
+      DocumentReferencePlatform documentReference, Map<String, dynamic> data,
+      [SetOptions options]) {
     final Future<void> result = doSet(documentReference, data);
     _pendingResults.add(result);
     return result;
@@ -120,9 +118,8 @@ abstract class TransactionPlatform extends PlatformInterface {
   /// handle returned futures automatically, like the [MethodChannelTransaction].
   /// Does not affect the _pendingResults.
   Future<void> doSet(
-    DocumentReferencePlatform documentReference,
-    Map<String, dynamic> data,
-  ) async {
+      DocumentReferencePlatform documentReference, Map<String, dynamic> data,
+      [SetOptions options]) {
     throw UnimplementedError("set() not implemented");
   }
 }

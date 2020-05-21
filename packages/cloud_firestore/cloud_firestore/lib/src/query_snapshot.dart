@@ -6,10 +6,10 @@ part of cloud_firestore;
 
 /// A QuerySnapshot contains zero or more DocumentSnapshot objects.
 class QuerySnapshot {
-  final QuerySnapshotPlatform _delegate;
   final Firestore _firestore;
+  final QuerySnapshotPlatform _delegate;
 
-  QuerySnapshot._(this._delegate, this._firestore) {
+  QuerySnapshot._(this._firestore, this._delegate) {
     QuerySnapshotPlatform.verifyExtends(_delegate);
   }
 

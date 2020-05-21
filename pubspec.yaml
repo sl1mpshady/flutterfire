@@ -1,0 +1,167 @@
+# Generated file - do not modify or commit this file.
+name: "flutterfire_plugins"
+version: "0.0.0"
+dependencies: 
+  cloud_firestore: 
+    path: "packages/cloud_firestore/cloud_firestore"
+  cloud_firestore_platform_interface: 
+    path: "packages/cloud_firestore/cloud_firestore_platform_interface"
+  cloud_firestore_web: 
+    path: "packages/cloud_firestore/cloud_firestore_web"
+  cloud_functions: 
+    path: "packages/cloud_functions/cloud_functions"
+  cloud_functions_example: 
+    path: "packages/cloud_functions/cloud_functions/example"
+  cloud_functions_platform_interface: 
+    path: "packages/cloud_functions/cloud_functions_platform_interface"
+  cloud_functions_web: 
+    path: "packages/cloud_functions/cloud_functions_web"
+  firebase_admob: 
+    path: "packages/firebase_admob"
+  firebase_admob_example: 
+    path: "packages/firebase_admob/example"
+  firebase_analytics: 
+    path: "packages/firebase_analytics/firebase_analytics"
+  firebase_analytics_example: 
+    path: "packages/firebase_analytics/firebase_analytics/example"
+  firebase_analytics_platform_interface: 
+    path: "packages/firebase_analytics/firebase_analytics_platform_interface"
+  firebase_auth: 
+    path: "packages/firebase_auth/firebase_auth"
+  firebase_auth_example: 
+    path: "packages/firebase_auth/firebase_auth/example"
+  firebase_auth_platform_interface: 
+    path: "packages/firebase_auth/firebase_auth_platform_interface"
+  firebase_auth_web: 
+    path: "packages/firebase_auth/firebase_auth_web"
+  firebase_core: 
+    path: "packages/firebase_core/firebase_core"
+  firebase_core_example: 
+    path: "packages/firebase_core/firebase_core/example"
+  firebase_core_platform_interface: 
+    path: "packages/firebase_core/firebase_core_platform_interface"
+  firebase_core_web: 
+    path: "packages/firebase_core/firebase_core_web"
+  firebase_crashlytics: 
+    path: "packages/firebase_crashlytics"
+  firebase_crashlytics_example: 
+    path: "packages/firebase_crashlytics/example"
+  firebase_database: 
+    path: "packages/firebase_database"
+  firebase_database_example: 
+    path: "packages/firebase_database/example"
+  firebase_dynamic_links: 
+    path: "packages/firebase_dynamic_links"
+  firebase_dynamic_links_example: 
+    path: "packages/firebase_dynamic_links/example"
+  firebase_in_app_messaging: 
+    path: "packages/firebase_in_app_messaging"
+  firebase_in_app_messaging_example: 
+    path: "packages/firebase_in_app_messaging/example"
+  firebase_messaging: 
+    path: "packages/firebase_messaging"
+  firebase_messaging_example: 
+    path: "packages/firebase_messaging/example"
+  firebase_ml_vision: 
+    path: "packages/firebase_ml_vision"
+  firebase_ml_vision_example: 
+    path: "packages/firebase_ml_vision/example"
+  firebase_performance: 
+    path: "packages/firebase_performance"
+  firebase_performance_example: 
+    path: "packages/firebase_performance/example"
+  firebase_remote_config: 
+    path: "packages/firebase_remote_config"
+  firebase_remote_config_example: 
+    path: "packages/firebase_remote_config/example"
+  firebase_storage: 
+    path: "packages/firebase_storage"
+  firebase_storage_example: 
+    path: "packages/firebase_storage/example"
+  firestore_example: 
+    path: "packages/cloud_firestore/cloud_firestore/example"
+  flutter: 
+    sdk: "flutter"
+dependency_overrides: 
+  pedantic: "^1.8.0"
+  cloud_firestore: 
+    path: "packages/cloud_firestore/cloud_firestore"
+  cloud_firestore_platform_interface: 
+    path: "packages/cloud_firestore/cloud_firestore_platform_interface"
+  cloud_firestore_web: 
+    path: "packages/cloud_firestore/cloud_firestore_web"
+  cloud_functions: 
+    path: "packages/cloud_functions/cloud_functions"
+  cloud_functions_example: 
+    path: "packages/cloud_functions/cloud_functions/example"
+  cloud_functions_platform_interface: 
+    path: "packages/cloud_functions/cloud_functions_platform_interface"
+  cloud_functions_web: 
+    path: "packages/cloud_functions/cloud_functions_web"
+  firebase_admob: 
+    path: "packages/firebase_admob"
+  firebase_admob_example: 
+    path: "packages/firebase_admob/example"
+  firebase_analytics: 
+    path: "packages/firebase_analytics/firebase_analytics"
+  firebase_analytics_example: 
+    path: "packages/firebase_analytics/firebase_analytics/example"
+  firebase_analytics_platform_interface: 
+    path: "packages/firebase_analytics/firebase_analytics_platform_interface"
+  firebase_auth: 
+    path: "packages/firebase_auth/firebase_auth"
+  firebase_auth_example: 
+    path: "packages/firebase_auth/firebase_auth/example"
+  firebase_auth_platform_interface: 
+    path: "packages/firebase_auth/firebase_auth_platform_interface"
+  firebase_auth_web: 
+    path: "packages/firebase_auth/firebase_auth_web"
+  firebase_core: 
+    path: "packages/firebase_core/firebase_core"
+  firebase_core_example: 
+    path: "packages/firebase_core/firebase_core/example"
+  firebase_core_platform_interface: 
+    path: "packages/firebase_core/firebase_core_platform_interface"
+  firebase_core_web: 
+    path: "packages/firebase_core/firebase_core_web"
+  firebase_crashlytics: 
+    path: "packages/firebase_crashlytics"
+  firebase_crashlytics_example: 
+    path: "packages/firebase_crashlytics/example"
+  firebase_database: 
+    path: "packages/firebase_database"
+  firebase_database_example: 
+    path: "packages/firebase_database/example"
+  firebase_dynamic_links: 
+    path: "packages/firebase_dynamic_links"
+  firebase_dynamic_links_example: 
+    path: "packages/firebase_dynamic_links/example"
+  firebase_in_app_messaging: 
+    path: "packages/firebase_in_app_messaging"
+  firebase_in_app_messaging_example: 
+    path: "packages/firebase_in_app_messaging/example"
+  firebase_messaging: 
+    path: "packages/firebase_messaging"
+  firebase_messaging_example: 
+    path: "packages/firebase_messaging/example"
+  firebase_ml_vision: 
+    path: "packages/firebase_ml_vision"
+  firebase_ml_vision_example: 
+    path: "packages/firebase_ml_vision/example"
+  firebase_performance: 
+    path: "packages/firebase_performance"
+  firebase_performance_example: 
+    path: "packages/firebase_performance/example"
+  firebase_remote_config: 
+    path: "packages/firebase_remote_config"
+  firebase_remote_config_example: 
+    path: "packages/firebase_remote_config/example"
+  firebase_storage: 
+    path: "packages/firebase_storage"
+  firebase_storage_example: 
+    path: "packages/firebase_storage/example"
+  firestore_example: 
+    path: "packages/cloud_firestore/cloud_firestore/example"
+environment: 
+  flutter: ">=1.12.13+hotfix.5 <2.0.0"
+  sdk: ">=2.1.0 <3.0.0"

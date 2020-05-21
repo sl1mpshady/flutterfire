@@ -3,9 +3,8 @@
 // BSD-style license that can be found in the LICENSE file.
 import 'dart:async';
 
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// A [WriteBatch] is a series of write operations to be performed as one unit.
 ///
@@ -44,13 +43,10 @@ abstract class WriteBatchPlatform extends PlatformInterface {
   ///
   /// If the document does not yet exist, it will be created.
   ///
-  /// If [merge] is true, the provided data will be merged into an
-  /// existing document instead of overwriting.
-  void setData(
-    DocumentReferencePlatform document,
-    Map<String, dynamic> data, {
-    bool merge = false,
-  }) {
+  /// If [SetOptions] are provided, the data will be merged into an existing
+  /// document instead of overwriting.
+  void setData(DocumentReferencePlatform document, Map<String, dynamic> data,
+      [SetOptions options]) {
     throw UnimplementedError("setData() not implemented");
   }
 

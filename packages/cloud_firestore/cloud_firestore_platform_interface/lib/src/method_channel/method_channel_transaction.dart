@@ -73,15 +73,18 @@ class MethodChannelTransaction extends TransactionPlatform {
 
   @override
   Future<void> doSet(
-    DocumentReferencePlatform documentReference,
-    Map<String, dynamic> data,
-  ) async {
+      DocumentReferencePlatform documentReference, Map<String, dynamic> data,
+      [SetOptions options]) async {
     return MethodChannelFirestore.channel
         .invokeMethod<void>('Transaction#set', <String, dynamic>{
       'app': firestore.app.name,
       'transactionId': _transactionId,
       'path': documentReference.path,
       'data': data,
+      'options': {
+        'merge': options?.merge,
+        'mergeFields': options?.mergeFields,
+      }
     });
   }
 }

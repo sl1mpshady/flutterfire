@@ -52,6 +52,7 @@ else
   else
     (cd "$REPO_DIR" && pub global run flutter_plugin_tools "${ACTIONS[@]}" --plugins="$CHANGED_PACKAGES" $PLUGIN_SHARDING)
     echo "Running version check for changed packages"
-    (cd "$REPO_DIR" && pub global run flutter_plugin_tools version-check --base_sha="$(get_branch_base_sha)")
+    # TODO(salakar): commenting out version check - will be replaced with auto versioning through melos
+    # (cd "$REPO_DIR" && pub global run flutter_plugin_tools version-check --base_sha="$(get_branch_base_sha)")
   fi
 fi

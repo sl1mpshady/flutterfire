@@ -220,7 +220,7 @@ class _EmailLinkSignInSectionState extends State<_EmailLinkSignInSection>
 
   Future<Uri> _retrieveDynamicLink() async {
     final PendingDynamicLinkData data =
-        await FirebaseDynamicLinks.instance.retrieveDynamicLink();
+        await FirebaseDynamicLinks.instance.getInitialLink();
     return data?.link;
   }
 

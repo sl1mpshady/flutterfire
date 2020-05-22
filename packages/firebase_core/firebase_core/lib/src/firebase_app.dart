@@ -7,7 +7,7 @@ part of firebase_core;
 /// Represents a single Firebase app instance.
 ///
 /// You can get an instance by calling [FirebaseCore.instance.app()].
-class FirebaseApp implements FirebaseAppPlatform {
+class FirebaseApp {
   @deprecated
   FirebaseApp({@required String name}) {
     assert(name != null);
@@ -62,18 +62,15 @@ class FirebaseApp implements FirebaseAppPlatform {
   }
 
   /// The name of this [FirebaseApp].
-  @override
   String get name => _delegate.name;
 
   /// The [FirebaseOptions] this app was created with.
-  @override
   FirebaseOptions get options => _delegate.options;
 
   /// Returns whether automatic data collection is enabled or disabled for this
   /// app.
   ///
   /// Automatic data collection can be enabled or disabled via `setAutomaticDataCollectionEnabled`.
-  @override
   bool get isAutomaticDataCollectionEnabled =>
       _delegate.isAutomaticDataCollectionEnabled;
 
@@ -81,14 +78,12 @@ class FirebaseApp implements FirebaseAppPlatform {
   /// app.
   ///
   /// To check whether it is currently enabled or not, call [isAutomaticDataCollectionEnabled].
-  @override
   Future<void> setAutomaticDataCollectionEnabled(bool enabled) {
     return _delegate.setAutomaticDataCollectionEnabled(enabled);
   }
 
   /// Sets whether automatic resource management is enabled or disabled for this
   /// app.
-  @override
   Future<void> setAutomaticResourceManagementEnabled(bool enabled) {
     return _delegate.setAutomaticResourceManagementEnabled(enabled);
   }
@@ -96,7 +91,7 @@ class FirebaseApp implements FirebaseAppPlatform {
   @override
   bool operator ==(dynamic other) {
     if (identical(this, other)) return true;
-    if (other is! FirebaseAppPlatform) return false;
+    if (other is! FirebaseApp) return false;
     return other.name == name && other.options == options;
   }
 

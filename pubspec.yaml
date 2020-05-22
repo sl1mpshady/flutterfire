@@ -83,7 +83,6 @@ dependencies:
   flutter: 
     sdk: "flutter"
 dependency_overrides: 
-  pedantic: "^1.8.0"
   cloud_firestore: 
     path: "packages/cloud_firestore/cloud_firestore"
   cloud_firestore_platform_interface: 
@@ -162,6 +161,25 @@ dependency_overrides:
     path: "packages/firebase_storage/example"
   firestore_example: 
     path: "packages/cloud_firestore/cloud_firestore/example"
+dev_dependencies: 
+  async: "^2.3.0"
+  e2e: "^0.2.1"
+  google_sign_in: "^4.0.0"
+  http: "^0.12.0"
+  image_picker: "^0.5.0"
+  js: "^0.6.0"
+  mockito: "^3.0.0"
+  path: "^1.6.2"
+  path_provider: "^0.5.0+1"
+  pedantic: "^1.8.0"
+  plugin_platform_interface: "^1.0.2"
+  test: "any"
+  url_launcher: "^5.1.6"
+  uuid: "^2.0.2"
+  flutter_driver: 
+    sdk: "flutter"
+  flutter_test: 
+    sdk: "flutter"
 environment: 
   flutter: ">=1.12.13+hotfix.5 <2.0.0"
   sdk: ">=2.1.0 <3.0.0"

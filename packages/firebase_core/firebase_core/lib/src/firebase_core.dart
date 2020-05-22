@@ -7,7 +7,7 @@ part of firebase_core;
 /// The entry point for accessing Firebase.
 ///
 /// You can get an instance by calling [FirebaseCore.instance].
-class FirebaseCore implements FirebaseCorePlatform {
+class FirebaseCore {
   FirebaseCorePlatform _delegate = FirebaseCorePlatform.instance;
 
   // Ensures end-users cannot initialize the class.

@@ -3,17 +3,15 @@
 // found in the LICENSE file.
 package io.flutter.plugins.firebase.core;
 
-import androidx.annotation.Keep;
+import static io.flutter.plugins.firebase.core.FlutterFirebasePlugin.cachedThreadPool;
 
+import androidx.annotation.Keep;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseApp;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import static io.flutter.plugins.firebase.core.FlutterFirebasePlugin.cachedThreadPool;
 
 @Keep
 public class FlutterFirebasePluginRegistry {

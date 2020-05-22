@@ -40,9 +40,12 @@ class FirebaseOptions {
     @Deprecated("Deprecated in favor of 'trackingId'") this.trackingID,
     @Deprecated("Deprecated in favor of 'messagingSenderId'") this.gcmSenderID,
   })  : assert(apiKey != null, "'apiKey' cannot be null"),
-        assert(appId != null || googleAppID != null, "'appId' and 'googleAppID' cannot be null."),
-        assert(messagingSenderId != null || gcmSenderID != null, "'messagingSenderId' and 'gcmSenderID' cannot be null."),
-        assert(projectId != null || projectID != null, "'projectId' and 'projectID' cannot be null.");
+        assert(appId != null || googleAppID != null,
+            "'appId' and 'googleAppID' cannot be null."),
+        assert(messagingSenderId != null || gcmSenderID != null,
+            "'messagingSenderId' and 'gcmSenderID' cannot be null."),
+        assert(projectId != null || projectID != null,
+            "'projectId' and 'projectID' cannot be null.");
 
   /// Named constructor to create [FirebaseOptions] from a Map.
   ///
@@ -51,9 +54,12 @@ class FirebaseOptions {
   /// [MethodChannel].
   FirebaseOptions.fromMap(Map<dynamic, dynamic> map)
       : assert(map['apiKey'] != null, "'apiKey' cannot be null."),
-        assert(map['appId'] != null || map['googleAppID'], "'appId' and 'googleAppID' cannot be null."),
-        assert(map['messagingSenderId'] != null || map['gcmSenderID'], "'messagingSenderId' and 'gcmSenderID' cannot be null."),
-        assert(map['projectId'] != null || map['projectID'], "'projectId' and 'projectID' cannot be null."),
+        assert(map['appId'] != null || map['googleAppID'],
+            "'appId' and 'googleAppID' cannot be null."),
+        assert(map['messagingSenderId'] != null || map['gcmSenderID'],
+            "'messagingSenderId' and 'gcmSenderID' cannot be null."),
+        assert(map['projectId'] != null || map['projectID'],
+            "'projectId' and 'projectID' cannot be null."),
         apiKey = map['apiKey'],
         appId = map['appId'],
         messagingSenderId = map['messagingSenderId'],

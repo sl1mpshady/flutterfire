@@ -11,49 +11,27 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  Firestore firestore = Firestore.instance;
+
   group('$Firestore', () {
-    MockFirebaseCore mock;
+    MockFirestore mock;
 
     setUp(() async {
-      mock = MockFirebaseCore();
-      FirebaseCorePlatform.instance = mock;
+      mock = MockFirestore();
+      FirestorePlatform.instance = mock;
+    });
 
-      final FirebaseAppPlatform platformApp =
-      FirebaseAppPlatform(testAppName, testOptions);
-
-      when(mock.apps).thenReturn([platformApp]);
-      when(mock.app(testAppName)).thenReturn(platformApp);
-      when(mock.initializeApp(name: testAppName, options: testOptions))
-          .thenAnswer((_) {
-        return Future.value(platformApp);
+    group('document()', () {
+      test('it rejects invalid document paths', () {
+        expect(firestore.document(null), throwsAssertionError);
       });
     });
 
-    test('.apps', () {
-      List<FirebaseApp> apps = FirebaseCore.instance.apps;
-      verify(mock.apps);
-      expect(apps[0], FirebaseCore.instance.app(testAppName));
-    });
-
-    test('.app()', () {
-      FirebaseApp app = FirebaseCore.instance.app(testAppName);
-      verify(mock.app(testAppName));
-
-      expect(app.name, testAppName);
-      expect(app.options, testOptions);
-    });
-
-    test('.initializeApp()', () async {
-      FirebaseApp initializedApp = await FirebaseCore.instance
-          .initializeApp(name: testAppName, options: testOptions);
-      FirebaseApp app = FirebaseCore.instance.app(testAppName);
-
-      expect(initializedApp, app);
-      verifyInOrder([
-        mock.initializeApp(name: testAppName, options: testOptions),
-        mock.app(testAppName),
-      ]);
-    });
+    // test('.apps', () {
+    //   List<FirebaseApp> apps = FirebaseCore.instance.apps;
+    //   verify(mock.apps);
+    //   expect(apps[0], FirebaseCore.instance.app(testAppName));
+    // });
   });
 }
 

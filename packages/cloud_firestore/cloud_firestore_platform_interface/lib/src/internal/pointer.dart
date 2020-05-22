@@ -9,7 +9,7 @@
 /// to reduce code repetition and improve testability.
 class Pointer {
   /// Create instance of [Pointer]
-  Pointer(this.path) : components = path.split('/');
+  Pointer(this.path) : assert(path != null), components = path.split('/');
 
   /// The Firestore path the [Pointer] was initialized with.
   final String path;

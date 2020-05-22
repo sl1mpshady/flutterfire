@@ -5,7 +5,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
-import 'package:cloud_firestore_platform_interface/src/pointer.dart';
+import 'package:cloud_firestore_platform_interface/src/internal/pointer.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// A [DocumentReferencePlatform] refers to a document location in a Firestore database

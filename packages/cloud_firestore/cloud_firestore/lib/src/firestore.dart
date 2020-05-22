@@ -30,7 +30,7 @@ class Firestore extends FirebasePluginPlatform {
 
   FirebaseApp app;
 
-  Firestore._({this.app}) : super(app, 'plugins.flutter.io/cloud_firestore');
+  Firestore._({this.app}) : super(app.name, 'plugins.flutter.io/cloud_firestore');
 
   /// Returns an instance using the default [FirebaseApp].
   static Firestore get instance {
@@ -56,7 +56,7 @@ class Firestore extends FirebasePluginPlatform {
     assert(collectionPath != null, "a collection path cannot be null");
     assert(collectionPath.isNotEmpty,
         "a collectionPath path must be a non-empty string");
-    assert(Pointer(collectionPath).isCollection(),
+    assert(isValidCollectionPath(collectionPath),
         "a collection path must point to a valid collection.");
 
     return CollectionReference._(this, _delegate.collection(collectionPath));
@@ -88,7 +88,7 @@ class Firestore extends FirebasePluginPlatform {
         "a collection path must be a non-empty string");
     assert(!collectionPath.contains("/"),
         "a collection path passed to collectionGroup() cannot contain '/'");
-    assert(Pointer(collectionPath).isCollection(),
+    assert(isValidCollectionPath(collectionPath),
         "a collection path must point to a valid collection.");
 
     return Query._(this, _delegate.collectionGroup(collectionPath));
@@ -104,7 +104,7 @@ class Firestore extends FirebasePluginPlatform {
     assert(documentPath != null, "a document path cannot be null");
     assert(
         documentPath.isNotEmpty, "a document path must be a non-empty string");
-    assert(Pointer(documentPath).isDocument(),
+    assert(isValidDocumentPath(documentPath),
         "a document path must point to a valid document.");
 
     return DocumentReference._(this, _delegate.document(documentPath));

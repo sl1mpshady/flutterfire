@@ -9,7 +9,7 @@ part of firebase_core_platform_interface;
 /// This class provides access to common plugin properties and constants which
 /// are available once the user has initialized FlutterFire.
 abstract class FirebasePluginPlatform extends PlatformInterface {
-  FirebasePluginPlatform(this._app, this._methodChannelName)
+  FirebasePluginPlatform(this._appName, this._methodChannelName)
       : super(token: _token);
 
   /// The global data store for all constants, for each plugin and [FirebaseAppPlatform] instance.
@@ -20,7 +20,7 @@ abstract class FirebasePluginPlatform extends PlatformInterface {
   /// requires that the value is synchronously available for use after initialization.
   static Map<dynamic, dynamic> _constantsForPluginApps = {};
 
-  final FirebaseAppPlatform _app;
+  final String _appName;
 
   final String _methodChannelName;
 
@@ -29,15 +29,11 @@ abstract class FirebasePluginPlatform extends PlatformInterface {
   static verifyExtends(FirebasePluginPlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
   }
-
-  /// Returns the current [FirebaseAppPlatform] instance for this plugin.
-  FirebaseAppPlatform get app => _app;
-
-  /// Returns any plugin constants this plugin app instance has initialized.
+    /// Returns any plugin constants this plugin app instance has initialized.
   Map<dynamic, dynamic> get pluginConstants {
-    if (_constantsForPluginApps[_app.name] != null &&
-        _constantsForPluginApps[_app.name][_methodChannelName] != null) {
-      return _constantsForPluginApps[_app.name][_methodChannelName];
+    if (_constantsForPluginApps[_appName] != null &&
+        _constantsForPluginApps[_appName][_methodChannelName] != null) {
+      return _constantsForPluginApps[_appName][_methodChannelName];
     }
 
     return {};

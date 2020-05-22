@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
+import 'package:cloud_firestore_platform_interface/src/internal/pointer.dart';
 import 'package:flutter/services.dart';
 
 import 'method_channel_firestore.dart';

@@ -12,7 +12,7 @@ task:
     - flutter channel master
     - flutter upgrade
     - git fetch origin master
-  activate_script: pub global activate flutter_plugin_tools
+  activate_script: pub global activate flutter_plugin_tools melos
   matrix:
     - name: publishable
       script:

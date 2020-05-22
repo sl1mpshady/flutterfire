@@ -4,22 +4,6 @@
 
 part of firebase_core_platform_interface;
 
-bool _isWeb() {
-  bool isWeb;
-
-  try {
-    if (Platform.isAndroid || Platform.isIOS) {
-      isWeb = false;
-    } else {
-      isWeb = true;
-    }
-  } catch (e) {
-    isWeb = true;
-  }
-
-  return isWeb;
-}
-
 /// Throws a consistent cross-platform error message when usage of an app occurs but
 /// no app has been created.
 FirebaseException noAppExists(String appName) {
@@ -53,19 +37,19 @@ FirebaseException noDefaultAppInitialization() {
 FirebaseException coreNotInitialized() {
   String message;
 
-  if (_isWeb()) {
+  if (UniversalPlatform.isWeb) {
     message =
         '''Firebase has not been correctly initialized. Have you added the Firebase import scripts to your index.html file? 
     
     View the Web Installation documentation for more information: https://firebaseextended.github.io/flutterfire/docs/installation/web
     ''';
-  } else if (Platform.isAndroid) {
+  } else if (UniversalPlatform.isAndroid) {
     message =
         '''Firebase has not been correctly initialized. Have you added the "google-services.json" file to the project? 
     
     View the Android Installation documentation for more information: https://firebaseextended.github.io/flutterfire/docs/installation/android
     ''';
-  } else if (Platform.isIOS) {
+  } else if (UniversalPlatform.isIOS) {
     message =
         '''Firebase has not been correctly initialized. Have you added the "GoogleService-Info.plist" file to the project? 
     

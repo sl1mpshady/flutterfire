@@ -6,7 +6,8 @@ library firebase_core;
 
 import 'dart:async';
 
-import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
+import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart'
+  hide MethodChannelFirebaseApp, MethodChannelFirebaseCore;
 import 'package:meta/meta.dart';
 import 'package:quiver/core.dart';
 

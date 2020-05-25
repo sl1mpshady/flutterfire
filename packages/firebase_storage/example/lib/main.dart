@@ -16,15 +16,15 @@ const String kTestString = 'Hello world!';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final FirebaseApp app = await FirebaseApp.configure(
+  final FirebaseApp app = await FirebaseCore.instance.initializeApp(
     name: 'test',
     options: FirebaseOptions(
-      googleAppID: (Platform.isIOS || Platform.isMacOS)
+      appId: (Platform.isIOS || Platform.isMacOS)
           ? '1:159623150305:ios:4a213ef3dbd8997b'
           : '1:159623150305:android:ef48439a0cc0263d',
-      gcmSenderID: '159623150305',
+      messagingSenderId: '159623150305',
       apiKey: 'AIzaSyChk3KEG7QYrs4kQPLP1tjJNxBTbfCAdgg',
-      projectID: 'flutter-firebase-plugins',
+      projectId: 'flutter-firebase-plugins',
     ),
   );
   final FirebaseStorage storage = FirebaseStorage(

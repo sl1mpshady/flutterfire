@@ -83,7 +83,7 @@ void main() {
 
   group('$FirebaseAuth', () {
     final String appName = 'testApp';
-    final FirebaseApp app = FirebaseApp(name: appName);
+    final FirebaseApp app = FirebaseCore.instance.app(appName);
     final FirebaseAuth auth = FirebaseAuth.fromApp(app);
     MockFirebaseAuth mock;
 

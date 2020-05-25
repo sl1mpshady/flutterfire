@@ -35,7 +35,7 @@ void main() {
           .getHttpsCallable(functionName: 'baz')
           .call();
       final HttpsCallable callable =
-          CloudFunctions(app: FirebaseApp(name: '1337'), region: 'space')
+          CloudFunctions(app: FirebaseCore.instance.app('1337'), region: 'space')
               .getHttpsCallable(functionName: 'qux')
                 ..timeout = const Duration(days: 300);
       await callable.call(<String, dynamic>{

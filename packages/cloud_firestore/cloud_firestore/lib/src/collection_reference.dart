@@ -10,7 +10,8 @@ part of cloud_firestore;
 class CollectionReference extends Query {
   final CollectionReferencePlatform _delegate;
 
-  CollectionReference._(Firestore firestore, this._delegate): super._(firestore, _delegate) {
+  CollectionReference._(Firestore firestore, this._delegate)
+      : super._(firestore, _delegate) {
     // TODO(ehesp): Should this verify extends of QueryPlatform?
   }
 
@@ -22,12 +23,12 @@ class CollectionReference extends Query {
   /// For root collections, null is returned.
   DocumentReference get parent {
     DocumentReferencePlatform _documentReferencePlatform = _delegate.parent;
-
+    
     // Only subcollections have a parent
     if (_documentReferencePlatform == null) {
       return null;
     }
-
+  
     return DocumentReference._(firestore, _documentReferencePlatform);
   }
 
@@ -52,7 +53,18 @@ class CollectionReference extends Query {
   ///
   /// The unique key generated is prefixed with a client-generated timestamp
   /// so that the resulting list will be chronologically-sorted.
-  // TODO(ehesp): Should this be .doc()?
   DocumentReference document([String path]) =>
       DocumentReference._(firestore, _delegate.document(path));
+
+  @override
+  bool operator ==(dynamic o) =>
+      o is CollectionReference &&
+      o.firestore == firestore &&
+      o.path == path;
+
+  @override
+  int get hashCode => hash2(firestore, path);
+
+  @override
+  String toString() => '$CollectionReference($path)';
 }

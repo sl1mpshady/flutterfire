@@ -31,7 +31,7 @@ abstract class CollectionReferencePlatform extends QueryPlatform {
     if (parentPath == null) {
       return null;
     }
-
+    
     return firestore.document(parentPath);
   }
 
@@ -47,14 +47,5 @@ abstract class CollectionReferencePlatform extends QueryPlatform {
   /// so that the resulting list will be chronologically-sorted.
   DocumentReferencePlatform document([String path]) {
     throw UnimplementedError("document() is not implemented");
-  }
-
-  /// Returns a `DocumentReference` with an auto-generated ID, after
-  /// populating it with provided [data].
-  ///
-  /// The unique key generated is prefixed with a client-generated timestamp
-  /// so that the resulting list will be chronologically-sorted.
-  Future<DocumentReferencePlatform> add(Map<String, dynamic> data) async {
-    throw UnimplementedError("add() is not implemented");
   }
 }

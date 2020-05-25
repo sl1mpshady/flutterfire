@@ -30,7 +30,8 @@ class Firestore extends FirebasePluginPlatform {
 
   FirebaseApp app;
 
-  Firestore._({this.app}) : super(app.name, 'plugins.flutter.io/cloud_firestore');
+  Firestore._({this.app})
+      : super(app.name, 'plugins.flutter.io/cloud_firestore');
 
   /// Returns an instance using the default [FirebaseApp].
   static Firestore get instance {
@@ -88,8 +89,6 @@ class Firestore extends FirebasePluginPlatform {
         "a collection path must be a non-empty string");
     assert(!collectionPath.contains("/"),
         "a collection path passed to collectionGroup() cannot contain '/'");
-    assert(isValidCollectionPath(collectionPath),
-        "a collection path must point to a valid collection.");
 
     return Query._(this, _delegate.collectionGroup(collectionPath));
   }
@@ -162,11 +161,10 @@ class Firestore extends FirebasePluginPlatform {
   }
 
   @override
-  bool operator ==(dynamic o) =>
-      o is Firestore && o.app.name == app.name;
+  bool operator ==(dynamic o) => o is Firestore && o.app.name == app.name;
 
   @override
-  int get hashCode => toString().hashCode;
+  int get hashCode => hash2(app.name, app.options);
 
   @override
   String toString() => '$Firestore(app: ${app.name})';

@@ -13,7 +13,8 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 /// syntax to access a specific field.
 class DocumentSnapshotPlatform extends PlatformInterface {
   /// Constructs a [DocumentSnapshotPlatform] using the provided [FirestorePlatform].
-  DocumentSnapshotPlatform(this._firestore, this._pointer, this._data) : super(token: _token);
+  DocumentSnapshotPlatform(this._firestore, this._pointer, this._data)
+      : super(token: _token);
 
   static final Object _token = Object();
 
@@ -57,9 +58,52 @@ class DocumentSnapshotPlatform extends PlatformInterface {
     return Map<String, dynamic>.from(_data['data']);
   }
 
-  // TODO(ehesp): Test this works on nested Maps
-  /// Reads individual values from the snapshot
-  dynamic operator [](String key) => data()[key];
+  ///
+  dynamic get(dynamic field) {
+    assert(field != null);
+    assert(field is String || field is FieldPath,
+        "Supported [field] types are [String] and [FieldPath]");
 
-// TODO equal checks
+    if (!exists) {
+      throw StateError(
+          'cannot get a field on a $DocumentSnapshotPlatform which does not exist');
+    }
+
+    _findKeyValueInMap(String key, Map<String, dynamic> map) {
+      if (map.containsKey(key)) {
+        return map[key];
+      }
+
+      throw StateError(
+          'field does not exist within the $DocumentSnapshotPlatform');
+    }
+
+    List<String> components;
+    if (field is String) {
+      components = field.split('.');
+    } else {
+      components = []; // TODO: handle with FieldPath
+    }
+
+    Map<String, dynamic> snapshotData = data();
+
+    _findComponent(int componentIndex, Map<String, dynamic> data) {
+      bool isLast = componentIndex + 1 == components.length;
+      dynamic value = _findKeyValueInMap(
+          components[componentIndex], data);
+
+      if (isLast) {
+        return value;
+      }
+
+      if (value is Map) {
+        return _findComponent(componentIndex + 1, value);
+      } else {
+        throw StateError(
+            'field does not exist within the $DocumentSnapshotPlatform');
+      }
+    }
+
+    return _findComponent(0, snapshotData);
+  }
 }

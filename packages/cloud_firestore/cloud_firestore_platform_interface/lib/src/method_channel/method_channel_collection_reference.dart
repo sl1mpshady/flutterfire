@@ -20,26 +20,25 @@ import 'utils/auto_id_generator.dart';
 /// [CollectionReferencePlatform] and this class started throwing compilation
 /// errors, now you know why.
 class MethodChannelCollectionReference extends CollectionReferencePlatform {
+  Pointer _pointer;
+
   /// Create a [MethodChannelCollectionReference] from [pathComponents]
   MethodChannelCollectionReference(FirestorePlatform firestore, String path)
-      : super(firestore, Pointer(path));
+      : super(firestore, Pointer(path)) {
+    _pointer = Pointer(path);
+  }
 
-//  @override
-//  DocumentReferencePlatform document([String path]) {
-//    List<String> childPath;
-//    if (path == null) {
-//      final String key = AutoIdGenerator.autoId();
-//      childPath = List<String>.from(pathComponents)..add(key);
-//    } else {
-//      childPath = List<String>.from(pathComponents)..addAll(path.split(('/')));
-//    }
-//    return MethodChannelDocumentReference(firestore, childPath);
-//  }
+  @override
+  DocumentReferencePlatform document([String path]) {
+    String documentPath;
 
-//  @override
-//  Future<DocumentReferencePlatform> add(Map<String, dynamic> data) async {
-//    final DocumentReferencePlatform newDocument = document();
-//    await newDocument.setData(data);
-//    return newDocument;
-//  }
+    if (path != null) {
+      documentPath = _pointer.documentPath(path);
+    } else {
+      final String autoId = AutoIdGenerator.autoId();
+      documentPath = _pointer.documentPath(autoId);
+    }
+
+    return MethodChannelDocumentReference(firestore, documentPath);
+  }
 }

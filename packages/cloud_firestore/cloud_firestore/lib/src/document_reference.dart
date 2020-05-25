@@ -24,17 +24,19 @@ class DocumentReference {
   String get id => _delegate.id;
 
   @Deprecated("Deprecated in favor of 'id'")
-  String get documentID => _delegate.id;
+  String get documentID => id;
 
   /// The parent [CollectionReference] of this document.
-  CollectionReference get parent => CollectionReference._(firestore, _delegate.parent);
+  CollectionReference get parent =>
+      CollectionReference._(firestore, _delegate.parent);
 
   /// A string representing the path of the referenced document (relative to the root of the database).
   String get path => _delegate.path;
 
   /// Gets a [CollectionReference] instance that refers to the collection at the specified path.
   CollectionReference collection(String collectionPath) {
-    return CollectionReference._(firestore, _delegate.collection(collectionPath));
+    return CollectionReference._(
+        firestore, _delegate.collection(collectionPath));
   }
 
   /// Deletes the current document from the collection.
@@ -46,7 +48,8 @@ class DocumentReference {
   /// from the server, only from the local cache or attempt to fetch results
   /// from the server and fall back to the cache (which is the default).
   Future<DocumentSnapshot> get([GetOptions options]) async {
-    return DocumentSnapshot._(firestore, await _delegate.get(options ?? const GetOptions()));
+    return DocumentSnapshot._(
+        firestore, await _delegate.get(options ?? const GetOptions()));
   }
 
   /// Notifies of documents at this location
@@ -63,7 +66,8 @@ class DocumentReference {
   /// document instead of overwriting.
   // TODO(ehesp): should this be `set()`?
   Future<void> setData(Map<String, dynamic> data, [SetOptions options]) {
-    return _delegate.setData(_CodecUtility.replaceValueWithDelegatesInMap(data), options);
+    return _delegate.setData(
+        _CodecUtility.replaceValueWithDelegatesInMap(data), options);
   }
 
   /// Updates fields in the document referred to by this [DocumentReference].
@@ -80,10 +84,12 @@ class DocumentReference {
 
   @override
   bool operator ==(dynamic o) =>
-      o is DocumentReference && o.firestore == firestore && o.path == path;
+      o is DocumentReference &&
+      o.firestore == firestore &&
+      o.path == path;
 
   @override
-  int get hashCode => _delegate.path.hashCode;
+  int get hashCode => hash2(firestore, path);
 
   @override
   String toString() => '$DocumentReference($path)';

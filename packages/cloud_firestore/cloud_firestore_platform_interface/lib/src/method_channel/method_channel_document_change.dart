@@ -2,27 +2,25 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
-
+import 'package:cloud_firestore_platform_interface/src/internal/pointer.dart';
 import 'utils/maps.dart';
 
 /// A DocumentChange represents a change to the documents matching a query.
 ///
 /// It contains the document affected and the type of change that occurred
 /// (added, modified, or removed).
-//class MethodChannelDocumentChange extends DocumentChangePlatform {
-//  /// Create instance of [MethodChannelDocumentChange] using [data]
-//  MethodChannelDocumentChange(
-//      Map<dynamic, dynamic> data, FirestorePlatform firestore)
-//      : super(DocumentChangeType.values.firstWhere((DocumentChangeType type) {
-//          return type.toString() == data['type'];
-//        }),
-//            data['oldIndex'],
-//            data['newIndex'],
-//            DocumentSnapshotPlatform(
-//              data['path'],
-//              asStringKeyedMap(data['document']),
-//              SnapshotMetadataPlatform(data['metadata']['hasPendingWrites'],
-//                  data['metadata']['isFromCache']),
-//              firestore,
-//            ));
-//}
+class MethodChannelDocumentChange extends DocumentChangePlatform {
+  /// Create instance of [MethodChannelDocumentChange] using [data]
+  MethodChannelDocumentChange(
+      FirestorePlatform firestore, Map<dynamic, dynamic> data)
+      : super(DocumentChangeType.values.firstWhere((DocumentChangeType type) {
+          return type.toString() == data['type'];
+        }),
+            data['oldIndex'],
+            data['newIndex'],
+            DocumentSnapshotPlatform(
+              firestore,
+              Pointer(data['path']),
+              data,
+            ));
+}

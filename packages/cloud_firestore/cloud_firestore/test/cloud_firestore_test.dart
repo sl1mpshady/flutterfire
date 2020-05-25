@@ -4,37 +4,101 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
+import './mock.dart';
 
-  Firestore firestore = Firestore.instance;
+void main() {
+  setupCloudFirestoreMocks();
+  Firestore firestore;
+  Firestore firestoreSecondary;
+  FirebaseApp secondayApp;
 
   group('$Firestore', () {
-    MockFirestore mock;
+    setUpAll(() async {
+      await FirebaseCore.instance.initializeApp();
+      secondayApp = await FirebaseCore.instance.initializeApp(
+          name: 'foo',
+          options: FirebaseOptions(
+            apiKey: '123',
+            appId: '123',
+            messagingSenderId: '123',
+            projectId: '123',
+          ));
 
-    setUp(() async {
-      mock = MockFirestore();
-      FirestorePlatform.instance = mock;
+      firestore = Firestore.instance;
+      firestoreSecondary = Firestore.instanceFor(app: secondayApp);
     });
 
-    group('document()', () {
-      test('it rejects invalid document paths', () {
-        expect(firestore.document(null), throwsAssertionError);
+    test('equality', () {
+      expect(firestore, equals(Firestore.instance));
+      expect(
+          firestoreSecondary, equals(Firestore.instanceFor(app: secondayApp)));
+    });
+
+    test('returns the correct $FirebaseApp', () {
+      expect(firestore.app, equals(FirebaseCore.instance.app()));
+      expect(firestoreSecondary.app, equals(FirebaseCore.instance.app('foo')));
+    });
+
+    group('.collection()', () {
+      test('returns a $CollectionReference', () {
+        expect(firestore.collection('foo'), isA<CollectionReference>());
+      });
+
+      test('does not expect a null path', () {
+        expect(() => firestore.collection(null), throwsAssertionError);
+      });
+
+      test('does not expect an empty path', () {
+        expect(() => firestore.collection(''), throwsAssertionError);
+      });
+
+      test('does accept an invalid path', () {
+        // 'foo/bar' points to a document
+        expect(() => firestore.collection('foo/bar'), throwsAssertionError);
       });
     });
 
-    // test('.apps', () {
-    //   List<FirebaseApp> apps = FirebaseCore.instance.apps;
-    //   verify(mock.apps);
-    //   expect(apps[0], FirebaseCore.instance.app(testAppName));
-    // });
+    group('.collectionGroup()', () {
+      test('returns a $Query', () {
+        expect(firestore.collectionGroup('foo'), isA<Query>());
+      });
+
+      test('does not expect a null path', () {
+        expect(() => firestore.collectionGroup(null), throwsAssertionError);
+      });
+
+      test('does not expect an empty path', () {
+        expect(() => firestore.collectionGroup(''), throwsAssertionError);
+      });
+
+      test('does accept a path containing "/"', () {
+        expect(() => firestore.collectionGroup('foo/bar/baz'),
+            throwsAssertionError);
+      });
+    });
+
+    group('.document()', () {
+      test('returns a $DocumentReference', () {
+        expect(firestore.document('foo/bar'), isA<DocumentReference>());
+      });
+
+      test('does not expect a null path', () {
+        expect(() => firestore.document(null), throwsAssertionError);
+      });
+
+      test('does not expect an empty path', () {
+        expect(() => firestore.document(''), throwsAssertionError);
+      });
+
+      test('does accept an invalid path', () {
+        // 'foo' points to a collection
+        expect(() => firestore.document('bar'), throwsAssertionError);
+      });
+    });
   });
 }
-
-class MockFirestore extends Mock
-    with MockPlatformInterfaceMixin
-    implements FirestorePlatform {}

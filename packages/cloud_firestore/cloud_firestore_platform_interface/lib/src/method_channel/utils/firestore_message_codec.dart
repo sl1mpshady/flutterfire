@@ -75,10 +75,13 @@ class FirestoreMessageCodec extends StandardMessageCodec {
       assert(code != null);
       buffer.putUint8(code);
       if (delegate.value != null) writeValue(buffer, delegate.value);
-    } else if (value is FieldPath) {
-      final int code = _kFieldPathCodes[value.type];
+    } else if (value is FieldPathType) {
+      final int code = _kFieldPathCodes[value];
       assert(code != null);
       buffer.putUint8(code);
+    } else if (value is FieldPath) {
+      // TODO
+      throw("FieldPath needs WriteBuffter implementing...");
     } else {
       super.writeValue(buffer, value);
     }

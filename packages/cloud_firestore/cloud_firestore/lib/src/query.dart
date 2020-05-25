@@ -13,9 +13,9 @@ class Query {
     QueryPlatform.verifyExtends(_delegate);
   }
 
-  // TODO check usage
-  Map<String, dynamic> buildArguments() {
-    return _delegate.buildArguments();
+  @visibleForTesting
+  Map<String, dynamic> get parameters {
+    return _delegate.parameters;
   }
 
   /// Creates and returns a new [Query] that ends at the provided document
@@ -80,10 +80,9 @@ class Query {
 
   /// Fetch the documents for this query
   // TODO(ehesp): This was called `getDocuments` - add deprecation if approved
-  Future<QuerySnapshot> get({Source source = Source.serverAndCache}) async {
-    assert(source != null);
+  Future<QuerySnapshot> get([GetOptions options]) async {
     QuerySnapshotPlatform snapshotDelegate =
-        await _delegate.get(source: source);
+        await _delegate.get(options ?? const GetOptions());
     return QuerySnapshot._(firestore, snapshotDelegate);
   }
 

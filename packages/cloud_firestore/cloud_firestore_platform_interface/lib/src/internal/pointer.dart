@@ -9,7 +9,9 @@
 /// to reduce code repetition and improve testability.
 class Pointer {
   /// Create instance of [Pointer]
-  Pointer(this.path) : assert(path != null), components = path.split('/');
+  Pointer(this.path)
+      : assert(path != null),
+        components = path.split('/');
 
   /// The Firestore path the [Pointer] was initialized with.
   final String path;
@@ -61,13 +63,12 @@ class Pointer {
       return null;
     }
 
-    List<String> parentComponents = components..removeLast();
+    List<String> parentComponents = List<String>.from(components)..removeLast();
     return parentComponents.join('/');
   }
 
   @override
-  bool operator ==(dynamic o) =>
-      o is Pointer && o.path == path;
+  bool operator ==(dynamic o) => o is Pointer && o.path == path;
 
   @override
   int get hashCode => path.hashCode;

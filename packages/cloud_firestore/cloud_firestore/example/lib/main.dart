@@ -78,7 +78,7 @@ class MyHomePage extends StatelessWidget {
 
   Future<void> _runTransaction() async {
     firestore.runTransaction((Transaction transaction) async {
-      final allDocs = await firestore.collection("messages").getDocuments();
+      final allDocs = await firestore.collection("messages").get();
       final toBeRetrieved =
           allDocs.documents.sublist(allDocs.documents.length ~/ 2);
       final toBeDeleted =
@@ -113,7 +113,7 @@ class MyHomePage extends StatelessWidget {
         .collection("messages")
         .orderBy("created_at")
         .limit(12)
-        .getDocuments();
+        .get();
     querySnapshot.documents
         .sublist(0, querySnapshot.documents.length - 3)
         .forEach((DocumentSnapshot doc) {

@@ -4,10 +4,8 @@
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart' show required;
+import 'package:flutter/cupertino.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 
 /// Represents a query over the data at a particular location.
@@ -17,23 +15,13 @@ abstract class QueryPlatform extends PlatformInterface {
   /// Create a [QueryPlatform] instance
   QueryPlatform(this.firestore) : super(token: _token);
 
-//  QueryPlatform({
-//    @required this.firestore,
-//    @required List<String> pathComponents,
-//    bool isCollectionGroup = false,
-//    Map<String, dynamic> parameters,
-//  })  : pathComponents = pathComponents,
-//        isCollectionGroup = isCollectionGroup,
-//        parameters = parameters ??
-//            Map<String, dynamic>.unmodifiable(<String, dynamic>{
-//              'where': List<List<dynamic>>.unmodifiable(<List<dynamic>>[]),
-//              'orderBy': List<List<dynamic>>.unmodifiable(<List<dynamic>>[]),
-//            }),
-//        assert(firestore != null),
-//        assert(pathComponents != null),
-//        super(token: _token);
-
   static final Object _token = Object();
+
+  /// Returns a Map of parameters current in use on the query.
+  @visibleForTesting
+  Map<String, dynamic> get parameters {
+    throw UnimplementedError("parameters is not implemented");
+  }
 
   /// Throws an [AssertionError] if [instance] does not extend
   /// [QueryPlatform].
@@ -48,15 +36,15 @@ abstract class QueryPlatform extends PlatformInterface {
     }
   }
 
-  /// Returns a copy of this query, with additional [parameters].
-  QueryPlatform copyWithParameters(Map<String, dynamic> parameters) {
-    throw UnimplementedError("copyWithParameters() is not implemented");
-  }
+  // /// Returns a copy of this query, with additional [parameters].
+  // QueryPlatform copyWithParameters(Map<String, dynamic> parameters) {
+  //   throw UnimplementedError("copyWithParameters() is not implemented");
+  // }
 
-  /// Builds a map of all the parameters used and appends the [QueryPlatform.path]
-  Map<String, dynamic> buildArguments() {
-    throw UnimplementedError("buildArguments() is not imlpmented");
-  }
+  // /// Builds a map of all the parameters used and appends the [QueryPlatform.path]
+  // Map<String, dynamic> buildArguments() {
+  //   throw UnimplementedError("buildArguments() is not imlpmented");
+  // }
 
   /// Creates and returns a new [QueryPlatform] that ends at the provided document
   /// (inclusive). The end position is relative to the order of the query.
@@ -76,15 +64,15 @@ abstract class QueryPlatform extends PlatformInterface {
     throw UnimplementedError("endAtDocument() is not implemented");
   }
 
-  /// Takes a list of [values], creates and returns a new [QueryPlatform] that ends at the
+  /// Takes a list of [fields], creates and returns a new [QueryPlatform] that ends at the
   /// provided fields relative to the order of the query.
   ///
-  /// The [values] must be in order of [orderBy] filters.
+  /// The [fields] must be in order of [orderBy] filters.
   ///
   /// Cannot be used in combination with [endBefore], [endBeforeDocument], or
   /// [endAtDocument], but can be used in combination with [startAt],
   /// [startAfter], [startAtDocument] and [startAfterDocument].
-  QueryPlatform endAt(List<dynamic> values) {
+  QueryPlatform endAt(List<dynamic> fields) {
     throw UnimplementedError("endAt() is not implemented");
   }
 
@@ -120,19 +108,17 @@ abstract class QueryPlatform extends PlatformInterface {
 
   /// Performs a query and returns a [QuerySnapshotPlatform] containing
   /// all documents which match the query.
-  Future<QuerySnapshotPlatform> get({
-    Source source = Source.serverAndCache,
-  }) {
+  Future<QuerySnapshotPlatform> get([GetOptions options]) {
     throw UnimplementedError("get() is not implemented");
   }
 
   /// Creates and returns a new Query that's additionally limited to only return up
   /// to the specified number of documents.
-  QueryPlatform limit(int length) {
+  QueryPlatform limit(int limit) {
     throw UnimplementedError("limit() is not implemented");
   }
 
-  QueryPlatform limitToLast(int length) {
+  QueryPlatform limitToLast(int limit) {
     throw UnimplementedError("limitToLast() is not implemented");
   }
 
@@ -245,6 +231,4 @@ abstract class QueryPlatform extends PlatformInterface {
   }) {
     throw UnimplementedError("where() is not implemented");
   }
-
-  // todo query equal
 }

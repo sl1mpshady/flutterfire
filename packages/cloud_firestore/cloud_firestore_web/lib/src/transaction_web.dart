@@ -38,13 +38,15 @@ class TransactionWeb extends TransactionPlatform {
 
   @override
   Future<void> set(
-    DocumentReferencePlatform documentReference,
-    Map<String, dynamic> data,
-  ) async {
+      DocumentReferencePlatform documentReference, Map<String, dynamic> data,
+      [SetOptions options]) async {
     assert(documentReference is DocumentReferenceWeb);
     await _webTransaction.set(
-        (documentReference as DocumentReferenceWeb).delegate,
-        CodecUtility.encodeMapData(data));
+      (documentReference as DocumentReferenceWeb).delegate,
+      CodecUtility.encodeMapData(data),
+      // TODO(ehesp): web implementation missing mergeFields support
+      options != null ? web.SetOptions(merge: options.merge) : null,
+    );
   }
 
   @override

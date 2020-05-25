@@ -29,11 +29,7 @@ class QueryWeb extends QueryPlatform {
     List<dynamic> orderByKeys,
   })  : this._isCollectionGroup = isCollectionGroup ?? false,
         this._orderByKeys = orderByKeys ?? [],
-        super(
-          firestore: _firestore,
-          pathComponents: _path.split('/'),
-          isCollectionGroup: isCollectionGroup,
-        );
+        super(_firestore);
 
   @override
   Stream<QuerySnapshotPlatform> snapshots({

@@ -19,7 +19,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
   /// Creates a [DocumentReferencePlatform] that is implemented using [MethodChannel].
   MethodChannelDocumentReference(FirestorePlatform firestore, String path)
       : assert(firestore != null),
-        super(firestore, Pointer(path)) {
+        super(firestore, path) {
     _pointer = Pointer(path);
   }
 
@@ -63,7 +63,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
       },
     );
 
-    return DocumentSnapshotPlatform(firestore, _pointer, data);
+    return DocumentSnapshotPlatform(firestore, _pointer.path, data);
   }
 
   @override

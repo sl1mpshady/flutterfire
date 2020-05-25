@@ -16,7 +16,7 @@ class MethodChannelQuerySnapshot extends QuerySnapshotPlatform {
                 (int index) {
               return DocumentSnapshotPlatform(
                 firestore,
-                Pointer(data['paths'][index]),
+                data['paths'][index],
                 data['documents'][index],
               );
             }),

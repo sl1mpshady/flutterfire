@@ -27,16 +27,14 @@ class WriteBatchWeb extends WriteBatchPlatform {
   }
 
   @override
-  void setData(
-    DocumentReferencePlatform document,
-    Map<String, dynamic> data, {
-    bool merge = false,
-  }) {
+  void setData(DocumentReferencePlatform document, Map<String, dynamic> data,
+      [SetOptions options]) {
     assert(document is DocumentReferenceWeb);
     _delegate.set(
         (document as DocumentReferenceWeb).delegate,
         CodecUtility.encodeMapData(data),
-        merge ? web.SetOptions(merge: merge) : null);
+        // TODO(ehesp): web implementation missing mergeFields support
+        options != null ? web.SetOptions(merge: options.merge) : null);
   }
 
   @override

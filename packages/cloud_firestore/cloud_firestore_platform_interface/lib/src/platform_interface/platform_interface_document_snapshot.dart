@@ -13,8 +13,9 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 /// syntax to access a specific field.
 class DocumentSnapshotPlatform extends PlatformInterface {
   /// Constructs a [DocumentSnapshotPlatform] using the provided [FirestorePlatform].
-  DocumentSnapshotPlatform(this._firestore, this._pointer, this._data)
-      : super(token: _token);
+  DocumentSnapshotPlatform(this._firestore, String path, this._data)
+      : _pointer = Pointer(path),
+        super(token: _token);
 
   static final Object _token = Object();
 
@@ -91,7 +92,7 @@ class DocumentSnapshotPlatform extends PlatformInterface {
 
     List<String> components = fieldPath.components;
     Map<String, dynamic> snapshotData = data();
-    
+
     _findComponent(int componentIndex, Map<String, dynamic> data) {
       bool isLast = componentIndex + 1 == components.length;
       dynamic value = _findKeyValueInMap(components[componentIndex], data);
@@ -101,7 +102,8 @@ class DocumentSnapshotPlatform extends PlatformInterface {
       }
 
       if (value is Map) {
-        return _findComponent(componentIndex + 1, Map<String, dynamic>.from(value));
+        return _findComponent(
+            componentIndex + 1, Map<String, dynamic>.from(value));
       } else {
         throw StateError(
             'field does not exist within the $DocumentSnapshotPlatform');

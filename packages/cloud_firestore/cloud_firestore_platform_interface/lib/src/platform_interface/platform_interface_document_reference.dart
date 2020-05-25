@@ -18,8 +18,9 @@ abstract class DocumentReferencePlatform extends PlatformInterface {
   /// Create instance of [DocumentReferencePlatform]
   DocumentReferencePlatform(
     this.firestore,
-    this._pointer,
-  ) : super(token: _token);
+    String path,
+  )   : _pointer = Pointer(path),
+        super(token: _token);
 
   static final Object _token = Object();
 
@@ -79,8 +80,7 @@ abstract class DocumentReferencePlatform extends PlatformInterface {
   ///
   /// If [merge] is true, the provided data will be merged into an
   /// existing document instead of overwriting.
-  Future<void> setData(
-    Map<String, dynamic> data, [SetOptions options]) {
+  Future<void> setData(Map<String, dynamic> data, [SetOptions options]) {
     throw UnimplementedError("setData() is not implemented");
   }
 

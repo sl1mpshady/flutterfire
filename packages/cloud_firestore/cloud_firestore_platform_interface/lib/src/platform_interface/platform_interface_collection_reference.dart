@@ -16,8 +16,9 @@ abstract class CollectionReferencePlatform extends QueryPlatform {
   /// Create a [CollectionReferencePlatform] using [pathComponents]
   CollectionReferencePlatform(
     FirestorePlatform firestore,
-    this._pointer,
-  ) : super(firestore);
+    String path,
+  )   : _pointer = Pointer(path),
+        super(firestore);
 
   /// Identifier of the referenced collection.
   String get id => _pointer.id;
@@ -31,7 +32,7 @@ abstract class CollectionReferencePlatform extends QueryPlatform {
     if (parentPath == null) {
       return null;
     }
-    
+
     return firestore.document(parentPath);
   }
 

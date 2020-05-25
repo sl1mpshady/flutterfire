@@ -4,7 +4,6 @@
 import 'dart:async';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
-import 'package:cloud_firestore_platform_interface/src/internal/pointer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 
@@ -32,7 +31,7 @@ class MethodChannelFirestore extends FirestorePlatform {
       } else if (call.method == 'DocumentSnapshot') {
         final DocumentSnapshotPlatform snapshot = DocumentSnapshotPlatform(
           this,
-          Pointer(call.arguments['path']),
+          call.arguments['path'],
           <String, dynamic>{
             'data': call.arguments['data'],
             'metadata': call.arguments['metadata'],

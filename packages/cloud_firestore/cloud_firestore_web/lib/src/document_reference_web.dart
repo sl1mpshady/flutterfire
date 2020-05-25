@@ -20,20 +20,18 @@ class DocumentReferenceWeb extends DocumentReferencePlatform {
   /// Creates an instance of [CollectionReferenceWeb] which represents path
   /// at [pathComponents] and uses implementation of [firestoreWeb]
   DocumentReferenceWeb(
-    this.firestoreWeb,
     FirestorePlatform firestore,
-    List<String> pathComponents,
-  )   : delegate = firestoreWeb.doc(pathComponents.join("/")),
-        super(firestore, pathComponents);
+    this.firestoreWeb,
+    String path,
+  )   : delegate = firestoreWeb.doc(path),
+        super(firestore, path);
 
   @override
-  Future<void> setData(
-    Map<String, dynamic> data, {
-    bool merge = false,
-  }) =>
+  Future<void> setData(Map<String, dynamic> data, [SetOptions options]) =>
       delegate.set(
         CodecUtility.encodeMapData(data),
-        web.SetOptions(merge: merge),
+        // TODO(ehesp): `mergeFields` missing from web implementation
+        web.SetOptions(merge: options.merge),
       );
 
   @override
@@ -41,9 +39,8 @@ class DocumentReferenceWeb extends DocumentReferencePlatform {
       delegate.update(data: CodecUtility.encodeMapData(data));
 
   @override
-  Future<DocumentSnapshotPlatform> get({
-    Source source = Source.serverAndCache,
-  }) async {
+  Future<DocumentSnapshotPlatform> get([GetOptions options]) async {
+    // TODO(ehesp): web implementation not handling options
     return fromWebDocumentSnapshotToPlatformDocumentSnapshot(
         await delegate.get(), this.firestore);
   }

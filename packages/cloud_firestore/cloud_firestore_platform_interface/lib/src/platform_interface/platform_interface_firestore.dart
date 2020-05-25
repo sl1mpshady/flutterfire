@@ -46,7 +46,7 @@ abstract class FirestorePlatform extends PlatformInterface {
   }
 
   /// Enables delegates to create new instances of themselves if a none default
-  /// instance is required by the user.
+  /// [FirebaseApp] instance is required by the user.
   @protected
   FirestorePlatform delegateFor({FirebaseApp app}) {
     throw UnimplementedError('delegateFor() is not implemented');

@@ -21,16 +21,16 @@ class CollectionReferenceWeb extends CollectionReferencePlatform {
   /// Creates an instance of [CollectionReferenceWeb] which represents path
   /// at [pathComponents] and uses implementation of [webFirestore]
   CollectionReferenceWeb(
-      this._firestorePlatform, this._webFirestore, List<String> pathComponents)
+      this._firestorePlatform, this._webFirestore, String path)
       : queryDelegate = QueryWeb(
           _firestorePlatform,
-          pathComponents.join("/"),
-          _webFirestore.collection(pathComponents.join("/")),
+          path,
+          _webFirestore.collection(path),
         ),
-        super(_firestorePlatform, pathComponents);
+        super(_firestorePlatform, path);
 
   @override
-  DocumentReferencePlatform parent() {
+  DocumentReferencePlatform parent {
     if (pathComponents.length < 2) {
       return null;
     }

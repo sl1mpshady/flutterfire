@@ -11,11 +11,11 @@ import 'package:cloud_firestore_web/src/utils/codec_utility.dart';
 DocumentSnapshotPlatform fromWebDocumentSnapshotToPlatformDocumentSnapshot(
     web.DocumentSnapshot webSnapshot, FirestorePlatform firestore) {
   return DocumentSnapshotPlatform(
-      webSnapshot.ref.path,
-      CodecUtility.decodeMapData(webSnapshot.data()),
-      SnapshotMetadataPlatform(
-        webSnapshot.metadata.hasPendingWrites,
-        webSnapshot.metadata.fromCache,
-      ),
-      firestore);
+    firestore,
+    webSnapshot.ref.path,
+    <String, dynamic>{
+      'data': CodecUtility.decodeMapData(webSnapshot.data()),
+      'metadata': webSnapshot.metadata,
+    },
+  );
 }

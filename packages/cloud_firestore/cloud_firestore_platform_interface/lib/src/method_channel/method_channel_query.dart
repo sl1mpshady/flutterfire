@@ -420,7 +420,8 @@ class MethodChannelQuery extends QueryPlatform {
         List<List<dynamic>>.from(parameters['where']);
 
     void addCondition(dynamic field, String operator, dynamic value) {
-      final List<dynamic> condition = <dynamic>[field, operator, value];
+      FieldPath fieldPath = field is String ? FieldPath.fromString(field) : field as FieldPath;
+      final List<dynamic> condition = <dynamic>[fieldPath, operator, value];
       assert(
           conditions
               .where((List<dynamic> item) => equality.equals(condition, item))
@@ -460,7 +461,7 @@ class MethodChannelQuery extends QueryPlatform {
     // Once all conditions have been set, we must now check them to ensure the
     // query is valid.
     for (dynamic condition in conditions) {
-      dynamic field = condition[0];
+      FieldPath field = condition[0];
       String operator = condition[1];
       dynamic value = condition[2];
 

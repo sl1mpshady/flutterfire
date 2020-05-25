@@ -14,21 +14,23 @@ import 'method_channel_firestore.dart';
 import 'method_channel_query_snapshot.dart';
 import 'utils/source.dart';
 
+Map<String, dynamic> _initialParameters = Map<String, dynamic>.unmodifiable({
+  'where': List<List<dynamic>>.unmodifiable([]),
+  'orderBy': List<List<dynamic>>.unmodifiable([]),
+  'startAt': null,
+  'startAfter': null,
+  'endAt': null,
+  'endAtDocument': null,
+  'endBefore': null,
+  'endBeforeDocument': null,
+  'limit': null,
+  'limitToLast': null,
+});
+
 /// Represents a query over the data at a particular location.
 class MethodChannelQuery extends QueryPlatform {
   /// Stores the instances query modifier filters.
-  Map<String, dynamic> parameters = Map<String, dynamic>.unmodifiable({
-    'where': List<List<dynamic>>.unmodifiable([]),
-    'orderBy': List<List<dynamic>>.unmodifiable([]),
-    'startAt': null,
-    'startAfter': null,
-    'endAt': null,
-    'endAtDocument': null,
-    'endBefore': null,
-    'endBeforeDocument': null,
-    'limit': null,
-    'limitToLast': null,
-  });
+  Map<String, dynamic> parameters;
 
   /// Flags whether the current query is for a collection group.
   bool isCollectionGroup;
@@ -37,38 +39,50 @@ class MethodChannelQuery extends QueryPlatform {
   MethodChannelQuery(
     FirestorePlatform firestore,
     String path, {
+    Map<String, dynamic> params,
     this.isCollectionGroup = false,
-    this.parameters,
   }) : super(firestore) {
     _pointer = Pointer(path);
+    parameters = params ?? _initialParameters;
   }
 
+  Pointer _pointer;
+
+  /// Creates a new instance of [MethodChannelQuery], however overrides
+  /// any existing [parameters].
+  ///
+  /// This is in place to ensure that changes to a query don't mutate
+  /// other queries.
   MethodChannelQuery _copyWithParameters(Map<String, dynamic> parameters) {
     return MethodChannelQuery(
       firestore,
       _pointer.path,
       isCollectionGroup: isCollectionGroup,
-      parameters: Map<String, dynamic>.unmodifiable(
+      params: Map<String, dynamic>.unmodifiable(
           Map<String, dynamic>.from(this.parameters)..addAll(parameters)),
     );
   }
 
+  /// Returns whether the current query has a "start" cursor query.
   bool _hasStartCursor() {
     return parameters['startAt'] != null ||
-        parameters['startAtDocument'] ||
+        parameters['startAtDocument'] != null ||
         parameters['startAfter'] != null ||
         parameters['startAfterDocument'] != null;
   }
 
+  /// Returns whether the current query has a "end" cursor query.
   bool _hasEndCursor() {
     return parameters['endAt'] != null ||
-        parameters['endAtDocument'] ||
+        parameters['endAtDocument'] != null ||
         parameters['endBefore'] != null ||
         parameters['endBeforeDocument'] != null;
   }
 
-  Pointer _pointer;
-
+  /// Handles all [DocumentSnapshotPlatform] document cursor queries.
+  ///
+  /// For a document to be useable, any [orderBy] fields in use must
+  /// exist on the snapshot, otherwise the query is invalid.
   Map<String, dynamic> _handleSnapshotCursorQuery(
       DocumentSnapshotPlatform documentSnapshot) {
     assert(documentSnapshot != null);
@@ -81,6 +95,7 @@ class MethodChannelQuery extends QueryPlatform {
     for (List<dynamic> order in orders) {
       dynamic field = order[0];
 
+      // All order by fields must exist within the snapshot
       if (field != FieldPath.documentId) {
         try {
           values.add(documentSnapshot.get(field));
@@ -90,6 +105,9 @@ class MethodChannelQuery extends QueryPlatform {
       }
     }
 
+    // Any time you construct a query and don't include 'name' in the orderBys,
+    // Firestore will implicitly assume an additional .orderBy('__name__', DIRECTION)
+    // where DIRECTION will match the last orderBy direction of your query (or 'asc' if you have no orderBys).
     if (orders.isNotEmpty) {
       List<dynamic> lastOrder = orders.last;
 
@@ -106,7 +124,9 @@ class MethodChannelQuery extends QueryPlatform {
     };
   }
 
+  /// Handles all string or FieldPath fields passed to any cursor query.
   Map<String, dynamic> _handleCursorQuery(List<dynamic> fields) {
+    assert(fields != null);
     List<List<dynamic>> orders = List.from(parameters['orderBy']);
 
     assert(
@@ -117,10 +137,10 @@ class MethodChannelQuery extends QueryPlatform {
         "Too many arguments provided. The number of arguments must be less than or equal to the number of orderBy() clauses.");
 
     return <String, List<FieldPath>>{
-      'values': fields.map((field) {
+      'values': List<FieldPath>.from(fields.map((field) {
         if (field is FieldPath) return field;
         return FieldPath.fromString(field);
-      }),
+      })),
     };
   }
 

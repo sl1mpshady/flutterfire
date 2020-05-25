@@ -7,6 +7,8 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 import 'package:cloud_firestore_platform_interface/src/internal/pointer.dart';
 
 import 'method_channel_document_reference.dart';
+import 'method_channel_document_reference.dart';
+import 'method_channel_query.dart';
 import 'method_channel_query.dart';
 import 'utils/auto_id_generator.dart';
 
@@ -19,14 +21,29 @@ import 'utils/auto_id_generator.dart';
 /// (which *does* extend its Platform class). If you changed
 /// [CollectionReferencePlatform] and this class started throwing compilation
 /// errors, now you know why.
-class MethodChannelCollectionReference extends CollectionReferencePlatform {
+class MethodChannelCollectionReference extends MethodChannelQuery
+    implements CollectionReferencePlatform {
   Pointer _pointer;
 
   /// Create a [MethodChannelCollectionReference] from [pathComponents]
   MethodChannelCollectionReference(FirestorePlatform firestore, String path)
-      : super(firestore, Pointer(path)) {
+      : super(firestore, path) {
     _pointer = Pointer(path);
   }
+
+  @override
+  String get id => _pointer.id;
+
+  @override
+  DocumentReferencePlatform get parent {
+    String parentPath = _pointer.parentPath();
+    return parentPath == null
+        ? null
+        : MethodChannelDocumentReference(firestore, parentPath);
+  }
+
+  @override
+  String get path => _pointer.path;
 
   @override
   DocumentReferencePlatform document([String path]) {

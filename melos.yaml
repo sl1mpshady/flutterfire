@@ -21,7 +21,7 @@ scripts:
     melos exec -c 1 --scope="*example*" --fail-fast -- \
       flutter build ios --no-codesign
 
-  # Build iOS plugin example apps.
+  # Build Android plugin example apps.
   build:examples:android: >
     melos exec -c 1 --scope="*example*" --fail-fast -- \
       flutter build apk

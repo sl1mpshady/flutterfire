@@ -58,7 +58,11 @@ class DocumentSnapshotPlatform extends PlatformInterface {
     return Map<String, dynamic>.from(_data['data']);
   }
 
-  ///
+  /// Gets a nested field by [String] or [FieldPath] from the snapshot.
+  /// 
+  /// Data can be accessed by providing a dot-notated path or [FieldPath]
+  /// which recursivley finds the specified data. If no data could be found
+  /// at the specified path, a [StateError] will be thrown.
   dynamic get(dynamic field) {
     assert(field != null);
     assert(field is String || field is FieldPath,
@@ -78,13 +82,14 @@ class DocumentSnapshotPlatform extends PlatformInterface {
           'field does not exist within the $DocumentSnapshotPlatform');
     }
 
-    List<String> components;
+    FieldPath fieldPath;
     if (field is String) {
-      components = field.split('.');
+      fieldPath = FieldPath.fromString(field);
     } else {
-      components = []; // TODO: handle with FieldPath
+      fieldPath = field;
     }
 
+    List<String> components = fieldPath.components;
     Map<String, dynamic> snapshotData = data();
 
     _findComponent(int componentIndex, Map<String, dynamic> data) {

@@ -13,9 +13,15 @@ class Query {
     QueryPlatform.verifyExtends(_delegate);
   }
 
+  /// Exposes the [parameters] on the query delegate.
+  ///
+  /// This should only be used for testing to ensure that all
+  /// query modifiers are correctly set on the underlying delegate
+  /// when being tested from a different package.
   @visibleForTesting
   Map<String, dynamic> get parameters {
-    return _delegate.parameters;
+    return _delegate
+        .parameters; // ignore: invalid_use_of_visible_for_testing_member
   }
 
   /// Creates and returns a new [Query] that ends at the provided document

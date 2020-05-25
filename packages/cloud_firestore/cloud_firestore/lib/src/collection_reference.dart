@@ -11,9 +11,7 @@ class CollectionReference extends Query {
   final CollectionReferencePlatform _delegate;
 
   CollectionReference._(Firestore firestore, this._delegate)
-      : super._(firestore, _delegate) {
-    // TODO(ehesp): Should this verify extends of QueryPlatform?
-  }
+      : super._(firestore, _delegate);
 
   /// ID of the referenced collection.
   String get id => _delegate.id;

@@ -4,6 +4,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
+import 'package:cloud_firestore_platform_interface/src/internal/pointer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 
@@ -14,7 +15,6 @@ import 'method_channel_query_snapshot.dart';
 import 'method_channel_transaction.dart';
 import 'method_channel_write_batch.dart';
 import 'utils/firestore_message_codec.dart';
-import 'utils/maps.dart';
 
 /// The entry point for accessing a Firestore.
 ///
@@ -25,31 +25,30 @@ class MethodChannelFirestore extends FirestorePlatform {
       : assert(app != null),
         super(app: app) {
     if (_initialized) return;
-//    channel.setMethodCallHandler((MethodCall call) async {
-//      if (call.method == 'QuerySnapshot') {
-//        final QuerySnapshotPlatform snapshot =
-//            MethodChannelQuerySnapshot(call.arguments, this);
-//        queryObservers[call.arguments['handle']].add(snapshot);
-//      } else if (call.method == 'DocumentSnapshot') {
-//        final DocumentSnapshotPlatform snapshot = DocumentSnapshotPlatform(
-//          call.arguments['path'],
-//          asStringKeyedMap(call.arguments['data']),
-//          SnapshotMetadataPlatform(
-//              call.arguments['metadata']['hasPendingWrites'],
-//              call.arguments['metadata']['isFromCache']),
-//          this,
-//        );
-//        documentObservers[call.arguments['handle']].add(snapshot);
-//      } else if (call.method == 'DoTransaction') {
-//        final int transactionId = call.arguments['transactionId'];
-//        final TransactionPlatform transaction =
-//            MethodChannelTransaction(transactionId, call.arguments["app"]);
-//        final dynamic result =
-//            await _transactionHandlers[transactionId](transaction);
-//        await transaction.finish();
-//        return result;
-//      }
-//    });
+    channel.setMethodCallHandler((MethodCall call) async {
+      if (call.method == 'QuerySnapshot') {
+        queryObservers[call.arguments['handle']]
+            .add(MethodChannelQuerySnapshot(this, call.arguments));
+      } else if (call.method == 'DocumentSnapshot') {
+        final DocumentSnapshotPlatform snapshot = DocumentSnapshotPlatform(
+          this,
+          Pointer(call.arguments['path']),
+          <String, dynamic>{
+            'data': call.arguments['data'],
+            'metadata': call.arguments['metadata'],
+          },
+        );
+        documentObservers[call.arguments['handle']].add(snapshot);
+      } else if (call.method == 'DoTransaction') {
+        final int transactionId = call.arguments['transactionId'];
+        final TransactionPlatform transaction =
+            MethodChannelTransaction(transactionId, call.arguments["app"]);
+        final dynamic result =
+            await _transactionHandlers[transactionId](transaction);
+        await transaction.finish();
+        return result;
+      }
+    });
     _initialized = true;
   }
 
@@ -103,7 +102,7 @@ class MethodChannelFirestore extends FirestorePlatform {
 
   @override
   QueryPlatform collectionGroup(String path) {
-   return MethodChannelQuery(this, path, isCollectionGroup: true);
+    return MethodChannelQuery(this, path, isCollectionGroup: true);
   }
 
   @override

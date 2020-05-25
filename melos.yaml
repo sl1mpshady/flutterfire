@@ -10,6 +10,11 @@ scripts:
     melos exec -c 1 --fail-fast -- \
       pub global run tuneup check
 
+  # Formats the code of all packages (Java, Objective-C, and Dart).
+  #   - Requires `git`.
+  #   - Requires `clang-format` (can be installed via Brew on MacOS).
+  format: pub global run flutter_plugin_tools format
+
   # Build iOS plugin example apps.
   build:examples:ios: >
     melos exec -c 1 --scope="*example*" --fail-fast -- \

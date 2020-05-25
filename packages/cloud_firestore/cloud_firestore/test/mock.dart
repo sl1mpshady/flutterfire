@@ -2,10 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 
-setupCloudFirestoreMocks() {
+typedef Callback(MethodCall call);
+
+setupCloudFirestoreMocks([Callback customHandlers]) {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   MethodChannelFirebaseCore.channel.setMockMethodCallHandler((call) async {
@@ -30,6 +33,10 @@ setupCloudFirestoreMocks() {
         'options': call.arguments['options'],
         'pluginConstants': {},
       };
+    }
+
+    if (customHandlers != null) {
+      customHandlers(call);
     }
 
     return null;

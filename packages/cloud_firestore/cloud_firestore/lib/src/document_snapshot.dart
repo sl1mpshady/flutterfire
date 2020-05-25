@@ -27,7 +27,7 @@ class DocumentSnapshot {
   SnapshotMetadata get metadata => SnapshotMetadata._(_delegate.metadata);
 
   /// Returns `true` if the document exists.
-  bool get exists => data != null;
+  bool get exists => _delegate.exists;
 
   /// Contains all the data of this snapshot.
   Map<String, dynamic> data() {
@@ -36,6 +36,10 @@ class DocumentSnapshot {
         _delegate.data(), _firestore);
   }
 
-  // TODO(ehesp): Confirm whether this is needed here - can the he platform interface can handle it
-  dynamic operator [](String key) => data()[key];
+  /// Gets a nested field by [String] or [FieldPath] from the snapshot.
+  ///
+  /// Data can be accessed by providing a dot-notated path or [FieldPath]
+  /// which recursivley finds the specified data. If no data could be found
+  /// at the specified path, a [StateError] will be thrown.
+  dynamic get(dynamic field) => _delegate.get(field);
 }

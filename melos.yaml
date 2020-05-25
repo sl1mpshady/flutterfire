@@ -1,13 +1,17 @@
 name: flutterfire_plugins
+
 packages:
   - packages/**
-scripts:
-  test: ./script/incremental_build.sh test
+
 dependencies:
   flutter:
     sdk: flutter
+
 dev_dependencies:
   pedantic: ^1.8.0
+  flutter_test:
+    sdk: flutter
+
 environment:
   sdk: ">=2.1.0 <3.0.0"
   flutter: ">=1.12.13+hotfix.5 <2.0.0"

@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 
 import 'internal/field_path_type.dart';
 
-RegExp _reserved = RegExp(r'[~*/\\[\\]]');
+String _reserved = "Paths must not contain '~', '*', '/', '[', or ']'.";
 
 /// A [FieldPath] refers to a field in a document.
 ///
@@ -46,8 +46,11 @@ class FieldPath {
     assert(!path.startsWith('.'));
     assert(!path.endsWith('.'));
     assert(!path.contains('..'));
-    assert(!_reserved.hasMatch(path),
-        "Paths must not contain '~', '*', '/', '[', or ']'.");
+    assert(!path.contains('~'), _reserved);
+    assert(!path.contains('*'), _reserved);
+    assert(!path.contains('/'), _reserved);
+    assert(!path.contains('['), _reserved);
+    assert(!path.contains(']'), _reserved);
   }
 
   @override

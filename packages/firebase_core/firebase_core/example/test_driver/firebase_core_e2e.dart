@@ -4,6 +4,7 @@
 
 import 'package:e2e/e2e.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -35,6 +36,15 @@ void main() {
     FirebaseApp app = core.app(testAppName);
     expect(app.name, testAppName);
     expect(app.options, testAppOptions);
+  });
+
+  testWidgets('FirebaseCore.app() Exception', (WidgetTester tester) async {
+    try {
+      await core.app('NoApp');
+    } on FirebaseException catch (e) {
+      expect(e.toString(), noAppExists('NoApp'));
+      return;
+    }
   });
 
   testWidgets('FirebaseApp.delete()', (WidgetTester tester) async {

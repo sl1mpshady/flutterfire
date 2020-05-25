@@ -28,7 +28,7 @@ void main() {
         methodCallLog.add(methodCall);
         print(methodCall);
         switch (methodCall.method) {
-          case 'FirebaseApp#deleteApp':
+          case 'FirebaseApp#delete':
             return null;
           case 'FirebaseApp#setAutomaticDataCollectionEnabled':
             return null;

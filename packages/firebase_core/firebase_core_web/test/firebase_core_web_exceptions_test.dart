@@ -1,11 +1,16 @@
 // Copyright 2020 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-import 'package:firebase_core/firebase_core.dart';
+
 @TestOn('browser')
+import 'dart:js' as js;
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'package:firebase_core_web/firebase_core_web.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'mock/firebase_mock.dart';
+import 'package:js/js_util.dart' as js_util;
 
 void main() {
   group('no default app', () {
@@ -59,11 +64,20 @@ void main() {
 
   group('.app()', () {
     setUp(() async {
+      firebaseMock = FirebaseMock(
+          app: js.allowInterop((String name) {
+            final dynamic error = js_util.newObject();
+            js_util.setProperty(error, 'name', 'FirebaseError');
+            js_util.setProperty(error, 'code', 'app/no-app');
+            throw error;
+          })
+      );
       FirebaseCorePlatform.instance = FirebaseCoreWeb();
     });
 
     test('should throw exception if no named app was found', () async {
       String name = 'foo';
+
       try {
         FirebaseCore.instance.app(name);
       } on FirebaseException catch (e) {

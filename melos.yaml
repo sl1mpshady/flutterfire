@@ -74,9 +74,10 @@ scripts:
         --fail-fast \
         --include-podspecs=\$MELOS_ROOT_PATH/packages/firebase_core/firebase_core/ios/firebase_core.podspec
 
-  # Automatically install required pub globals when `melos bootstrap` is run.
+  # TODO(Salakar): Temporary workaround melos issue (should not creating these for non app packages)
   postbootstrap: >
-    pub global activate flutter_plugin_tools && pub global activate tuneup
+    melos exec -c 5 --ignore="*example*" -- \
+      rm .flutter-plugins .flutter-plugins-dependencies
 
   # Additional cleanup lifecycle script, executed when `melos clean` is ran.
   postclean: >

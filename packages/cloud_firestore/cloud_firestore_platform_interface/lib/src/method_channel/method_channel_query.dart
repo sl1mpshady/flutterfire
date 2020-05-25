@@ -54,7 +54,8 @@ class MethodChannelQuery extends QueryPlatform {
   /// This is in place to ensure that changes to a query don't mutate
   /// other queries.
   MethodChannelQuery _copyWithParameters(Map<String, dynamic> parameters) {
-    Map<String, dynamic> currentParameters = Map<String, dynamic>.from(this.parameters);
+    Map<String, dynamic> currentParameters =
+        Map<String, dynamic>.from(this.parameters);
     currentParameters.addAll(parameters);
 
     return MethodChannelQuery(
@@ -197,7 +198,7 @@ class MethodChannelQuery extends QueryPlatform {
   @override
   QueryPlatform endBefore(List<dynamic> fields) {
     Map<String, dynamic> result = _handleCursorQuery(fields);
-    
+
     return _copyWithParameters(<String, dynamic>{
       'endAt': null,
       'endAtDocument': null,
@@ -420,7 +421,8 @@ class MethodChannelQuery extends QueryPlatform {
         List<List<dynamic>>.from(parameters['where']);
 
     void addCondition(dynamic field, String operator, dynamic value) {
-      FieldPath fieldPath = field is String ? FieldPath.fromString(field) : field as FieldPath;
+      FieldPath fieldPath =
+          field is String ? FieldPath.fromString(field) : field as FieldPath;
       final List<dynamic> condition = <dynamic>[fieldPath, operator, value];
       assert(
           conditions
@@ -456,7 +458,7 @@ class MethodChannelQuery extends QueryPlatform {
 
     dynamic hasInequality;
     bool hasIn = false;
-    bool hasArrayContainsAny = false;
+    bool hasArrayContains = false;
 
     // Once all conditions have been set, we must now check them to ensure the
     // query is valid.
@@ -475,16 +477,28 @@ class MethodChannelQuery extends QueryPlatform {
             "A non-empty [List] is required for '$operator' filters.");
         assert((value as List).length <= 10,
             "'$operator' filters support a maximum of 10 elements in the value [List].");
+        assert((value as List).isNotEmpty,
+            "'$operator' filters require a non-empty [List].");
+        assert((value as List).where((value) => value == null).isEmpty,
+            "'$operator' filters cannot contain 'null' in the [List].");
+      }
+
+      if (operator == 'in' ||
+          operator == 'array-contains-any' ||
+          operator == 'array-contains') {
         hasIn = operator == 'in';
-        hasArrayContainsAny = operator == 'array-contains-any';
+        hasArrayContains =
+            operator == 'array-contains-any' || operator == 'array-contains';
 
         if (operator == 'in') {
-          assert(!hasArrayContainsAny,
-              "You cannot use 'in' filters with 'array-contains-any' filters.");
+          assert(!hasArrayContains,
+              "You cannot use 'in' filters with 'array-contains-any' or 'array-contains' filters.");
         }
-        if (operator == 'array-contains-any') {
+        if (operator == 'array-contains-any' || operator == 'array-contains') {
           assert(!hasIn,
               "You cannot use 'array-contains-any' filters with 'in' filters.");
+          assert(!hasArrayContains,
+              "You cannot use both 'array-contains-any' or 'array-contains' filters together.");
         }
       }
 

@@ -63,7 +63,7 @@ scripts:
 
   # Check pubspecs are valid and publishable in each package.
   lint:pub: >
-    melos exec -c 5 --no-private --ignore="*example*" -- \
+    melos exec -c 5 --fail-fast --no-private --ignore="*example*" -- \
       pub publish --dry-run
 
   # MacOS only. Ignores stub iOS podspecs in web federated plugins.
@@ -74,10 +74,9 @@ scripts:
         --fail-fast \
         --include-podspecs=\$MELOS_ROOT_PATH/packages/firebase_core/firebase_core/ios/firebase_core.podspec
 
-  # TODO(Salakar): Temporary workaround melos issue (should not creating these for non app packages)
-  postbootstrap: >
-    melos exec -c 5 --ignore="*example*" -- \
-      rm .flutter-plugins .flutter-plugins-dependencies
+  # Automatically install required pub globals when `melos bootstrap` is run.
+  # postbootstrap: >
+    # pub global activate flutter_plugin_tools && pub global activate tuneup
 
   # Additional cleanup lifecycle script, executed when `melos clean` is ran.
   postclean: >

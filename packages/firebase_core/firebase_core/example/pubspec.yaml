@@ -11,14 +11,6 @@ dependencies:
     sdk: flutter
   firebase_core:
     path: ../
-  firebase_core_platform_interface:
-    path: ../../firebase_core_platform_interface
-
-dependency_overrides:
-  firebase_core:
-    path: ../
-  firebase_core_platform_interface:
-    path: ../../firebase_core_platform_interface
 
 dev_dependencies:
   e2e: ^0.4.2

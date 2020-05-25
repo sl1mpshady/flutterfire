@@ -46,8 +46,10 @@ void main() {
       app = await FirebaseCore.instance.initializeApp(
         name: 'testApp',
         options: const FirebaseOptions(
-          googleAppID: '1:1234567890:ios:42424242424242',
-          gcmSenderID: '1234567890',
+          appId: '1:1234567890:ios:42424242424242',
+          apiKey: '123',
+          projectId: '123',
+          messagingSenderId: '1234567890',
         ),
       );
       firestore = MethodChannelFirestore(app: app);
@@ -182,12 +184,12 @@ void main() {
 
     test('multiple apps', () async {
       expect(FirestorePlatform.instance, equals(MethodChannelFirestore()));
-      final FirebaseApp app = FirebaseApp(name: firestore.app.name);
+      final FirebaseApp app = FirebaseCore.instance.app(firestore.app.name);
       expect(firestore, equals(MethodChannelFirestore(app: app)));
     });
 
     test('settings', () async {
-      final FirebaseApp app = FirebaseApp(name: "testApp2");
+      final FirebaseApp app = FirebaseCore.instance.app("testApp2");
       final MethodChannelFirestore firestoreWithSettings =
           MethodChannelFirestore(app: app);
       await firestoreWithSettings.settings(

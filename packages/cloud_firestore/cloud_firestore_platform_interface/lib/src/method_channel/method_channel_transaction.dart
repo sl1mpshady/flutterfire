@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
-
+// import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'method_channel_firestore.dart';
 
 /// An implementation of [TransactionPlatform] which uses [MethodChannel] to
@@ -20,9 +20,9 @@ class MethodChannelTransaction extends TransactionPlatform {
   /// Constructor.
   MethodChannelTransaction(int transactionId, this.appName)
       : _transactionId = transactionId,
-        super(appName == FirebaseApp.defaultAppName
+        super(appName == defaultFirebaseAppName
             ? FirestorePlatform.instance
-            : FirestorePlatform.instanceFor(app: FirebaseApp(name: appName)));
+            : FirestorePlatform.instanceFor(app: FirebaseCore.instance.app(appName)));
 
   @override
   Future<DocumentSnapshotPlatform> doGet(

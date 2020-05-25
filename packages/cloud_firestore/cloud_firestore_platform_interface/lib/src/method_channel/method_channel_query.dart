@@ -54,12 +54,16 @@ class MethodChannelQuery extends QueryPlatform {
   /// This is in place to ensure that changes to a query don't mutate
   /// other queries.
   MethodChannelQuery _copyWithParameters(Map<String, dynamic> parameters) {
+    Map<String, dynamic> currentParameters = Map<String, dynamic>.from(this.parameters);
+    currentParameters.addAll(parameters);
+
     return MethodChannelQuery(
       firestore,
       _pointer.path,
       isCollectionGroup: isCollectionGroup,
       params: Map<String, dynamic>.unmodifiable(
-          Map<String, dynamic>.from(this.parameters)..addAll(parameters)),
+        Map<String, dynamic>.from(this.parameters)..addAll(parameters),
+      ),
     );
   }
 
@@ -131,7 +135,7 @@ class MethodChannelQuery extends QueryPlatform {
 
     assert(
         fields.where((value) => value is String || value is FieldPath).length ==
-            orders.length,
+            fields.length,
         '[fields] must be a [String] or [FieldPath]');
     assert(fields.length <= orders.length,
         "Too many arguments provided. The number of arguments must be less than or equal to the number of orderBy() clauses.");
@@ -193,7 +197,7 @@ class MethodChannelQuery extends QueryPlatform {
   @override
   QueryPlatform endBefore(List<dynamic> fields) {
     Map<String, dynamic> result = _handleCursorQuery(fields);
-
+    
     return _copyWithParameters(<String, dynamic>{
       'endAt': null,
       'endAtDocument': null,
@@ -225,6 +229,7 @@ class MethodChannelQuery extends QueryPlatform {
     assert(limit > 0, "limit must be a positive number greater than 0");
     return _copyWithParameters(<String, dynamic>{
       'limit': limit,
+      'limitToLast': null,
     });
   }
 
@@ -232,8 +237,8 @@ class MethodChannelQuery extends QueryPlatform {
   QueryPlatform limitToLast(int limit) {
     assert(limit > 0, "limit must be a positive number greater than 0");
     return _copyWithParameters(<String, dynamic>{
-      'limit': limit,
-      'limitToLast': null,
+      'limit': null,
+      'limitToLast': limit,
     });
   }
 

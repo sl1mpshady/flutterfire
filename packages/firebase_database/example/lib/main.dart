@@ -15,14 +15,18 @@ Future<void> main() async {
   final FirebaseApp app = await FirebaseCore.instance.initializeApp(
     name: 'db2',
     options: Platform.isIOS
-        ? const FirebaseOptions(
+        ? FirebaseOptions(
             appId: '1:297855924061:ios:c6de2b69b03a5be8',
+            apiKey: 'AIzaSyD_shO5mfO9lhy2TVWhfo1VUmARKlG4suk',
+            projectId: 'flutter-firebase-plugins',
             messagingSenderId: '297855924061',
             databaseURL: 'https://flutterfire-cd2f7.firebaseio.com',
           )
-        : const FirebaseOptions(
+        : FirebaseOptions(
             appId: '1:297855924061:android:669871c998cc21bd',
             apiKey: 'AIzaSyD_shO5mfO9lhy2TVWhfo1VUmARKlG4suk',
+            messagingSenderId: '297855924061',
+            projectId: 'flutter-firebase-plugins',
             databaseURL: 'https://flutterfire-cd2f7.firebaseio.com',
           ),
   );

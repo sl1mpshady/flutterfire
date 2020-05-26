@@ -18,10 +18,31 @@ import 'test_firestore_message_codec.dart';
 
 void main() {
   initializeMethodChannel();
+  FirebaseApp app;
+  setUpAll(() async {
+    app = await FirebaseCore.instance.initializeApp(
+      name: 'testApp',
+      options: const FirebaseOptions(
+        appId: '1:1234567890:ios:42424242424242',
+        apiKey: '123',
+        projectId: '123',
+        messagingSenderId: '1234567890',
+      ),
+    );
+    await FirebaseCore.instance.initializeApp(
+      name: 'testApp2',
+      options: const FirebaseOptions(
+        appId: '1:1234567890:ios:42424242424242',
+        apiKey: '123',
+        projectId: '123',
+        messagingSenderId: '1234567890',
+      ),
+    );
+  });
 
   group('MethodChannelFirestore()', () {
     int mockHandleId = 0;
-    FirebaseApp app;
+
     MethodChannelFirestore firestore;
     final List<MethodCall> log = <MethodCall>[];
     CollectionReferencePlatform collectionReference;
@@ -39,19 +60,11 @@ void main() {
 
     setUp(() async {
       mockHandleId = 0;
-      // Required for FirebaseApp.configure
-      firebaseCoreChannel.setMockMethodCallHandler(
-        (MethodCall methodCall) async {},
-      );
-      app = await FirebaseCore.instance.initializeApp(
-        name: 'testApp',
-        options: const FirebaseOptions(
-          appId: '1:1234567890:ios:42424242424242',
-          apiKey: '123',
-          projectId: '123',
-          messagingSenderId: '1234567890',
-        ),
-      );
+      // // Required for FirebaseApp.configure
+      // firebaseCoreChannel.setMockMethodCallHandler(
+      //   (MethodCall methodCall) async {},
+      // );
+
       firestore = MethodChannelFirestore(app: app);
       collectionReference = firestore.collection('foo');
       collectionGroupQuery = firestore.collectionGroup('bar');
@@ -210,6 +223,22 @@ void main() {
     });
 
     group('Transaction', () {
+      setUp(() async {
+        mockHandleId = 0;
+        // Required for FirebaseApp.configure
+        firebaseCoreChannel.setMockMethodCallHandler(
+          (MethodCall methodCall) async {},
+        );
+        // app = await FirebaseCore.instance.initializeApp(
+        //   name: 'testApp',
+        //   options: const FirebaseOptions(
+        //     appId: '1:1234567890:ios:42424242424242',
+        //     apiKey: '123',
+        //     projectId: '123',
+        //     messagingSenderId: '1234567890',
+        //   ),
+        // );
+      });
       test('runTransaction', () async {
         final Map<String, dynamic> result = await firestore.runTransaction(
             (TransactionPlatform tx) async {},

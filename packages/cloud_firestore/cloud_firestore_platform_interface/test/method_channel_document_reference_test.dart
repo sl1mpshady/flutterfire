@@ -18,7 +18,7 @@ void main() {
     FieldValuePlatform mockFieldValue;
     setUp(() {
       _documentReference = MethodChannelDocumentReference(
-          FirestorePlatform.instance, [kCollectionId, kDocumentId]);
+          FirestorePlatform.instance, '$kCollectionId/$kDocumentId');
       mockFieldValue =
           FieldValuePlatform(MethodChannelFieldValueFactory().increment(2.0));
     });

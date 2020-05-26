@@ -25,7 +25,7 @@ class SetOptions {
     this.merge,
     List<dynamic> mergeFields,
   }) {
-    assert(merge != null && mergeFields != null,
+    assert(!(merge == null && mergeFields == null),
         "options must provide 'merge' or 'mergeFields'");
     assert(
         mergeFields
@@ -38,13 +38,14 @@ class SetOptions {
       assert(merge == null, "options cannot have both 'merge' & 'mergeFields'");
     }
 
-    if (merge != null && mergeFields != null) {
-      assert(false, "options cannot have both 'merge' & 'mergeFields'");
+    if (merge != null) {
+      assert(mergeFields == null,
+          "options cannot have both 'merge' & 'mergeFields'");
     }
 
     this.mergeFields = mergeFields.map((field) {
       if (field is String) return FieldPath.fromString(field);
       return field as FieldPath;
-    });
+    }).toList(growable: false);
   }
 }

@@ -21,13 +21,15 @@ void main() {
     MethodChannelCollectionReference _testCollection;
     setUp(() {
       _testCollection = MethodChannelCollectionReference(
-          FirestorePlatform.instance, [_kCollectionId]);
+          FirestorePlatform.instance, _kCollectionId);
     });
     test("Parent", () {
-      expect(_testCollection.parent(), isNull);
+      expect(_testCollection.parent, isNull);
       expect(
           MethodChannelCollectionReference(FirestorePlatform.instance,
-              [_kCollectionId, _kDocumentId, "test"]).parent().path,
+                  '$_kCollectionId/$_kDocumentId/test')
+              .parent()
+              .path,
           equals("$_kCollectionId/$_kDocumentId"));
     });
     test("Document", () {

@@ -2,11 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// Constant used to indicate the LRU garbage collection should be disabled.
+/// Specifies custom configurations for your Cloud Firestore instance.
 ///
-/// Set this value as the cacheSizeBytes on the settings passed to the Firestore instance.
-const int CACHE_SIZE_UNLIMITED = -1;
-
+/// You must set these before invoking any other methods.
 class Settings {
   /// Creates an instance for these [Settings].
   const Settings(
@@ -14,6 +12,11 @@ class Settings {
       this.host,
       this.sslEnabled,
       this.cacheSizeBytes});
+
+  /// Constant used to indicate the LRU garbage collection should be disabled.
+  ///
+  /// Set this value as the cacheSizeBytes on the settings passed to the Firestore instance.
+  static const int CACHE_SIZE_UNLIMITED = -1;
 
   /// Attempts to enable persistent storage, if possible.
   final bool persistenceEnabled;
@@ -32,7 +35,7 @@ class Settings {
   /// will be attempted.
   ///
   /// The default value is 40 MB. The threshold must be set to at least 1 MB,
-  /// and can be set to CACHE_SIZE_UNLIMITED to disable garbage collection.
+  /// and can be set to [Settings.CACHE_SIZE_UNLIMITED] to disable garbage collection.
   final int cacheSizeBytes;
 
   /// Returns the settings as a [Map]
@@ -44,4 +47,14 @@ class Settings {
       'cacheSizeBytes': cacheSizeBytes
     };
   }
+
+  @override
+  bool operator ==(dynamic o) =>
+      o is Settings && o.asMap.toString() == asMap.toString();
+
+  @override
+  int get hashCode => asMap.hashCode;
+
+  @override
+  String toString() => 'Settings(${asMap.toString()})';
 }

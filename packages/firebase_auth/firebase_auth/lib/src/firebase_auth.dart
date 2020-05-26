@@ -15,7 +15,8 @@ class FirebaseAuth {
   }
 
   /// Provides an instance of this class corresponding to the default app.
-  static final FirebaseAuth instance = FirebaseAuth._(FirebaseApp.instance);
+  static final FirebaseAuth instance =
+      FirebaseAuth._(FirebaseCore.instance.app());
 
   final FirebaseApp app;
 

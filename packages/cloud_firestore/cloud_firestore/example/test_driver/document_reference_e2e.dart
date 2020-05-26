@@ -19,7 +19,7 @@ void runDocumentReferenceTests() {
       return firestore.document(prefixedPath);
     }
 
-    testWidgets('$DocumentReference.delete() deletes a document',
+    testWidgets('delete() deletes a document',
         (WidgetTester tester) async {
       DocumentReference document = await initializeTest('document-delete');
       await document.setData({
@@ -32,7 +32,7 @@ void runDocumentReferenceTests() {
       expect(snapshot2.exists, isFalse);
     });
 
-    testWidgets('$DocumentReference.get() gets a document from server',
+    testWidgets('get() gets a document from server',
         (WidgetTester tester) async {
       DocumentReference document = await initializeTest('document-get-server');
       await document.setData({'foo': 'bar'});
@@ -42,7 +42,7 @@ void runDocumentReferenceTests() {
       expect(snapshot.metadata.isFromCache, isFalse);
     });
 
-    testWidgets('$DocumentReference.get() gets a document from cache',
+    testWidgets('get() gets a document from cache',
         (WidgetTester tester) async {
       DocumentReference document = await initializeTest('document-get-cache');
       await document.setData({'foo': 'bar'});
@@ -52,7 +52,7 @@ void runDocumentReferenceTests() {
       expect(snapshot.metadata.isFromCache, isTrue);
     });
 
-    testWidgets('$DocumentReference.set() sets data',
+    testWidgets('set() sets data',
         (WidgetTester tester) async {
       DocumentReference document = await initializeTest('document-set');
       await document.setData({'foo': 'bar'});
@@ -63,7 +63,7 @@ void runDocumentReferenceTests() {
       expect(snapshot2.data(), equals({'bar': 'baz'}));
     });
 
-    testWidgets('$DocumentReference.set() merges data',
+    testWidgets('set() merges data',
         (WidgetTester tester) async {
       DocumentReference document = await initializeTest('document-set-merge');
       await document.setData({'foo': 'bar'});
@@ -75,7 +75,7 @@ void runDocumentReferenceTests() {
       expect(snapshot2.data(), equals({'foo': 'ben', 'bar': 'baz'}));
     });
 
-    testWidgets('$DocumentReference.set() merges fields',
+    testWidgets('set() merges fields',
         (WidgetTester tester) async {
       DocumentReference document =
           await initializeTest('document-set-merge-fields');

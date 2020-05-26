@@ -130,23 +130,14 @@ class MethodChannelQuery extends QueryPlatform {
   }
 
   /// Handles all string or FieldPath fields passed to any cursor query.
-  Map<String, dynamic> _handleCursorQuery(List<dynamic> fields) {
+  List<dynamic> _handleCursorQuery(List<dynamic> fields) {
     assert(fields != null);
     List<List<dynamic>> orders = List.from(parameters['orderBy']);
 
-    assert(
-        fields.where((value) => value is String || value is FieldPath).length ==
-            fields.length,
-        '[fields] must be a [String] or [FieldPath]');
     assert(fields.length <= orders.length,
         "Too many arguments provided. The number of arguments must be less than or equal to the number of orderBy() clauses.");
 
-    return <String, List<FieldPath>>{
-      'values': List<FieldPath>.from(fields.map((field) {
-        if (field is FieldPath) return field;
-        return FieldPath.fromString(field);
-      })),
-    };
+    return fields;
   }
 
   @override
@@ -168,10 +159,8 @@ class MethodChannelQuery extends QueryPlatform {
 
   @override
   QueryPlatform endAt(List<dynamic> fields) {
-    Map<String, dynamic> result = _handleCursorQuery(fields);
-
     return _copyWithParameters(<String, dynamic>{
-      'endAt': result['values'],
+      'endAt': _handleCursorQuery(fields),
       'endAtDocument': null,
       'endBefore': null,
       'endBeforeDocument': null,
@@ -197,12 +186,10 @@ class MethodChannelQuery extends QueryPlatform {
 
   @override
   QueryPlatform endBefore(List<dynamic> fields) {
-    Map<String, dynamic> result = _handleCursorQuery(fields);
-
     return _copyWithParameters(<String, dynamic>{
       'endAt': null,
       'endAtDocument': null,
-      'endBefore': result['values'],
+      'endBefore': _handleCursorQuery(fields),
       'endBeforeDocument': null,
     });
   }
@@ -210,11 +197,11 @@ class MethodChannelQuery extends QueryPlatform {
   /// Fetch the documents for this query
   @override
   Future<QuerySnapshotPlatform> get([GetOptions options]) async {
-    final Map<dynamic, dynamic> data =
+    final Map<String, dynamic> data =
         await MethodChannelFirestore.channel.invokeMapMethod<String, dynamic>(
       'Query#getDocuments',
       <String, dynamic>{
-        'appName': firestore.app.name,
+        'app': firestore.app.name,
         'path': _pointer.path,
         'isCollectionGroup': isCollectionGroup,
         'parameters': parameters,
@@ -361,12 +348,10 @@ class MethodChannelQuery extends QueryPlatform {
 
   @override
   QueryPlatform startAfter(List<dynamic> fields) {
-    Map<String, dynamic> result = _handleCursorQuery(fields);
-
     return _copyWithParameters(<String, dynamic>{
       'startAt': null,
       'startAtDocument': null,
-      'startAfter': result['values'],
+      'startAfter': _handleCursorQuery(fields),
       'startAfterDocument': null,
     });
   }
@@ -390,10 +375,8 @@ class MethodChannelQuery extends QueryPlatform {
 
   @override
   QueryPlatform startAt(List<dynamic> fields) {
-    Map<String, dynamic> result = _handleCursorQuery(fields);
-
     return _copyWithParameters(<String, dynamic>{
-      'startAt': result['values'],
+      'startAt': _handleCursorQuery(fields),
       'startAtDocument': null,
       'startAfter': null,
       'startAfterDocument': null,

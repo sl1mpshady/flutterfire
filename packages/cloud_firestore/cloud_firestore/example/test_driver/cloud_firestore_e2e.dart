@@ -6,6 +6,8 @@ import 'package:e2e/e2e.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'collection_reference_e2e.dart';
+import 'query_e2e.dart';
 import 'document_reference_e2e.dart';
 
 void main() {
@@ -15,5 +17,7 @@ void main() {
     await FirebaseCore.instance.initializeApp();
   });
 
+  runCollectionReferenceTests();
+  runQueryTests();
   runDocumentReferenceTests();
 }

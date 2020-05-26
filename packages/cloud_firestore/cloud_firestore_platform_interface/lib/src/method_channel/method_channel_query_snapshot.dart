@@ -17,14 +17,14 @@ class MethodChannelQuerySnapshot extends QuerySnapshotPlatform {
               return DocumentSnapshotPlatform(
                 firestore,
                 data['paths'][index],
-                data['documents'][index],
+                Map<String, dynamic>.from(data['documents'][index]),
               );
             }),
             List<DocumentChangePlatform>.generate(
                 data['documentChanges'].length, (int index) {
               return MethodChannelDocumentChange(
                 firestore,
-                data['documentChanges'][index],
+                Map<String, dynamic>.from(data['documentChanges'][index]),
               );
             }),
             SnapshotMetadataPlatform(

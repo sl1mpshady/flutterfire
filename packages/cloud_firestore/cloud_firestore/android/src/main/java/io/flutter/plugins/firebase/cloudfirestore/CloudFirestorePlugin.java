@@ -8,8 +8,10 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseArray;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,6 +40,17 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Source;
 import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
+
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -49,31 +62,21 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.StandardMessageCodec;
 import io.flutter.plugin.common.StandardMethodCodec;
-import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, ActivityAware {
 
   private static final String TAG = "CloudFirestorePlugin";
-  private MethodChannel channel;
-  private Activity activity;
-
-  // Handles are ints used as indexes into the sparse array of active observers
-  private int nextListenerHandle = 0;
-  private int nextBatchHandle = 0;
   private final SparseArray<EventObserver> observers = new SparseArray<>();
   private final SparseArray<DocumentObserver> documentObservers = new SparseArray<>();
   private final SparseArray<ListenerRegistration> listenerRegistrations = new SparseArray<>();
   private final SparseArray<WriteBatch> batches = new SparseArray<>();
   private final SparseArray<Transaction> transactions = new SparseArray<>();
   private final SparseArray<TaskCompletionSource> completionTasks = new SparseArray<>();
+  private MethodChannel channel;
+  private Activity activity;
+  // Handles are ints used as indexes into the sparse array of active observers
+  private int nextListenerHandle = 0;
+  private int nextBatchHandle = 0;
 
   public static void registerWith(PluginRegistry.Registrar registrar) {
     CloudFirestorePlugin instance = new CloudFirestorePlugin();
@@ -397,59 +400,6 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
     List<Object> endBefore = (List<Object>) parameters.get("endBefore");
     if (endBefore != null) query = query.endBefore(endBefore.toArray());
     return query;
-  }
-
-  private class DocumentObserver implements EventListener<DocumentSnapshot> {
-    private int handle;
-
-    DocumentObserver(int handle) {
-      this.handle = handle;
-    }
-
-    @Override
-    public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
-      if (e != null) {
-        // TODO: send error
-        System.out.println(e);
-        return;
-      }
-      Map<String, Object> arguments = new HashMap<>();
-      Map<String, Object> metadata = new HashMap<>();
-      arguments.put("handle", handle);
-      metadata.put("hasPendingWrites", documentSnapshot.getMetadata().hasPendingWrites());
-      metadata.put("isFromCache", documentSnapshot.getMetadata().isFromCache());
-      arguments.put("metadata", metadata);
-      if (documentSnapshot.exists()) {
-        arguments.put("data", documentSnapshot.getData());
-        arguments.put("path", documentSnapshot.getReference().getPath());
-      } else {
-        arguments.put("data", null);
-        arguments.put("path", documentSnapshot.getReference().getPath());
-      }
-      channel.invokeMethod("DocumentSnapshot", arguments);
-    }
-  }
-
-  private class EventObserver implements EventListener<QuerySnapshot> {
-    private int handle;
-
-    EventObserver(int handle) {
-      this.handle = handle;
-    }
-
-    @Override
-    public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
-      if (e != null) {
-        // TODO: send error
-        System.out.println(e);
-        return;
-      }
-
-      Map<String, Object> arguments = parseQuerySnapshot(querySnapshot);
-      arguments.put("handle", handle);
-
-      channel.invokeMethod("QuerySnapshot", arguments);
-    }
   }
 
   private void addDefaultListeners(final String description, Task<Void> task, final Result result) {
@@ -866,8 +816,12 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
           @SuppressWarnings("unchecked")
           Map<String, Object> data = (Map<String, Object>) arguments.get("data");
           Task<Void> task;
-          if (options != null && (boolean) options.get("merge")) {
+          // TODO(ehesp): Handle mergeFields
+          if (options != null && options.get("merge") != null && (boolean) options.get("merge")) {
             task = documentReference.set(data, SetOptions.merge());
+          } else if (options != null && options.get("mergeFields") != null) {
+            List<FieldPath> fieldPathList = (List<FieldPath>) options.get("mergeFields");
+            task = documentReference.set(data, SetOptions.mergeFieldPaths(fieldPathList));
           } else {
             task = documentReference.set(data);
           }
@@ -985,6 +939,59 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
       this.exception = null;
     }
   }
+
+  private class DocumentObserver implements EventListener<DocumentSnapshot> {
+    private int handle;
+
+    DocumentObserver(int handle) {
+      this.handle = handle;
+    }
+
+    @Override
+    public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException e) {
+      if (e != null) {
+        // TODO: send error
+        System.out.println(e);
+        return;
+      }
+      Map<String, Object> arguments = new HashMap<>();
+      Map<String, Object> metadata = new HashMap<>();
+      arguments.put("handle", handle);
+      metadata.put("hasPendingWrites", documentSnapshot.getMetadata().hasPendingWrites());
+      metadata.put("isFromCache", documentSnapshot.getMetadata().isFromCache());
+      arguments.put("metadata", metadata);
+      if (documentSnapshot.exists()) {
+        arguments.put("data", documentSnapshot.getData());
+        arguments.put("path", documentSnapshot.getReference().getPath());
+      } else {
+        arguments.put("data", null);
+        arguments.put("path", documentSnapshot.getReference().getPath());
+      }
+      channel.invokeMethod("DocumentSnapshot", arguments);
+    }
+  }
+
+  private class EventObserver implements EventListener<QuerySnapshot> {
+    private int handle;
+
+    EventObserver(int handle) {
+      this.handle = handle;
+    }
+
+    @Override
+    public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
+      if (e != null) {
+        // TODO: send error
+        System.out.println(e);
+        return;
+      }
+
+      Map<String, Object> arguments = parseQuerySnapshot(querySnapshot);
+      arguments.put("handle", handle);
+
+      channel.invokeMethod("QuerySnapshot", arguments);
+    }
+  }
 }
 
 final class FirestoreMessageCodec extends StandardMessageCodec {
@@ -1002,6 +1009,7 @@ final class FirestoreMessageCodec extends StandardMessageCodec {
   private static final byte INCREMENT_DOUBLE = (byte) 137;
   private static final byte INCREMENT_INTEGER = (byte) 138;
   private static final byte DOCUMENT_ID = (byte) 139;
+  private static final byte FIELD_PATH = (byte) 140;
 
   @Override
   protected void writeValue(ByteArrayOutputStream stream, Object value) {
@@ -1067,6 +1075,13 @@ final class FirestoreMessageCodec extends StandardMessageCodec {
         return FieldValue.increment(doubleIncrementValue.doubleValue());
       case DOCUMENT_ID:
         return FieldPath.documentId();
+      case FIELD_PATH:
+        final int size = readSize(buffer);
+        final List<Object> list = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+          list.add(readValue(buffer));
+        }
+        return FieldPath.of((String[]) list.toArray(new String[0]));
       default:
         return super.readValueOfType(type, buffer);
     }

@@ -1,0 +1,1 @@
+/Users/mike/Documents/Projects/Flutter/ff_internal/packages/firebase_core/firebase_core/darwin/Classes/FLTFirebasePlugin.m

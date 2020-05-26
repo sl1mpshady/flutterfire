@@ -79,7 +79,8 @@ void main() {
 
   testWidgets('$DocumentReference.set() merges fields',
       (WidgetTester tester) async {
-    DocumentReference document = await initializeTest('document-set-merge-fields');
+    DocumentReference document =
+        await initializeTest('document-set-merge-fields');
     Map initialData = {
       'foo': 'bar',
       'bar': 123,

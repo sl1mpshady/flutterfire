@@ -6,7 +6,8 @@ part of cloud_firestore;
 
 class _PlatformUtils {
   static DocumentSnapshotPlatform toPlatformDocumentSnapshot(
-          DocumentSnapshot documentSnapshot) => null;
+          DocumentSnapshot documentSnapshot) =>
+      null;
 //      DocumentSnapshotPlatform(
 //          FirestorePlatform.instance,
 //          Pointer(documentSnapshot.reference.path),

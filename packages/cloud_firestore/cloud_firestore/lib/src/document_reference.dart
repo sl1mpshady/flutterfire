@@ -84,9 +84,7 @@ class DocumentReference {
 
   @override
   bool operator ==(dynamic o) =>
-      o is DocumentReference &&
-      o.firestore == firestore &&
-      o.path == path;
+      o is DocumentReference && o.firestore == firestore && o.path == path;
 
   @override
   int get hashCode => hash2(firestore, path);

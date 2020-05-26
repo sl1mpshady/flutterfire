@@ -21,12 +21,12 @@ class CollectionReference extends Query {
   /// For root collections, null is returned.
   DocumentReference get parent {
     DocumentReferencePlatform _documentReferencePlatform = _delegate.parent;
-    
+
     // Only subcollections have a parent
     if (_documentReferencePlatform == null) {
       return null;
     }
-  
+
     return DocumentReference._(firestore, _documentReferencePlatform);
   }
 
@@ -56,9 +56,7 @@ class CollectionReference extends Query {
 
   @override
   bool operator ==(dynamic o) =>
-      o is CollectionReference &&
-      o.firestore == firestore &&
-      o.path == path;
+      o is CollectionReference && o.firestore == firestore && o.path == path;
 
   @override
   int get hashCode => hash2(firestore, path);

@@ -459,6 +459,7 @@ class MethodChannelQuery extends QueryPlatform {
     dynamic hasInequality;
     bool hasIn = false;
     bool hasArrayContains = false;
+    bool hasArrayContainsAny = false;
 
     // Once all conditions have been set, we must now check them to ensure the
     // query is valid.
@@ -483,23 +484,28 @@ class MethodChannelQuery extends QueryPlatform {
             "'$operator' filters cannot contain 'null' in the [List].");
       }
 
-      if (operator == 'in' ||
-          operator == 'array-contains-any' ||
-          operator == 'array-contains') {
-        hasIn = operator == 'in';
-        hasArrayContains =
-            operator == 'array-contains-any' || operator == 'array-contains';
+      if (operator == 'in') {
+        assert(!hasIn, "You cannot use 'in' filters more than once.");
+        hasIn = true;
+      }
 
-        if (operator == 'in') {
-          assert(!hasArrayContains,
-              "You cannot use 'in' filters with 'array-contains-any' or 'array-contains' filters.");
-        }
-        if (operator == 'array-contains-any' || operator == 'array-contains') {
-          assert(!hasIn,
-              "You cannot use 'array-contains-any' filters with 'in' filters.");
-          assert(!hasArrayContains,
-              "You cannot use both 'array-contains-any' or 'array-contains' filters together.");
-        }
+      if (operator == 'array-contains') {
+        assert(!hasArrayContains, "You cannot use 'array-contains' filters more than once.");
+        hasArrayContains = true;
+      }
+
+      if (operator == 'array-contains-any') {
+        assert(!hasArrayContainsAny, "You cannot use 'array-contains-any' filters more than once.");
+        hasArrayContainsAny = true;
+      }
+
+      if (operator == 'array-contains-any' || operator == 'in') {
+        assert(!(hasIn && hasArrayContainsAny), "You cannot use 'in' filters with 'array-contains-any' filters.");
+      }
+
+      if (operator == 'array-contains' || operator == 'array-contains-any') {
+        assert(!(hasArrayContains && hasArrayContainsAny),
+            "You cannot use both 'array-contains-any' or 'array-contains' filters together.");
       }
 
       if (operator == '<' ||

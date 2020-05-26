@@ -34,9 +34,10 @@ class WriteBatch {
   /// If [SetOptions] are provided, the data will be merged into an existing
   /// document instead of overwriting.
   // TODO(ehesp): should this be `set()`?
-  void setData(DocumentReference document, Map<String, dynamic> data, [SetOptions options]) {
-    return _delegate.setData(
-        document._delegate, _CodecUtility.replaceValueWithDelegatesInMap(data), options);
+  void setData(DocumentReference document, Map<String, dynamic> data,
+      [SetOptions options]) {
+    return _delegate.setData(document._delegate,
+        _CodecUtility.replaceValueWithDelegatesInMap(data), options);
   }
 
   // TODO(ehesp): should this be `update()`?

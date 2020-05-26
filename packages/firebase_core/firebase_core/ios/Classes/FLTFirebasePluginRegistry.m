@@ -1,1 +1,1 @@
-/Users/mike/Documents/Projects/Flutter/ff_internal/packages/firebase_core/firebase_core/darwin/Classes/FLTFirebasePluginRegistry.m
+../../darwin/Classes/FLTFirebasePluginRegistry.m

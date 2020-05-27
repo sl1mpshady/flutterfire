@@ -11,11 +11,17 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   final String name = 'foo';
   final FirebaseOptions options = const FirebaseOptions(
-    appId: '1:448618578101:web:0b650370bb29e29cac3efc',
+    appId: '1:448618578101:ios:0b650370bb29e29cac3efc',
     apiKey: 'AIzaSyAgUhHU8wSJgO5MVNy95tMT07NEjzMOfz0',
     projectId: 'react-native-firebase-testing',
     messagingSenderId: '448618578101',
   );
+
+  Future<void> _initializeDefault() async {
+    FirebaseApp app = await FirebaseCore.instance.initializeApp();
+    assert(app != null);
+    print('Initialized default app $app');
+  }
 
   Future<void> _initialize() async {
     FirebaseApp app =
@@ -55,6 +61,9 @@ class MyApp extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
+              RaisedButton(
+                  onPressed: _initializeDefault,
+                  child: const Text('Initialize default app')),
               RaisedButton(
                   onPressed: _initialize, child: const Text('Initialize app')),
               RaisedButton(onPressed: _apps, child: const Text('Get apps')),

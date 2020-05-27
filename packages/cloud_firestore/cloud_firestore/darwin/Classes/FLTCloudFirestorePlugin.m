@@ -606,7 +606,7 @@ const UInt8 FIELD_PATH = 140;
     if (![options isEqual:[NSNull null]] &&
         [options[@"merge"] isEqual:[NSNumber numberWithBool:YES]]) {
       [document setData:call.arguments[@"data"] merge:YES completion:defaultCompletionBlock];
-    } else if (![options isEqual:[NSNull null]] && ![options[@"mergeFields"] isEqual:[NSNull null]] &&) {
+    } else if (![options isEqual:[NSNull null]] && ![options[@"mergeFields"] isEqual:[NSNull null]]) {
       [document setData:call.arguments[@"data"] mergeFields:options[@"mergeFields"] completion:defaultCompletionBlock];
     } else {
       [document setData:call.arguments[@"data"] completion:defaultCompletionBlock];

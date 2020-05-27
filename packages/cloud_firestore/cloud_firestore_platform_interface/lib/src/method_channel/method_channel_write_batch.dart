@@ -16,66 +16,62 @@ import 'method_channel_firestore.dart';
 /// nor can it be committed again.
 class MethodChannelWriteBatch extends WriteBatchPlatform {
   /// Create an instance of [MethodChannelWriteBatch]
-  MethodChannelWriteBatch(this._firestore)
-      : _handle = MethodChannelFirestore.channel.invokeMethod<dynamic>(
-            'WriteBatch#create', <String, dynamic>{'app': _firestore.app.name}),
-        super();
+  MethodChannelWriteBatch(this._firestore) : super();
 
+  /// The Firestore instance of this batch.
   final FirestorePlatform _firestore;
-  Future<dynamic> _handle;
-  final List<Future<dynamic>> _actions = <Future<dynamic>>[];
+
+  /// Keeps track of all batch writes in order.
+  List<Map<String, dynamic>> _writes = [];
+
+  /// The committed state of the WriteBatch.
+  ///
+  /// Once a batch has been committed, a [StateError] will
+  /// be thrown if the batch is modified after.
   bool _committed = false;
 
   @override
   Future<void> commit() async {
     _assertNotCommitted();
-
     _committed = true;
-    await Future.wait<dynamic>(_actions);
-    await MethodChannelFirestore.channel.invokeMethod<void>(
-        'WriteBatch#commit', <String, dynamic>{'handle': await _handle});
+
+    if (_writes.isEmpty) {
+      return;
+    }
+
+    await MethodChannelFirestore.channel.invokeMethod<void>('WriteBatch#commit',
+        <String, dynamic>{'app': _firestore.app.name, 'writes': _writes});
   }
 
   @override
   void delete(DocumentReferencePlatform document) {
     _assertNotCommitted();
-
-    _handle.then((dynamic handle) {
-      _actions.add(
-        MethodChannelFirestore.channel.invokeMethod<void>(
-          'WriteBatch#delete',
-          <String, dynamic>{
-            'app': _firestore.app.name,
-            'handle': handle,
-            'path': document.path,
-          },
-        ),
-      );
+    assert(document != null);
+    assert(document.firestore == _firestore,
+        "the document provided is from a different Firestore instance");
+    _writes.add(<String, dynamic>{
+      'path': document.path,
+      'type': 'DELETE',
     });
   }
 
   @override
-  void setData(
-    DocumentReferencePlatform document,
-    Map<String, dynamic> data, [SetOptions options]) {
+  void setData(DocumentReferencePlatform document, Map<String, dynamic> data,
+      [SetOptions options]) {
     _assertNotCommitted();
+    assert(document != null);
+    assert(data != null);
+    assert(document.firestore == _firestore,
+        "the document provided is from a different Firestore instance");
 
-    _handle.then((dynamic handle) {
-      _actions.add(
-        MethodChannelFirestore.channel.invokeMethod<void>(
-          'WriteBatch#setData',
-          <String, dynamic>{
-            'app': _firestore.app.name,
-            'handle': handle,
-            'path': document.path,
-            'data': data,
-            'options': <String, dynamic>{
-              'merge': options?.merge,
-              'mergeFields': options?.mergeFields,
-            },
-          },
-        ),
-      );
+    _writes.add(<String, dynamic>{
+      'path': document.path,
+      'type': 'SET',
+      'data': data,
+      'options': <String, dynamic>{
+        'merge': options?.merge,
+        'mergeFields': options?.mergeFields,
+      },
     });
   }
 
@@ -85,19 +81,15 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
     Map<String, dynamic> data,
   ) {
     _assertNotCommitted();
+    assert(document != null);
+    assert(data != null);
+    assert(document.firestore == _firestore,
+        "the document provided is from a different Firestore instance");
 
-    _handle.then((dynamic handle) {
-      _actions.add(
-        MethodChannelFirestore.channel.invokeMethod<void>(
-          'WriteBatch#updateData',
-          <String, dynamic>{
-            'app': _firestore.app.name,
-            'handle': handle,
-            'path': document.path,
-            'data': data
-          },
-        ),
-      );
+    _writes.add(<String, dynamic>{
+      'path': document.path,
+      'type': 'UPDATE',
+      'data': data,
     });
   }
 

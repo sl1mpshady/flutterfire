@@ -12,9 +12,6 @@ import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
@@ -116,6 +113,10 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
   private DocumentReference getDocumentReference(Map<String, Object> arguments) {
     String path = (String) arguments.get("path");
     return getFirestore(arguments).document(path);
+  }
+
+  private DocumentReference getDocumentReference(FirebaseFirestore firestore, String path) {
+    return firestore.document(path);
   }
 
   private Source getSource(Map<String, Object> arguments) {
@@ -271,20 +272,9 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
   }
 
   private void addDefaultListeners(final String description, Task<Void> task, final Result result) {
-    task.addOnSuccessListener(
-        new OnSuccessListener<Void>() {
-          @Override
-          public void onSuccess(Void ignored) {
-            result.success(null);
-          }
-        });
+    task.addOnSuccessListener(ignored -> result.success(null));
     task.addOnFailureListener(
-        new OnFailureListener() {
-          @Override
-          public void onFailure(@NonNull Exception e) {
-            result.error("Error performing " + description, e.getMessage(), null);
-          }
-        });
+        e -> result.error("Error performing " + description, e.getMessage(), null));
   }
 
   @Override
@@ -338,83 +328,74 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
           final Map<String, Object> arguments = call.arguments();
           getFirestore(arguments)
               .runTransaction(
-                  new Transaction.Function<TransactionResult>() {
-                    @Nullable
-                    @Override
-                    public TransactionResult apply(@NonNull Transaction transaction) {
-                      // Store transaction.
-                      int transactionId = (Integer) arguments.get("transactionId");
-                      transactions.append(transactionId, transaction);
-                      completionTasks.append(transactionId, transactionTCS);
+                  transaction -> {
+                    // Store transaction.
+                    int transactionId = (Integer) arguments.get("transactionId");
+                    transactions.append(transactionId, transaction);
+                    completionTasks.append(transactionId, transactionTCS);
 
-                      // Start operations on Dart side.
-                      activity.runOnUiThread(
-                          new Runnable() {
-                            @Override
-                            public void run() {
-                              channel.invokeMethod(
-                                  "DoTransaction",
-                                  arguments,
-                                  new Result() {
-                                    @SuppressWarnings("unchecked")
-                                    @Override
-                                    public void success(Object doTransactionResult) {
-                                      transactionTCS.trySetResult(
-                                          (Map<String, Object>) doTransactionResult);
-                                    }
+                    // Start operations on Dart side.
+                    activity.runOnUiThread(
+                        new Runnable() {
+                          @Override
+                          public void run() {
+                            channel.invokeMethod(
+                                "DoTransaction",
+                                arguments,
+                                new Result() {
+                                  @SuppressWarnings("unchecked")
+                                  @Override
+                                  public void success(Object doTransactionResult) {
+                                    transactionTCS.trySetResult(
+                                        (Map<String, Object>) doTransactionResult);
+                                  }
 
-                                    @Override
-                                    public void error(
-                                        String errorCode,
-                                        String errorMessage,
-                                        Object errorDetails) {
-                                      transactionTCS.trySetException(
-                                          new Exception("DoTransaction failed: " + errorMessage));
-                                    }
+                                  @Override
+                                  public void error(
+                                      String errorCode, String errorMessage, Object errorDetails) {
+                                    transactionTCS.trySetException(
+                                        new Exception("DoTransaction failed: " + errorMessage));
+                                  }
 
-                                    @Override
-                                    public void notImplemented() {
-                                      transactionTCS.trySetException(
-                                          new Exception("DoTransaction not implemented"));
-                                    }
-                                  });
-                            }
-                          });
+                                  @Override
+                                  public void notImplemented() {
+                                    transactionTCS.trySetException(
+                                        new Exception("DoTransaction not implemented"));
+                                  }
+                                });
+                          }
+                        });
 
-                      // Wait till transaction is complete.
-                      try {
-                        String timeoutKey = "transactionTimeout";
-                        long timeout = ((Number) arguments.get(timeoutKey)).longValue();
-                        final Map<String, Object> transactionResult =
-                            Tasks.await(transactionTCSTask, timeout, TimeUnit.MILLISECONDS);
+                    // Wait till transaction is complete.
+                    try {
+                      String timeoutKey = "transactionTimeout";
+                      long timeout = ((Number) arguments.get(timeoutKey)).longValue();
+                      final Map<String, Object> transactionResult =
+                          Tasks.await(transactionTCSTask, timeout, TimeUnit.MILLISECONDS);
 
-                        // Once transaction completes return the result to the Dart side.
-                        return new TransactionResult(transactionResult);
-                      } catch (Exception e) {
-                        Log.e(TAG, e.getMessage(), e);
-                        return new TransactionResult(e);
-                      }
+                      // Once transaction completes return the result to the Dart side.
+                      return new TransactionResult(transactionResult);
+                    } catch (Exception e) {
+                      Log.e(TAG, e.getMessage(), e);
+                      return new TransactionResult(e);
                     }
                   })
               .addOnCompleteListener(
-                  new OnCompleteListener<TransactionResult>() {
-                    @Override
-                    public void onComplete(Task<TransactionResult> task) {
-                      if (!task.isSuccessful()) {
-                        result.error(
-                            "Error performing transaction", task.getException().getMessage(), null);
-                        return;
-                      }
+                  task -> {
+                    if (!task.isSuccessful()) {
+                      result.error(
+                          "Error performing transaction", task.getException().getMessage(), null);
+                      return;
+                    }
 
-                      TransactionResult transactionResult = task.getResult();
-                      if (transactionResult.exception == null) {
-                        result.success(transactionResult.result);
-                      } else {
-                        result.error(
-                            "Error performing transaction",
-                            transactionResult.exception.getMessage(),
-                            null);
-                      }
+                    TransactionResult transactionResult = task.getResult();
+                    if (transactionResult.exception == null) {
+                      result.success(transactionResult.result);
+                    } else {
+                      result.error(
+                          "Error performing transaction",
+                          transactionResult.exception.getMessage(),
+                          null);
                     }
                   });
           break;
@@ -440,21 +421,10 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
                 metadata.put("hasPendingWrites", documentSnapshot.getMetadata().hasPendingWrites());
                 metadata.put("isFromCache", documentSnapshot.getMetadata().isFromCache());
                 snapshotMap.put("metadata", metadata);
-                activity.runOnUiThread(
-                    new Runnable() {
-                      @Override
-                      public void run() {
-                        result.success(snapshotMap);
-                      }
-                    });
+                activity.runOnUiThread(() -> result.success(snapshotMap));
               } catch (final Exception e) {
                 activity.runOnUiThread(
-                    new Runnable() {
-                      @Override
-                      public void run() {
-                        result.error("Error performing Transaction#get", e.getMessage(), null);
-                      }
-                    });
+                    () -> result.error("Error performing Transaction#get", e.getMessage(), null));
               }
               return null;
             }
@@ -472,13 +442,7 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
               Map<String, Object> data = (Map<String, Object>) arguments.get("data");
               try {
                 transaction.update(getDocumentReference(arguments), data);
-                activity.runOnUiThread(
-                    new Runnable() {
-                      @Override
-                      public void run() {
-                        result.success(null);
-                      }
-                    });
+                activity.runOnUiThread(() -> result.success(null));
               } catch (final Exception e) {
                 activity.runOnUiThread(
                     new Runnable() {
@@ -555,61 +519,52 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
           }.execute();
           break;
         }
-      case "WriteBatch#create":
-        {
-          int handle = nextBatchHandle++;
-          final Map<String, Object> arguments = call.arguments();
-          WriteBatch batch = getFirestore(arguments).batch();
-          batches.put(handle, batch);
-          result.success(handle);
-          break;
-        }
-      case "WriteBatch#setData":
-        {
-          Map<String, Object> arguments = call.arguments();
-          int handle = (Integer) arguments.get("handle");
-          DocumentReference reference = getDocumentReference(arguments);
-          @SuppressWarnings("unchecked")
-          Map<String, Object> options = (Map<String, Object>) arguments.get("options");
-          WriteBatch batch = batches.get(handle);
-          if (options != null && (boolean) options.get("merge")) {
-            batch.set(reference, arguments.get("data"), SetOptions.merge());
-          } else {
-            batch.set(reference, arguments.get("data"));
-          }
-          result.success(null);
-          break;
-        }
-      case "WriteBatch#updateData":
-        {
-          Map<String, Object> arguments = call.arguments();
-          int handle = (Integer) arguments.get("handle");
-          DocumentReference reference = getDocumentReference(arguments);
-          @SuppressWarnings("unchecked")
-          Map<String, Object> data = (Map<String, Object>) arguments.get("data");
-          WriteBatch batch = batches.get(handle);
-          batch.update(reference, data);
-          result.success(null);
-          break;
-        }
-      case "WriteBatch#delete":
-        {
-          Map<String, Object> arguments = call.arguments();
-          int handle = (Integer) arguments.get("handle");
-          DocumentReference reference = getDocumentReference(arguments);
-          WriteBatch batch = batches.get(handle);
-          batch.delete(reference);
-          result.success(null);
-          break;
-        }
       case "WriteBatch#commit":
         {
           Map<String, Object> arguments = call.arguments();
-          int handle = (Integer) arguments.get("handle");
-          WriteBatch batch = batches.get(handle);
-          Task<Void> task = batch.commit();
-          batches.delete(handle);
-          addDefaultListeners("commit", task, result);
+          List<Object> writes = (List<Object>) arguments.get("writes");
+          FirebaseFirestore firestore = getFirestore(arguments);
+          WriteBatch batch = firestore.batch();
+
+          for (Object writeMap : writes) {
+            Map<String, Object> write = (Map) writeMap;
+            String type = (String) write.get("type");
+            String path = (String) write.get("path");
+            Map<String, Object> data = (Map<String, Object>) write.get("data");
+
+            DocumentReference documentReference = getDocumentReference(firestore, path);
+
+            switch (type) {
+              case "DELETE":
+                batch = batch.delete(documentReference);
+                break;
+              case "UPDATE":
+                batch = batch.update(documentReference, data);
+                break;
+              case "SET":
+                Map<String, Object> options = (Map) write.get("options");
+
+                if (options != null
+                    && options.get("merge") != null
+                    && (boolean) options.get("merge")) {
+                  batch = batch.set(documentReference, data, SetOptions.merge());
+                } else if (options != null && options.get("mergeFields") != null) {
+                  List<FieldPath> fieldPathList = (List<FieldPath>) options.get("mergeFields");
+                  batch =
+                      batch.set(documentReference, data, SetOptions.mergeFieldPaths(fieldPathList));
+                } else {
+                  batch = batch.set(documentReference, data);
+                }
+
+                break;
+            }
+          }
+
+          batch
+              .commit()
+              .addOnSuccessListener(ignored -> result.success(null))
+              .addOnFailureListener(
+                  e -> result.error("Error performing commit", e.getMessage(), null));
           break;
         }
       case "Query#addSnapshotListener":
@@ -660,19 +615,9 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
           Source source = getSource(arguments);
           Task<QuerySnapshot> task = query.get(source);
           task.addOnSuccessListener(
-                  new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot querySnapshot) {
-                      result.success(parseQuerySnapshot(querySnapshot));
-                    }
-                  })
+                  querySnapshot -> result.success(parseQuerySnapshot(querySnapshot)))
               .addOnFailureListener(
-                  new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                      result.error("Error performing getDocuments", e.getMessage(), null);
-                    }
-                  });
+                  e -> result.error("Error performing getDocuments", e.getMessage(), null));
           break;
         }
       case "DocumentReference#setData":
@@ -684,7 +629,6 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
           @SuppressWarnings("unchecked")
           Map<String, Object> data = (Map<String, Object>) arguments.get("data");
           Task<Void> task;
-          // TODO(ehesp): Handle mergeFields
           if (options != null && options.get("merge") != null && (boolean) options.get("merge")) {
             task = documentReference.set(data, SetOptions.merge());
           } else if (options != null && options.get("mergeFields") != null) {
@@ -713,31 +657,23 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
           Source source = getSource(arguments);
           Task<DocumentSnapshot> task = documentReference.get(source);
           task.addOnSuccessListener(
-                  new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                      Map<String, Object> snapshotMap = new HashMap<>();
-                      Map<String, Object> metadata = new HashMap<>();
-                      metadata.put(
-                          "hasPendingWrites", documentSnapshot.getMetadata().hasPendingWrites());
-                      metadata.put("isFromCache", documentSnapshot.getMetadata().isFromCache());
-                      snapshotMap.put("metadata", metadata);
-                      snapshotMap.put("path", documentSnapshot.getReference().getPath());
-                      if (documentSnapshot.exists()) {
-                        snapshotMap.put("data", documentSnapshot.getData());
-                      } else {
-                        snapshotMap.put("data", null);
-                      }
-                      result.success(snapshotMap);
+                  documentSnapshot -> {
+                    Map<String, Object> snapshotMap = new HashMap<>();
+                    Map<String, Object> metadata = new HashMap<>();
+                    metadata.put(
+                        "hasPendingWrites", documentSnapshot.getMetadata().hasPendingWrites());
+                    metadata.put("isFromCache", documentSnapshot.getMetadata().isFromCache());
+                    snapshotMap.put("metadata", metadata);
+                    snapshotMap.put("path", documentSnapshot.getReference().getPath());
+                    if (documentSnapshot.exists()) {
+                      snapshotMap.put("data", documentSnapshot.getData());
+                    } else {
+                      snapshotMap.put("data", null);
                     }
+                    result.success(snapshotMap);
                   })
               .addOnFailureListener(
-                  new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                      result.error("Error performing get", e.getMessage(), null);
-                    }
-                  });
+                  e -> result.error("Error performing get", e.getMessage(), null));
           break;
         }
       case "DocumentReference#delete":

@@ -15,6 +15,7 @@ import 'geo_point_e2e.dart';
 import 'snapshot_metadata_e2e.dart';
 import 'timestamp_e2e.dart';
 import 'transaction_e2e.dart';
+import 'write_batch_e2e.dart';
 
 void main() {
   E2EWidgetsFlutterBinding.ensureInitialized();
@@ -23,13 +24,14 @@ void main() {
     await FirebaseCore.instance.initializeApp();
   });
 
-  // runCollectionReferenceTests();
-  // runQueryTests();
-  // runDocumentReferenceTests();
-  // runDocumentChangeTests();
-  // runFieldValueTests();
-  // runGeoPointTests();
-  // runSnapshotMetadataTests();
-  // runTimestampTests();
+  runCollectionReferenceTests();
+  runQueryTests();
+  runDocumentReferenceTests();
+  runDocumentChangeTests();
+  runFieldValueTests();
+  runGeoPointTests();
+  runSnapshotMetadataTests();
+  runTimestampTests();
   runTransactionTests();
+  runWriteBatchTests();
 }

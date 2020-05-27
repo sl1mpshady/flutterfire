@@ -15,14 +15,19 @@ void runCollectionReferenceTests() {
       firestore = Firestore.instance;
     });
 
-    Future<CollectionReference> initializeTest() async {
-      String prefixedPath = 'flutter-tests';
-      return firestore.collection(prefixedPath);
+    Future<CollectionReference> initializeTest(String id) async {
+      CollectionReference collection =
+          firestore.collection('flutter-tests/$id/collection-tests');
+      QuerySnapshot snapshot = await collection.get();
+      snapshot.documents.forEach((doc) async {
+        await firestore.document(doc.reference.path).delete();
+      });
+      return collection;
     }
 
     testWidgets('add() adds a document',
         (WidgetTester tester) async {
-      CollectionReference collection = await initializeTest();
+      CollectionReference collection = await initializeTest('collection-reference-add');
       var rand = Random();
       var randNum = rand.nextInt(999999);
       DocumentReference doc = await collection.add({

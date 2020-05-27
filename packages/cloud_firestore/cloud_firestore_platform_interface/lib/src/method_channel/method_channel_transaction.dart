@@ -35,13 +35,14 @@ class MethodChannelTransaction extends TransactionPlatform {
       'path': documentReference.path,
     });
     if (result != null) {
-      // TODO
-//      return DocumentSnapshotPlatform(
-//          documentReference.path,
-//          result['data']?.cast<String, dynamic>(),
-//          SnapshotMetadataPlatform(result['metadata']['hasPendingWrites'],
-//              result['metadata']['isFromCache']),
-//          firestore);
+      return DocumentSnapshotPlatform(
+        firestore,
+        documentReference.path,
+        <String, dynamic>{
+          'data': Map<String, dynamic>.from(result['data']),
+          'metadata': Map<String, dynamic>.from(result['metadata']),
+        },
+      );
     } else {
       return null;
     }

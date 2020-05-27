@@ -17,7 +17,13 @@ class MethodChannelQuerySnapshot extends QuerySnapshotPlatform {
               return DocumentSnapshotPlatform(
                 firestore,
                 data['paths'][index],
-                Map<String, dynamic>.from(data['documents'][index]),
+                <String, dynamic>{
+                  'data': Map<String, dynamic>.from(data['documents'][index]),
+                  'metadata': <String, dynamic>{
+                    'isFromCache': data['metadatas'][index]['isFromCache'],
+                    'hasPendingWrites': data['metadatas'][index]['hasPendingWrites'],
+                  },
+                },
               );
             }),
             List<DocumentChangePlatform>.generate(

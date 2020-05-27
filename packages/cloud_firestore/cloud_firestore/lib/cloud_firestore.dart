@@ -25,6 +25,8 @@ export 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
         SetOptions,
         DocumentChangeType,
         Settings;
+export 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart'
+    show FirebaseException;
 
 part 'src/collection_reference.dart';
 part 'src/document_change.dart';

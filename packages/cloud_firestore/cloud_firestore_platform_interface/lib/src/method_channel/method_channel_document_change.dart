@@ -19,6 +19,9 @@ class MethodChannelDocumentChange extends DocumentChangePlatform {
             DocumentSnapshotPlatform(
               firestore,
               data['path'],
-              Map<String, dynamic>.from(data['document']),
+              <String, dynamic>{
+                'data': Map<String, dynamic>.from(data['document']),
+                'metadata': Map<String, dynamic>.from(data['metadata']),
+              },
             ));
 }

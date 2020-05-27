@@ -20,9 +20,7 @@ Map<String, dynamic> _initialParameters = Map<String, dynamic>.unmodifiable({
   'startAt': null,
   'startAfter': null,
   'endAt': null,
-  'endAtDocument': null,
   'endBefore': null,
-  'endBeforeDocument': null,
   'limit': null,
   'limitToLast': null,
 });
@@ -70,18 +68,12 @@ class MethodChannelQuery extends QueryPlatform {
 
   /// Returns whether the current query has a "start" cursor query.
   bool _hasStartCursor() {
-    return parameters['startAt'] != null ||
-        parameters['startAtDocument'] != null ||
-        parameters['startAfter'] != null ||
-        parameters['startAfterDocument'] != null;
+    return parameters['startAt'] != null || parameters['startAfter'] != null;
   }
 
   /// Returns whether the current query has a "end" cursor query.
   bool _hasEndCursor() {
-    return parameters['endAt'] != null ||
-        parameters['endAtDocument'] != null ||
-        parameters['endBefore'] != null ||
-        parameters['endBeforeDocument'] != null;
+    return parameters['endAt'] != null || parameters['endBefore'] != null;
   }
 
   /// Handles all [DocumentSnapshotPlatform] document cursor queries.
@@ -118,9 +110,15 @@ class MethodChannelQuery extends QueryPlatform {
 
       if (lastOrder[0] != FieldPath.documentId) {
         orders.add([FieldPath.documentId, lastOrder[1]]);
-      } else {
-        orders.add([FieldPath.documentId, false]);
       }
+    } else {
+      orders.add([FieldPath.documentId, false]);
+    }
+
+    if (isCollectionGroup) {
+      values.add(documentSnapshot.reference.path);
+    } else {
+      values.add(documentSnapshot.id);
     }
 
     return <String, dynamic>{
@@ -143,17 +141,11 @@ class MethodChannelQuery extends QueryPlatform {
   @override
   QueryPlatform endAtDocument(DocumentSnapshotPlatform documentSnapshot) {
     Map<String, dynamic> result = _handleSnapshotCursorQuery(documentSnapshot);
-
+    
     return _copyWithParameters(<String, dynamic>{
       'orderBy': result['orders'],
-      'endAt': null,
-      'endAtDocument': <String, dynamic>{
-        'id': documentSnapshot.id,
-        'path': documentSnapshot.reference.path,
-        'values': result['values'],
-      },
+      'endAt': result['values'],
       'endBefore': null,
-      'endBeforeDocument': null,
     });
   }
 
@@ -161,9 +153,7 @@ class MethodChannelQuery extends QueryPlatform {
   QueryPlatform endAt(List<dynamic> fields) {
     return _copyWithParameters(<String, dynamic>{
       'endAt': _handleCursorQuery(fields),
-      'endAtDocument': null,
       'endBefore': null,
-      'endBeforeDocument': null,
     });
   }
 
@@ -174,13 +164,7 @@ class MethodChannelQuery extends QueryPlatform {
     return _copyWithParameters(<String, dynamic>{
       'orderBy': result['orders'],
       'endAt': null,
-      'endAtDocument': null,
-      'endBefore': null,
-      'endBeforeDocument': <String, dynamic>{
-        'id': documentSnapshot.id,
-        'path': documentSnapshot.reference.path,
-        'values': result['values'],
-      },
+      'endBefore': result['values'],
     });
   }
 
@@ -188,9 +172,7 @@ class MethodChannelQuery extends QueryPlatform {
   QueryPlatform endBefore(List<dynamic> fields) {
     return _copyWithParameters(<String, dynamic>{
       'endAt': null,
-      'endAtDocument': null,
       'endBefore': _handleCursorQuery(fields),
-      'endBeforeDocument': null,
     });
   }
 
@@ -208,7 +190,7 @@ class MethodChannelQuery extends QueryPlatform {
         'source': getSourceString(options.source),
       },
     );
-
+    
     return MethodChannelQuerySnapshot(firestore, data);
   }
 
@@ -224,6 +206,8 @@ class MethodChannelQuery extends QueryPlatform {
   @override
   QueryPlatform limitToLast(int limit) {
     assert(limit > 0, "limit must be a positive number greater than 0");
+    List<List<dynamic>> orders = List.from(parameters['orderBy']);
+    assert(orders.isNotEmpty, "limitToLast() queries require specifying at least one orderBy() clause");
     return _copyWithParameters(<String, dynamic>{
       'limit': null,
       'limitToLast': limit,
@@ -288,7 +272,9 @@ class MethodChannelQuery extends QueryPlatform {
     assert(orders.where((List<dynamic> item) => field == item[0]).isEmpty,
         "OrderBy field '$field' already exists in this query");
 
-    orders.add([field, descending]);
+    FieldPath fieldPath = field is String ? FieldPath.fromString(field) : field;
+
+    orders.add([fieldPath, descending]);
 
     final List<List<dynamic>> conditions =
         List<List<dynamic>>.from(parameters['where']);
@@ -336,13 +322,7 @@ class MethodChannelQuery extends QueryPlatform {
     return _copyWithParameters(<String, dynamic>{
       'orderBy': result['orders'],
       'startAt': null,
-      'startAtDocument': null,
-      'startAfter': null,
-      'startAfterDocument': <String, dynamic>{
-        'id': documentSnapshot.id,
-        'path': documentSnapshot.reference.path,
-        'values': result['values'],
-      },
+      'startAfter': result['values'],
     });
   }
 
@@ -350,9 +330,7 @@ class MethodChannelQuery extends QueryPlatform {
   QueryPlatform startAfter(List<dynamic> fields) {
     return _copyWithParameters(<String, dynamic>{
       'startAt': null,
-      'startAtDocument': null,
       'startAfter': _handleCursorQuery(fields),
-      'startAfterDocument': null,
     });
   }
 
@@ -362,14 +340,8 @@ class MethodChannelQuery extends QueryPlatform {
 
     return _copyWithParameters(<String, dynamic>{
       'orderBy': result['orders'],
-      'startAt': null,
-      'startAtDocument': <String, dynamic>{
-        'id': documentSnapshot.id,
-        'path': documentSnapshot.reference.path,
-        'values': result['values'],
-      },
+      'startAt': result['values'],
       'startAfter': null,
-      'startAfterDocument': null,
     });
   }
 
@@ -377,9 +349,7 @@ class MethodChannelQuery extends QueryPlatform {
   QueryPlatform startAt(List<dynamic> fields) {
     return _copyWithParameters(<String, dynamic>{
       'startAt': _handleCursorQuery(fields),
-      'startAtDocument': null,
       'startAfter': null,
-      'startAfterDocument': null,
     });
   }
 
@@ -473,17 +443,20 @@ class MethodChannelQuery extends QueryPlatform {
       }
 
       if (operator == 'array-contains') {
-        assert(!hasArrayContains, "You cannot use 'array-contains' filters more than once.");
+        assert(!hasArrayContains,
+            "You cannot use 'array-contains' filters more than once.");
         hasArrayContains = true;
       }
 
       if (operator == 'array-contains-any') {
-        assert(!hasArrayContainsAny, "You cannot use 'array-contains-any' filters more than once.");
+        assert(!hasArrayContainsAny,
+            "You cannot use 'array-contains-any' filters more than once.");
         hasArrayContainsAny = true;
       }
 
       if (operator == 'array-contains-any' || operator == 'in') {
-        assert(!(hasIn && hasArrayContainsAny), "You cannot use 'in' filters with 'array-contains-any' filters.");
+        assert(!(hasIn && hasArrayContainsAny),
+            "You cannot use 'in' filters with 'array-contains-any' filters.");
       }
 
       if (operator == 'array-contains' || operator == 'array-contains-any') {

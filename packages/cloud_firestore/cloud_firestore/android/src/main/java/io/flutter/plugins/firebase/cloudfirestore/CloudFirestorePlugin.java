@@ -130,47 +130,6 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private Object[] getDocumentValues(
-      Map<String, Object> document, List<List<Object>> orderBy, Map<String, Object> arguments) {
-    String documentId = (String) document.get("id");
-    Map<String, Object> documentData = (Map<String, Object>) document.get("data");
-    List<Object> data = new ArrayList<>();
-    if (orderBy != null) {
-      for (List<Object> order : orderBy) {
-        final Object field = order.get(0);
-
-        if (field instanceof FieldPath) {
-          if (field == FieldPath.documentId()) {
-            // This is also checked by an assertion on the Dart side.
-            throw new IllegalArgumentException(
-                "You cannot order by the document id when using"
-                    + "{start/end}{At/After/Before}Document as the library will order by the document"
-                    + " id implicitly in order to to add other fields to the order clause.");
-          } else {
-            // Unsupported type.
-          }
-        } else if (field instanceof String) {
-          String orderByFieldName = (String) field;
-          if (orderByFieldName.contains(".")) {
-            String[] fieldNameParts = orderByFieldName.split("\\.");
-            Map<String, Object> current = (Map<String, Object>) documentData.get(fieldNameParts[0]);
-            for (int i = 1; i < fieldNameParts.length - 1; i++) {
-              current = (Map<String, Object>) current.get(fieldNameParts[i]);
-            }
-            data.add(current.get(fieldNameParts[fieldNameParts.length - 1]));
-          } else {
-            data.add(documentData.get(orderByFieldName));
-          }
-        } else {
-          // Invalid type.
-        }
-      }
-    }
-    data.add((boolean) arguments.get("isCollectionGroup") ? document.get("path") : documentId);
-    return data.toArray();
-  }
-
   private Map<String, Object> parseQuerySnapshot(QuerySnapshot querySnapshot) {
     if (querySnapshot == null) return new HashMap<>();
     Map<String, Object> data = new HashMap<>();
@@ -235,170 +194,79 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
     @SuppressWarnings("unchecked")
     Map<String, Object> parameters = (Map<String, Object>) arguments.get("parameters");
     if (parameters == null) return query;
-    @SuppressWarnings("unchecked")
-    List<List<Object>> whereConditions = (List<List<Object>>) parameters.get("where");
-    for (List<Object> condition : whereConditions) {
-      String fieldName = null;
-      FieldPath fieldPath = null;
-      final Object field = condition.get(0);
-      if (field instanceof String) {
-        fieldName = (String) field;
-      } else if (field instanceof FieldPath) {
-        fieldPath = (FieldPath) field;
-      } else {
-        // Invalid type.
-      }
 
+    // "where" filters
+    @SuppressWarnings("unchecked")
+    List<List<Object>> filters = (List<List<Object>>) parameters.get("where");
+    for (List<Object> condition : filters) {
+      FieldPath fieldPath = (FieldPath) condition.get(0);
       String operator = (String) condition.get(1);
       Object value = condition.get(2);
+
       if ("==".equals(operator)) {
-        if (fieldName != null) {
-          query = query.whereEqualTo(fieldName, value);
-        } else if (fieldPath != null) {
-          query = query.whereEqualTo(fieldPath, value);
-        } else {
-          // Invalid type.
-        }
+        query = query.whereEqualTo(fieldPath, value);
       } else if ("<".equals(operator)) {
-        if (fieldName != null) {
-          query = query.whereLessThan(fieldName, value);
-        } else if (fieldPath != null) {
-          query = query.whereLessThan(fieldPath, value);
-        } else {
-          // Invalid type.
-        }
+        query = query.whereLessThan(fieldPath, value);
       } else if ("<=".equals(operator)) {
-        if (fieldName != null) {
-          query = query.whereLessThanOrEqualTo(fieldName, value);
-        } else if (fieldPath != null) {
-          query = query.whereLessThanOrEqualTo(fieldPath, value);
-        } else {
-          // Invalid type.
-        }
+        query = query.whereLessThanOrEqualTo(fieldPath, value);
       } else if (">".equals(operator)) {
-        if (fieldName != null) {
-          query = query.whereGreaterThan(fieldName, value);
-        } else if (fieldPath != null) {
-          query = query.whereGreaterThan(fieldPath, value);
-        } else {
-          // Invalid type.
-        }
+        query = query.whereGreaterThan(fieldPath, value);
       } else if (">=".equals(operator)) {
-        if (fieldName != null) {
-          query = query.whereGreaterThanOrEqualTo(fieldName, value);
-        } else if (fieldPath != null) {
-          query = query.whereGreaterThanOrEqualTo(fieldPath, value);
-        } else {
-          // Invalid type.
-        }
+        query = query.whereGreaterThanOrEqualTo(fieldPath, value);
       } else if ("array-contains".equals(operator)) {
-        if (fieldName != null) {
-          query = query.whereArrayContains(fieldName, value);
-        } else if (fieldPath != null) {
-          query = query.whereArrayContains(fieldPath, value);
-        } else {
-          // Invalid type.
-        }
+        query = query.whereArrayContains(fieldPath, value);
       } else if ("array-contains-any".equals(operator)) {
         List<Object> values = (List<Object>) value;
-        if (fieldName != null) {
-          query = query.whereArrayContainsAny(fieldName, values);
-        } else if (fieldPath != null) {
-          query = query.whereArrayContainsAny(fieldPath, values);
-        } else {
-          // Invalid type.
-        }
+        query = query.whereArrayContainsAny(fieldPath, values);
       } else if ("in".equals(operator)) {
         List<Object> values = (List<Object>) value;
-        if (fieldName != null) {
-          query = query.whereIn(fieldName, values);
-        } else if (fieldPath != null) {
-          query = query.whereIn(fieldPath, values);
-        } else {
-          // Invalid type.
-        }
+        query = query.whereIn(fieldPath, values);
       } else {
         // Invalid operator.
       }
     }
+
+    // "limit" filters
     @SuppressWarnings("unchecked")
     Number limit = (Number) parameters.get("limit");
     if (limit != null) query = query.limit(limit.longValue());
+
+    @SuppressWarnings("unchecked")
+    Number limitToLast = (Number) parameters.get("limitToLast");
+    if (limitToLast != null) query = query.limitToLast(limitToLast.longValue());
+
+    // "orderBy" filters
     @SuppressWarnings("unchecked")
     List<List<Object>> orderBy = (List<List<Object>>) parameters.get("orderBy");
     if (orderBy == null) return query;
+
     for (List<Object> order : orderBy) {
-      String fieldName = null;
-      FieldPath fieldPath = null;
-      final Object field = order.get(0);
-      if (field instanceof String) {
-        fieldName = (String) field;
-      } else if (field instanceof FieldPath) {
-        fieldPath = (FieldPath) field;
-      } else {
-        // Invalid type.
-      }
-
+      FieldPath fieldPath = (FieldPath) order.get(0);
       boolean descending = (boolean) order.get(1);
+
       Query.Direction direction =
           descending ? Query.Direction.DESCENDING : Query.Direction.ASCENDING;
 
-      if (fieldName != null) {
-        query = query.orderBy(fieldName, direction);
-      } else if (fieldPath != null) {
-        query = query.orderBy(fieldPath, direction);
-      } else {
-        // Invalid type.
-      }
+      query = query.orderBy(fieldPath, direction);
     }
-    @SuppressWarnings("unchecked")
-    Map<String, Object> startAtDocument = (Map<String, Object>) parameters.get("startAtDocument");
-    @SuppressWarnings("unchecked")
-    Map<String, Object> startAfterDocument =
-        (Map<String, Object>) parameters.get("startAfterDocument");
-    @SuppressWarnings("unchecked")
-    Map<String, Object> endAtDocument = (Map<String, Object>) parameters.get("endAtDocument");
-    @SuppressWarnings("unchecked")
-    Map<String, Object> endBeforeDocument =
-        (Map<String, Object>) parameters.get("endBeforeDocument");
-    if (startAtDocument != null
-        || startAfterDocument != null
-        || endAtDocument != null
-        || endBeforeDocument != null) {
-      if (orderBy.isEmpty()) {
-        throw new IllegalStateException(
-            "You need to order by at least one field when using "
-                + "{start/end}{At/After/Before}Document as you need some value to e.g. start after.");
-      }
-      boolean descending = (boolean) orderBy.get(orderBy.size() - 1).get(1);
-      Query.Direction direction =
-          descending ? Query.Direction.DESCENDING : Query.Direction.ASCENDING;
-      query = query.orderBy(FieldPath.documentId(), direction);
-    }
-    if (startAtDocument != null) {
-      query = query.startAt(getDocumentValues(startAtDocument, orderBy, arguments));
-    }
-    if (startAfterDocument != null) {
-      query = query.startAfter(getDocumentValues(startAfterDocument, orderBy, arguments));
-    }
+
+    // cursor queries
     @SuppressWarnings("unchecked")
     List<Object> startAt = (List<Object>) parameters.get("startAt");
     if (startAt != null) query = query.startAt(startAt.toArray());
+
     @SuppressWarnings("unchecked")
     List<Object> startAfter = (List<Object>) parameters.get("startAfter");
     if (startAfter != null) query = query.startAfter(startAfter.toArray());
-    if (endAtDocument != null) {
-      query = query.endAt(getDocumentValues(endAtDocument, orderBy, arguments));
-    }
-    if (endBeforeDocument != null) {
-      query = query.endBefore(getDocumentValues(endBeforeDocument, orderBy, arguments));
-    }
+
     @SuppressWarnings("unchecked")
     List<Object> endAt = (List<Object>) parameters.get("endAt");
     if (endAt != null) query = query.endAt(endAt.toArray());
+
     @SuppressWarnings("unchecked")
     List<Object> endBefore = (List<Object>) parameters.get("endBefore");
     if (endBefore != null) query = query.endBefore(endBefore.toArray());
+
     return query;
   }
 

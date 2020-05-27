@@ -9,6 +9,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'collection_reference_e2e.dart';
 import 'query_e2e.dart';
 import 'document_reference_e2e.dart';
+import 'document_change_e2e.dart';
+import 'field_value_e2e.dart';
+import 'geo_point_e2e.dart';
+import 'snapshot_metadata_e2e.dart';
+import 'timestamp_e2e.dart';
+import 'transaction_e2e.dart';
 
 void main() {
   E2EWidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +23,13 @@ void main() {
     await FirebaseCore.instance.initializeApp();
   });
 
-  runCollectionReferenceTests();
-  runQueryTests();
-  runDocumentReferenceTests();
+  // runCollectionReferenceTests();
+  // runQueryTests();
+  // runDocumentReferenceTests();
+  // runDocumentChangeTests();
+  // runFieldValueTests();
+  // runGeoPointTests();
+  // runSnapshotMetadataTests();
+  // runTimestampTests();
+  runTransactionTests();
 }

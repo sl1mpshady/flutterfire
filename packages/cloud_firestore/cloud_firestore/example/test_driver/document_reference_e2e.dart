@@ -19,8 +19,7 @@ void runDocumentReferenceTests() {
       return firestore.document(prefixedPath);
     }
 
-    testWidgets('delete() deletes a document',
-        (WidgetTester tester) async {
+    testWidgets('delete() deletes a document', (WidgetTester tester) async {
       DocumentReference document = await initializeTest('document-delete');
       await document.setData({
         'foo': 'bar',
@@ -52,8 +51,7 @@ void runDocumentReferenceTests() {
       expect(snapshot.metadata.isFromCache, isTrue);
     });
 
-    testWidgets('set() sets data',
-        (WidgetTester tester) async {
+    testWidgets('set() sets data', (WidgetTester tester) async {
       DocumentReference document = await initializeTest('document-set');
       await document.setData({'foo': 'bar'});
       DocumentSnapshot snapshot = await document.get();
@@ -63,8 +61,7 @@ void runDocumentReferenceTests() {
       expect(snapshot2.data(), equals({'bar': 'baz'}));
     });
 
-    testWidgets('set() merges data',
-        (WidgetTester tester) async {
+    testWidgets('set() merges data', (WidgetTester tester) async {
       DocumentReference document = await initializeTest('document-set-merge');
       await document.setData({'foo': 'bar'});
       DocumentSnapshot snapshot = await document.get();
@@ -75,8 +72,7 @@ void runDocumentReferenceTests() {
       expect(snapshot2.data(), equals({'foo': 'ben', 'bar': 'baz'}));
     });
 
-    testWidgets('set() merges fields',
-        (WidgetTester tester) async {
+    testWidgets('set() merges fields', (WidgetTester tester) async {
       DocumentReference document =
           await initializeTest('document-set-merge-fields');
       Map<String, dynamic> initialData = {
@@ -101,6 +97,21 @@ void runDocumentReferenceTests() {
       DocumentSnapshot snapshot2 = await document.get();
       expect(
           snapshot2.data(), equals({'foo': 'bar', 'bar': 456, 'baz': 'foo'}));
+    });
+
+    testWidgets('throws a [FirebaseException] if permission denied',
+        (WidgetTester tester) async {
+      // TODO(ehesp): Implement once rejection handler is setup
+
+      // DocumentReference document = firestore.document('not-allowed/document');
+
+      // try {
+      //   await document.get();
+      // } catch(e) {
+      //   expect(e, isA<FirebaseException>());
+      // }
+
+      // fail("should have thrown a [FirebaseException]");
     });
   });
 }

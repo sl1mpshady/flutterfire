@@ -107,7 +107,9 @@ class Query {
   Stream<QuerySnapshot> snapshots({bool includeMetadataChanges = false}) =>
       _delegate
           .snapshots(includeMetadataChanges: includeMetadataChanges)
-          .map((item) => QuerySnapshot._(firestore, item));
+          .map((item) {
+        return QuerySnapshot._(firestore, item);
+      });
 
   /// Creates and returns a new [Query] that's additionally sorted by the specified
   /// [field].

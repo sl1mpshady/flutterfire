@@ -75,10 +75,10 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 
 - (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResult)flutterResult {
   FLTFirebaseMethodCallErrorBlock errorBlock = ^(
-      NSString *code,
-      NSString *message,
-      NSDictionary _Nullable *details,
-      NSError _Nullable *error
+      NSString *_Nonnull code,
+      NSString *_Nonnull message,
+      NSDictionary *_Nullable details,
+      NSError *_Nullable error
   ) {
     flutterResult([self createFlutterErrorFromCode:code message:message optionalDetails:details andOptionalNSError:error]);
   };
@@ -105,13 +105,10 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 #pragma mark - API
 
 - (void)initializeApp:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
-  NSString *appNameIos = arguments[kAppName];
-  if ([kFIRDefaultAppNameDart isEqualToString:appNameIos]) {
-    appNameIos = kFIRDefaultAppNameIOS;
-  }
+  NSString *appNameIos = [self firebaseAppNameFromDartName:arguments[kAppName]];
 
-  if ([FIRApp appNamed:appNameIos]) {
-    result.success([self dictionaryFromFIRApp:[FIRApp appNamed:appNameIos]]);
+  if ([self firebaseAppNamed:appNameIos]) {
+    result.success([self dictionaryFromFIRApp:[self firebaseAppNamed:appNameIos]]);
     return;
   }
 
@@ -236,10 +233,7 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 }
 
 - (NSDictionary *)dictionaryFromFIRApp:(FIRApp *)firebaseApp {
-  NSString *appNameDart = firebaseApp.name;
-  if ([kFIRDefaultAppNameIOS isEqualToString:appNameDart]) {
-    appNameDart = kFIRDefaultAppNameDart;
-  }
+  NSString *appNameDart = [self firebaseAppNameFromIosName:firebaseApp.name];
 
   return @{
       kName: appNameDart,
@@ -251,19 +245,19 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 
 #pragma mark - FLTFirebasePlugin
 
-- (NSDictionary *)pluginConstantsForFIRApp:(FIRApp *)firebase_app {
+- (NSDictionary *_Nonnull)pluginConstantsForFIRApp:(FIRApp *)firebase_app {
   return @{};
 }
 
-- (NSString *)firebaseLibraryName {
+- (NSString *_Nonnull)firebaseLibraryName {
   return LIBRARY_NAME;
 }
 
-- (NSString *)firebaseLibraryVersion {
+- (NSString *_Nonnull)firebaseLibraryVersion {
   return LIBRARY_VERSION;
 }
 
-- (NSString *)flutterChannelName {
+- (NSString *_Nonnull)flutterChannelName {
   return kFLTFirebaseCoreChannelName;
 }
 

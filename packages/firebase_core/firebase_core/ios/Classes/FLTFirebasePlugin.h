@@ -6,10 +6,6 @@
 #import <Firebase/Firebase.h>
 #import <Flutter/Flutter.h>
 
-// Firebase default app name.
-NSString *const kFIRDefaultAppNameIOS = @"__FIRAPP_DEFAULT";
-NSString *const kFIRDefaultAppNameDart = @"[DEFAULT]";
-
 /**
  * Block that is capable of sending a success response to a method call operation.
  * Use this for returning success data to a Method call.
@@ -21,7 +17,7 @@ typedef void (^FLTFirebaseMethodCallSuccessBlock)(id _Nullable result);
  * Use this for returning error information to a Method call.
  */
 typedef void(^FLTFirebaseMethodCallErrorBlock)
-    (NSString *code, NSString *message, NSDictionary *_Nullable details, NSError _Nullable *error);
+(NSString * _Nonnull code, NSString * _Nonnull message, NSDictionary *_Nullable details, NSError  * _Nullable error);
 
 /**
  * A protocol that all FlutterFire plugins should implement.
@@ -35,7 +31,7 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  *     registering callbacks.
  */
  @required
-- (NSDictionary *)pluginConstantsForFIRApp:(FIRApp *)firebaseApp;
+- (NSDictionary *_Nonnull)pluginConstantsForFIRApp:(FIRApp *_Nonnull)firebaseApp;
 
 /**
  * The Firebase library name of the plugin, used by
@@ -46,7 +42,7 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  * defined in the plugins .podspec file.
  */
  @required
-- (NSString *)firebaseLibraryName;
+- (NSString *_Nonnull)firebaseLibraryName;
 
 /**
  * The Firebase library version of the plugin, used by
@@ -57,7 +53,7 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  * defined in the plugins .podspec file.
  */
  @required
-- (NSString *)firebaseLibraryVersion;
+- (NSString *_Nonnull)firebaseLibraryVersion;
 
 /**
  * FlutterFire plugins implementing FLTFirebasePlugin must provide this method to provide
@@ -65,28 +61,28 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  * constants specific to a plugin.
  */
  @required
-- (NSString *)flutterChannelName;
+- (NSString *_Nonnull)flutterChannelName;
 @end
 
 /**
  * An interface represent a returned result from a Flutter Method Call.
  */
 @interface FLTFirebaseMethodCallResult : NSObject
-+ (instancetype)createWithSuccess:(FLTFirebaseMethodCallSuccessBlock)successBlock andErrorBlock:(FLTFirebaseMethodCallErrorBlock)errorBlock;
++ (instancetype _Nonnull)createWithSuccess:(FLTFirebaseMethodCallSuccessBlock _Nonnull)successBlock andErrorBlock:(FLTFirebaseMethodCallErrorBlock _Nonnull)errorBlock;
 
 /**
  * Submit a result indicating a successful method call.
  *
  * E.g.: `result.success(nil);`
  */
-@property(readonly, nonatomic) FLTFirebaseMethodCallSuccessBlock success;
+@property(readonly, nonatomic) FLTFirebaseMethodCallSuccessBlock _Nonnull success;
 
 /**
  * Submit a result indicating a failed method call.
  *
  * E.g.: `result.error(@"code", @"message", nil);`
  */
-@property(readonly, nonatomic) FLTFirebaseMethodCallErrorBlock error;
+@property(readonly, nonatomic) FLTFirebaseMethodCallErrorBlock _Nonnull error;
 
 @end
 
@@ -101,7 +97,7 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  *
  * @return FlutterError
  */
-- (FlutterError *)createFlutterErrorFromCode:(NSString *)code message:(NSString *)message optionalDetails:(NSDictionary *_Nullable)details andOptionalNSError:(NSError *_Nullable)error;
+- (FlutterError *_Nonnull)createFlutterErrorFromCode:(NSString *_Nonnull)code message:(NSString *_Nonnull)message optionalDetails:(NSDictionary *_Nullable)details andOptionalNSError:(NSError *_Nullable)error;
 
 /**
  * Converts the '[DEFAULT]' app name used in dart and other SDKs to the '__FIRAPP_DEFAULT' iOS equivalent.
@@ -112,7 +108,18 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  *
  * @return NSString
  */
-- (NSString *)firebaseAppNameFromDartName:(NSString *)appName;
+- (NSString *_Nonnull)firebaseAppNameFromDartName:(NSString *_Nonnull)appName;
+
+/**
+ * Converts the '__FIRAPP_DEFAULT' app name used in iOS to '[DEFAULT]' - used in Dart & other SDKs.
+ *
+ * If name is not '__FIRAPP_DEFAULT' then just returns the same name that was passed in.
+ *
+ * @param appName The name of the Firebase App.
+ *
+ * @return NSString
+ */
+- (NSString *_Nonnull)firebaseAppNameFromIosName:(NSString *_Nonnull)appName;
 
 /**
  * Retrieves a FIRApp instance based on the app name provided from Dart code.
@@ -121,5 +128,5 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  *
  * @return FIRApp - returns nil if Firebase app does not exist.
  */
-- (FIRApp _Nullable *)firebaseAppNamed:(NSString *)appName;
+- (FIRApp *_Nullable)firebaseAppNamed:(NSString *_Nonnull)appName;
 @end

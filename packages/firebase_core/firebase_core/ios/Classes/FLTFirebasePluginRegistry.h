@@ -9,7 +9,7 @@
 /**
  * Get the shared singleton instance of the plugin registry.
  *
- * @return
+ * @return FLTFirebasePluginRegistry
  */
 + (instancetype)sharedInstance;
 

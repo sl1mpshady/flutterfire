@@ -13,6 +13,7 @@ part of firebase_core_platform_interface;
 /// FirebaseCore.instance.app('SecondaryApp`);
 /// ```
 class MethodChannelFirebaseApp extends FirebaseAppPlatform {
+  // ignore: public_member_api_docs
   MethodChannelFirebaseApp(
     String name,
     FirebaseOptions options, {

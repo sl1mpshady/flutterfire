@@ -13,6 +13,7 @@ part of firebase_core_platform_interface;
 /// `implements` this interface will be broken by newly added
 /// [FirebaseCorePlatform] methods.
 abstract class FirebaseCorePlatform extends PlatformInterface {
+  // ignore: public_member_api_docs
   FirebaseCorePlatform() : super(token: _token);
 
   static final Object _token = Object();

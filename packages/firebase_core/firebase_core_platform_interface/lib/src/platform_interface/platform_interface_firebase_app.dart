@@ -8,10 +8,12 @@ part of firebase_core_platform_interface;
 ///
 /// This is created as a result of calling [FirebaseCorePlatform.initializeApp].
 class FirebaseAppPlatform extends PlatformInterface {
+  // ignore: public_member_api_docs
   FirebaseAppPlatform(this.name, this.options) : super(token: _token);
 
   static final Object _token = Object();
 
+  // ignore: public_member_api_docs
   static verifyExtends(FirebaseAppPlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
   }

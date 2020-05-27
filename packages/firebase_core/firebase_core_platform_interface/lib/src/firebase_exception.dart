@@ -15,6 +15,16 @@ part of firebase_core_platform_interface;
 /// }
 /// ```
 class FirebaseException implements Exception {
+  /// A generic class which provides exceptions in a Firebase-friendly format
+  /// to users.
+  ///
+  /// ```dart
+  /// try {
+  ///   await FirebaseCore.instance.initializeApp();
+  /// } catch (e) {
+  ///   print(e.toString());
+  /// }
+  /// ```
   FirebaseException(
       {@required this.plugin, @required this.message, this.code = 'unknown'});
 

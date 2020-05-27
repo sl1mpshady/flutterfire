@@ -28,11 +28,13 @@ class FirebaseApp {
   }
 
   @Deprecated("Deprecated in favor of FirebaseCore.instance.app()")
+  // ignore: public_member_api_docs
   static FirebaseApp appNamed(String name) {
     return FirebaseCore.instance.app(name);
   }
 
   @Deprecated("Deprecated in favor of FirebaseCore.instance.apps")
+  // ignore: public_member_api_docs
   static Future<List<FirebaseApp>> allApps() async {
     return FirebaseCore.instance.apps;
   }
@@ -46,11 +48,13 @@ class FirebaseApp {
   // }
 
   @Deprecated("Deprecated in favor of FirebaseCore.instance.app()")
+  // ignore: public_member_api_docs
   static FirebaseApp get instance {
     return FirebaseCore.instance.app();
   }
 
   @Deprecated("Deprecated in favor of defaultFirebaseAppName")
+  // ignore: public_member_api_docs
   static String get defaultAppName {
     return defaultFirebaseAppName;
   }

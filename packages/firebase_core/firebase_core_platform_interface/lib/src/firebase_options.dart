@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// ignore_for_file: deprecated_member_use_from_same_package
 part of firebase_core_platform_interface;
 
 /// The options used to configure a Firebase app.
@@ -169,21 +170,27 @@ class FirebaseOptions {
   final String appGroupId;
 
   @Deprecated("Deprecated in favor of 'appId'")
+  // ignore: public_member_api_docs
   final String googleAppID;
 
   @Deprecated("Deprecated in favor of 'projectId'")
+  // ignore: public_member_api_docs
   final String projectID;
 
   @Deprecated("Deprecated in favor of 'iosBundleId'")
+  // ignore: public_member_api_docs
   final String bundleID;
 
   @Deprecated("Deprecated in favor of 'androidClientId' or 'iosClientId")
+  // ignore: public_member_api_docs
   final String clientID;
 
   @Deprecated("Deprecated in favor of 'trackingId'")
+  // ignore: public_member_api_docs
   final String trackingID;
 
   @Deprecated("Deprecated in favor of 'messagingSenderId'")
+  // ignore: public_member_api_docs
   final String gcmSenderID;
 
   /// The current instance as a [Map].

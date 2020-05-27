@@ -18,6 +18,19 @@ part of firebase_core_platform_interface;
 /// );
 /// ```
 class FirebaseOptions {
+  /// The options used to configure a Firebase app.
+  ///
+  /// ```dart
+  /// await FirebaseCore.instance.initializeApp(
+  ///   name: 'SecondaryApp',
+  ///   options: const FirebaseOptions(
+  ///     apiKey: '...',
+  ///     appId: '...',
+  ///     messagingSenderId: '...',
+  ///     projectId: '...',
+  ///   )
+  /// );
+  /// ```
   const FirebaseOptions({
     this.apiKey,
     this.appId,
@@ -31,12 +44,15 @@ class FirebaseOptions {
     this.trackingId,
     this.deepLinkURLScheme,
     this.androidClientId,
+    this.iosClientId,
     this.iosBundleId,
+    this.appGroupId,
     // deprecated
     @Deprecated("Deprecated in favor of 'appId'") this.googleAppID,
     @Deprecated("Deprecated in favor of 'projectId'") this.projectID,
     @Deprecated("Deprecated in favor of 'iosBundleId'") this.bundleID,
-    @Deprecated("Deprecated in favor of 'androidClientId'") this.clientID,
+    @Deprecated("Deprecated in favor of 'androidClientId' and 'iosClientId'")
+        this.clientID,
     @Deprecated("Deprecated in favor of 'trackingId'") this.trackingID,
     @Deprecated("Deprecated in favor of 'messagingSenderId'") this.gcmSenderID,
   })  : assert(apiKey != null, "'apiKey' cannot be null"),
@@ -61,9 +77,9 @@ class FirebaseOptions {
         assert(map['projectId'] != null || map['projectID'],
             "'projectId' and 'projectID' cannot be null."),
         apiKey = map['apiKey'],
-        appId = map['appId'],
-        messagingSenderId = map['messagingSenderId'],
-        projectId = map['projectId'],
+        appId = map['appId'] ?? map['googleAppID'],
+        messagingSenderId = map['messagingSenderId'] ?? map['gcmSenderID'],
+        projectId = map['projectId'] ?? map['projectID'],
         authDomain = map['authDomain'],
         databaseURL = map['databaseURL'],
         storageBucket = map['storageBucket'],
@@ -71,13 +87,16 @@ class FirebaseOptions {
         trackingId = map['trackingId'],
         deepLinkURLScheme = map['deepLinkURLScheme'],
         androidClientId = map['androidClientId'],
+        iosClientId = map['iosClientId'],
         iosBundleId = map['iosBundleId'],
-        trackingID = map['trackingID'],
-        googleAppID = map['googleAppID'],
-        projectID = map['projectID'],
-        bundleID = map['bundleID'],
-        clientID = map['clientID'],
-        gcmSenderID = map['gcmSenderID'];
+        appGroupId = map['appGroupId'],
+        trackingID = map['trackingID'] ?? map['trackingId'],
+        googleAppID = map['googleAppID'] ?? map['appId'],
+        projectID = map['projectID'] ?? map['projectId'],
+        bundleID = map['bundleID'] ?? map['iosBundleId'],
+        clientID =
+            map['clientID'] ?? map['androidClientId'] ?? map['iosClientId'],
+        gcmSenderID = map['gcmSenderID'] ?? map['messagingSenderId'] ;
 
   /// An API key used for authenticating requests from your app, for example
   /// "AIzaSyDdVgKwhZl0sTTTLZ7iTmt1r3N2cJLnaDk", used to identify your app to
@@ -128,11 +147,26 @@ class FirebaseOptions {
   /// This value is used by iOS only.
   final String androidClientId;
 
+  /// The iOS client ID from the Firebase Console, for example
+  /// "12345.apps.googleusercontent.com."
+  ///
+  /// This value is used by iOS only.
+  final String iosClientId;
+
   /// The iOS bundle ID for the application. Defaults to `[[NSBundle mainBundle] bundleID]`
   /// when not set manually or in a plist.
   ///
   /// This property is used on iOS only.
   final String iosBundleId;
+
+  /// The iOS App Group identifier to share data between the application and the
+  /// application extensions.
+  ///
+  /// Note that if using this then the App Group must be configured in the
+  /// application and on the Apple Developer Portal.
+  ///
+  /// This property is used on iOS only.
+  final String appGroupId;
 
   @Deprecated("Deprecated in favor of 'appId'")
   final String googleAppID;
@@ -143,7 +177,7 @@ class FirebaseOptions {
   @Deprecated("Deprecated in favor of 'iosBundleId'")
   final String bundleID;
 
-  @Deprecated("Deprecated in favor of 'androidClientId'")
+  @Deprecated("Deprecated in favor of 'androidClientId' or 'iosClientId")
   final String clientID;
 
   @Deprecated("Deprecated in favor of 'trackingId'")
@@ -166,7 +200,9 @@ class FirebaseOptions {
       'trackingId': trackingId ?? trackingID,
       'deepLinkURLScheme': deepLinkURLScheme,
       'androidClientId': androidClientId ?? clientID,
+      'iosClientId': iosClientId ?? clientID,
       'iosBundleId': iosBundleId ?? bundleID,
+      'appGroupId': appGroupId,
     };
   }
 
@@ -186,7 +222,9 @@ class FirebaseOptions {
         other.trackingId == trackingId &&
         other.deepLinkURLScheme == deepLinkURLScheme &&
         other.androidClientId == androidClientId &&
+        other.iosClientId == iosClientId &&
         other.iosBundleId == iosBundleId &&
+        other.appGroupId == appGroupId &&
         other.googleAppID == googleAppID &&
         other.projectID == projectID &&
         other.bundleID == bundleID &&

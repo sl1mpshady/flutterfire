@@ -96,7 +96,7 @@ class FirebaseOptions {
         bundleID = map['bundleID'] ?? map['iosBundleId'],
         clientID =
             map['clientID'] ?? map['androidClientId'] ?? map['iosClientId'],
-        gcmSenderID = map['gcmSenderID'] ?? map['messagingSenderId'] ;
+        gcmSenderID = map['gcmSenderID'] ?? map['messagingSenderId'];
 
   /// An API key used for authenticating requests from your app, for example
   /// "AIzaSyDdVgKwhZl0sTTTLZ7iTmt1r3N2cJLnaDk", used to identify your app to

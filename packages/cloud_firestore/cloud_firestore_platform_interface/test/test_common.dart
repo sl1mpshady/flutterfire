@@ -24,19 +24,21 @@ void initializeMethodChannel() {
   TestWidgetsFlutterBinding.ensureInitialized();
   MethodChannelFirebaseCore.channel.setMockMethodCallHandler((call) async {
     if (call.method == 'FirebaseCore#initializeCore') {
-      return [{ 
-        'name': '[DEFAULT]',
-        'options': {
-          'apiKey': '123',
-          'appId': '123',
-          'messagingSenderId': '123',
-          'projectId': '123',
-        },
-        'pluginConstants': {},
-      }];
+      return [
+        {
+          'name': '[DEFAULT]',
+          'options': {
+            'apiKey': '123',
+            'appId': '123',
+            'messagingSenderId': '123',
+            'projectId': '123',
+          },
+          'pluginConstants': {},
+        }
+      ];
     }
     if (call.method == 'FirebaseCore#initializeApp') {
-      return { 
+      return {
         'name': call.arguments['appName'],
         'options': call.arguments['options'],
         'pluginConstants': {},

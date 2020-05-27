@@ -14,8 +14,10 @@ NSString *const kMethodCoreInitializeCore = @"FirebaseCore#initializeCore";
 
 // FirebaseApp method names.
 NSString *const kMethodAppDelete = @"FirebaseApp#delete";
-NSString *const kMethodAppSetAutomaticDataCollectionEnabled = @"FirebaseApp#setAutomaticDataCollectionEnabled";
-NSString *const kMethodAppSetAutomaticResourceManagementEnabled = @"FirebaseApp#setAutomaticResourceManagementEnabled";
+NSString *const kMethodAppSetAutomaticDataCollectionEnabled =
+    @"FirebaseApp#setAutomaticDataCollectionEnabled";
+NSString *const kMethodAppSetAutomaticResourceManagementEnabled =
+    @"FirebaseApp#setAutomaticResourceManagementEnabled";
 
 // Method call argument keys.
 NSString *const kName = @"name";
@@ -62,7 +64,8 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 
     // Initialize default Firebase app, but only if the plist file options exist.
     //  - If it is missing then there is no default app discovered in Dart and Dart throws an error.
-    //  - Without this the iOS/MacOS app would crash immediately on calling [FIRApp configure] without
+    //  - Without this the iOS/MacOS app would crash immediately on calling [FIRApp configure]
+    //  without
     //    providing helpful context about the crash to the user.
     FIROptions *options = [FIROptions defaultOptions];
     if (options != nil) {
@@ -74,17 +77,17 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 }
 
 - (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResult)flutterResult {
-  FLTFirebaseMethodCallErrorBlock errorBlock = ^(
-      NSString *_Nonnull code,
-      NSString *_Nonnull message,
-      NSDictionary *_Nullable details,
-      NSError *_Nullable error
-  ) {
-    flutterResult([self createFlutterErrorFromCode:code message:message optionalDetails:details andOptionalNSError:error]);
-  };
+  FLTFirebaseMethodCallErrorBlock errorBlock =
+      ^(NSString *_Nonnull code, NSString *_Nonnull message, NSDictionary *_Nullable details,
+        NSError *_Nullable error) {
+        flutterResult([self createFlutterErrorFromCode:code
+                                               message:message
+                                       optionalDetails:details
+                                    andOptionalNSError:error]);
+      };
 
-  FLTFirebaseMethodCallResult
-      *methodCallResult = [FLTFirebaseMethodCallResult createWithSuccess:flutterResult andErrorBlock:errorBlock];
+  FLTFirebaseMethodCallResult *methodCallResult =
+      [FLTFirebaseMethodCallResult createWithSuccess:flutterResult andErrorBlock:errorBlock];
 
   if ([kMethodCoreInitializeApp isEqualToString:call.method]) {
     [self initializeApp:call.arguments withMethodCallResult:methodCallResult];
@@ -115,7 +118,8 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
   NSDictionary *optionsDictionary = arguments[kOptions];
   NSString *appId = optionsDictionary[kFirebaseOptionsAppId];
   NSString *messagingSenderId = optionsDictionary[kFirebaseOptionsMessagingSenderId];
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:appId GCMSenderID:messagingSenderId];
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:appId
+                                                    GCMSenderID:messagingSenderId];
 
   // kFirebaseOptionsApiKey
   if (![optionsDictionary[kFirebaseOptionsApiKey] isEqual:[NSNull null]]) {
@@ -201,7 +205,8 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
   }
 }
 
-- (void)setAutomaticDataCollectionEnabled:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+- (void)setAutomaticDataCollectionEnabled:(id)arguments
+                     withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
   NSString *appName = arguments[kAppName];
   BOOL dataCollectionEnabled = [arguments[kEnabled] boolValue];
 
@@ -217,18 +222,18 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 
 - (NSDictionary *)dictionaryFromFIROptions:(FIROptions *)options {
   return @{
-      kFirebaseOptionsApiKey: (id) options.APIKey ?: [NSNull null],
-      kFirebaseOptionsAppId: (id) options.googleAppID ?: [NSNull null],
-      kFirebaseOptionsMessagingSenderId: (id) options.GCMSenderID ?: [NSNull null],
-      kFirebaseOptionsProjectId: (id) options.projectID ?: [NSNull null],
-      kFirebaseOptionsDatabaseUrl: (id) options.databaseURL ?: [NSNull null],
-      kFirebaseOptionsStorageBucket: (id) options.storageBucket ?: [NSNull null],
-      kFirebaseOptionsTrackingId: (id) options.trackingID ?: [NSNull null],
-      kFirebaseOptionsDeepLinkURLScheme: (id) options.deepLinkURLScheme ?: [NSNull null],
-      kFirebaseOptionsAndroidClientId: (id) options.androidClientID ?: [NSNull null],
-      kFirebaseOptionsIosBundleId: (id) options.bundleID ?: [NSNull null],
-      kFirebaseOptionsIosClientId: (id) options.clientID ?: [NSNull null],
-      kFirebaseOptionsAppGroupId: (id) options.appGroupID ?: [NSNull null],
+    kFirebaseOptionsApiKey : (id)options.APIKey ?: [NSNull null],
+    kFirebaseOptionsAppId : (id)options.googleAppID ?: [NSNull null],
+    kFirebaseOptionsMessagingSenderId : (id)options.GCMSenderID ?: [NSNull null],
+    kFirebaseOptionsProjectId : (id)options.projectID ?: [NSNull null],
+    kFirebaseOptionsDatabaseUrl : (id)options.databaseURL ?: [NSNull null],
+    kFirebaseOptionsStorageBucket : (id)options.storageBucket ?: [NSNull null],
+    kFirebaseOptionsTrackingId : (id)options.trackingID ?: [NSNull null],
+    kFirebaseOptionsDeepLinkURLScheme : (id)options.deepLinkURLScheme ?: [NSNull null],
+    kFirebaseOptionsAndroidClientId : (id)options.androidClientID ?: [NSNull null],
+    kFirebaseOptionsIosBundleId : (id)options.bundleID ?: [NSNull null],
+    kFirebaseOptionsIosClientId : (id)options.clientID ?: [NSNull null],
+    kFirebaseOptionsAppGroupId : (id)options.appGroupID ?: [NSNull null],
   };
 }
 
@@ -236,10 +241,11 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
   NSString *appNameDart = [self firebaseAppNameFromIosName:firebaseApp.name];
 
   return @{
-      kName: appNameDart,
-      kOptions: [self dictionaryFromFIROptions:firebaseApp.options],
-      kIsAutomaticDataCollectionEnabled: @(firebaseApp.isDataCollectionDefaultEnabled),
-      kPluginConstants: [[FLTFirebasePluginRegistry sharedInstance] pluginConstantsForFIRApp:firebaseApp]
+    kName : appNameDart,
+    kOptions : [self dictionaryFromFIROptions:firebaseApp.options],
+    kIsAutomaticDataCollectionEnabled : @(firebaseApp.isDataCollectionDefaultEnabled),
+    kPluginConstants :
+        [[FLTFirebasePluginRegistry sharedInstance] pluginConstantsForFIRApp:firebaseApp]
   };
 }
 

@@ -22,7 +22,8 @@ class MethodChannelTransaction extends TransactionPlatform {
       : _transactionId = transactionId,
         super(appName == defaultFirebaseAppName
             ? FirestorePlatform.instance
-            : FirestorePlatform.instanceFor(app: FirebaseCore.instance.app(appName)));
+            : FirestorePlatform.instanceFor(
+                app: FirebaseCore.instance.app(appName)));
 
   @override
   Future<DocumentSnapshotPlatform> doGet(

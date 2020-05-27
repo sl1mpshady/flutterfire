@@ -10,7 +10,7 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 class MethodChannelDocumentChange extends DocumentChangePlatform {
   /// Create instance of [MethodChannelDocumentChange] using [data]
   MethodChannelDocumentChange(
-      FirestorePlatform firestore, Map<dynamic, dynamic> data)
+      FirestorePlatform firestore, Map<String, dynamic> data)
       : super(DocumentChangeType.values.firstWhere((DocumentChangeType type) {
           return type.toString() == data['type'];
         }),
@@ -19,6 +19,6 @@ class MethodChannelDocumentChange extends DocumentChangePlatform {
             DocumentSnapshotPlatform(
               firestore,
               data['path'],
-              data,
+              Map<String, dynamic>.from(data['document']),
             ));
 }

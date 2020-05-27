@@ -3,104 +3,21 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:e2e/e2e.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'collection_reference_e2e.dart';
+import 'query_e2e.dart';
+import 'document_reference_e2e.dart';
 
 void main() {
   E2EWidgetsFlutterBinding.ensureInitialized();
 
-  Firestore firestore;
-
   setUpAll(() async {
-    firestore = Firestore.instance;
+    await FirebaseCore.instance.initializeApp();
   });
 
-  Future<DocumentReference> initializeTest(String path) async {
-    String prefixedPath = 'flutter/$path';
-    await firestore.document(prefixedPath).delete();
-    return firestore.document(prefixedPath);
-  }
-
-  testWidgets('$DocumentReference.delete() deletes a document',
-      (WidgetTester tester) async {
-    DocumentReference document = await initializeTest('document-delete');
-    await document.setData({
-      'foo': 'bar',
-    });
-    DocumentSnapshot snapshot = await document.get();
-    expect(snapshot.exists, isTrue);
-    await document.delete();
-    DocumentSnapshot snapshot2 = await document.get();
-    expect(snapshot2.exists, isFalse);
-  });
-
-  testWidgets('$DocumentReference.get() gets a document from server',
-      (WidgetTester tester) async {
-    DocumentReference document = await initializeTest('document-get-server');
-    await document.setData({'foo': 'bar'});
-    DocumentSnapshot snapshot =
-        await document.get(GetOptions(source: Source.server));
-    expect(snapshot.data(), {'foo': 'bar'});
-    expect(snapshot.metadata.isFromCache, isFalse);
-  });
-
-  testWidgets('$DocumentReference.get() gets a document from server',
-      (WidgetTester tester) async {
-    DocumentReference document = await initializeTest('document-get-cache');
-    await document.setData({'foo': 'bar'});
-    DocumentSnapshot snapshot =
-        await document.get(GetOptions(source: Source.cache));
-    expect(snapshot.data(), equals({'foo': 'bar'}));
-    expect(snapshot.metadata.isFromCache, isTrue);
-  });
-
-  testWidgets('$DocumentReference.set() sets data',
-      (WidgetTester tester) async {
-    DocumentReference document = await initializeTest('document-set');
-    await document.setData({'foo': 'bar'});
-    DocumentSnapshot snapshot = await document.get();
-    expect(snapshot.data(), equals({'foo': 'bar'}));
-    await document.setData({'bar': 'baz'});
-    DocumentSnapshot snapshot2 = await document.get();
-    expect(snapshot2.data(), equals({'bar': 'baz'}));
-  });
-
-  testWidgets('$DocumentReference.set() merges data',
-      (WidgetTester tester) async {
-    DocumentReference document = await initializeTest('document-set-merge');
-    await document.setData({'foo': 'bar'});
-    DocumentSnapshot snapshot = await document.get();
-    expect(snapshot.data(), equals({'foo': 'bar'}));
-    await document
-        .setData({'foo': 'ben', 'bar': 'baz'}, SetOptions(merge: true));
-    DocumentSnapshot snapshot2 = await document.get();
-    expect(snapshot2.data(), equals({'foo': 'ben', 'bar': 'baz'}));
-  });
-
-  testWidgets('$DocumentReference.set() merges fields',
-      (WidgetTester tester) async {
-    DocumentReference document =
-        await initializeTest('document-set-merge-fields');
-    Map initialData = {
-      'foo': 'bar',
-      'bar': 123,
-      'baz': '456',
-    };
-    Map dataToSet = {
-      'foo': 'should-not-merge',
-      'bar': 456,
-      'baz': 'foo',
-    };
-    await document.setData(initialData);
-    DocumentSnapshot snapshot = await document.get();
-    expect(snapshot.data(), equals(initialData));
-    await document.setData(
-        dataToSet,
-        SetOptions(mergeFields: [
-          'bar',
-          FieldPath(['baz'])
-        ]));
-    DocumentSnapshot snapshot2 = await document.get();
-    expect(snapshot2.data(), equals({'foo': 'bar', 'bar': 456, 'baz': 'foo'}));
-  });
+  runCollectionReferenceTests();
+  runQueryTests();
+  runDocumentReferenceTests();
 }

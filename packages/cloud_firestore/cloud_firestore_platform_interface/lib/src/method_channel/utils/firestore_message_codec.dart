@@ -29,6 +29,7 @@ class FirestoreMessageCodec extends StandardMessageCodec {
   static const int _kIncrementDouble = 137;
   static const int _kIncrementInteger = 138;
   static const int _kDocumentId = 139;
+  static const int _kFieldPath = 140;
 
   static const Map<FieldValueType, int> _kFieldValueCodes =
       <FieldValueType, int>{
@@ -80,8 +81,11 @@ class FirestoreMessageCodec extends StandardMessageCodec {
       assert(code != null);
       buffer.putUint8(code);
     } else if (value is FieldPath) {
-      // TODO
-      throw("FieldPath needs WriteBuffter implementing...");
+      buffer.putUint8(_kFieldPath);
+      writeSize(buffer, value.components.length);
+      for (final String item in value.components) {
+        writeValue(buffer, item);
+      }
     } else {
       super.writeValue(buffer, value);
     }

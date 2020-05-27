@@ -106,9 +106,6 @@ class QueryWeb extends QueryPlatform {
   FirestorePlatform get firestore => _firestore;
 
   @override
-  bool get isCollectionGroup => _isCollectionGroup;
-
-  @override
   QueryPlatform limit(int length) => QueryWeb(
         this._firestore,
         this._path,

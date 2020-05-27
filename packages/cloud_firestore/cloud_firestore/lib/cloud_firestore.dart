@@ -23,7 +23,8 @@ export 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
         Source,
         GetOptions,
         SetOptions,
-        DocumentChangeType;
+        DocumentChangeType,
+        Settings;
 
 part 'src/collection_reference.dart';
 part 'src/document_change.dart';

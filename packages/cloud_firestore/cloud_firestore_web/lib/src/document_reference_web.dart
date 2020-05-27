@@ -15,7 +15,7 @@ class DocumentReferenceWeb extends DocumentReferencePlatform {
   final web.Firestore firestoreWeb;
 
   /// instance of DocumentReference from the web plugin
-  final web.DocumentReference delegate;
+  final web.DocumentReference _delegate;
 
   /// Creates an instance of [CollectionReferenceWeb] which represents path
   /// at [pathComponents] and uses implementation of [firestoreWeb]
@@ -23,12 +23,12 @@ class DocumentReferenceWeb extends DocumentReferencePlatform {
     FirestorePlatform firestore,
     this.firestoreWeb,
     String path,
-  )   : delegate = firestoreWeb.doc(path),
+  )   : _delegate = firestoreWeb.doc(path),
         super(firestore, path);
 
   @override
   Future<void> setData(Map<String, dynamic> data, [SetOptions options]) =>
-      delegate.set(
+      _delegate.set(
         CodecUtility.encodeMapData(data),
         // TODO(ehesp): `mergeFields` missing from web implementation
         web.SetOptions(merge: options.merge),
@@ -36,25 +36,25 @@ class DocumentReferenceWeb extends DocumentReferencePlatform {
 
   @override
   Future<void> updateData(Map<String, dynamic> data) =>
-      delegate.update(data: CodecUtility.encodeMapData(data));
+      _delegate.update(data: CodecUtility.encodeMapData(data));
 
   @override
   Future<DocumentSnapshotPlatform> get([GetOptions options]) async {
     // TODO(ehesp): web implementation not handling options
     return fromWebDocumentSnapshotToPlatformDocumentSnapshot(
-        await delegate.get(), this.firestore);
+        await _delegate.get(), this.firestore);
   }
 
   @override
-  Future<void> delete() => delegate.delete();
+  Future<void> delete() => _delegate.delete();
 
   @override
   Stream<DocumentSnapshotPlatform> snapshots({
     bool includeMetadataChanges = false,
   }) {
-    Stream<web.DocumentSnapshot> querySnapshots = delegate.onSnapshot;
+    Stream<web.DocumentSnapshot> querySnapshots = _delegate.onSnapshot;
     if (includeMetadataChanges) {
-      querySnapshots = delegate.onMetadataChangesSnapshot;
+      querySnapshots = _delegate.onMetadataChangesSnapshot;
     }
     return querySnapshots.map((webSnapshot) =>
         fromWebDocumentSnapshotToPlatformDocumentSnapshot(

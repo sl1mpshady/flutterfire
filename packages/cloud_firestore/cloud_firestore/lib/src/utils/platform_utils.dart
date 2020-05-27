@@ -6,14 +6,18 @@ part of cloud_firestore;
 
 class _PlatformUtils {
   static DocumentSnapshotPlatform toPlatformDocumentSnapshot(
-          DocumentSnapshot documentSnapshot) =>
-      null;
-//      DocumentSnapshotPlatform(
-//          FirestorePlatform.instance,
-//          Pointer(documentSnapshot.reference.path),
-//          // We could access `documentSnapshot._delegate.data` directly instead
-//          // of going through the getter that `replaceDelegatesWithValuesInMap`
-//          // on the data, but this way, the code is not tied to a part-ed lib implementation.
-//          _CodecUtility.replaceValueWithDelegatesInMap(documentSnapshot.data)
-//      );
+      DocumentSnapshot documentSnapshot) {
+    return DocumentSnapshotPlatform(FirestorePlatform.instance,
+        documentSnapshot.reference.path, <String, dynamic>{
+      // We could access `documentSnapshot._delegate.data` directly instead
+      // of going through the getter that `replaceDelegatesWithValuesInMap`
+      // on the data, but this way, the code is not tied to a part-ed lib implementation.
+      'data':
+          _CodecUtility.replaceValueWithDelegatesInMap(documentSnapshot.data()),
+      'metadata': <String, dynamic>{
+        'hasPendingWrites': documentSnapshot.metadata.hasPendingWrites,
+        'isFromCache': documentSnapshot.metadata.isFromCache,
+      }
+    });
+  }
 }

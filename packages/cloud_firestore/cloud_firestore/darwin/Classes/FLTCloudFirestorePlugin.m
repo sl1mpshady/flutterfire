@@ -326,6 +326,7 @@ const UInt8 TIMESTAMP = 136;
 const UInt8 INCREMENT_DOUBLE = 137;
 const UInt8 INCREMENT_INTEGER = 138;
 const UInt8 DOCUMENT_ID = 139;
+const UInt8 FIELD_PATH = 140;
 
 @interface FirestoreWriter : FlutterStandardWriter
 - (void)writeValue:(id)value;
@@ -430,6 +431,15 @@ const UInt8 DOCUMENT_ID = 139;
     }
     case DOCUMENT_ID: {
       return [FIRFieldPath documentID];
+    }
+    case FIELD_PATH: {
+      UInt32 length = [self readSize];
+      NSMutableArray* array = [NSMutableArray arrayWithCapacity:length];
+      for (UInt32 i = 0; i < length; i++) {
+        id value = [self readValue];
+        [array addObject:(value == nil ? [NSNull null] : value)];
+      }
+      return [[FIRFieldPath alloc] initWithFields:array];
     }
     default:
       return [super readValueOfType:type];
@@ -596,6 +606,8 @@ const UInt8 DOCUMENT_ID = 139;
     if (![options isEqual:[NSNull null]] &&
         [options[@"merge"] isEqual:[NSNumber numberWithBool:YES]]) {
       [document setData:call.arguments[@"data"] merge:YES completion:defaultCompletionBlock];
+    } else if (![options isEqual:[NSNull null]] && ![options[@"mergeFields"] isEqual:[NSNull null]] &&) {
+      [document setData:call.arguments[@"data"] mergeFields:options[@"mergeFields"] completion:defaultCompletionBlock];
     } else {
       [document setData:call.arguments[@"data"] completion:defaultCompletionBlock];
     }

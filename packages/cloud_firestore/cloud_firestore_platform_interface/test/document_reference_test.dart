@@ -12,7 +12,7 @@ const _kDocumentId = "document";
 
 class TestDocumentReference extends DocumentReferencePlatform {
   TestDocumentReference._()
-      : super(FirestorePlatform.instance, [_kCollectionId, _kDocumentId]);
+      : super(FirestorePlatform.instance, '$_kCollectionId/$_kDocumentId');
 }
 
 void main() {
@@ -21,7 +21,7 @@ void main() {
   group("$DocumentReferencePlatform()", () {
     test("Parent", () {
       final document = TestDocumentReference._();
-      final parent = document.parent();
+      final parent = document.parent;
       final parentPath = parent.path;
       expect(parent, isInstanceOf<CollectionReferencePlatform>());
       expect(parentPath, equals(_kCollectionId));
@@ -29,7 +29,7 @@ void main() {
 
     test("documentID", () {
       final document = TestDocumentReference._();
-      expect(document.documentID, equals(_kDocumentId));
+      expect(document.id, equals(_kDocumentId));
     });
 
     test("Path", () {

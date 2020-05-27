@@ -25,26 +25,27 @@ class SetOptions {
     this.merge,
     List<dynamic> mergeFields,
   }) {
-    assert(merge != null && mergeFields != null,
+    assert(!(merge == null && mergeFields == null),
         "options must provide 'merge' or 'mergeFields'");
-    assert(
-        mergeFields
-                .where((value) => value is String || value is FieldPath)
-                .length ==
-            mergeFields.length,
-        '[mergeFields] must be a [String] or [FieldPath]');
+
+    if (merge != null) {
+      assert(mergeFields == null,
+          "options cannot have both 'merge' & 'mergeFields'");
+    }
 
     if (mergeFields != null) {
       assert(merge == null, "options cannot have both 'merge' & 'mergeFields'");
-    }
+      assert(
+          mergeFields
+                  .where((value) => value is String || value is FieldPath)
+                  .length ==
+              mergeFields.length,
+          '[mergeFields] must be a [String] or [FieldPath]');
 
-    if (merge != null && mergeFields != null) {
-      assert(false, "options cannot have both 'merge' & 'mergeFields'");
+      this.mergeFields = mergeFields.map((field) {
+        if (field is String) return FieldPath.fromString(field);
+        return field as FieldPath;
+      }).toList(growable: false);
     }
-
-    this.mergeFields = mergeFields.map((field) {
-      if (field is String) return FieldPath.fromString(field);
-      return field as FieldPath;
-    });
   }
 }

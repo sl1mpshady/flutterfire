@@ -55,7 +55,8 @@ class Transaction {
   /// Awaiting the returned [Future] is optional and will be done automatically
   /// when the transaction handler completes.
   Future<void> set(
-      DocumentReference documentReference, Map<String, dynamic> data, [SetOptions options]) {
+      DocumentReference documentReference, Map<String, dynamic> data,
+      [SetOptions options]) {
     return _delegate.set(documentReference._delegate,
         _CodecUtility.replaceValueWithDelegatesInMap(data), options);
   }

@@ -30,4 +30,34 @@ jobs:
       - name: "Analyze"
         run: |
           melos exec -c 3 --scope="*firebase_core*" -- \
-            pub global run tuneup check
+            tuneup check
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "stable"
+      - name: "Install Tools"
+        run: |
+          pub global activate flutter_plugin_tools
+          pub global activate melos
+          curl -sL https://github.com/google/google-java-format/releases/download/google-java-format-1.3/google-java-format-1.3-all-deps.jar $HOME/google-java-format.jar
+          echo "::add-path::$HOME/.pub-cache/bin"
+      - name: "Bootstrap Workspace"
+        run: melos bootstrap
+      - name: "Dart"
+        run: |
+          melos exec -c 1 --scope="*firebase_core*" -- \
+            flutter format .
+      - name: "Objective-C"
+        run: |
+          melos exec -c 3 --scope="*firebase_core*" -- \
+            find . -maxdepth 3 -name "*.h" -o -name "*.m" -print0 \| xargs -0 clang-format -i --style=Google --verbose
+      - name: "Java"
+        run: |
+          melos exec -c 3 --scope="*firebase_core*" -- \
+            find . -maxdepth 12 -name "*.java" -print0 \| xargs -0 java -jar $HOME/google-java-format.jar --replace

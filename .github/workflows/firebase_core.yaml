@@ -28,7 +28,8 @@ jobs:
         run: |
           pub global activate melos
           echo "::add-path::$HOME/.pub-cache/bin"
-          melos bootstrap
+      - name: "Bootstrap Workspace"
+        run: melos bootstrap
       - name: "Build Example"
         run: |
           melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" -- \
@@ -69,7 +70,8 @@ jobs:
         run: |
           pub global activate melos
           echo "::add-path::$HOME/.pub-cache/bin"
-          melos bootstrap
+      - name: "Bootstrap Workspace"
+        run: melos bootstrap
       - name: "Build Example"
         if: ${{ success() || failure() }}
         run: |
@@ -97,7 +99,8 @@ jobs:
           pub global activate melos
           flutter config --enable-web
           echo "::add-path::$HOME/.pub-cache/bin"
-          melos bootstrap
+      - name: "Bootstrap Workspace"
+        run: melos bootstrap
       - name: "Build Example"
         run: |
           melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" --dir-exists=web -- \

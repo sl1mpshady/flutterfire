@@ -183,7 +183,7 @@ class MethodChannelQuery extends QueryPlatform {
         await MethodChannelFirestore.channel.invokeMapMethod<String, dynamic>(
       'Query#getDocuments',
       <String, dynamic>{
-        'app': firestore.app.name,
+        'appName': firestore.app.name,
         'path': _pointer.path,
         'isCollectionGroup': isCollectionGroup,
         'parameters': parameters,
@@ -229,7 +229,7 @@ class MethodChannelQuery extends QueryPlatform {
         _handle = MethodChannelFirestore.channel.invokeMethod<int>(
           'Query#addSnapshotListener',
           <String, dynamic>{
-            'app': firestore.app.name,
+            'appName': firestore.app.name,
             'path': _pointer.path,
             'isCollectionGroup': isCollectionGroup,
             'parameters': parameters,
@@ -243,7 +243,7 @@ class MethodChannelQuery extends QueryPlatform {
       onCancel: () {
         _handle.then((int handle) async {
           await MethodChannelFirestore.channel.invokeMethod<void>(
-            'removeListener',
+            'Firestore#removeListener',
             <String, dynamic>{'handle': handle},
           );
           MethodChannelFirestore.queryObservers.remove(handle);

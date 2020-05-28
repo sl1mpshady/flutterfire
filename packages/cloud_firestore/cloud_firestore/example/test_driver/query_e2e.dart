@@ -20,8 +20,9 @@ void runQueryTests() {
       CollectionReference collection =
           firestore.collection('flutter-tests/$id/query-tests');
       QuerySnapshot snapshot = await collection.get();
-      snapshot.documents.forEach((doc) async {
-        await firestore.document(doc.reference.path).delete();
+      await Future.forEach(snapshot.documents,
+          (DocumentSnapshot documentSnapshot) {
+        return documentSnapshot.reference.delete();
       });
       return collection;
     }
@@ -227,7 +228,7 @@ void runQueryTests() {
             .orderBy('bar.value')
             .endAtDocument(endAtSnapshot)
             .get();
-
+  
         expect(snapshot.documents.length, equals(2));
         expect(snapshot.documents[0].id, equals('doc3'));
         expect(snapshot.documents[1].id, equals('doc2'));
@@ -652,9 +653,9 @@ void runQueryTests() {
       });
     });
 
-    /**
-     * Limit
-     */
+    // /**
+    //  * Limit
+    //  */
 
     group('limit{toLast}()', () {
       testWidgets('limits documents', (WidgetTester tester) async {

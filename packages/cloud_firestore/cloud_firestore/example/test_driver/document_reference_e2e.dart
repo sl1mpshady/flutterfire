@@ -23,13 +23,13 @@ void runDocumentReferenceTests() {
 
     group('snapshots()', () {
       testWidgets('returns a [Stream]', (WidgetTester tester) async {
-        DocumentReference document = await initializeTest('snapshot');
+        DocumentReference document = await initializeTest('document-snapshot');
         Stream<DocumentSnapshot> stream = document.snapshots();
         expect(stream, isA<Stream<DocumentSnapshot>>());
       });
 
       testWidgets('listens to a single response', (WidgetTester tester) async {
-        DocumentReference document = await initializeTest('snapshot');
+        DocumentReference document = await initializeTest('document-snapshot');
         Stream<DocumentSnapshot> stream = document.snapshots();
         int call = 0;
 
@@ -45,7 +45,7 @@ void runDocumentReferenceTests() {
 
       testWidgets('listens to a multiple changes response',
           (WidgetTester tester) async {
-        DocumentReference document = await initializeTest('snapshot-multiple');
+        DocumentReference document = await initializeTest('document-snapshot-multiple');
         Stream<DocumentSnapshot> stream = document.snapshots();
         int call = 0;
 

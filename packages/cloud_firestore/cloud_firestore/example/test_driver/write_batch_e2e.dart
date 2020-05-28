@@ -17,10 +17,11 @@ void runWriteBatchTests() {
 
     Future<CollectionReference> initializeTest(String id) async {
       CollectionReference collection =
-          firestore.collection('flutter-tests/$id/write-batch-tests');
+          firestore.collection('flutter-tests/$id/query-tests');
       QuerySnapshot snapshot = await collection.get();
-      snapshot.documents.forEach((doc) async {
-        await firestore.document(doc.reference.path).delete();
+      await Future.forEach(snapshot.documents,
+          (DocumentSnapshot documentSnapshot) {
+        return documentSnapshot.reference.delete();
       });
       return collection;
     }
@@ -58,8 +59,8 @@ void runWriteBatchTests() {
       QuerySnapshot snapshot = await collection.get();
 
       expect(snapshot.documents.length, equals(4));
-      expect(snapshot.documents.where((doc) => doc.id == 'doc1').isEmpty,
-          isTrue);
+      expect(
+          snapshot.documents.where((doc) => doc.id == 'doc1').isEmpty, isTrue);
       expect(
           snapshot.documents.firstWhere((doc) => doc.id == 'doc2').data(),
           equals(<String, dynamic>{

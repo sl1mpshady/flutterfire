@@ -28,7 +28,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
     return MethodChannelFirestore.channel.invokeMethod<void>(
       'DocumentReference#setData',
       <String, dynamic>{
-        'app': firestore.app.name,
+        'appName': firestore.app.name,
         'path': path,
         'data': data,
         'options': <String, dynamic>{
@@ -44,7 +44,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
     return MethodChannelFirestore.channel.invokeMethod<void>(
       'DocumentReference#updateData',
       <String, dynamic>{
-        'app': firestore.app.name,
+        'appName': firestore.app.name,
         'path': path,
         'data': data,
       },
@@ -57,7 +57,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
         await MethodChannelFirestore.channel.invokeMapMethod<String, dynamic>(
       'DocumentReference#get',
       <String, dynamic>{
-        'app': firestore.app.name,
+        'appName': firestore.app.name,
         'path': path,
         'source': getSourceString(options?.source),
       },
@@ -70,7 +70,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
   Future<void> delete() {
     return MethodChannelFirestore.channel.invokeMethod<void>(
       'DocumentReference#delete',
-      <String, dynamic>{'app': firestore.app.name, 'path': path},
+      <String, dynamic>{'appName': firestore.app.name, 'path': path},
     );
   }
 
@@ -89,7 +89,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
         _handle = MethodChannelFirestore.channel.invokeMethod<int>(
           'DocumentReference#addSnapshotListener',
           <String, dynamic>{
-            'app': firestore.app.name,
+            'appName': firestore.app.name,
             'path': path,
             'includeMetadataChanges': includeMetadataChanges,
           },
@@ -101,7 +101,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
       onCancel: () {
         _handle.then((int handle) async {
           await MethodChannelFirestore.channel.invokeMethod<void>(
-            'removeListener',
+            'Firestore#removeListener',
             <String, dynamic>{'handle': handle},
           );
           MethodChannelFirestore.documentObservers.remove(handle);

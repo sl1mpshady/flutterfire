@@ -30,7 +30,7 @@ class MethodChannelTransaction extends TransactionPlatform {
   ) async {
     final Map<String, dynamic> result = await MethodChannelFirestore.channel
         .invokeMapMethod<String, dynamic>('Transaction#get', <String, dynamic>{
-      'app': firestore.app.name,
+      'appName': firestore.app.name,
       'transactionId': _transactionId,
       'path': documentReference.path,
     });
@@ -52,7 +52,7 @@ class MethodChannelTransaction extends TransactionPlatform {
   Future<void> doDelete(DocumentReferencePlatform documentReference) async {
     return MethodChannelFirestore.channel
         .invokeMethod<void>('Transaction#delete', <String, dynamic>{
-      'app': firestore.app.name,
+      'appName': firestore.app.name,
       'transactionId': _transactionId,
       'path': documentReference.path,
     });
@@ -65,7 +65,7 @@ class MethodChannelTransaction extends TransactionPlatform {
   ) async {
     return MethodChannelFirestore.channel
         .invokeMethod<void>('Transaction#update', <String, dynamic>{
-      'app': firestore.app.name,
+      'appName': firestore.app.name,
       'transactionId': _transactionId,
       'path': documentReference.path,
       'data': data,
@@ -78,7 +78,7 @@ class MethodChannelTransaction extends TransactionPlatform {
       [SetOptions options]) async {
     return MethodChannelFirestore.channel
         .invokeMethod<void>('Transaction#set', <String, dynamic>{
-      'app': firestore.app.name,
+      'appName': firestore.app.name,
       'transactionId': _transactionId,
       'path': documentReference.path,
       'data': data,

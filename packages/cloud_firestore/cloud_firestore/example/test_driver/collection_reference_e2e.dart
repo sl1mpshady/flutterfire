@@ -15,12 +15,13 @@ void runCollectionReferenceTests() {
       firestore = Firestore.instance;
     });
 
-    Future<CollectionReference> initializeTest(String id) async {
+Future<CollectionReference> initializeTest(String id) async {
       CollectionReference collection =
-          firestore.collection('flutter-tests/$id/collection-tests');
+          firestore.collection('flutter-tests/$id/query-tests');
       QuerySnapshot snapshot = await collection.get();
-      snapshot.documents.forEach((doc) async {
-        await firestore.document(doc.reference.path).delete();
+      await Future.forEach(snapshot.documents,
+          (DocumentSnapshot documentSnapshot) {
+        return documentSnapshot.reference.delete();
       });
       return collection;
     }

@@ -27,14 +27,16 @@ class MethodChannelFirestore extends FirestorePlatform {
     channel.setMethodCallHandler((MethodCall call) async {
       if (call.method == 'QuerySnapshot') {
         queryObservers[call.arguments['handle']]
-            .add(MethodChannelQuerySnapshot(this, call.arguments));
+            .add(MethodChannelQuerySnapshot(this, call.arguments['snapshot']));
       } else if (call.method == 'DocumentSnapshot') {
+        Map<String, dynamic> snapshotMap =
+            Map<String, dynamic>.from(call.arguments['snapshot']);
         final DocumentSnapshotPlatform snapshot = DocumentSnapshotPlatform(
           this,
-          call.arguments['path'],
+          snapshotMap['path'],
           <String, dynamic>{
-            'data': call.arguments['data'],
-            'metadata': call.arguments['metadata'],
+            'data': snapshotMap['data'],
+            'metadata': snapshotMap['metadata'],
           },
         );
         documentObservers[call.arguments['handle']].add(snapshot);
@@ -131,7 +133,7 @@ class MethodChannelFirestore extends FirestorePlatform {
     final Map<String, dynamic> result = await channel
         .invokeMapMethod<String, dynamic>(
             'Firestore#runTransaction', <String, dynamic>{
-      'app': app.name,
+      'appName': app.name,
       'transactionId': transactionId,
       'transactionTimeout': timeout.inMilliseconds
     });

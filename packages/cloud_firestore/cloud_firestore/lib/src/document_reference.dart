@@ -66,6 +66,7 @@ class DocumentReference {
   /// document instead of overwriting.
   // TODO(ehesp): should this be `set()`?
   Future<void> setData(Map<String, dynamic> data, [SetOptions options]) {
+    assert(data != null);
     return _delegate.setData(
         _CodecUtility.replaceValueWithDelegatesInMap(data), options);
   }
@@ -78,6 +79,7 @@ class DocumentReference {
   /// If no document exists yet, the update will fail.
   // TODO(ehesp): should this be `update()`?
   Future<void> updateData(Map<String, dynamic> data) {
+    assert(data != null);
     return _delegate
         .updateData(_CodecUtility.replaceValueWithDelegatesInMap(data));
   }

@@ -10,6 +10,9 @@ on:
     branches:
       - master
 
+env:
+  FLUTTERFIRE_PLUGIN_SCOPE: "*firebase_core*"
+
 jobs:
   analyze:
     runs-on: ubuntu-latest
@@ -29,7 +32,7 @@ jobs:
         run: melos bootstrap
       - name: "Analyze"
         run: |
-          melos exec -c 3 --scope="*firebase_core*" -- \
+          melos exec -c 3 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" -- \
             tuneup check
 
   format:
@@ -50,19 +53,38 @@ jobs:
         run: melos bootstrap
       - name: "Dart"
         run: |
-          melos exec -c 1 --scope="*firebase_core*" -- \
+          melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" -- \
             flutter format .
           ./.github/workflows/scripts/validate-formatting.sh
       - name: "Objective-C"
         if: ${{ success() || failure() }}
         run: |
-          melos exec -c 3 --scope="*firebase_core*" --ignore="*platform_interface*" --ignore="*web*" -- \
+          melos exec -c 3 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" --ignore="*platform_interface*" --ignore="*web*" -- \
             find . -maxdepth 3 -name "*.h" -o -name "*.m" -print0 \| xargs -0 clang-format -i --style=Google --verbose
           ./.github/workflows/scripts/validate-formatting.sh
       - name: "Java"
         if: ${{ success() || failure() }}
         run: |
-          melos exec -c 3 --scope="*firebase_core*" --ignore="*platform_interface*" --ignore="*web*" -- \
+          melos exec -c 3 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" --ignore="*platform_interface*" --ignore="*web*" -- \
             find . -maxdepth 12 -name "*.java" -print0 \| xargs -0 java -jar $HOME/google-java-format.jar --replace
           ./.github/workflows/scripts/validate-formatting.sh
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "stable"
+      - name: "Install Tools"
+        run: |
+          pub global activate melos
+          echo "::add-path::$HOME/.pub-cache/bin"
+      - name: "Bootstrap Workspace"
+        run: melos bootstrap
+      - name: "Flutter Test"
+        run: |
+          melos exec -c 1 ---scope="$FLUTTERFIRE_PLUGIN_SCOPE" --dir-exists=test --ignore="*example*" -- \
+            flutter test

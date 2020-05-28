@@ -218,26 +218,7 @@ class FirebaseOptions {
   bool operator ==(dynamic other) {
     if (identical(this, other)) return true;
     if (other is! FirebaseOptions) return false;
-    return other.apiKey == apiKey &&
-        other.appId == appId &&
-        other.messagingSenderId == messagingSenderId &&
-        other.projectId == projectId &&
-        other.authDomain == authDomain &&
-        other.databaseURL == databaseURL &&
-        other.storageBucket == storageBucket &&
-        other.measurementId == measurementId &&
-        other.trackingId == trackingId &&
-        other.deepLinkURLScheme == deepLinkURLScheme &&
-        other.androidClientId == androidClientId &&
-        other.iosClientId == iosClientId &&
-        other.iosBundleId == iosBundleId &&
-        other.appGroupId == appGroupId &&
-        other.googleAppID == googleAppID &&
-        other.projectID == projectID &&
-        other.bundleID == bundleID &&
-        other.clientID == clientID &&
-        other.trackingID == trackingID &&
-        other.gcmSenderID == gcmSenderID;
+    return other.asMap.toString() == asMap.toString();
   }
 
   @override

@@ -44,12 +44,12 @@ void main() {
             ];
           case 'FirebaseCore#initializeApp':
             return <dynamic, dynamic>{
-              'name': methodCall.arguments['name'] ?? defaultFirebaseAppName,
+              'name': methodCall.arguments['appName'] ?? defaultFirebaseAppName,
               'options': <dynamic, dynamic>{
-                'apiKey': 'testAPIKey',
-                'appId': 'testBundleID',
-                'messagingSenderId': 'testClientID',
-                'projectId': 'testTrackingID',
+                'apiKey': 'testing',
+                'appId':  'testing',
+                'messagingSenderId': 'testing',
+                'projectId': 'testing',
               },
             };
           default:

@@ -1,8 +1,8 @@
-// Copyright 2017 The Chromium Authors. All rights reserved.
+// Copyright 2020 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#import <Flutter/Flutter.h>
+#import "FLTFirebasePlugin.h"
 
-@interface FLTFirebaseCorePlugin : NSObject <FlutterPlugin>
+@interface FLTFirebaseCorePlugin : FLTFirebasePlugin<FlutterPlugin, FLTFirebasePlugin>
 @end

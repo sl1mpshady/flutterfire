@@ -31,7 +31,7 @@ public class FlutterFirebasePluginRegistry {
   }
 
   /**
-   * Each FlutterFire plugin implementing FlutterFirebasePlugin provides this method to allowing
+   * Each FlutterFire plugin implementing FlutterFirebasePlugin provides this method allowing
    * it's constants to be initialized during FirebaseCore.initializeApp in Dart. Here we call this
    * method on each of the registered plugins and gather their constants for use in Dart.
    *

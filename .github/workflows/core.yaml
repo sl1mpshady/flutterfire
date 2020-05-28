@@ -45,7 +45,7 @@ jobs:
         run: |
           pub global activate flutter_plugin_tools
           pub global activate melos
-          curl -sL https://github.com/google/google-java-format/releases/download/google-java-format-1.3/google-java-format-1.3-all-deps.jar $HOME/google-java-format.jar
+          curl -sL https://github.com/google/google-java-format/releases/download/google-java-format-1.3/google-java-format-1.3-all-deps.jar -o $HOME/google-java-format.jar
           echo "::add-path::$HOME/.pub-cache/bin"
       - name: "Bootstrap Workspace"
         run: melos bootstrap

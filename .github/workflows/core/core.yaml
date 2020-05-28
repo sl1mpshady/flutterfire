@@ -1,0 +1,28 @@
+name: core
+
+on:
+  pull_request:
+    paths:
+      - "packages/firebase_core/**"
+      - ".github/workflows/core.yml"
+      - "analysis_options.yaml"
+  push:
+    branches:
+      - master
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "stable"
+      - name: "Install Tuneup"
+        run: pub global activate tuneup
+      - name: "Analyze"
+        run: |
+          melos exec -c 3 --scope="*firebase_core*"-- \
+            pub global run tuneup check

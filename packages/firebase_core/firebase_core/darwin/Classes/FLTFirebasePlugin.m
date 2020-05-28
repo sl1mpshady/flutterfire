@@ -17,9 +17,9 @@ NSString *_Nonnull const kFIRDefaultAppNameDart = @"[DEFAULT]";
 + (instancetype)createWithSuccess:(FLTFirebaseMethodCallSuccessBlock)successBlock
                     andErrorBlock:(FLTFirebaseMethodCallErrorBlock)errorBlock {
   FLTFirebaseMethodCallResult *methodCallResult = [[FLTFirebaseMethodCallResult alloc] init];
-    methodCallResult.error = errorBlock;
-    methodCallResult.success = successBlock;
-    return methodCallResult;
+  methodCallResult.error = errorBlock;
+  methodCallResult.success = successBlock;
+  return methodCallResult;
 }
 
 @end

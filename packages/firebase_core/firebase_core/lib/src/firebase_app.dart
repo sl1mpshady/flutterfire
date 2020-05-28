@@ -8,7 +8,7 @@ part of firebase_core;
 ///
 /// You can get an instance by calling [FirebaseCore.instance.app()].
 class FirebaseApp {
-   FirebaseAppPlatform _delegate;
+  FirebaseAppPlatform _delegate;
 
   /// A [FirebaseApp] instance can only be accessed from a call to `app()` on
   /// [FirebaseCore].

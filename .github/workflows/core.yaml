@@ -26,7 +26,7 @@ jobs:
           pub global activate melos
           echo "::add-path::$HOME/.pub-cache/bin"
       - name: "Bootstrap Workspace"
-        run: melos boostrap
+        run: melos bootstrap
       - name: "Analyze"
         run: |
           melos exec -c 3 --scope="*firebase_core*"-- \

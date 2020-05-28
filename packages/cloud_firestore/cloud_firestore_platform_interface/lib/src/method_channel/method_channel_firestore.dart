@@ -140,6 +140,9 @@ class MethodChannelFirestore extends FirestorePlatform {
 
   @override
   Future<void> settings(Settings settings) async {
-    await channel.invokeMethod<void>('Firestore#settings', settings.asMap);
+    await channel.invokeMethod<void>('Firestore#settings', <String, dynamic>{
+      'appName': app.name,
+      'settings': settings.asMap,
+    });
   }
 }

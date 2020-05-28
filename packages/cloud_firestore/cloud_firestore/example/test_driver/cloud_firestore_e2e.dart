@@ -4,6 +4,7 @@
 
 import 'package:e2e/e2e.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'collection_reference_e2e.dart';
@@ -17,11 +18,18 @@ import 'timestamp_e2e.dart';
 import 'transaction_e2e.dart';
 import 'write_batch_e2e.dart';
 
+// Requires that an emulator is running locally
+bool USE_EMULATOR = false;
+
 void main() {
   E2EWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
     await FirebaseCore.instance.initializeApp();
+
+    if (USE_EMULATOR) {
+      await Firestore.instance.settings(Settings(host: '10.0.2.2:8080'));
+    }
   });
 
   runCollectionReferenceTests();

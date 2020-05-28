@@ -5,6 +5,8 @@
 package io.flutter.plugins.firebase.cloudfirestore;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseArray;
@@ -60,9 +62,77 @@ import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.StandardMessageCodec;
 import io.flutter.plugin.common.StandardMethodCodec;
 
+// TODO move to core
+class FirebaseSharedPreferences {
+  private static final String PREFERENCES_FILE = "io.flutter.plugins.firebase";
+  private static FirebaseSharedPreferences sharedInstance = new FirebaseSharedPreferences();
+  private SharedPreferences preferences;
+  private Context applicationContext;
+
+  public static FirebaseSharedPreferences getSharedInstance() {
+    return sharedInstance;
+  }
+
+  public void setApplicationContext(Context context) {
+    applicationContext = context;
+  }
+
+  public boolean contains(String key) {
+    return getPreferences().contains(key);
+  }
+
+  // Boolean
+  public void setBooleanValue(String key, boolean value) {
+    getPreferences().edit().putBoolean(key, value).apply();
+  }
+
+  public boolean getBooleanValue(String key, boolean defaultValue) {
+    return getPreferences().getBoolean(key, defaultValue);
+  }
+
+  // Int
+  public void setIntValue(String key, int value) {
+    getPreferences().edit().putInt(key, value).apply();
+  }
+
+  public int getIntValue(String key, int defaultValue) {
+    return getPreferences().getInt(key, defaultValue);
+  }
+
+  // Long
+  public void setLongValue(String key, long value) {
+    getPreferences().edit().putLong(key, value).apply();
+  }
+
+  public long getLongValue(String key, long defaultValue) {
+    return getPreferences().getLong(key, defaultValue);
+  }
+
+  // String
+  public void setStringValue(String key, String value) {
+    getPreferences().edit().putString(key, value).apply();
+  }
+
+  public String getStringValue(String key, String defaultValue) {
+    return getPreferences().getString(key, defaultValue);
+  }
+
+  public void clearAll() {
+    getPreferences().edit().clear().apply();
+  }
+
+  private SharedPreferences getPreferences() {
+    if (preferences == null) {
+      preferences = applicationContext.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
+    }
+    return preferences;
+  }
+}
+
 public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, ActivityAware {
 
   private static final String TAG = "CloudFirestorePlugin";
+  private static HashMap<String, Boolean> settingsLock = new HashMap<>();
   private final SparseArray<EventObserver> observers = new SparseArray<>();
   private final SparseArray<DocumentObserver> documentObservers = new SparseArray<>();
   private final SparseArray<ListenerRegistration> listenerRegistrations = new SparseArray<>();
@@ -92,7 +162,51 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
 
   private FirebaseFirestore getFirestore(Map<String, Object> arguments) {
     String appName = (String) arguments.get("app");
-    return FirebaseFirestore.getInstance(FirebaseApp.getInstance(appName));
+    FirebaseFirestore instance = FirebaseFirestore.getInstance(FirebaseApp.getInstance(appName));
+    setFirestoreSettings(instance, appName);
+    return instance;
+  }
+
+  private void setFirestoreSettings(FirebaseFirestore firebaseFirestore, String appName) {
+    // Ensure not already been set
+    if (settingsLock.containsKey(appName)) return;
+
+    FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
+    preferences.setApplicationContext(activity.getApplicationContext());
+    FirebaseFirestoreSettings.Builder firestoreSettings = new FirebaseFirestoreSettings.Builder();
+
+    long cacheSizeBytes =
+        preferences.getLongValue(
+            "firebase_firestore_cache_size_" + appName,
+            firebaseFirestore.getFirestoreSettings().getCacheSizeBytes());
+
+    String host =
+        preferences.getStringValue(
+            "firebase_firestore_host_" + appName,
+            firebaseFirestore.getFirestoreSettings().getHost());
+
+    boolean persistence =
+        preferences.getBooleanValue(
+            "firebase_firestore_persistence_" + appName,
+            firebaseFirestore.getFirestoreSettings().isPersistenceEnabled());
+
+    boolean ssl =
+        preferences.getBooleanValue(
+            "firebase_firestore_ssl_" + appName,
+            firebaseFirestore.getFirestoreSettings().isSslEnabled());
+
+    if (cacheSizeBytes == -1) {
+      firestoreSettings.setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED);
+    } else {
+      firestoreSettings.setCacheSizeBytes(cacheSizeBytes);
+    }
+
+    firestoreSettings.setHost(host);
+    firestoreSettings.setPersistenceEnabled(persistence);
+    firestoreSettings.setSslEnabled(ssl);
+
+    firebaseFirestore.setFirestoreSettings(firestoreSettings.build());
+    settingsLock.put(appName, true);
   }
 
   private Query getReference(Map<String, Object> arguments) {
@@ -698,26 +812,43 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
       case "Firestore#settings":
         {
           final Map<String, Object> arguments = call.arguments();
-          final FirebaseFirestoreSettings.Builder builder = new FirebaseFirestoreSettings.Builder();
+          String appName = (String) arguments.get("appName");
+          Map<String, Object> settings = (Map<String, Object>) arguments.get("settings");
 
-          if (arguments.get("persistenceEnabled") != null) {
-            builder.setPersistenceEnabled((boolean) arguments.get("persistenceEnabled"));
+          FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
+          preferences.setApplicationContext(activity.getApplicationContext());
+
+          if (settings.get("persistenceEnabled") != null) {
+            preferences.setBooleanValue(
+                "firebase_firestore_persistence_" + appName,
+                (boolean) settings.get("persistenceEnabled"));
           }
 
-          if (arguments.get("host") != null) {
-            builder.setHost((String) arguments.get("host"));
+          if (settings.get("host") != null) {
+            preferences.setStringValue(
+                "firebase_firestore_host_" + appName, (String) settings.get("host"));
           }
 
-          if (arguments.get("sslEnabled") != null) {
-            builder.setSslEnabled((boolean) arguments.get("sslEnabled"));
+          if (settings.get("sslEnabled") != null) {
+            preferences.setBooleanValue(
+                "firebase_firestore_ssl_" + appName, (boolean) settings.get("sslEnabled"));
           }
 
-          if (arguments.get("cacheSizeBytes") != null) {
-            builder.setCacheSizeBytes(((Integer) arguments.get("cacheSizeBytes")).longValue());
+          if (settings.get("cacheSizeBytes") != null) {
+            Object value = settings.get("cacheSizeBytes");
+            Long cacheSizeBytes = null;
+
+            if (value instanceof Long) {
+              cacheSizeBytes = (Long) value;
+            } else if (value instanceof Integer) {
+              cacheSizeBytes = Long.valueOf((Integer) value);
+            }
+
+            if (cacheSizeBytes != null) {
+              preferences.setLongValue("firebase_firestore_cache_size_" + appName, cacheSizeBytes);
+            }
           }
 
-          FirebaseFirestoreSettings settings = builder.build();
-          getFirestore(arguments).setFirestoreSettings(settings);
           result.success(null);
           break;
         }

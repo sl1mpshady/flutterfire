@@ -12,6 +12,7 @@ on:
 
 env:
   FLUTTERFIRE_PLUGIN_SCOPE: "*firebase_core*"
+  FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE: "*firebase_core_example*"
 
 jobs:
   analyze:
@@ -88,3 +89,51 @@ jobs:
         run: |
           melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" --dir-exists=test --ignore="*example*" -- \
             flutter test
+
+  build_example_channel_stable:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "stable"
+      - name: "Install Tools"
+        run: |
+          pub global activate melos
+          echo "::add-path::$HOME/.pub-cache/bin"
+      - name: "Bootstrap Workspace"
+        run: melos bootstrap
+      - name: "Build Android"
+        run: |
+          melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" -- \
+            flutter build apk
+      - name: "Build iOS"
+        run: |
+          melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" -- \
+            flutter build ios --no-codesign
+
+  build_example_channel_master:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "master"
+      - name: "Install Tools"
+        run: |
+          pub global activate melos
+          flutter config --enable-web
+          flutter config --enable-macos-desktop
+          echo "::add-path::$HOME/.pub-cache/bin"
+      - name: "Bootstrap Workspace"
+        run: melos bootstrap
+      - name: "Build MacOS"
+        run: |
+          flutter build --help 
+      - name: "Build Web"
+        run: |
+          flutter build --help

@@ -20,8 +20,12 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: "stable"
-      - name: "Install Tuneup"
-        run: pub global activate tuneup
+      - name: "Install Tools"
+        run: |
+          pub global activate tuneup
+          pub global activate melos
+      - name: "Bootstrap Workspace"
+        run: melos boostrap
       - name: "Analyze"
         run: |
           melos exec -c 3 --scope="*firebase_core*"-- \

@@ -31,10 +31,14 @@ jobs:
           echo "::add-path::$HOME/.pub-cache/bin"
       - name: "Bootstrap Workspace"
         run: melos bootstrap
-      - name: "Analyze"
+      - name: "Dart Analyze"
         run: |
           melos exec -c 3 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" -- \
             tuneup check
+      - name: "Pub Check"
+        run: |
+          melos exec -c 3 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" --no-private --ignore="*example*" -- \
+            pub publish --dry-run
 
   format:
     runs-on: ubuntu-latest
@@ -147,7 +151,15 @@ jobs:
           echo "::add-path::$HOME/.pub-cache/bin"
       - name: "Bootstrap Workspace"
         run: melos bootstrap
+      - name: "Lint Podspecs"
+        run: |
+          melos exec -c 1 --ignore="*web*" --ignore="*platform_interface*" --fail-fast --file-exists=ios/\$MELOS_PACKAGE_NAME.podspec -- \
+            pod lib lint ./ios/\$MELOS_PACKAGE_NAME.podspec \
+              --allow-warnings \
+              --fail-fast \
+              --include-podspecs=\$MELOS_ROOT_PATH/packages/firebase_core/firebase_core/ios/firebase_core.podspec
       - name: "Build Example"
+        if: ${{ success() || failure() }}
         run: |
           melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" -- \
             flutter build ios --no-codesign

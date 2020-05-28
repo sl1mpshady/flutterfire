@@ -2,10 +2,6 @@ name: all_plugins
 
 on:
   pull_request:
-    paths:
-      - "packages/firebase_core/**"
-      - ".github/workflows/core.yml"
-      - "analysis_options.yaml"
   push:
     branches:
       - master
@@ -29,11 +25,11 @@ jobs:
         run: melos bootstrap
       - name: "Dart Analyze"
         run: |
-          melos exec -c 4 -- \
+          melos exec -c 2 -- \
             tuneup check
       - name: "Pub Check"
         run: |
-          melos exec -c 4 --no-private --ignore="*example*" -- \
+          melos exec -c 1 --no-private --ignore="*example*" -- \
             pub publish --dry-run
 
   format:
@@ -54,19 +50,19 @@ jobs:
         run: melos bootstrap
       - name: "Dart"
         run: |
-          melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" -- \
+          melos exec -c 1 -- \
             flutter format .
           ./.github/workflows/scripts/validate-formatting.sh
       - name: "Objective-C"
         if: ${{ success() || failure() }}
         run: |
-          melos exec -c 4 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" --ignore="*platform_interface*" --ignore="*web*" -- \
+          melos exec -c 4 --ignore="*platform_interface*" --ignore="*web*" -- \
             find . -maxdepth 3 -name "*.h" -o -name "*.m" -print0 \| xargs -0 clang-format -i --style=Google --verbose
           ./.github/workflows/scripts/validate-formatting.sh
       - name: "Java"
         if: ${{ success() || failure() }}
         run: |
-          melos exec -c 4 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" --ignore="*platform_interface*" --ignore="*web*" -- \
+          melos exec -c 4 --ignore="*platform_interface*" --ignore="*web*" -- \
             find . -maxdepth 12 -name "*.java" -print0 \| xargs -0 java -jar $HOME/google-java-format.jar --replace
           ./.github/workflows/scripts/validate-formatting.sh
 
@@ -85,9 +81,9 @@ jobs:
           echo "::add-path::$HOME/.pub-cache/bin"
       - name: "Bootstrap Workspace"
         run: melos bootstrap
-      - name: "Flutter Test"
+      - name: "Build Example Snapshots"
         run: |
-          melos exec -c 3 --scope="*example*" -- \
+          melos exec -c 1 --scope="*example*" -- \
             flutter build aot
 
   test:
@@ -111,7 +107,5 @@ jobs:
             flutter test
       - name: "Flutter Test Web"
         run: |
-          flutter channel beta
-          flutter upgrade
           melos exec -c 1 --dir-exists=test --scope="*web*" -- \
             flutter test --platform=chrome

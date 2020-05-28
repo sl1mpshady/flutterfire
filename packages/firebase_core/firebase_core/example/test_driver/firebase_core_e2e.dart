@@ -11,7 +11,6 @@ void main() {
   E2EWidgetsFlutterBinding.ensureInitialized();
 
   FirebaseCore core;
-
   String testAppName = 'TestApp';
   const FirebaseOptions testAppOptions = FirebaseOptions(
     appId: '1:448618578101:web:0b650370bb29e29cac3efc',
@@ -42,7 +41,7 @@ void main() {
     try {
       await core.app('NoApp');
     } on FirebaseException catch (e) {
-      expect(e.toString(), noAppExists('NoApp'));
+      expect(e, noAppExists('NoApp'));
       return;
     }
   });

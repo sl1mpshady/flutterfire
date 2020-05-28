@@ -77,8 +77,8 @@ jobs:
         run: |
           melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" -- \
             flutter build ios --no-codesign
-      - name: "Start Simulator"
-        run: open -a simulator
+      - name: "Boot Simulator"
+        run: xcrun simctl boot "iPhone 11"
       - name: "Drive Example"
         run: |
           melos exec -c 1 --fail-fast --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" --dir-exists=test_driver -- \

@@ -9,10 +9,8 @@ import 'package:flutter_driver/flutter_driver.dart';
 
 Future<void> main() async {
   final FlutterDriver driver = await FlutterDriver.connect();
-  final String resultString =
-      await driver.requestData(null, timeout: const Duration(minutes: 1));
+  final String result =
+      await driver.requestData(null, timeout: const Duration(minutes: 2));
   await driver.close();
-  print(resultString);
-  final Map result = json.decode(resultString);
-  exit(result['result'] == 'true' ? 0 : 1);
+  exit(result == 'pass' ? 0 : 1);
 }

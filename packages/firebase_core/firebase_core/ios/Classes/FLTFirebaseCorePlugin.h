@@ -5,4 +5,4 @@
 #import "FLTFirebasePlugin.h"
 
 @interface FLTFirebaseCorePlugin : FLTFirebasePlugin <FlutterPlugin, FLTFirebasePlugin>
-@end
+ @end

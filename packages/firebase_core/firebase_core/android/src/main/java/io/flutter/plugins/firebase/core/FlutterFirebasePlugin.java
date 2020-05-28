@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 @Keep
 public interface FlutterFirebasePlugin {
   // A shared ExecutorService used by all FlutterFire Plugins for their GMS Tasks.
-  ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+    ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
 
   /**
    * FlutterFire plugins implementing FlutterFirebasePlugin must provide this method to provide it's

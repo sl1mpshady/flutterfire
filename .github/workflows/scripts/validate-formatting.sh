@@ -20,8 +20,9 @@ if [[ $(git ls-files --modified) ]]; then
     git checkout . > /dev/null 2>&1
   fi
   echo ""
-  echo "Some files are incorrectly formatted, see above output."
+  echo "❌ Some files are incorrectly formatted, see above output."
   exit 1
 else
-  echo "All files are formatted correctly."
+  echo ""
+  echo "✅ All files are formatted correctly."
 fi

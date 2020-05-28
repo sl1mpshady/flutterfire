@@ -12,6 +12,7 @@ Future<void> main() async {
   final String resultString =
       await driver.requestData(null, timeout: const Duration(minutes: 1));
   await driver.close();
+  print(resultString);
   final Map result = json.decode(resultString);
   exit(result['result'] == 'true' ? 0 : 1);
 }

@@ -86,5 +86,5 @@ jobs:
         run: melos bootstrap
       - name: "Flutter Test"
         run: |
-          melos exec -c 1 ---scope="$FLUTTERFIRE_PLUGIN_SCOPE" --dir-exists=test --ignore="*example*" -- \
+          melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" --dir-exists=test --ignore="*example*" -- \
             flutter test

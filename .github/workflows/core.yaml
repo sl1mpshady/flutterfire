@@ -61,3 +61,15 @@ jobs:
         run: |
           melos exec -c 3 --scope="*firebase_core*" -- \
             find . -maxdepth 12 -name "*.java" -print0 \| xargs -0 java -jar $HOME/google-java-format.jar --replace
+      - name: "Check Formatting Valid"
+        run: |
+          if [[ $(git ls-files --modified) ]]; then
+            echo "These files are not formatted correctly:"
+            git ls-files --modified
+            echo "Diff:"
+            git --no-pager diff
+            echo "Some files are incorrectly formatted, see above output."
+            exit 1
+          else
+            echo "All files are formatted correctly."
+          fi

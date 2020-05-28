@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 
 import 'method_channel_firestore.dart';
 import 'utils/source.dart';
+import 'utils/exception.dart';
 
 /// A [MethodChannelDocumentReference] is an implementation of
 /// [DocumentReferencePlatform] that uses [MethodChannel] to communicate with
@@ -61,7 +62,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
         'path': path,
         'source': getSourceString(options?.source),
       },
-    );
+    ).catchError(catchPlatformException);
 
     return DocumentSnapshotPlatform(firestore, _pointer.path, data);
   }

@@ -23,6 +23,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.MetadataChanges;
@@ -527,9 +528,30 @@ public class CloudFirestorePlugin
             result.success(task.getResult());
           } else {
             Exception exception = task.getException();
-            // TODO error code handler
+            CloudFirestoreException firestoreException = null;
+
+            if (exception instanceof FirebaseFirestoreException) {
+              firestoreException =
+                  new CloudFirestoreException(
+                      (FirebaseFirestoreException) exception, exception.getCause());
+            } else if (exception.getCause() != null
+                && exception.getCause() instanceof FirebaseFirestoreException) {
+              firestoreException =
+                  new CloudFirestoreException(
+                      (FirebaseFirestoreException) exception.getCause(),
+                      exception.getCause().getCause() != null
+                          ? exception.getCause().getCause()
+                          : exception.getCause());
+            }
+
+            Map<String, String> details = new HashMap<>();
+            if (firestoreException != null) {
+              details.put("code", firestoreException.getCode());
+              details.put("message", firestoreException.getMessage());
+            }
+
             result.error(
-                "cloud_firestore", exception != null ? exception.getMessage() : null, null);
+                "cloud_firestore", exception != null ? exception.getMessage() : null, details);
           }
         });
   }

@@ -12,7 +12,7 @@ import 'package:meta/meta.dart';
 import 'package:quiver/core.dart';
 
 export 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart'
-    show FirebaseOptions;
+    show FirebaseOptions, FirebaseException;
 
 part 'src/firebase_app.dart';
 

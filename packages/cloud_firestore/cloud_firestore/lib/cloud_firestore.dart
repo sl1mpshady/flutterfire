@@ -31,7 +31,6 @@ export 'package:firebase_core_platform_interface/firebase_core_platform_interfac
 
 part 'src/collection_reference.dart';
 part 'src/document_change.dart';
-part 'src/utils/platform_utils.dart';
 part 'src/document_reference.dart';
 part 'src/document_snapshot.dart';
 part 'src/field_value.dart';

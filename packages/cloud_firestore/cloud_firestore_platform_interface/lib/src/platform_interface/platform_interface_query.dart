@@ -4,12 +4,12 @@
 
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 
 /// Represents a query over the data at a particular location.
 abstract class QueryPlatform extends PlatformInterface {
+  /// The [FirestorePlatform] interface for this current query.
   final FirestorePlatform firestore;
 
   /// Create a [QueryPlatform] instance

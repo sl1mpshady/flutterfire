@@ -18,9 +18,13 @@ abstract class QueryPlatform extends PlatformInterface {
   static final Object _token = Object();
 
   /// Returns a Map of parameters current in use on the query.
-  @visibleForTesting
   Map<String, dynamic> get parameters {
     throw UnimplementedError("parameters is not implemented");
+  }
+
+  /// Returns whether the current query is targetted at a collection group.
+  bool get isCollectionGroupQuery {
+    throw UnimplementedError("isCollectionGroupQuery is not implemented");
   }
 
   /// Throws an [AssertionError] if [instance] does not extend
@@ -60,7 +64,7 @@ abstract class QueryPlatform extends PlatformInterface {
   ///  * [startAfterDocument] for a query that starts after a document.
   ///  * [startAtDocument] for a query that starts at a document.
   ///  * [endBeforeDocument] for a query that ends before a document.
-  QueryPlatform endAtDocument(DocumentSnapshotPlatform documentSnapshot) {
+  QueryPlatform endAtDocument(List<dynamic> orders, List<dynamic> values) {
     throw UnimplementedError("endAtDocument() is not implemented");
   }
 
@@ -90,7 +94,7 @@ abstract class QueryPlatform extends PlatformInterface {
   ///  * [startAfterDocument] for a query that starts after document.
   ///  * [startAtDocument] for a query that starts at a document.
   ///  * [endAtDocument] for a query that ends at a document.
-  QueryPlatform endBeforeDocument(DocumentSnapshotPlatform documentSnapshot) {
+  QueryPlatform endBeforeDocument(List<dynamic> orders, List<dynamic> values) {
     throw UnimplementedError("endBeforeDocument() is not implemented");
   }
 
@@ -139,10 +143,7 @@ abstract class QueryPlatform extends PlatformInterface {
   /// using [startAfterDocument], [startAtDocument], [endAfterDocument],
   /// or [endAtDocument] because the order by clause on the document id
   /// is added by these methods implicitly.
-  QueryPlatform orderBy(
-      dynamic field, {
-        bool descending = false,
-      }) {
+  QueryPlatform orderBy(List<List<dynamic>> orders) {
     throw UnimplementedError("orderBy() is not implemented");
   }
 
@@ -160,7 +161,7 @@ abstract class QueryPlatform extends PlatformInterface {
   ///  * [endAfterDocument] for a query that ends after a document.
   ///  * [startAtDocument] for a query that starts at a document.
   ///  * [endAtDocument] for a query that ends at a document.
-  QueryPlatform startAfterDocument(DocumentSnapshotPlatform documentSnapshot) {
+  QueryPlatform startAfterDocument(List<dynamic> orders, List<dynamic> values) {
     throw UnimplementedError("startAfterDocument() is not implemented");
   }
 
@@ -190,7 +191,7 @@ abstract class QueryPlatform extends PlatformInterface {
   ///  * [startAfterDocument] for a query that starts after a document.
   ///  * [endAtDocument] for a query that ends at a document.
   ///  * [endBeforeDocument] for a query that ends before a document.
-  QueryPlatform startAtDocument(DocumentSnapshotPlatform documentSnapshot) {
+  QueryPlatform startAtDocument(List<dynamic> orders, List<dynamic> values) {
     throw UnimplementedError("startAtDocument() is not implemented");
   }
 
@@ -217,18 +218,7 @@ abstract class QueryPlatform extends PlatformInterface {
   ///
   /// Only documents satisfying provided condition are included in the result
   /// set.
-  QueryPlatform where(
-    dynamic field, {
-    dynamic isEqualTo,
-    dynamic isLessThan,
-    dynamic isLessThanOrEqualTo,
-    dynamic isGreaterThan,
-    dynamic isGreaterThanOrEqualTo,
-    dynamic arrayContains,
-    List<dynamic> arrayContainsAny,
-    List<dynamic> whereIn,
-    bool isNull,
-  }) {
+  QueryPlatform where(List<List<dynamic>> conditions) {
     throw UnimplementedError("where() is not implemented");
   }
 }

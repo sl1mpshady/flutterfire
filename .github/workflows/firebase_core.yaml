@@ -1,4 +1,4 @@
-name: core
+name: firebase_core
 
 on:
   pull_request:
@@ -15,85 +15,6 @@ env:
   FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE: "*firebase_core_example*"
 
 jobs:
-  analyze:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-        with:
-          fetch-depth: 0
-      - uses: subosito/flutter-action@v1
-        with:
-          channel: "stable"
-      - name: "Install Tools"
-        run: |
-          pub global activate tuneup
-          pub global activate melos
-          echo "::add-path::$HOME/.pub-cache/bin"
-      - name: "Bootstrap Workspace"
-        run: melos bootstrap
-      - name: "Dart Analyze"
-        run: |
-          melos exec -c 3 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" -- \
-            tuneup check
-      - name: "Pub Check"
-        run: |
-          melos exec -c 3 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" --no-private --ignore="*example*" -- \
-            pub publish --dry-run
-
-  format:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-        with:
-          fetch-depth: 0
-      - uses: subosito/flutter-action@v1
-        with:
-          channel: "stable"
-      - name: "Install Tools"
-        run: |
-          pub global activate melos
-          curl -sL https://github.com/google/google-java-format/releases/download/google-java-format-1.3/google-java-format-1.3-all-deps.jar -o $HOME/google-java-format.jar
-          echo "::add-path::$HOME/.pub-cache/bin"
-      - name: "Bootstrap Workspace"
-        run: melos bootstrap
-      - name: "Dart"
-        run: |
-          melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" -- \
-            flutter format .
-          ./.github/workflows/scripts/validate-formatting.sh
-      - name: "Objective-C"
-        if: ${{ success() || failure() }}
-        run: |
-          melos exec -c 3 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" --ignore="*platform_interface*" --ignore="*web*" -- \
-            find . -maxdepth 3 -name "*.h" -o -name "*.m" -print0 \| xargs -0 clang-format -i --style=Google --verbose
-          ./.github/workflows/scripts/validate-formatting.sh
-      - name: "Java"
-        if: ${{ success() || failure() }}
-        run: |
-          melos exec -c 3 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" --ignore="*platform_interface*" --ignore="*web*" -- \
-            find . -maxdepth 12 -name "*.java" -print0 \| xargs -0 java -jar $HOME/google-java-format.jar --replace
-          ./.github/workflows/scripts/validate-formatting.sh
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-        with:
-          fetch-depth: 0
-      - uses: subosito/flutter-action@v1
-        with:
-          channel: "stable"
-      - name: "Install Tools"
-        run: |
-          pub global activate melos
-          echo "::add-path::$HOME/.pub-cache/bin"
-      - name: "Bootstrap Workspace"
-        run: melos bootstrap
-      - name: "Flutter Test"
-        run: |
-          melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE" --dir-exists=test --ignore="*example*" -- \
-            flutter test
-
   android:
     runs-on: macos-latest
     steps:
@@ -188,4 +109,4 @@ jobs:
         run: |
           chromedriver --port=4444 &
           melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" --dir-exists=web -- \
-            flutter drive --no-build --release --browser-name=chrome --target=./test_driver/MELOS_PARENT_PACKAGE_NAME_e2e.dart
+            flutter drive --release --browser-name=chrome --target=./test_driver/MELOS_PARENT_PACKAGE_NAME_e2e.dart

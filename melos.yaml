@@ -35,8 +35,12 @@ scripts:
 
   # Run standard flutter tests in all packages that have them.
   test: >
-    melos exec -c 1 --fail-fast --dir-exists=test --ignore="*example*" -- \
+    melos exec -c 1 --fail-fast --dir-exists=test --ignore="*example*" --ignore="*web*" -- \
       flutter test
+
+  test:web: >
+    melos exec -c 1 --fail-fast --dir-exists=test --scope="*web*" -- \
+      flutter test --platform=chrome
 
   # Run all test driver e2e tests in the example apps, use this for mobile.
   # Will target Android/iOS depending on what emulator/simulator you have running.

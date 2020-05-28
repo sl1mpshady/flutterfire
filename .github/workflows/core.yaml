@@ -29,5 +29,5 @@ jobs:
         run: melos bootstrap
       - name: "Analyze"
         run: |
-          melos exec -c 3 --scope="*firebase_core*"-- \
+          melos exec -c 3 --scope="*firebase_core*" -- \
             pub global run tuneup check

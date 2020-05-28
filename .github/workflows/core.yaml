@@ -24,7 +24,7 @@ jobs:
         run: |
           pub global activate tuneup
           pub global activate melos
-          export PATH="$PATH":"$HOME/.pub-cache/bin"
+          echo "::add-path::$GITHUB_WORKSPACE/.pub-cache/bin"
       - name: "Bootstrap Workspace"
         run: melos boostrap
       - name: "Analyze"

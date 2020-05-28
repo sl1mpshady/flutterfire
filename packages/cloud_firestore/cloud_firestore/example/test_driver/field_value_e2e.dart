@@ -32,6 +32,15 @@ void runFieldValueTests() {
         expect(snapshot.data()['foo'], equals(3));
       });
 
+      testWidgets('decrements a number', (WidgetTester tester) async {
+        DocumentReference doc =
+            await initializeTest('field-value-decrement-exists');
+        await doc.setData({'foo': 2});
+        await doc.updateData({'foo': FieldValue.increment(-1)});
+        DocumentSnapshot snapshot = await doc.get();
+        expect(snapshot.data()['foo'], equals(1));
+      });
+
       testWidgets('sets an increment if it does not exist',
           (WidgetTester tester) async {
         DocumentReference doc =

@@ -3,6 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:math';
+import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,6 +25,113 @@ void runQueryTests() {
       });
       return collection;
     }
+
+    /**
+     * get
+     */
+
+    group('get()', () {
+      testWidgets('returns a [QuerySnapshot]', (WidgetTester tester) async {
+        CollectionReference collection = await initializeTest('get');
+        QuerySnapshot qs = await collection.get();
+        expect(qs, isA<QuerySnapshot>());
+      });
+
+      testWidgets('uses [GetOptions] cache', (WidgetTester tester) async {
+        CollectionReference collection = await initializeTest('get');
+        QuerySnapshot qs =
+            await collection.get(GetOptions(source: Source.cache));
+        expect(qs, isA<QuerySnapshot>());
+        expect(qs.metadata.isFromCache, isTrue);
+      });
+
+      testWidgets('uses [GetOptions] server', (WidgetTester tester) async {
+        CollectionReference collection = await initializeTest('get');
+        QuerySnapshot qs =
+            await collection.get(GetOptions(source: Source.server));
+        expect(qs, isA<QuerySnapshot>());
+        expect(qs.metadata.isFromCache, isFalse);
+      });
+    });
+
+    /**
+     * snapshots
+     */
+
+    group('snapshots()', () {
+      testWidgets('returns a [Stream]', (WidgetTester tester) async {
+        CollectionReference collection = await initializeTest('get');
+        Stream<QuerySnapshot> stream = collection.snapshots();
+        expect(stream, isA<Stream<QuerySnapshot>>());
+      });
+
+      testWidgets('listens to a single response', (WidgetTester tester) async {
+        CollectionReference collection = await initializeTest('get-single');
+        await collection.add({'foo': 'bar'});
+        Stream<QuerySnapshot> stream = collection.snapshots();
+        int call = 0;
+
+        stream.listen(expectAsync1((QuerySnapshot snapshot) {
+          call++;
+          if (call == 1) {
+            expect(snapshot.documents.length, equals(1));
+            DocumentSnapshot documentSnapshot = snapshot.documents[0];
+            expect(documentSnapshot.data()['foo'], equals('bar'));
+          } else {
+            fail("Should not have been called");
+          }
+        }, count: 1, reason: "Stream should only have been called once."));
+      });
+
+      testWidgets('listens to a multiple changes response',
+          (WidgetTester tester) async {
+        CollectionReference collection = await initializeTest('get-multiple');
+        await collection.add({'foo': 'bar'});
+
+        Stream<QuerySnapshot> stream = collection.snapshots();
+        int call = 0;
+
+        StreamSubscription subscription = stream.listen(expectAsync1(
+            (QuerySnapshot snapshot) {
+          call++;
+          if (call == 1) {
+            expect(snapshot.documents.length, equals(1));
+            DocumentSnapshot documentSnapshot = snapshot.documents[0];
+            expect(documentSnapshot.data()['foo'], equals('bar'));
+          } else if (call == 2) {
+            expect(snapshot.documents.length, equals(2));
+            DocumentSnapshot documentSnapshot =
+                snapshot.documents.firstWhere((doc) => doc.id == 'doc1');
+            expect(documentSnapshot.data()['bar'], equals('baz'));
+          } else if (call == 3) {
+            expect(snapshot.documents.length, equals(1));
+            expect(snapshot.documents.where((doc) => doc.id == 'doc1').isEmpty,
+                isTrue);
+          } else if (call == 4) {
+            expect(snapshot.documents.length, equals(2));
+            DocumentSnapshot documentSnapshot =
+                snapshot.documents.firstWhere((doc) => doc.id == 'doc2');
+            expect(documentSnapshot.data()['foo'], equals('bar'));
+          } else if (call == 5) {
+            expect(snapshot.documents.length, equals(2));
+            DocumentSnapshot documentSnapshot =
+                snapshot.documents.firstWhere((doc) => doc.id == 'doc2');
+            expect(documentSnapshot.data()['foo'], equals('baz'));
+          } else {
+            fail("Should not have been called");
+          }
+        },
+            count: 5,
+            reason: "Stream should only have been called five times."));
+
+        await collection.document('doc1').setData({'bar': 'baz'});
+        await collection.document('doc1').delete();
+        await collection.document('doc2').setData({'foo': 'bar'});
+        await collection.document('doc2').updateData({'foo': 'baz'});
+
+        subscription.cancel();
+      });
+    });
 
     /**
      * End At

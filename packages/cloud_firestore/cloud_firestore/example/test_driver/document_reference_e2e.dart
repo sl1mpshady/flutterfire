@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -18,6 +20,68 @@ void runDocumentReferenceTests() {
       await firestore.document(prefixedPath).delete();
       return firestore.document(prefixedPath);
     }
+
+    group('snapshots()', () {
+      testWidgets('returns a [Stream]', (WidgetTester tester) async {
+        DocumentReference document = await initializeTest('snapshot');
+        Stream<DocumentSnapshot> stream = document.snapshots();
+        expect(stream, isA<Stream<DocumentSnapshot>>());
+      });
+
+      testWidgets('listens to a single response', (WidgetTester tester) async {
+        DocumentReference document = await initializeTest('snapshot');
+        Stream<DocumentSnapshot> stream = document.snapshots();
+        int call = 0;
+
+        stream.listen(expectAsync1((DocumentSnapshot snapshot) {
+          call++;
+          if (call == 1) {
+            expect(snapshot.exists, isFalse);
+          } else {
+            fail("Should not have been called");
+          }
+        }, count: 1, reason: "Stream should only have been called once."));
+      });
+
+      testWidgets('listens to a multiple changes response',
+          (WidgetTester tester) async {
+        DocumentReference document = await initializeTest('snapshot-multiple');
+        Stream<DocumentSnapshot> stream = document.snapshots();
+        int call = 0;
+
+        StreamSubscription subscription = stream.listen(expectAsync1(
+            (DocumentSnapshot snapshot) {
+          call++;
+          if (call == 1) {
+            expect(snapshot.exists, isFalse);
+          } else if (call == 2) {
+            expect(snapshot.exists, isTrue);
+            expect(snapshot.data()['bar'], equals('baz'));
+          } else if (call == 3) {
+            expect(snapshot.exists, isFalse);
+          } else if (call == 4) {
+            expect(snapshot.exists, isTrue);
+            expect(snapshot.data()['foo'], equals('bar'));
+          } else if (call == 5) {
+            expect(snapshot.exists, isTrue);
+            expect(snapshot.data()['foo'], equals('baz'));
+          } else {
+            fail("Should not have been called");
+          }
+        },
+            count: 5,
+            reason: "Stream should only have been called five times."));
+
+        await Future.delayed(
+            Duration(seconds: 1)); // allow stream to return a noop-doc
+        await document.setData({'bar': 'baz'});
+        await document.delete();
+        await document.setData({'foo': 'bar'});
+        await document.updateData({'foo': 'baz'});
+
+        subscription.cancel();
+      });
+    });
 
     testWidgets('delete() deletes a document', (WidgetTester tester) async {
       DocumentReference document = await initializeTest('document-delete');

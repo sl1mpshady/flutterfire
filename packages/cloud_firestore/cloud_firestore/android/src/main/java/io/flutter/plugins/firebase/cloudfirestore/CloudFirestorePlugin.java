@@ -7,8 +7,6 @@ package io.flutter.plugins.firebase.cloudfirestore;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
@@ -48,7 +46,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
@@ -130,8 +127,8 @@ class FirebaseSharedPreferences {
 }
 
 public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, ActivityAware {
-
   private static final String TAG = "CloudFirestorePlugin";
+
   private static HashMap<String, Boolean> settingsLock = new HashMap<>();
   private final SparseArray<EventObserver> observers = new SparseArray<>();
   private final SparseArray<DocumentObserver> documentObservers = new SparseArray<>();
@@ -145,10 +142,518 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
   private int nextListenerHandle = 0;
   private int nextBatchHandle = 0;
 
+  @SuppressWarnings("unused")
   public static void registerWith(PluginRegistry.Registrar registrar) {
     CloudFirestorePlugin instance = new CloudFirestorePlugin();
     instance.activity = registrar.activity();
     instance.initInstance(registrar.messenger());
+  }
+
+  @Override
+  public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
+    initInstance(binding.getBinaryMessenger());
+  }
+
+  @Override
+  public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+    channel.setMethodCallHandler(null);
+    channel = null;
+  }
+
+  @Override
+  public void onAttachedToActivity(ActivityPluginBinding activityPluginBinding) {
+    attachToActivity(activityPluginBinding);
+  }
+
+  @Override
+  public void onDetachedFromActivityForConfigChanges() {
+    detachToActivity();
+  }
+
+  @Override
+  public void onReattachedToActivityForConfigChanges(ActivityPluginBinding activityPluginBinding) {
+    attachToActivity(activityPluginBinding);
+  }
+
+  @Override
+  public void onDetachedFromActivity() {
+    detachToActivity();
+  }
+
+  private void attachToActivity(ActivityPluginBinding activityPluginBinding) {
+    this.activity = activityPluginBinding.getActivity();
+  }
+
+  private void detachToActivity() {
+    this.activity = null;
+  }
+
+  private Task<Void> writeBatchCommit(Map<String, Object> arguments) {
+    return Tasks.call(
+        () -> {
+          //          String appName = (String) Objects.requireNonNull(arguments.get(KEY_APP_NAME));
+          //          FirebaseApp firebaseApp = FirebaseApp.getInstance(appName);
+          //          try {
+          //            firebaseApp.delete();
+          //          } catch (IllegalStateException appNotFoundException) {
+          //            // Ignore app not found exceptions.
+          //          }
+
+          return null;
+        });
+  }
+
+  @Override
+  public void onMethodCall(MethodCall call, final Result result) {
+    Task methodCallTask;
+
+    switch (call.method) {
+      case "Firestore#runTransaction":
+        break;
+      case "WriteBatch#commit":
+        methodCallTask = writeBatchCommit(call.arguments());
+    }
+
+    switch (call.method) {
+      case "Firestore#runTransaction":
+        //      {
+        //        final TaskCompletionSource<Map<String, Object>> transactionTCS =
+        //                new TaskCompletionSource<>();
+        //        final Task<Map<String, Object>> transactionTCSTask = transactionTCS.getTask();
+        //
+        //        final Map<String, Object> arguments = call.arguments();
+        //        getFirestore(arguments)
+        //                .runTransaction(
+        //                        transaction -> {
+        //                          // Store transaction.
+        //                          int transactionId = (Integer) arguments.get("transactionId");
+        //                          transactions.append(transactionId, transaction);
+        //                          completionTasks.append(transactionId, transactionTCS);
+        //
+        //                          // Start operations on Dart side.
+        //                          activity.runOnUiThread(
+        //                                  new Runnable() {
+        //                                    @Override
+        //                                    public void run() {
+        //                                      channel.invokeMethod(
+        //                                              "DoTransaction",
+        //                                              arguments,
+        //                                              new Result() {
+        //                                                @SuppressWarnings("unchecked")
+        //                                                @Override
+        //                                                public void success(Object
+        // doTransactionResult) {
+        //                                                  transactionTCS.trySetResult(
+        //                                                          (Map<String, Object>)
+        // doTransactionResult);
+        //                                                }
+        //
+        //                                                @Override
+        //                                                public void error(
+        //                                                        String errorCode, String
+        // errorMessage, Object errorDetails) {
+        //                                                  transactionTCS.trySetException(
+        //                                                          new Exception("DoTransaction
+        // failed: " + errorMessage));
+        //                                                }
+        //
+        //                                                @Override
+        //                                                public void notImplemented() {
+        //                                                  transactionTCS.trySetException(
+        //                                                          new Exception("DoTransaction not
+        // implemented"));
+        //                                                }
+        //                                              });
+        //                                    }
+        //                                  });
+        //
+        //                          // Wait till transaction is complete.
+        //                          try {
+        //                            String timeoutKey = "transactionTimeout";
+        //                            long timeout = ((Number)
+        // arguments.get(timeoutKey)).longValue();
+        //                            final Map<String, Object> transactionResult =
+        //                                    Tasks.await(transactionTCSTask, timeout,
+        // TimeUnit.MILLISECONDS);
+        //
+        //                            // Once transaction completes return the result to the Dart
+        // side.
+        //                            return new TransactionResult(transactionResult);
+        //                          } catch (Exception e) {
+        //                            Log.e(TAG, e.getMessage(), e);
+        //                            return new TransactionResult(e);
+        //                          }
+        //                        })
+        //                .addOnCompleteListener(
+        //                        task -> {
+        //                          if (!task.isSuccessful()) {
+        //                            result.error(
+        //                                    "Error performing transaction",
+        // task.getException().getMessage(), null);
+        //                            return;
+        //                          }
+        //
+        //                          TransactionResult transactionResult = task.getResult();
+        //                          if (transactionResult.exception == null) {
+        //                            result.success(transactionResult.result);
+        //                          } else {
+        //                            result.error(
+        //                                    "Error performing transaction",
+        //                                    transactionResult.exception.getMessage(),
+        //                                    null);
+        //                          }
+        //                        });
+        //        break;
+        //      }
+        //      case "Transaction#get":
+        //      {
+        //        final Map<String, Object> arguments = call.arguments();
+        //        final Transaction transaction = getTransaction(arguments);
+        //        new AsyncTask<Void, Void, Void>() {
+        //          @Override
+        //          protected Void doInBackground(Void... voids) {
+        //            try {
+        //              DocumentSnapshot documentSnapshot =
+        //                      transaction.get(getDocumentReference(arguments));
+        //              final Map<String, Object> snapshotMap = new HashMap<>();
+        //              snapshotMap.put("path", documentSnapshot.getReference().getPath());
+        //              if (documentSnapshot.exists()) {
+        //                snapshotMap.put("data", documentSnapshot.getData());
+        //              } else {
+        //                snapshotMap.put("data", null);
+        //              }
+        //              Map<String, Object> metadata = new HashMap<>();
+        //              metadata.put("hasPendingWrites",
+        // documentSnapshot.getMetadata().hasPendingWrites());
+        //              metadata.put("isFromCache", documentSnapshot.getMetadata().isFromCache());
+        //              snapshotMap.put("metadata", metadata);
+        //              activity.runOnUiThread(() -> result.success(snapshotMap));
+        //            } catch (final Exception e) {
+        //              activity.runOnUiThread(
+        //                      () -> result.error("Error performing Transaction#get",
+        // e.getMessage(), null));
+        //            }
+        //            return null;
+        //          }
+        //        }.execute();
+        //        break;
+        //      }
+        //      case "Transaction#update":
+        //      {
+        //        final Map<String, Object> arguments = call.arguments();
+        //        final Transaction transaction = getTransaction(arguments);
+        //        new AsyncTask<Void, Void, Void>() {
+        //          @SuppressWarnings("unchecked")
+        //          @Override
+        //          protected Void doInBackground(Void... voids) {
+        //            Map<String, Object> data = (Map<String, Object>) arguments.get("data");
+        //            try {
+        //              transaction.update(getDocumentReference(arguments), data);
+        //              activity.runOnUiThread(() -> result.success(null));
+        //            } catch (final Exception e) {
+        //              activity.runOnUiThread(
+        //                      new Runnable() {
+        //                        @Override
+        //                        public void run() {
+        //                          result.error("Error performing Transaction#update",
+        // e.getMessage(), null);
+        //                        }
+        //                      });
+        //            }
+        //            return null;
+        //          }
+        //        }.execute();
+        //        break;
+        //      }
+        //      case "Transaction#set":
+        //      {
+        //        final Map<String, Object> arguments = call.arguments();
+        //        final Transaction transaction = getTransaction(arguments);
+        //        new AsyncTask<Void, Void, Void>() {
+        //          @SuppressWarnings("unchecked")
+        //          @Override
+        //          protected Void doInBackground(Void... voids) {
+        //            Map<String, Object> data = (Map<String, Object>) arguments.get("data");
+        //            try {
+        //              transaction.set(getDocumentReference(arguments), data);
+        //              activity.runOnUiThread(
+        //                      new Runnable() {
+        //                        @Override
+        //                        public void run() {
+        //                          result.success(null);
+        //                        }
+        //                      });
+        //            } catch (final Exception e) {
+        //              activity.runOnUiThread(
+        //                      new Runnable() {
+        //                        @Override
+        //                        public void run() {
+        //                          result.error("Error performing Transaction#set", e.getMessage(),
+        // null);
+        //                        }
+        //                      });
+        //            }
+        //            return null;
+        //          }
+        //        }.execute();
+        //        break;
+        //      }
+        //      case "Transaction#delete":
+        //      {
+        //        final Map<String, Object> arguments = call.arguments();
+        //        final Transaction transaction = getTransaction(arguments);
+        //        new AsyncTask<Void, Void, Void>() {
+        //          @Override
+        //          protected Void doInBackground(Void... voids) {
+        //            try {
+        //              transaction.delete(getDocumentReference(arguments));
+        //              activity.runOnUiThread(
+        //                      new Runnable() {
+        //                        @Override
+        //                        public void run() {
+        //                          result.success(null);
+        //                        }
+        //                      });
+        //            } catch (final Exception e) {
+        //              activity.runOnUiThread(
+        //                      new Runnable() {
+        //                        @Override
+        //                        public void run() {
+        //                          result.error("Error performing Transaction#delete",
+        // e.getMessage(), null);
+        //                        }
+        //                      });
+        //            }
+        //            return null;
+        //          }
+        //        }.execute();
+        //        break;
+        //      }
+      case "WriteBatch#commit":
+        {
+          Map<String, Object> arguments = call.arguments();
+          List<Object> writes = (List<Object>) arguments.get("writes");
+          FirebaseFirestore firestore = getFirestore(arguments);
+          WriteBatch batch = firestore.batch();
+
+          for (Object writeMap : writes) {
+            Map<String, Object> write = (Map) writeMap;
+            String type = (String) write.get("type");
+            String path = (String) write.get("path");
+            Map<String, Object> data = (Map<String, Object>) write.get("data");
+
+            DocumentReference documentReference = getDocumentReference(firestore, path);
+
+            switch (type) {
+              case "DELETE":
+                batch = batch.delete(documentReference);
+                break;
+              case "UPDATE":
+                batch = batch.update(documentReference, data);
+                break;
+              case "SET":
+                Map<String, Object> options = (Map) write.get("options");
+
+                if (options != null
+                    && options.get("merge") != null
+                    && (boolean) options.get("merge")) {
+                  batch = batch.set(documentReference, data, SetOptions.merge());
+                } else if (options != null && options.get("mergeFields") != null) {
+                  List<FieldPath> fieldPathList = (List<FieldPath>) options.get("mergeFields");
+                  batch =
+                      batch.set(documentReference, data, SetOptions.mergeFieldPaths(fieldPathList));
+                } else {
+                  batch = batch.set(documentReference, data);
+                }
+
+                break;
+            }
+          }
+
+          batch
+              .commit()
+              .addOnSuccessListener(ignored -> result.success(null))
+              .addOnFailureListener(
+                  e -> result.error("Error performing commit", e.getMessage(), null));
+          break;
+        }
+      case "Query#addSnapshotListener":
+        {
+          Map<String, Object> arguments = call.arguments();
+          int handle = nextListenerHandle++;
+          EventObserver observer = new EventObserver(handle);
+          observers.put(handle, observer);
+          MetadataChanges metadataChanges =
+              (Boolean) arguments.get("includeMetadataChanges")
+                  ? MetadataChanges.INCLUDE
+                  : MetadataChanges.EXCLUDE;
+          listenerRegistrations.put(
+              handle, getQuery(arguments).addSnapshotListener(metadataChanges, observer));
+          result.success(handle);
+          break;
+        }
+      case "DocumentReference#addSnapshotListener":
+        {
+          Map<String, Object> arguments = call.arguments();
+          int handle = nextListenerHandle++;
+          DocumentObserver observer = new DocumentObserver(handle);
+          documentObservers.put(handle, observer);
+          MetadataChanges metadataChanges =
+              (Boolean) arguments.get("includeMetadataChanges")
+                  ? MetadataChanges.INCLUDE
+                  : MetadataChanges.EXCLUDE;
+          listenerRegistrations.put(
+              handle,
+              getDocumentReference(arguments).addSnapshotListener(metadataChanges, observer));
+          result.success(handle);
+          break;
+        }
+      case "removeListener":
+        {
+          Map<String, Object> arguments = call.arguments();
+          int handle = (Integer) arguments.get("handle");
+          listenerRegistrations.get(handle).remove();
+          listenerRegistrations.remove(handle);
+          observers.remove(handle);
+          result.success(null);
+          break;
+        }
+      case "Query#getDocuments":
+        {
+          Map<String, Object> arguments = call.arguments();
+          Query query = getQuery(arguments);
+          Source source = getSource(arguments);
+          Task<QuerySnapshot> task = query.get(source);
+          task.addOnSuccessListener(
+                  querySnapshot -> result.success(parseQuerySnapshot(querySnapshot)))
+              .addOnFailureListener(
+                  e -> result.error("Error performing getDocuments", e.getMessage(), null));
+          break;
+        }
+      case "DocumentReference#setData":
+        {
+          Map<String, Object> arguments = call.arguments();
+          DocumentReference documentReference = getDocumentReference(arguments);
+          @SuppressWarnings("unchecked")
+          Map<String, Object> options = (Map<String, Object>) arguments.get("options");
+          @SuppressWarnings("unchecked")
+          Map<String, Object> data = (Map<String, Object>) arguments.get("data");
+          Task<Void> task;
+          if (options != null && options.get("merge") != null && (boolean) options.get("merge")) {
+            task = documentReference.set(data, SetOptions.merge());
+          } else if (options != null && options.get("mergeFields") != null) {
+            List<FieldPath> fieldPathList = (List<FieldPath>) options.get("mergeFields");
+            task = documentReference.set(data, SetOptions.mergeFieldPaths(fieldPathList));
+          } else {
+            task = documentReference.set(data);
+          }
+          addDefaultListeners("setData", task, result);
+          break;
+        }
+      case "DocumentReference#updateData":
+        {
+          Map<String, Object> arguments = call.arguments();
+          DocumentReference documentReference = getDocumentReference(arguments);
+          @SuppressWarnings("unchecked")
+          Map<String, Object> data = (Map<String, Object>) arguments.get("data");
+          Task<Void> task = documentReference.update(data);
+          addDefaultListeners("updateData", task, result);
+          break;
+        }
+      case "DocumentReference#get":
+        {
+          Map<String, Object> arguments = call.arguments();
+          DocumentReference documentReference = getDocumentReference(arguments);
+          Source source = getSource(arguments);
+          Task<DocumentSnapshot> task = documentReference.get(source);
+          task.addOnSuccessListener(
+                  documentSnapshot -> {
+                    Map<String, Object> snapshotMap = new HashMap<>();
+                    Map<String, Object> metadata = new HashMap<>();
+                    metadata.put(
+                        "hasPendingWrites", documentSnapshot.getMetadata().hasPendingWrites());
+                    metadata.put("isFromCache", documentSnapshot.getMetadata().isFromCache());
+                    snapshotMap.put("metadata", metadata);
+                    snapshotMap.put("path", documentSnapshot.getReference().getPath());
+                    if (documentSnapshot.exists()) {
+                      snapshotMap.put("data", documentSnapshot.getData());
+                    } else {
+                      snapshotMap.put("data", null);
+                    }
+                    result.success(snapshotMap);
+                  })
+              .addOnFailureListener(
+                  e -> result.error("Error performing get", e.getMessage(), null));
+          break;
+        }
+      case "DocumentReference#delete":
+        {
+          Map<String, Object> arguments = call.arguments();
+          DocumentReference documentReference = getDocumentReference(arguments);
+          Task<Void> task = documentReference.delete();
+          addDefaultListeners("delete", task, result);
+          break;
+        }
+      case "Firestore#enablePersistence":
+        {
+          Map<String, Object> arguments = call.arguments();
+          boolean enable = (boolean) arguments.get("enable");
+          FirebaseFirestoreSettings.Builder builder = new FirebaseFirestoreSettings.Builder();
+          builder.setPersistenceEnabled(enable);
+          FirebaseFirestoreSettings settings = builder.build();
+          getFirestore(arguments).setFirestoreSettings(settings);
+          result.success(null);
+          break;
+        }
+      case "Firestore#settings":
+        {
+          final Map<String, Object> arguments = call.arguments();
+          String appName = (String) arguments.get("appName");
+          Map<String, Object> settings = (Map<String, Object>) arguments.get("settings");
+
+          FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
+          preferences.setApplicationContext(activity.getApplicationContext());
+
+          if (settings.get("persistenceEnabled") != null) {
+            preferences.setBooleanValue(
+                "firebase_firestore_persistence_" + appName,
+                (boolean) settings.get("persistenceEnabled"));
+          }
+
+          if (settings.get("host") != null) {
+            preferences.setStringValue(
+                "firebase_firestore_host_" + appName, (String) settings.get("host"));
+          }
+
+          if (settings.get("sslEnabled") != null) {
+            preferences.setBooleanValue(
+                "firebase_firestore_ssl_" + appName, (boolean) settings.get("sslEnabled"));
+          }
+
+          if (settings.get("cacheSizeBytes") != null) {
+            Object value = settings.get("cacheSizeBytes");
+            Long cacheSizeBytes = null;
+
+            if (value instanceof Long) {
+              cacheSizeBytes = (Long) value;
+            } else if (value instanceof Integer) {
+              cacheSizeBytes = Long.valueOf((Integer) value);
+            }
+
+            if (cacheSizeBytes != null) {
+              preferences.setLongValue("firebase_firestore_cache_size_" + appName, cacheSizeBytes);
+            }
+          }
+
+          result.success(null);
+          break;
+        }
+      default:
+        {
+          result.notImplemented();
+          break;
+        }
+    }
   }
 
   private void initInstance(BinaryMessenger messenger) {
@@ -389,475 +894,6 @@ public class CloudFirestorePlugin implements MethodCallHandler, FlutterPlugin, A
     task.addOnSuccessListener(ignored -> result.success(null));
     task.addOnFailureListener(
         e -> result.error("Error performing " + description, e.getMessage(), null));
-  }
-
-  @Override
-  public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
-    initInstance(binding.getBinaryMessenger());
-  }
-
-  @Override
-  public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-    channel.setMethodCallHandler(null);
-    channel = null;
-  }
-
-  private void attachToActivity(ActivityPluginBinding activityPluginBinding) {
-    this.activity = activityPluginBinding.getActivity();
-  }
-
-  private void detachToActivity() {
-    this.activity = null;
-  }
-
-  @Override
-  public void onAttachedToActivity(ActivityPluginBinding activityPluginBinding) {
-    attachToActivity(activityPluginBinding);
-  }
-
-  @Override
-  public void onDetachedFromActivityForConfigChanges() {
-    detachToActivity();
-  }
-
-  @Override
-  public void onReattachedToActivityForConfigChanges(ActivityPluginBinding activityPluginBinding) {
-    attachToActivity(activityPluginBinding);
-  }
-
-  @Override
-  public void onDetachedFromActivity() {
-    detachToActivity();
-  }
-
-  @Override
-  public void onMethodCall(MethodCall call, final Result result) {
-    switch (call.method) {
-      case "Firestore#runTransaction":
-        {
-          final TaskCompletionSource<Map<String, Object>> transactionTCS =
-              new TaskCompletionSource<>();
-          final Task<Map<String, Object>> transactionTCSTask = transactionTCS.getTask();
-
-          final Map<String, Object> arguments = call.arguments();
-          getFirestore(arguments)
-              .runTransaction(
-                  transaction -> {
-                    // Store transaction.
-                    int transactionId = (Integer) arguments.get("transactionId");
-                    transactions.append(transactionId, transaction);
-                    completionTasks.append(transactionId, transactionTCS);
-
-                    // Start operations on Dart side.
-                    activity.runOnUiThread(
-                        new Runnable() {
-                          @Override
-                          public void run() {
-                            channel.invokeMethod(
-                                "DoTransaction",
-                                arguments,
-                                new Result() {
-                                  @SuppressWarnings("unchecked")
-                                  @Override
-                                  public void success(Object doTransactionResult) {
-                                    transactionTCS.trySetResult(
-                                        (Map<String, Object>) doTransactionResult);
-                                  }
-
-                                  @Override
-                                  public void error(
-                                      String errorCode, String errorMessage, Object errorDetails) {
-                                    transactionTCS.trySetException(
-                                        new Exception("DoTransaction failed: " + errorMessage));
-                                  }
-
-                                  @Override
-                                  public void notImplemented() {
-                                    transactionTCS.trySetException(
-                                        new Exception("DoTransaction not implemented"));
-                                  }
-                                });
-                          }
-                        });
-
-                    // Wait till transaction is complete.
-                    try {
-                      String timeoutKey = "transactionTimeout";
-                      long timeout = ((Number) arguments.get(timeoutKey)).longValue();
-                      final Map<String, Object> transactionResult =
-                          Tasks.await(transactionTCSTask, timeout, TimeUnit.MILLISECONDS);
-
-                      // Once transaction completes return the result to the Dart side.
-                      return new TransactionResult(transactionResult);
-                    } catch (Exception e) {
-                      Log.e(TAG, e.getMessage(), e);
-                      return new TransactionResult(e);
-                    }
-                  })
-              .addOnCompleteListener(
-                  task -> {
-                    if (!task.isSuccessful()) {
-                      result.error(
-                          "Error performing transaction", task.getException().getMessage(), null);
-                      return;
-                    }
-
-                    TransactionResult transactionResult = task.getResult();
-                    if (transactionResult.exception == null) {
-                      result.success(transactionResult.result);
-                    } else {
-                      result.error(
-                          "Error performing transaction",
-                          transactionResult.exception.getMessage(),
-                          null);
-                    }
-                  });
-          break;
-        }
-      case "Transaction#get":
-        {
-          final Map<String, Object> arguments = call.arguments();
-          final Transaction transaction = getTransaction(arguments);
-          new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-              try {
-                DocumentSnapshot documentSnapshot =
-                    transaction.get(getDocumentReference(arguments));
-                final Map<String, Object> snapshotMap = new HashMap<>();
-                snapshotMap.put("path", documentSnapshot.getReference().getPath());
-                if (documentSnapshot.exists()) {
-                  snapshotMap.put("data", documentSnapshot.getData());
-                } else {
-                  snapshotMap.put("data", null);
-                }
-                Map<String, Object> metadata = new HashMap<>();
-                metadata.put("hasPendingWrites", documentSnapshot.getMetadata().hasPendingWrites());
-                metadata.put("isFromCache", documentSnapshot.getMetadata().isFromCache());
-                snapshotMap.put("metadata", metadata);
-                activity.runOnUiThread(() -> result.success(snapshotMap));
-              } catch (final Exception e) {
-                activity.runOnUiThread(
-                    () -> result.error("Error performing Transaction#get", e.getMessage(), null));
-              }
-              return null;
-            }
-          }.execute();
-          break;
-        }
-      case "Transaction#update":
-        {
-          final Map<String, Object> arguments = call.arguments();
-          final Transaction transaction = getTransaction(arguments);
-          new AsyncTask<Void, Void, Void>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            protected Void doInBackground(Void... voids) {
-              Map<String, Object> data = (Map<String, Object>) arguments.get("data");
-              try {
-                transaction.update(getDocumentReference(arguments), data);
-                activity.runOnUiThread(() -> result.success(null));
-              } catch (final Exception e) {
-                activity.runOnUiThread(
-                    new Runnable() {
-                      @Override
-                      public void run() {
-                        result.error("Error performing Transaction#update", e.getMessage(), null);
-                      }
-                    });
-              }
-              return null;
-            }
-          }.execute();
-          break;
-        }
-      case "Transaction#set":
-        {
-          final Map<String, Object> arguments = call.arguments();
-          final Transaction transaction = getTransaction(arguments);
-          new AsyncTask<Void, Void, Void>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            protected Void doInBackground(Void... voids) {
-              Map<String, Object> data = (Map<String, Object>) arguments.get("data");
-              try {
-                transaction.set(getDocumentReference(arguments), data);
-                activity.runOnUiThread(
-                    new Runnable() {
-                      @Override
-                      public void run() {
-                        result.success(null);
-                      }
-                    });
-              } catch (final Exception e) {
-                activity.runOnUiThread(
-                    new Runnable() {
-                      @Override
-                      public void run() {
-                        result.error("Error performing Transaction#set", e.getMessage(), null);
-                      }
-                    });
-              }
-              return null;
-            }
-          }.execute();
-          break;
-        }
-      case "Transaction#delete":
-        {
-          final Map<String, Object> arguments = call.arguments();
-          final Transaction transaction = getTransaction(arguments);
-          new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-              try {
-                transaction.delete(getDocumentReference(arguments));
-                activity.runOnUiThread(
-                    new Runnable() {
-                      @Override
-                      public void run() {
-                        result.success(null);
-                      }
-                    });
-              } catch (final Exception e) {
-                activity.runOnUiThread(
-                    new Runnable() {
-                      @Override
-                      public void run() {
-                        result.error("Error performing Transaction#delete", e.getMessage(), null);
-                      }
-                    });
-              }
-              return null;
-            }
-          }.execute();
-          break;
-        }
-      case "WriteBatch#commit":
-        {
-          Map<String, Object> arguments = call.arguments();
-          List<Object> writes = (List<Object>) arguments.get("writes");
-          FirebaseFirestore firestore = getFirestore(arguments);
-          WriteBatch batch = firestore.batch();
-
-          for (Object writeMap : writes) {
-            Map<String, Object> write = (Map) writeMap;
-            String type = (String) write.get("type");
-            String path = (String) write.get("path");
-            Map<String, Object> data = (Map<String, Object>) write.get("data");
-
-            DocumentReference documentReference = getDocumentReference(firestore, path);
-
-            switch (type) {
-              case "DELETE":
-                batch = batch.delete(documentReference);
-                break;
-              case "UPDATE":
-                batch = batch.update(documentReference, data);
-                break;
-              case "SET":
-                Map<String, Object> options = (Map) write.get("options");
-
-                if (options != null
-                    && options.get("merge") != null
-                    && (boolean) options.get("merge")) {
-                  batch = batch.set(documentReference, data, SetOptions.merge());
-                } else if (options != null && options.get("mergeFields") != null) {
-                  List<FieldPath> fieldPathList = (List<FieldPath>) options.get("mergeFields");
-                  batch =
-                      batch.set(documentReference, data, SetOptions.mergeFieldPaths(fieldPathList));
-                } else {
-                  batch = batch.set(documentReference, data);
-                }
-
-                break;
-            }
-          }
-
-          batch
-              .commit()
-              .addOnSuccessListener(ignored -> result.success(null))
-              .addOnFailureListener(
-                  e -> result.error("Error performing commit", e.getMessage(), null));
-          break;
-        }
-      case "Query#addSnapshotListener":
-        {
-          Map<String, Object> arguments = call.arguments();
-          int handle = nextListenerHandle++;
-          EventObserver observer = new EventObserver(handle);
-          observers.put(handle, observer);
-          MetadataChanges metadataChanges =
-              (Boolean) arguments.get("includeMetadataChanges")
-                  ? MetadataChanges.INCLUDE
-                  : MetadataChanges.EXCLUDE;
-          listenerRegistrations.put(
-              handle, getQuery(arguments).addSnapshotListener(metadataChanges, observer));
-          result.success(handle);
-          break;
-        }
-      case "DocumentReference#addSnapshotListener":
-        {
-          Map<String, Object> arguments = call.arguments();
-          int handle = nextListenerHandle++;
-          DocumentObserver observer = new DocumentObserver(handle);
-          documentObservers.put(handle, observer);
-          MetadataChanges metadataChanges =
-              (Boolean) arguments.get("includeMetadataChanges")
-                  ? MetadataChanges.INCLUDE
-                  : MetadataChanges.EXCLUDE;
-          listenerRegistrations.put(
-              handle,
-              getDocumentReference(arguments).addSnapshotListener(metadataChanges, observer));
-          result.success(handle);
-          break;
-        }
-      case "removeListener":
-        {
-          Map<String, Object> arguments = call.arguments();
-          int handle = (Integer) arguments.get("handle");
-          listenerRegistrations.get(handle).remove();
-          listenerRegistrations.remove(handle);
-          observers.remove(handle);
-          result.success(null);
-          break;
-        }
-      case "Query#getDocuments":
-        {
-          Map<String, Object> arguments = call.arguments();
-          Query query = getQuery(arguments);
-          Source source = getSource(arguments);
-          Task<QuerySnapshot> task = query.get(source);
-          task.addOnSuccessListener(
-                  querySnapshot -> result.success(parseQuerySnapshot(querySnapshot)))
-              .addOnFailureListener(
-                  e -> result.error("Error performing getDocuments", e.getMessage(), null));
-          break;
-        }
-      case "DocumentReference#setData":
-        {
-          Map<String, Object> arguments = call.arguments();
-          DocumentReference documentReference = getDocumentReference(arguments);
-          @SuppressWarnings("unchecked")
-          Map<String, Object> options = (Map<String, Object>) arguments.get("options");
-          @SuppressWarnings("unchecked")
-          Map<String, Object> data = (Map<String, Object>) arguments.get("data");
-          Task<Void> task;
-          if (options != null && options.get("merge") != null && (boolean) options.get("merge")) {
-            task = documentReference.set(data, SetOptions.merge());
-          } else if (options != null && options.get("mergeFields") != null) {
-            List<FieldPath> fieldPathList = (List<FieldPath>) options.get("mergeFields");
-            task = documentReference.set(data, SetOptions.mergeFieldPaths(fieldPathList));
-          } else {
-            task = documentReference.set(data);
-          }
-          addDefaultListeners("setData", task, result);
-          break;
-        }
-      case "DocumentReference#updateData":
-        {
-          Map<String, Object> arguments = call.arguments();
-          DocumentReference documentReference = getDocumentReference(arguments);
-          @SuppressWarnings("unchecked")
-          Map<String, Object> data = (Map<String, Object>) arguments.get("data");
-          Task<Void> task = documentReference.update(data);
-          addDefaultListeners("updateData", task, result);
-          break;
-        }
-      case "DocumentReference#get":
-        {
-          Map<String, Object> arguments = call.arguments();
-          DocumentReference documentReference = getDocumentReference(arguments);
-          Source source = getSource(arguments);
-          Task<DocumentSnapshot> task = documentReference.get(source);
-          task.addOnSuccessListener(
-                  documentSnapshot -> {
-                    Map<String, Object> snapshotMap = new HashMap<>();
-                    Map<String, Object> metadata = new HashMap<>();
-                    metadata.put(
-                        "hasPendingWrites", documentSnapshot.getMetadata().hasPendingWrites());
-                    metadata.put("isFromCache", documentSnapshot.getMetadata().isFromCache());
-                    snapshotMap.put("metadata", metadata);
-                    snapshotMap.put("path", documentSnapshot.getReference().getPath());
-                    if (documentSnapshot.exists()) {
-                      snapshotMap.put("data", documentSnapshot.getData());
-                    } else {
-                      snapshotMap.put("data", null);
-                    }
-                    result.success(snapshotMap);
-                  })
-              .addOnFailureListener(
-                  e -> result.error("Error performing get", e.getMessage(), null));
-          break;
-        }
-      case "DocumentReference#delete":
-        {
-          Map<String, Object> arguments = call.arguments();
-          DocumentReference documentReference = getDocumentReference(arguments);
-          Task<Void> task = documentReference.delete();
-          addDefaultListeners("delete", task, result);
-          break;
-        }
-      case "Firestore#enablePersistence":
-        {
-          Map<String, Object> arguments = call.arguments();
-          boolean enable = (boolean) arguments.get("enable");
-          FirebaseFirestoreSettings.Builder builder = new FirebaseFirestoreSettings.Builder();
-          builder.setPersistenceEnabled(enable);
-          FirebaseFirestoreSettings settings = builder.build();
-          getFirestore(arguments).setFirestoreSettings(settings);
-          result.success(null);
-          break;
-        }
-      case "Firestore#settings":
-        {
-          final Map<String, Object> arguments = call.arguments();
-          String appName = (String) arguments.get("appName");
-          Map<String, Object> settings = (Map<String, Object>) arguments.get("settings");
-
-          FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
-          preferences.setApplicationContext(activity.getApplicationContext());
-
-          if (settings.get("persistenceEnabled") != null) {
-            preferences.setBooleanValue(
-                "firebase_firestore_persistence_" + appName,
-                (boolean) settings.get("persistenceEnabled"));
-          }
-
-          if (settings.get("host") != null) {
-            preferences.setStringValue(
-                "firebase_firestore_host_" + appName, (String) settings.get("host"));
-          }
-
-          if (settings.get("sslEnabled") != null) {
-            preferences.setBooleanValue(
-                "firebase_firestore_ssl_" + appName, (boolean) settings.get("sslEnabled"));
-          }
-
-          if (settings.get("cacheSizeBytes") != null) {
-            Object value = settings.get("cacheSizeBytes");
-            Long cacheSizeBytes = null;
-
-            if (value instanceof Long) {
-              cacheSizeBytes = (Long) value;
-            } else if (value instanceof Integer) {
-              cacheSizeBytes = Long.valueOf((Integer) value);
-            }
-
-            if (cacheSizeBytes != null) {
-              preferences.setLongValue("firebase_firestore_cache_size_" + appName, cacheSizeBytes);
-            }
-          }
-
-          result.success(null);
-          break;
-        }
-      default:
-        {
-          result.notImplemented();
-          break;
-        }
-    }
   }
 
   private static final class TransactionResult {

@@ -53,23 +53,17 @@ jobs:
         run: |
           melos exec -c 1 --scope="*firebase_core*" -- \
             flutter format .
+          ./.github/workflows/scripts/validate-formatting.sh
       - name: "Objective-C"
+        if: succeeded() || failed()
         run: |
-          melos exec -c 3 --scope="*firebase_core*" -- \
+          melos exec -c 3 --scope="*firebase_core*" --ignore="*platform_interface*" --ignore="*web*" -- \
             find . -maxdepth 3 -name "*.h" -o -name "*.m" -print0 \| xargs -0 clang-format -i --style=Google --verbose
+          ./.github/workflows/scripts/validate-formatting.sh
       - name: "Java"
+        if: succeeded() || failed()
         run: |
-          melos exec -c 3 --scope="*firebase_core*" -- \
+          melos exec -c 3 --scope="*firebase_core*" --ignore="*platform_interface*" --ignore="*web*" -- \
             find . -maxdepth 12 -name "*.java" -print0 \| xargs -0 java -jar $HOME/google-java-format.jar --replace
-      - name: "Check Formatting Valid"
-        run: |
-          if [[ $(git ls-files --modified) ]]; then
-            echo "These files are not formatted correctly:"
-            git ls-files --modified
-            echo "Diff:"
-            git --no-pager diff
-            echo "Some files are incorrectly formatted, see above output."
-            exit 1
-          else
-            echo "All files are formatted correctly."
-          fi
+          ./.github/workflows/scripts/validate-formatting.sh
+

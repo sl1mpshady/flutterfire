@@ -53,6 +53,18 @@ void runQueryTests() {
         expect(qs, isA<QuerySnapshot>());
         expect(qs.metadata.isFromCache, isFalse);
       });
+
+      testWidgets('throws a [FirebaseException]', (WidgetTester tester) async {
+        CollectionReference collection = firestore.collection('not-allowed');
+
+        try {
+          await collection.get();
+        } catch (error) {
+          expect(error, isA<FirebaseException>());
+          expect(
+              (error as FirebaseException).code, equals('permission-denied'));
+        }
+      });
     });
 
     /**
@@ -131,6 +143,23 @@ void runQueryTests() {
         await collection.document('doc2').updateData({'foo': 'baz'});
 
         subscription.cancel();
+      });
+
+      testWidgets('listeners throws a [FirebaseException]',
+          (WidgetTester tester) async {
+        CollectionReference collection = firestore.collection('not-allowed');
+        Stream<QuerySnapshot> stream = collection.snapshots();
+
+        try {
+          await stream.first;
+        } catch (error) {
+          expect(error, isA<FirebaseException>());
+          expect(
+              (error as FirebaseException).code, equals('permission-denied'));
+          return;
+        }
+
+        fail("Should have thrown a [FirebaseException]");
       });
     });
 
@@ -228,7 +257,7 @@ void runQueryTests() {
             .orderBy('bar.value')
             .endAtDocument(endAtSnapshot)
             .get();
-  
+
         expect(snapshot.documents.length, equals(2));
         expect(snapshot.documents[0].id, equals('doc3'));
         expect(snapshot.documents[1].id, equals('doc2'));

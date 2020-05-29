@@ -45,7 +45,8 @@ void runDocumentReferenceTests() {
 
       testWidgets('listens to a multiple changes response',
           (WidgetTester tester) async {
-        DocumentReference document = await initializeTest('document-snapshot-multiple');
+        DocumentReference document =
+            await initializeTest('document-snapshot-multiple');
         Stream<DocumentSnapshot> stream = document.snapshots();
         int call = 0;
 
@@ -81,101 +82,162 @@ void runDocumentReferenceTests() {
 
         subscription.cancel();
       });
-    });
 
-    testWidgets('delete() deletes a document', (WidgetTester tester) async {
-      DocumentReference document = await initializeTest('document-delete');
-      await document.setData({
-        'foo': 'bar',
+      testWidgets('listeners throws a [FirebaseException]',
+          (WidgetTester tester) async {
+        DocumentReference document = firestore.document('not-allowed/document');
+        Stream<DocumentSnapshot> stream = document.snapshots();
+
+        try {
+          await stream.first;
+        } catch (error) {
+          expect(error, isA<FirebaseException>());
+          expect(
+              (error as FirebaseException).code, equals('permission-denied'));
+          return;
+        }
+
+        fail("Should have thrown a [FirebaseException]");
       });
-      DocumentSnapshot snapshot = await document.get();
-      expect(snapshot.exists, isTrue);
-      await document.delete();
-      DocumentSnapshot snapshot2 = await document.get();
-      expect(snapshot2.exists, isFalse);
     });
 
-    testWidgets('get() gets a document from server',
-        (WidgetTester tester) async {
-      DocumentReference document = await initializeTest('document-get-server');
-      await document.setData({'foo': 'bar'});
-      DocumentSnapshot snapshot =
-          await document.get(GetOptions(source: Source.server));
-      expect(snapshot.data(), {'foo': 'bar'});
-      expect(snapshot.metadata.isFromCache, isFalse);
+    group('delete()', () {
+      testWidgets('delete() deletes a document', (WidgetTester tester) async {
+        DocumentReference document = await initializeTest('document-delete');
+        await document.setData({
+          'foo': 'bar',
+        });
+        DocumentSnapshot snapshot = await document.get();
+        expect(snapshot.exists, isTrue);
+        await document.delete();
+        DocumentSnapshot snapshot2 = await document.get();
+        expect(snapshot2.exists, isFalse);
+      });
+
+      testWidgets('throws a [FirebaseException] on error',
+          (WidgetTester tester) async {
+        DocumentReference document = firestore.document('not-allowed/document');
+
+        try {
+          await document.delete();
+        } catch (error) {
+          expect(error, isA<FirebaseException>());
+          expect(
+              (error as FirebaseException).code, equals('permission-denied'));
+          return;
+        }
+        fail("Should have thrown a [FirebaseException]");
+      });
     });
 
-    testWidgets('get() gets a document from cache',
-        (WidgetTester tester) async {
-      DocumentReference document = await initializeTest('document-get-cache');
-      await document.setData({'foo': 'bar'});
-      DocumentSnapshot snapshot =
-          await document.get(GetOptions(source: Source.cache));
-      expect(snapshot.data(), equals({'foo': 'bar'}));
-      expect(snapshot.metadata.isFromCache, isTrue);
+    group('get()', () {
+      testWidgets('gets a document from server', (WidgetTester tester) async {
+        DocumentReference document =
+            await initializeTest('document-get-server');
+        await document.setData({'foo': 'bar'});
+        DocumentSnapshot snapshot =
+            await document.get(GetOptions(source: Source.server));
+        expect(snapshot.data(), {'foo': 'bar'});
+        expect(snapshot.metadata.isFromCache, isFalse);
+      });
+
+      testWidgets('gets a document from cache', (WidgetTester tester) async {
+        DocumentReference document = await initializeTest('document-get-cache');
+        await document.setData({'foo': 'bar'});
+        DocumentSnapshot snapshot =
+            await document.get(GetOptions(source: Source.cache));
+        expect(snapshot.data(), equals({'foo': 'bar'}));
+        expect(snapshot.metadata.isFromCache, isTrue);
+      });
+
+      testWidgets('gets a document from cache', (WidgetTester tester) async {
+        DocumentReference document = await initializeTest('document-get-cache');
+        await document.setData({'foo': 'bar'});
+        DocumentSnapshot snapshot =
+            await document.get(GetOptions(source: Source.cache));
+        expect(snapshot.data(), equals({'foo': 'bar'}));
+        expect(snapshot.metadata.isFromCache, isTrue);
+      });
+
+      testWidgets('throws a [FirebaseException] on error',
+          (WidgetTester tester) async {
+        DocumentReference document = firestore.document('not-allowed/document');
+
+        try {
+          await document.get();
+        } catch (error) {
+          expect(error, isA<FirebaseException>());
+          expect(
+              (error as FirebaseException).code, equals('permission-denied'));
+          return;
+        }
+        fail("Should have thrown a [FirebaseException]");
+      });
     });
 
-    testWidgets('set() sets data', (WidgetTester tester) async {
-      DocumentReference document = await initializeTest('document-set');
-      await document.setData({'foo': 'bar'});
-      DocumentSnapshot snapshot = await document.get();
-      expect(snapshot.data(), equals({'foo': 'bar'}));
-      await document.setData({'bar': 'baz'});
-      DocumentSnapshot snapshot2 = await document.get();
-      expect(snapshot2.data(), equals({'bar': 'baz'}));
-    });
+    group('set()', () {
+      testWidgets('set() sets data', (WidgetTester tester) async {
+        DocumentReference document = await initializeTest('document-set');
+        await document.setData({'foo': 'bar'});
+        DocumentSnapshot snapshot = await document.get();
+        expect(snapshot.data(), equals({'foo': 'bar'}));
+        await document.setData({'bar': 'baz'});
+        DocumentSnapshot snapshot2 = await document.get();
+        expect(snapshot2.data(), equals({'bar': 'baz'}));
+      });
 
-    testWidgets('set() merges data', (WidgetTester tester) async {
-      DocumentReference document = await initializeTest('document-set-merge');
-      await document.setData({'foo': 'bar'});
-      DocumentSnapshot snapshot = await document.get();
-      expect(snapshot.data(), equals({'foo': 'bar'}));
-      await document
-          .setData({'foo': 'ben', 'bar': 'baz'}, SetOptions(merge: true));
-      DocumentSnapshot snapshot2 = await document.get();
-      expect(snapshot2.data(), equals({'foo': 'ben', 'bar': 'baz'}));
-    });
+      testWidgets('set() merges data', (WidgetTester tester) async {
+        DocumentReference document = await initializeTest('document-set-merge');
+        await document.setData({'foo': 'bar'});
+        DocumentSnapshot snapshot = await document.get();
+        expect(snapshot.data(), equals({'foo': 'bar'}));
+        await document
+            .setData({'foo': 'ben', 'bar': 'baz'}, SetOptions(merge: true));
+        DocumentSnapshot snapshot2 = await document.get();
+        expect(snapshot2.data(), equals({'foo': 'ben', 'bar': 'baz'}));
+      });
 
-    testWidgets('set() merges fields', (WidgetTester tester) async {
-      DocumentReference document =
-          await initializeTest('document-set-merge-fields');
-      Map<String, dynamic> initialData = {
-        'foo': 'bar',
-        'bar': 123,
-        'baz': '456',
-      };
-      Map<String, dynamic> dataToSet = {
-        'foo': 'should-not-merge',
-        'bar': 456,
-        'baz': 'foo',
-      };
-      await document.setData(initialData);
-      DocumentSnapshot snapshot = await document.get();
-      expect(snapshot.data(), equals(initialData));
-      await document.setData(
-          dataToSet,
-          SetOptions(mergeFields: [
-            'bar',
-            FieldPath(['baz'])
-          ]));
-      DocumentSnapshot snapshot2 = await document.get();
-      expect(
-          snapshot2.data(), equals({'foo': 'bar', 'bar': 456, 'baz': 'foo'}));
-    });
+      testWidgets('set() merges fields', (WidgetTester tester) async {
+        DocumentReference document =
+            await initializeTest('document-set-merge-fields');
+        Map<String, dynamic> initialData = {
+          'foo': 'bar',
+          'bar': 123,
+          'baz': '456',
+        };
+        Map<String, dynamic> dataToSet = {
+          'foo': 'should-not-merge',
+          'bar': 456,
+          'baz': 'foo',
+        };
+        await document.setData(initialData);
+        DocumentSnapshot snapshot = await document.get();
+        expect(snapshot.data(), equals(initialData));
+        await document.setData(
+            dataToSet,
+            SetOptions(mergeFields: [
+              'bar',
+              FieldPath(['baz'])
+            ]));
+        DocumentSnapshot snapshot2 = await document.get();
+        expect(
+            snapshot2.data(), equals({'foo': 'bar', 'bar': 456, 'baz': 'foo'}));
+      });
 
-    testWidgets('throws a [FirebaseException] if permission denied',
-        (WidgetTester tester) async {
-      // TODO(ehesp): Implement once rejection handler is setup
+      testWidgets('throws a [FirebaseException] on error',
+          (WidgetTester tester) async {
+        DocumentReference document = firestore.document('not-allowed/document');
 
-      // DocumentReference document = firestore.document('not-allowed/document');
-
-      // try {
-      //   await document.get();
-      // } catch(e) {
-      //   expect(e, isA<FirebaseException>());
-      // }
-
-      // fail("should have thrown a [FirebaseException]");
+        try {
+          await document.setData({'foo': 'bar'});
+        } catch (error) {
+          expect(error, isA<FirebaseException>());
+          expect(
+              (error as FirebaseException).code, equals('permission-denied'));
+          return;
+        }
+        fail("Should have thrown a [FirebaseException]");
+      });
     });
   });
 }

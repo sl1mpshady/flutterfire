@@ -34,10 +34,10 @@ class CloudFirestoreDocumentSnapshotObserver implements EventListener<DocumentSn
 
       Map<String, Object> details = new HashMap<>();
       details.put("code", firestoreException.getCode());
-      details.put("message", firestoreException.getCode());
+      details.put("message", firestoreException.getMessage());
 
       arguments.put("error", details);
-      channel.invokeMethod("Firestore#error", arguments);
+      channel.invokeMethod("Firestore#DocumentSnapshotError", arguments);
       return;
     }
 

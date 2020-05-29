@@ -28,16 +28,19 @@ class MethodChannelFirestore extends FirestorePlatform {
     channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
         case 'Firestore#QuerySnapshot':
-          _handleQuerySnapshot(call.arguments);
+          await _handleQuerySnapshot(call.arguments);
+          break;
+        case 'Firestore#QuerySnapshotError':
+          await _handleQuerySnapshotError(call.arguments);
           break;
         case 'Firestore#DocumentSnapshot':
-          _handleDocumentSnapshot(call.arguments);
+          await _handleDocumentSnapshot(call.arguments);
+          break;
+        case 'Firestore#DocumentSnapshotError':
+          await _handleDocumentSnapshotError(call.arguments);
           break;
         case 'Firestore#DoTransaction':
-          _handleTransaction(call.arguments);
-          break;
-        case 'Firestore#error':
-          _handleError(call.arguments);
+          await _handleTransaction(call.arguments);
           break;
         default:
           throw FallThroughError();
@@ -46,12 +49,22 @@ class MethodChannelFirestore extends FirestorePlatform {
     _initialized = true;
   }
 
-  void _handleQuerySnapshot(Map<String, dynamic> arguments) {
+  /// When a [QuerySnapshot] event is fired on the [MethodChannel],
+  /// add a [MethodChannelQuerySnapshot] to the [StreamController].
+  void _handleQuerySnapshot(Map<dynamic, dynamic> arguments) async {
     queryObservers[arguments['handle']]
         .add(MethodChannelQuerySnapshot(this, arguments['snapshot']));
   }
 
-  void _handleDocumentSnapshot(Map<String, dynamic> arguments) {
+  /// When a [QuerySnapshot] error event is fired on the [MethodChannel],
+  /// send the [StreamController] the arguments to throw a [FirebaseException].
+  void _handleQuerySnapshotError(Map<dynamic, dynamic> arguments) {
+    _handleError(queryObservers[arguments['handle']], arguments);
+  }
+
+  /// When a [DocumentSnapshot] event is fired on the [MethodChannel],
+  /// add a [DocumentSnapshotPlatform] to the [StreamController].
+  void _handleDocumentSnapshot(Map<dynamic, dynamic> arguments) async {
     Map<String, dynamic> snapshotMap =
         Map<String, dynamic>.from(arguments['snapshot']);
     final DocumentSnapshotPlatform snapshot = DocumentSnapshotPlatform(
@@ -62,10 +75,18 @@ class MethodChannelFirestore extends FirestorePlatform {
         'metadata': snapshotMap['metadata'],
       },
     );
+
     documentObservers[arguments['handle']].add(snapshot);
   }
 
-  void _handleTransaction(Map<String, dynamic> arguments) async {
+  /// When a [DocumentSnapshot] error event is fired on the [MethodChannel],
+  /// send the [StreamController] the arguments to throw a [FirebaseException].
+  void _handleDocumentSnapshotError(Map<dynamic, dynamic> arguments) {
+    _handleError(documentObservers[arguments['handle']], arguments);
+  }
+
+  /// TODO
+  void _handleTransaction(Map<dynamic, dynamic> arguments) async {
     final int transactionId = arguments['transactionId'];
     final TransactionPlatform transaction =
         MethodChannelTransaction(transactionId, arguments["app"]);
@@ -75,17 +96,19 @@ class MethodChannelFirestore extends FirestorePlatform {
     return result;
   }
 
-  void _handleError(Map<String, dynamic> arguments) {
+  /// Attach a [FirebaseException] to a given [StreamController].
+  void _handleError(
+      StreamController controller, Map<dynamic, dynamic> arguments) async {
+    assert(controller != null);
     Map<String, dynamic> errorMap =
         Map<String, dynamic>.from(arguments['error']);
 
-    queryObservers[arguments['handle']].addError(() {
-      return catchPlatformException(
-          PlatformException(code: 'cloud_firestore', details: <String, String>{
-        'code': errorMap['code'],
-        'message': errorMap['message'],
-      }));
-    });
+    FirebaseException exception = FirebaseException(
+      plugin: 'cloud_firestore',
+      code: errorMap['code'],
+      message: errorMap['message'],
+    );
+    controller.addError(exception);
   }
 
   /// The [FirebaseApp] instance to which this [FirebaseDatabase] belongs.

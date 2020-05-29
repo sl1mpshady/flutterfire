@@ -64,6 +64,7 @@ void runDocumentChangeTests() {
         }
       }, count: 2, reason: "Stream should only have been called twice."));
 
+      await Future.delayed(Duration(seconds: 1)); // Ensure listener fires
       await doc1.delete();
 
       subscription.cancel();
@@ -77,11 +78,9 @@ void runDocumentChangeTests() {
       DocumentReference doc2 = collection.document('doc2');
       DocumentReference doc3 = collection.document('doc3');
 
-      await Future.wait([
-        doc1.setData({'value': 1}),
-        doc2.setData({'value': 2}),
-        doc3.setData({'value': 3}),
-      ]);
+      await doc1.setData({'value': 1});
+      await doc2.setData({'value': 2});
+      await doc3.setData({'value': 3});
 
       Stream<QuerySnapshot> stream = collection.orderBy('value').snapshots();
 
@@ -113,6 +112,7 @@ void runDocumentChangeTests() {
         }
       }, count: 2, reason: "Stream should only have been called twice."));
 
+      await Future.delayed(Duration(seconds: 1)); // Ensure listener fires
       await doc1.updateData({'value': 4});
 
       subscription.cancel();

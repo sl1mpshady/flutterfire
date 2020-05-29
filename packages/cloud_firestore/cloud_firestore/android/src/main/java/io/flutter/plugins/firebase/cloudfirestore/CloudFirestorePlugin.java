@@ -224,6 +224,7 @@ public class CloudFirestorePlugin
 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+    removeEventListeners();
     channel.setMethodCallHandler(null);
     channel = null;
   }
@@ -255,6 +256,16 @@ public class CloudFirestorePlugin
 
   private void detachToActivity() {
     this.activity = null;
+  }
+
+  // Ensure any Firestore listeners are removed when the app
+  // is detached from the FlutterEngine
+  private void removeEventListeners() {
+    for (int i = 0; i < listenerRegistrations.size(); i++) {
+      int key = listenerRegistrations.keyAt(i);
+      listenerRegistrations.get(key).remove();
+    }
+    listenerRegistrations.clear();
   }
 
   private Task<Void> writeBatchCommit(Map<String, Object> arguments) {

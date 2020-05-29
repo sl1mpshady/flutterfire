@@ -11,9 +11,10 @@ part of cloud_firestore;
 /// Once committed, no further operations can be performed on the [WriteBatch],
 /// nor can it be committed again.
 class WriteBatch {
+  final Firestore _firestore;
   final WriteBatchPlatform _delegate;
 
-  WriteBatch._(this._delegate) {
+  WriteBatch._(this._firestore, this._delegate) {
     WriteBatchPlatform.verifyExtends(_delegate);
   }
 
@@ -24,7 +25,10 @@ class WriteBatch {
 
   /// Deletes the document referred to by [document].
   void delete(DocumentReference document) {
-    return _delegate.delete(document._delegate);
+    assert(document != null);
+    assert(document.firestore == _firestore,
+        "the document provided is from a different Firestore instance");
+    return _delegate.delete(document.path);
   }
 
   /// Writes to the document referred to by [document].
@@ -36,13 +40,21 @@ class WriteBatch {
   // TODO(ehesp): should this be `set()`?
   void setData(DocumentReference document, Map<String, dynamic> data,
       [SetOptions options]) {
-    return _delegate.setData(document._delegate,
+    assert(document != null);
+    assert(data != null);
+    assert(document.firestore == _firestore,
+        "the document provided is from a different Firestore instance");
+    return _delegate.setData(document.path,
         _CodecUtility.replaceValueWithDelegatesInMap(data), options);
   }
 
   // TODO(ehesp): should this be `update()`?
   void updateData(DocumentReference document, Map<String, dynamic> data) {
+    assert(document != null);
+    assert(data != null);
+    assert(document.firestore == _firestore,
+        "the document provided is from a different Firestore instance");
     return _delegate.updateData(
-        document._delegate, _CodecUtility.replaceValueWithDelegatesInMap(data));
+        document.path, _CodecUtility.replaceValueWithDelegatesInMap(data));
   }
 }

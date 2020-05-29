@@ -74,7 +74,7 @@ class Firestore extends FirebasePluginPlatform {
   /// Unlike transactions, write batches are persisted offline and therefore are
   /// preferable when you don’t need to condition your writes on read data.
   WriteBatch batch() {
-    return WriteBatch._(_delegate.batch());
+    return WriteBatch._(this, _delegate.batch());
   }
 
   // TODO docs

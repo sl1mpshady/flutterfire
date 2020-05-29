@@ -34,8 +34,8 @@ abstract class WriteBatchPlatform extends PlatformInterface {
     throw UnimplementedError("commit() not implemented");
   }
 
-  /// Deletes the document referred to by [document].
-  void delete(DocumentReferencePlatform document) {
+  /// Deletes the document referred to by a [documentPath].
+  void delete(String documentPath) {
     throw UnimplementedError("delete() not implemented");
   }
 
@@ -45,7 +45,7 @@ abstract class WriteBatchPlatform extends PlatformInterface {
   ///
   /// If [SetOptions] are provided, the data will be merged into an existing
   /// document instead of overwriting.
-  void setData(DocumentReferencePlatform document, Map<String, dynamic> data,
+  void setData(String documentPath, Map<String, dynamic> data,
       [SetOptions options]) {
     throw UnimplementedError("setData() not implemented");
   }
@@ -54,7 +54,7 @@ abstract class WriteBatchPlatform extends PlatformInterface {
   ///
   /// If the document does not exist, the operation will fail.
   void updateData(
-    DocumentReferencePlatform document,
+    String documentPath,
     Map<String, dynamic> data,
   ) {
     throw UnimplementedError("updateData() not implemented");

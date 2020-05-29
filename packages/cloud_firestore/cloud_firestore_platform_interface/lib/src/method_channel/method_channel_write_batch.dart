@@ -40,36 +40,28 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
       return;
     }
 
-    await MethodChannelFirestore.channel.invokeMethod<void>(
-        'WriteBatch#commit', <String, dynamic>{
+    await MethodChannelFirestore.channel
+        .invokeMethod<void>('WriteBatch#commit', <String, dynamic>{
       'appName': _firestore.app.name,
-      'writes': _writes
+      'writes': _writes,
     }).catchError(catchPlatformException);
   }
 
   @override
-  void delete(DocumentReferencePlatform document) {
+  void delete(String documentPath) {
     _assertNotCommitted();
-    assert(document != null);
-    assert(document.firestore == _firestore,
-        "the document provided is from a different Firestore instance");
     _writes.add(<String, dynamic>{
-      'path': document.path,
+      'path': documentPath,
       'type': 'DELETE',
     });
   }
 
   @override
-  void setData(DocumentReferencePlatform document, Map<String, dynamic> data,
+  void setData(String documentPath, Map<String, dynamic> data,
       [SetOptions options]) {
     _assertNotCommitted();
-    assert(document != null);
-    assert(data != null);
-    assert(document.firestore == _firestore,
-        "the document provided is from a different Firestore instance");
-
     _writes.add(<String, dynamic>{
-      'path': document.path,
+      'path': documentPath,
       'type': 'SET',
       'data': data,
       'options': <String, dynamic>{
@@ -81,17 +73,12 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
 
   @override
   void updateData(
-    DocumentReferencePlatform document,
+    String documentPath,
     Map<String, dynamic> data,
   ) {
     _assertNotCommitted();
-    assert(document != null);
-    assert(data != null);
-    assert(document.firestore == _firestore,
-        "the document provided is from a different Firestore instance");
-
     _writes.add(<String, dynamic>{
-      'path': document.path,
+      'path': documentPath,
       'type': 'UPDATE',
       'data': data,
     });

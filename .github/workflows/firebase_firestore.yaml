@@ -5,8 +5,7 @@ on:
     paths:
       - "packages/firebase_core/**"
       - "packages/cloud_firestore/**"
-      - ".github/workflows/firebase_firestore.yml"
-      - "analysis_options.yaml"
+      - ".github/workflows/firebase_firestore.yaml"
   push:
     branches:
       - master

@@ -4,8 +4,7 @@ on:
   pull_request:
     paths:
       - "packages/firebase_core/**"
-      - ".github/workflows/core.yml"
-      - "analysis_options.yaml"
+      - ".github/workflows/firebase_core.yaml"
   push:
     branches:
       - master

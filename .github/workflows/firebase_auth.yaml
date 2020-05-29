@@ -1,18 +1,18 @@
-name: firebase_functions
+name: firebase_auth
 
 on:
   pull_request:
     paths:
       - "packages/firebase_core/**"
-      - "packages/cloud_functions/**"
-      - ".github/workflows/firebase_functions.yml"
+      - "packages/firebase_auth/**"
+      - ".github/workflows/firebase_auth.yaml"
   push:
     branches:
       - master
 
 env:
-  FLUTTERFIRE_PLUGIN_SCOPE: "*cloud_functions*"
-  FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE: "*cloud_functions_example*"
+  FLUTTERFIRE_PLUGIN_SCOPE: "*firebase_auth*"
+  FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE: "*firebase_auth_example*"
 
 jobs:
   android:

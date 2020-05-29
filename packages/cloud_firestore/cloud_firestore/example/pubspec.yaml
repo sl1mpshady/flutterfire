@@ -1,4 +1,4 @@
-name: firestore_example
+name: cloud_firestore_example
 description: Demonstrates how to use the firestore plugin.
 
 dependencies:

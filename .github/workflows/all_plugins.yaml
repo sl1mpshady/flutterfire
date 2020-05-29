@@ -105,6 +105,9 @@ jobs:
         run: |
           melos exec -c 3 --dir-exists=test --ignore="*example*" --ignore="*web*" -- \
             flutter test
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: "beta"
       - name: "Flutter Test Web"
         run: |
           melos clean && melos bootstrap

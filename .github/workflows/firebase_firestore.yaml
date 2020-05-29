@@ -1,18 +1,19 @@
-name: firebase_core
+name: firebase_firestore
 
 on:
   pull_request:
     paths:
       - "packages/firebase_core/**"
-      - ".github/workflows/core.yml"
+      - "packages/cloud_firestore/**"
+      - ".github/workflows/firebase_firestore.yml"
       - "analysis_options.yaml"
   push:
     branches:
       - master
 
 env:
-  FLUTTERFIRE_PLUGIN_SCOPE: "*firebase_core*"
-  FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE: "*firebase_core_example*"
+  FLUTTERFIRE_PLUGIN_SCOPE: "*cloud_firestore*"
+  FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE: "*cloud_firestore_example*"
 
 jobs:
   android:

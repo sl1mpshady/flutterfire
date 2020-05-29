@@ -26,7 +26,6 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
   /// Keeps track of whether this app has been deleted by the user.
   bool _isDeleted = false;
 
-  ///
   bool _isAutomaticDataCollectionEnabled;
 
   /// Returns whether automatic data collection enabled or disabled.

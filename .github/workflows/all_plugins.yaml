@@ -8,6 +8,7 @@ on:
 
 jobs:
   analyze:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -25,7 +26,7 @@ jobs:
         run: melos bootstrap
       - name: "Dart Analyze"
         run: |
-          melos exec -c 2 -- \
+          melos exec -c 3 -- \
             tuneup check
       - name: "Pub Check"
         run: |
@@ -34,6 +35,7 @@ jobs:
 
   format:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v1
         with:
@@ -67,6 +69,7 @@ jobs:
           ./.github/workflows/scripts/validate-formatting.sh
 
   build_examples_dart:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -88,6 +91,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v1
         with:
@@ -108,9 +112,10 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: "beta"
-      - name: "Flutter Test Web"
-        run: |
-          melos clean && melos bootstrap
-          chromedriver --port=4444 &
-          melos exec -c 1 --dir-exists=test --scope="*web*" -- \
-            flutter test --platform=chrome
+      # TODO(salakar): this is flakey locally and on CI, errors with missing imports sometimes.
+      # - name: "Flutter Test Web"
+      #   run: |
+      #     melos clean && melos bootstrap
+      #     chromedriver --port=4444 &
+      #     melos exec -c 1 --dir-exists=test --scope="*web*" -- \
+      #       flutter test --platform=chrome

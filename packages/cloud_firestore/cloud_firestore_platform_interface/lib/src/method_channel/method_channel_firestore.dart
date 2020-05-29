@@ -14,6 +14,7 @@ import 'method_channel_query_snapshot.dart';
 import 'method_channel_transaction.dart';
 import 'method_channel_write_batch.dart';
 import 'utils/firestore_message_codec.dart';
+import 'utils/exception.dart';
 
 /// The entry point for accessing a Firestore.
 ///
@@ -25,32 +26,66 @@ class MethodChannelFirestore extends FirestorePlatform {
         super(app: app) {
     if (_initialized) return;
     channel.setMethodCallHandler((MethodCall call) async {
-      if (call.method == 'QuerySnapshot') {
-        queryObservers[call.arguments['handle']]
-            .add(MethodChannelQuerySnapshot(this, call.arguments['snapshot']));
-      } else if (call.method == 'DocumentSnapshot') {
-        Map<String, dynamic> snapshotMap =
-            Map<String, dynamic>.from(call.arguments['snapshot']);
-        final DocumentSnapshotPlatform snapshot = DocumentSnapshotPlatform(
-          this,
-          snapshotMap['path'],
-          <String, dynamic>{
-            'data': snapshotMap['data'],
-            'metadata': snapshotMap['metadata'],
-          },
-        );
-        documentObservers[call.arguments['handle']].add(snapshot);
-      } else if (call.method == 'DoTransaction') {
-        final int transactionId = call.arguments['transactionId'];
-        final TransactionPlatform transaction =
-            MethodChannelTransaction(transactionId, call.arguments["app"]);
-        final dynamic result =
-            await _transactionHandlers[transactionId](transaction);
-        await transaction.finish();
-        return result;
+      switch (call.method) {
+        case 'Firestore#QuerySnapshot':
+          _handleQuerySnapshot(call.arguments);
+          break;
+        case 'Firestore#DocumentSnapshot':
+          _handleDocumentSnapshot(call.arguments);
+          break;
+        case 'Firestore#DoTransaction':
+          _handleTransaction(call.arguments);
+          break;
+        case 'Firestore#error':
+          _handleError(call.arguments);
+          break;
+        default:
+          throw FallThroughError();
       }
     });
     _initialized = true;
+  }
+
+  void _handleQuerySnapshot(Map<String, dynamic> arguments) {
+    queryObservers[arguments['handle']]
+        .add(MethodChannelQuerySnapshot(this, arguments['snapshot']));
+  }
+
+  void _handleDocumentSnapshot(Map<String, dynamic> arguments) {
+    Map<String, dynamic> snapshotMap =
+        Map<String, dynamic>.from(arguments['snapshot']);
+    final DocumentSnapshotPlatform snapshot = DocumentSnapshotPlatform(
+      this,
+      snapshotMap['path'],
+      <String, dynamic>{
+        'data': snapshotMap['data'],
+        'metadata': snapshotMap['metadata'],
+      },
+    );
+    documentObservers[arguments['handle']].add(snapshot);
+  }
+
+  void _handleTransaction(Map<String, dynamic> arguments) async {
+    final int transactionId = arguments['transactionId'];
+    final TransactionPlatform transaction =
+        MethodChannelTransaction(transactionId, arguments["app"]);
+    final dynamic result =
+        await _transactionHandlers[transactionId](transaction);
+    await transaction.finish();
+    return result;
+  }
+
+  void _handleError(Map<String, dynamic> arguments) {
+    Map<String, dynamic> errorMap =
+        Map<String, dynamic>.from(arguments['error']);
+
+    queryObservers[arguments['handle']].addError(() {
+      return catchPlatformException(
+          PlatformException(code: 'cloud_firestore', details: <String, String>{
+        'code': errorMap['code'],
+        'message': errorMap['message'],
+      }));
+    });
   }
 
   /// The [FirebaseApp] instance to which this [FirebaseDatabase] belongs.
@@ -93,7 +128,9 @@ class MethodChannelFirestore extends FirestorePlatform {
 
   @override
   Future<void> clearPersistence() async {
-    await channel.invokeMethod<void>('Firestore#clearPersistence');
+    await channel
+        .invokeMethod<void>('Firestore#clearPersistence')
+        .catchError(catchPlatformException);
   }
 
   @override
@@ -108,7 +145,9 @@ class MethodChannelFirestore extends FirestorePlatform {
 
   @override
   Future<void> disableNetwork() async {
-    await channel.invokeMethod<void>('Firestore#disableNetwork');
+    await channel
+        .invokeMethod<void>('Firestore#disableNetwork')
+        .catchError(catchPlatformException);
   }
 
   @override
@@ -118,7 +157,9 @@ class MethodChannelFirestore extends FirestorePlatform {
 
   @override
   Future<void> enableNetwork() async {
-    await channel.invokeMethod<void>('Firestore#enableNetwork');
+    await channel
+        .invokeMethod<void>('Firestore#enableNetwork')
+        .catchError(catchPlatformException);
   }
 
   @override
@@ -136,7 +177,7 @@ class MethodChannelFirestore extends FirestorePlatform {
       'appName': app.name,
       'transactionId': transactionId,
       'transactionTimeout': timeout.inMilliseconds
-    });
+    }).catchError(catchPlatformException);
     return result ?? <String, dynamic>{};
   }
 
@@ -145,6 +186,6 @@ class MethodChannelFirestore extends FirestorePlatform {
     await channel.invokeMethod<void>('Firestore#settings', <String, dynamic>{
       'appName': app.name,
       'settings': settings.asMap,
-    });
+    }).catchError(catchPlatformException);
   }
 }

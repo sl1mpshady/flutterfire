@@ -10,6 +10,7 @@ import 'package:cloud_firestore_platform_interface/src/internal/pointer.dart';
 import 'method_channel_firestore.dart';
 import 'method_channel_query_snapshot.dart';
 import 'utils/source.dart';
+import 'utils/exception.dart';
 
 Map<String, dynamic> _initialParameters = Map<String, dynamic>.unmodifiable({
   'where': List<List<dynamic>>.unmodifiable([]),
@@ -115,7 +116,7 @@ class MethodChannelQuery extends QueryPlatform {
         'parameters': parameters,
         'source': getSourceString(options.source),
       },
-    );
+    ).catchError(catchPlatformException);
 
     return MethodChannelQuerySnapshot(firestore, data);
   }

@@ -37,7 +37,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
           'mergeFields': options?.mergeFields,
         },
       },
-    );
+    ).catchError(catchPlatformException);
   }
 
   @override
@@ -72,7 +72,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
     return MethodChannelFirestore.channel.invokeMethod<void>(
       'DocumentReference#delete',
       <String, dynamic>{'appName': firestore.app.name, 'path': path},
-    );
+    ).catchError(catchPlatformException);
   }
 
   // TODO(jackson): Reduce code duplication with [Query]

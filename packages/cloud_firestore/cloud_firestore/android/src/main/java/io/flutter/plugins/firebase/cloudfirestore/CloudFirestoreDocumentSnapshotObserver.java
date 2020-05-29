@@ -24,18 +24,25 @@ class CloudFirestoreDocumentSnapshotObserver implements EventListener<DocumentSn
   }
 
   @Override
-  public void onEvent(
-      @NonNull DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-    if (e != null) {
-      // TODO: send error
-      System.out.println(e);
+  public void onEvent(DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException exception) {
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("handle", handle);
+
+    if (exception != null) {
+      CloudFirestoreException firestoreException =
+          new CloudFirestoreException(exception, exception.getCause());
+
+      Map<String, Object> details = new HashMap<>();
+      details.put("code", firestoreException.getCode());
+      details.put("message", firestoreException.getCode());
+
+      arguments.put("error", details);
+      channel.invokeMethod("Firestore#error", arguments);
       return;
     }
 
-    Map<String, Object> arguments = new HashMap<>();
-    arguments.put("handle", handle);
     arguments.put("snapshot", parseDocumentSnapshot(documentSnapshot));
 
-    channel.invokeMethod("DocumentSnapshot", arguments);
+    channel.invokeMethod("Firestore#DocumentSnapshot", arguments);
   }
 }

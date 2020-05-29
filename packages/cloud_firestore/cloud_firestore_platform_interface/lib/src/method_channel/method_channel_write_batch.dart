@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 
 import 'method_channel_firestore.dart';
+import 'utils/exception.dart';
 
 /// A [MethodChannelWriteBatch] is a series of write operations to be performed as one unit.
 ///
@@ -39,8 +40,11 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
       return;
     }
 
-    await MethodChannelFirestore.channel.invokeMethod<void>('WriteBatch#commit',
-        <String, dynamic>{'appName': _firestore.app.name, 'writes': _writes});
+    await MethodChannelFirestore.channel.invokeMethod<void>(
+        'WriteBatch#commit', <String, dynamic>{
+      'appName': _firestore.app.name,
+      'writes': _writes
+    }).catchError(catchPlatformException);
   }
 
   @override

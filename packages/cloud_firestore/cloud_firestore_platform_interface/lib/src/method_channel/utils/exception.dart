@@ -28,8 +28,8 @@ Future<void> catchPlatformException(Object exception) async {
   String message = platformException.message;
 
   if (details != null) {
-    code = details['code'];
-    message = details['message'];
+    code = details['code'] ?? code;
+    message = details['message'] ?? message;
   }
 
   throw FirebaseException(

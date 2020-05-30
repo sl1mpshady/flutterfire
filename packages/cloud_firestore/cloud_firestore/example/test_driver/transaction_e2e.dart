@@ -31,6 +31,27 @@ void runTransactionTests() {
       expect(response, equals(randomValue));
     });
 
+    testWidgets('should abort if thrown and not continue',
+        (WidgetTester tester) async {
+      DocumentReference documentReference =
+          await initializeTest('transaction-abort');
+
+      await documentReference.setData({'foo': 'bar'});
+
+      try {
+        await firestore.runTransaction((Transaction transaction) async {
+          transaction.set(documentReference, {
+            'foo': 'baz',
+          });
+          throw ("Stop");
+        });
+        fail("Should have thrown");
+      } catch (e) {
+        DocumentSnapshot snapshot = await documentReference.get();
+        expect(snapshot.data()['foo'], equals('bar'));
+      }
+    });
+
     testWidgets('should throw with exception', (WidgetTester tester) async {
       try {
         await firestore.runTransaction((Transaction transaction) async {

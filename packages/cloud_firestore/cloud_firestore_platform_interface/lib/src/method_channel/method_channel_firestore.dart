@@ -85,7 +85,10 @@ class MethodChannelFirestore extends FirestorePlatform {
     _handleError(documentObservers[arguments['handle']], arguments);
   }
 
-  /// TODO
+  /// When a transaction is attempted, it sends a [MethodChannel] call.
+  /// The user handler is executed, and the result or error is emitted via
+  /// a stream to the [runTransaction] handler. Once the handler has completed,
+  /// a response to continue (with commands) or abort the transaction is sent.
   Future<Map<String, dynamic>> _handleTransactionAttempt(
       Map<dynamic, dynamic> arguments) async {
     final int transactionId = arguments['transactionId'];
@@ -161,12 +164,17 @@ class MethodChannelFirestore extends FirestorePlatform {
   static final Map<int, StreamController<DocumentSnapshotPlatform>>
       documentObservers = <int, StreamController<DocumentSnapshotPlatform>>{};
 
+  /// Stores the users [TransactionHandlers] for usage when a transaction is
+  /// running.
   static final Map<int, TransactionHandler> _transactionHandlers =
       <int, TransactionHandler>{};
 
+  /// Stores a transactions [StreamController]
   static final Map<int, StreamController> _transactionStreamControllerHandlers =
       <int, StreamController>{};
 
+  /// A locally stored index of the transactions. This is incrememented each
+  /// time a user calls [runTransaction].
   static int _transactionHandlerId = 0;
 
   /// Gets a [FirestorePlatform] with specific arguments such as a different

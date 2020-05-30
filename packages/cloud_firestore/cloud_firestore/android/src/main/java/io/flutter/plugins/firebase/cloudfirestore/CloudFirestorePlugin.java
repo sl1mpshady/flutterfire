@@ -11,7 +11,6 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
@@ -268,6 +267,54 @@ public class CloudFirestorePlugin
     listenerRegistrations.clear();
   }
 
+  private Task<Object> createTransaction(
+      MethodChannel.Result result, Map<String, Object> arguments) {
+    return Tasks.call(
+        cachedThreadPool,
+        () -> {
+          FirebaseFirestore firestore = getFirestore(arguments);
+          int transactionId = (int) arguments.get("transactionId");
+
+          Object value = arguments.get("timeout");
+          Long timeout;
+
+          if (value instanceof Long) {
+            timeout = (Long) value;
+          } else if (value instanceof Integer) {
+            timeout = Long.valueOf((Integer) value);
+          } else {
+            timeout = 5000L;
+          }
+
+          TransactionResult transactionResult =
+              Tasks.await(
+                  new CloudFirestoreTransactionHandler(
+                          channel, activity, transactionId)
+                      .create(firestore, timeout));
+
+          CloudFirestoreTransactionHandler.dispose(transactionId);
+
+          if (transactionResult.exception != null) {
+            throw transactionResult.exception;
+          } else {
+            return transactionResult.result;
+          }
+        });
+  }
+
+  private Task<Map<String, Object>> transactionGetDocumentData(Map<String, Object> arguments) {
+    return Tasks.call(
+        cachedThreadPool,
+        () -> {
+          DocumentReference documentReference = getDocumentReference(arguments);
+          DocumentSnapshot documentSnapshot =
+              CloudFirestoreTransactionHandler.getDocument(
+                  (int) arguments.get("transactionId"), documentReference);
+
+          return parseDocumentSnapshot(documentSnapshot);
+        });
+  }
+
   private Task<Void> writeBatchCommit(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
@@ -497,9 +544,12 @@ public class CloudFirestorePlugin
         listenerRegistrations.remove(handle);
         result.success(null);
         return;
-        //      case "Firestore#runTransaction":
-        ////        methodCallTask = writeBatchCommit(call.arguments());
-        //        break;
+      case "Transaction#create":
+        methodCallTask = createTransaction(result, call.arguments());
+        break;
+      case "Transaction#get":
+        methodCallTask = transactionGetDocumentData(call.arguments());
+        break;
       case "WriteBatch#commit":
         methodCallTask = writeBatchCommit(call.arguments());
         break;
@@ -539,30 +589,10 @@ public class CloudFirestorePlugin
             result.success(task.getResult());
           } else {
             Exception exception = task.getException();
-            CloudFirestoreException firestoreException = null;
-
-            if (exception instanceof FirebaseFirestoreException) {
-              firestoreException =
-                  new CloudFirestoreException(
-                      (FirebaseFirestoreException) exception, exception.getCause());
-            } else if (exception.getCause() != null
-                && exception.getCause() instanceof FirebaseFirestoreException) {
-              firestoreException =
-                  new CloudFirestoreException(
-                      (FirebaseFirestoreException) exception.getCause(),
-                      exception.getCause().getCause() != null
-                          ? exception.getCause().getCause()
-                          : exception.getCause());
-            }
-
-            Map<String, String> details = new HashMap<>();
-            if (firestoreException != null) {
-              details.put("code", firestoreException.getCode());
-              details.put("message", firestoreException.getMessage());
-            }
-
             result.error(
-                "cloud_firestore", exception != null ? exception.getMessage() : null, details);
+                "cloud_firestore",
+                exception != null ? exception.getMessage() : null,
+                getExceptionDetails(exception));
           }
         });
   }
@@ -575,6 +605,36 @@ public class CloudFirestorePlugin
             new StandardMethodCodec(CloudFirestoreMessageCodec.INSTANCE));
 
     channel.setMethodCallHandler(this);
+  }
+
+  private Map<String, String> getExceptionDetails(Exception exception) {
+    Map<String, String> details = new HashMap<>();
+
+    if (exception == null) {
+      return details;
+    }
+
+    CloudFirestoreException firestoreException = null;
+
+    if (exception instanceof FirebaseFirestoreException) {
+      firestoreException =
+          new CloudFirestoreException((FirebaseFirestoreException) exception, exception.getCause());
+    } else if (exception.getCause() != null
+        && exception.getCause() instanceof FirebaseFirestoreException) {
+      firestoreException =
+          new CloudFirestoreException(
+              (FirebaseFirestoreException) exception.getCause(),
+              exception.getCause().getCause() != null
+                  ? exception.getCause().getCause()
+                  : exception.getCause());
+    }
+
+    if (firestoreException != null) {
+      details.put("code", firestoreException.getCode());
+      details.put("message", firestoreException.getMessage());
+    }
+
+    return details;
   }
 
   private FirebaseFirestore getFirestore(Map<String, Object> arguments) {
@@ -757,20 +817,5 @@ public class CloudFirestorePlugin
   @Override
   public Task<Map<String, Object>> getPluginConstantsForFirebaseApp(FirebaseApp firebaseApp) {
     return null;
-  }
-
-  private static final class TransactionResult {
-    final @Nullable Map<String, Object> result;
-    final @Nullable Exception exception;
-
-    TransactionResult(@NonNull Exception exception) {
-      this.exception = exception;
-      this.result = null;
-    }
-
-    TransactionResult(@Nullable Map<String, Object> result) {
-      this.result = result;
-      this.exception = null;
-    }
   }
 }

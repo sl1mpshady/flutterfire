@@ -16,25 +16,26 @@ class Transaction {
     TransactionPlatform.verifyExtends(_delegate);
   }
 
-  // ignore: unused_element
-  Future<void> _finish() => _delegate.finish();
+  Future<void> _commit() => _delegate.commit();
 
   /// Reads the document referenced by the provided DocumentReference.
   Future<DocumentSnapshot> get(DocumentReference documentReference) async {
-    final result = await _delegate.get(documentReference._delegate);
-    if (result != null) {
-      return DocumentSnapshot._(_firestore, result);
-    } else {
-      return null;
-    }
+    DocumentSnapshotPlatform documentSnapshotPlatform =
+        await _delegate.get(documentReference.path);
+
+    return DocumentSnapshot._(_firestore, documentSnapshotPlatform);
   }
 
   /// Deletes the document referred to by the provided [documentReference].
   ///
   /// Awaiting the returned [Future] is optional and will be done automatically
   /// when the transaction handler completes.
-  Future<void> delete(DocumentReference documentReference) {
-    return _delegate.delete(documentReference._delegate);
+  Transaction delete(DocumentReference documentReference) {
+    assert(documentReference != null);
+    assert(documentReference.firestore == _firestore,
+        "the document provided is from a different Firestore instance");
+
+    return Transaction._(_firestore, _delegate.delete(documentReference.path));
   }
 
   /// Updates fields in the document referred to by [documentReference].
@@ -42,10 +43,17 @@ class Transaction {
   ///
   /// Awaiting the returned [Future] is optional and will be done automatically
   /// when the transaction handler completes.
-  Future<void> update(
-      DocumentReference documentReference, Map<String, dynamic> data) async {
-    return _delegate.update(documentReference._delegate,
-        _CodecUtility.replaceValueWithDelegatesInMap(data));
+  Transaction update(
+      DocumentReference documentReference, Map<String, dynamic> data) {
+    assert(documentReference != null);
+    assert(data != null);
+    assert(documentReference.firestore == _firestore,
+        "the document provided is from a different Firestore instance");
+
+    return Transaction._(
+        _firestore,
+        _delegate.update(documentReference.path,
+            _CodecUtility.replaceValueWithDelegatesInMap(data)));
   }
 
   /// Writes to the document referred to by the provided [DocumentReference].
@@ -54,10 +62,15 @@ class Transaction {
   ///
   /// Awaiting the returned [Future] is optional and will be done automatically
   /// when the transaction handler completes.
-  Future<void> set(
+  Transaction set(
       DocumentReference documentReference, Map<String, dynamic> data,
       [SetOptions options]) {
-    return _delegate.set(documentReference._delegate,
-        _CodecUtility.replaceValueWithDelegatesInMap(data), options);
+    assert(documentReference.firestore == _firestore,
+        "the document provided is from a different Firestore instance");
+
+    return Transaction._(
+        _firestore,
+        _delegate.set(documentReference.path,
+            _CodecUtility.replaceValueWithDelegatesInMap(data), options));
   }
 }

@@ -138,10 +138,10 @@ class Firestore extends FirebasePluginPlatform {
   ///
   /// By default transactions are limited to 5 seconds of execution time. This
   /// timeout can be adjusted by setting the timeout parameter.
-  Future<Map<String, dynamic>> runTransaction(
+  Future<T> runTransaction<T>(
       TransactionHandler transactionHandler,
       {Duration timeout = const Duration(seconds: 5)}) {
-    return _delegate.runTransaction(
+    return _delegate.runTransaction<T>(
         (transaction) => transactionHandler(Transaction._(this, transaction)),
         timeout: timeout);
   }

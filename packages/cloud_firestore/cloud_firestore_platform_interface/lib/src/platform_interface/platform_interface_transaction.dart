@@ -14,7 +14,7 @@ typedef Future<dynamic> TransactionHandler(TransactionPlatform transaction);
 /// a [TransactionPlatform] is a set of read and write operations on one or more documents.
 abstract class TransactionPlatform extends PlatformInterface {
   /// Constructor.
-  TransactionPlatform(this.firestore) : super(token: _token);
+  TransactionPlatform() : super(token: _token);
 
   static final Object _token = Object();
 
@@ -28,97 +28,30 @@ abstract class TransactionPlatform extends PlatformInterface {
     PlatformInterface.verifyToken(instance, _token);
   }
 
-  /// [FirestorePlatform] instance used for this [TransactionPlatform]
-  FirestorePlatform firestore;
-  List<Future<dynamic>> _pendingResults = <Future<dynamic>>[];
-
-  /// executes all the pending operations on the transaction
-  Future<void> finish() => Future.wait<void>(_pendingResults);
-
-  /// Reads the document referenced by the provided DocumentReference.
-  Future<DocumentSnapshotPlatform> get(
-      DocumentReferencePlatform documentReference) {
-    final Future<DocumentSnapshotPlatform> result = doGet(documentReference);
-    _pendingResults.add(result);
-    return result;
+  List<Map<String, dynamic>> get commands {
+    throw UnimplementedError("commands not implemented");
   }
 
-  /// Reads the document referenced by the provided DocumentReference.
-  /// This is here so it can be overridden by implementations that do NOT
-  /// handle returned futures automatically, like the [MethodChannelTransaction].
-  /// Does not affect the _pendingResults.
-  Future<DocumentSnapshotPlatform> doGet(
-    DocumentReferencePlatform documentReference,
-  ) {
+  Future<void> commit() {
+    throw UnimplementedError("commit() not implemented");
+  }
+
+  Future<DocumentSnapshotPlatform> get(String documentPath) {
     throw UnimplementedError("get() not implemented");
   }
 
-  /// Deletes the document referred to by the provided [documentReference].
-  ///
-  /// Awaiting the returned [Future] is optional and will be done automatically
-  /// when the transaction handler completes.
-  Future<void> delete(DocumentReferencePlatform documentReference) {
-    final Future<void> result = doDelete(documentReference);
-    _pendingResults.add(result);
-    return result;
-  }
-
-  /// Deletes the document referred to by the provided [documentReference].
-  /// This is here so it can be overridden by implementations that do NOT
-  /// handle returned futures automatically, like the [MethodChannelTransaction].
-  /// Does not affect the _pendingResults.
-  Future<void> doDelete(DocumentReferencePlatform documentReference) async {
+  TransactionPlatform delete(String documentPath) {
     throw UnimplementedError("delete() not implemented");
   }
 
-  /// Updates fields in the document referred to by [documentReference].
-  /// The update will fail if applied to a document that does not exist.
-  ///
-  /// Awaiting the returned [Future] is optional and will be done automatically
-  /// when the transaction handler completes.
-  Future<void> update(
-    DocumentReferencePlatform documentReference,
-    Map<String, dynamic> data,
-  ) async {
-    final Future<void> result = doUpdate(documentReference, data);
-    _pendingResults.add(result);
-    return result;
-  }
-
-  /// Updates fields in the document referred to by [documentReference].
-  /// The update will fail if applied to a document that does not exist.
-  /// This is here so it can be overridden by implementations that do NOT
-  /// handle returned futures automatically, like the [MethodChannelTransaction].
-  /// Does not affect the _pendingResults.
-  Future<void> doUpdate(
-    DocumentReferencePlatform documentReference,
+  TransactionPlatform update(
+    String documentPath,
     Map<String, dynamic> data,
   ) {
-    throw UnimplementedError("updated() not implemented");
+    throw UnimplementedError("update() not implemented");
   }
 
-  /// Writes to the document referred to by the provided [DocumentReferencePlatform].
-  /// If the document does not exist yet, it will be created. If you pass
-  /// SetOptions, the provided data can be merged into the existing document.
-  ///
-  /// Awaiting the returned [Future] is optional and will be done automatically
-  /// when the transaction handler completes.
-  Future<void> set(
-      DocumentReferencePlatform documentReference, Map<String, dynamic> data,
-      [SetOptions options]) {
-    final Future<void> result = doSet(documentReference, data);
-    _pendingResults.add(result);
-    return result;
-  }
-
-  /// Writes to the document referred to by the provided [DocumentReferencePlatform].
-  /// If the document does not exist yet, it will be created. If you pass
-  /// SetOptions, the provided data can be merged into the existing document.
-  /// This is here so it can be overridden by implementations that do NOT
-  /// handle returned futures automatically, like the [MethodChannelTransaction].
-  /// Does not affect the _pendingResults.
-  Future<void> doSet(
-      DocumentReferencePlatform documentReference, Map<String, dynamic> data,
+  TransactionPlatform set(String documentPath, Map<String, dynamic> data,
       [SetOptions options]) {
     throw UnimplementedError("set() not implemented");
   }

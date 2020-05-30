@@ -32,14 +32,14 @@ void main() {
     }
   });
 
-  runCollectionReferenceTests();
-  runQueryTests();
-  runDocumentReferenceTests();
-  runDocumentChangeTests();
-  runFieldValueTests();
-  runGeoPointTests();
-  runSnapshotMetadataTests();
-  runTimestampTests();
+  // runCollectionReferenceTests();
+  // runQueryTests();
+  // runDocumentReferenceTests();
+  // runDocumentChangeTests();
+  // runFieldValueTests();
+  // runGeoPointTests();
+  // runSnapshotMetadataTests();
+  // runTimestampTests();
   runTransactionTests();
-  runWriteBatchTests();
+  // runWriteBatchTests();
 }

@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 /// Catches a [PlatformException] and converts it into a [FirebaseException] if
 /// it was intentially caught on the native platform.
 FutureOr<Map<String, dynamic>> catchPlatformException(Object exception) async {
-  if (exception is! PlatformException) {
+  if (exception is! Exception || exception is! PlatformException) {
     throw exception;
   }
 
@@ -33,32 +33,5 @@ FutureOr<Map<String, dynamic>> catchPlatformException(Object exception) async {
   }
 
   throw FirebaseException(
-      plugin: 'cloud_firestore', code: code, message: message);
-}
-
-Exception returnFromPlatormException(Object exception) {
-  if (exception is! PlatformException) {
-    return exception;
-  }
-
-  PlatformException platformException = exception as PlatformException;
-
-  if (platformException.code != 'cloud_firestore') {
-    throw exception;
-  }
-
-  Map<String, String> details = platformException.details != null
-      ? Map<String, String>.from(platformException.details)
-      : null;
-
-  String code = 'unknown';
-  String message = platformException.message;
-
-  if (details != null) {
-    code = details['code'] ?? code;
-    message = details['message'] ?? message;
-  }
-
-  return FirebaseException(
       plugin: 'cloud_firestore', code: code, message: message);
 }

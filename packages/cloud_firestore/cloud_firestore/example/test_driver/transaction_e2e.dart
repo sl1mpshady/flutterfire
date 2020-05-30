@@ -15,17 +15,33 @@ void runTransactionTests() {
       firestore = Firestore.instance;
     });
 
-    Future<DocumentReference> initializeTest(String path) async {
-      String prefixedPath = 'flutter-tests/$path';
-      await firestore.document(prefixedPath).delete();
-      return firestore.document(prefixedPath);
-    }
+    // Future<DocumentReference> initializeTest(String path) async {
+    //   String prefixedPath = 'flutter-tests/$path';
+    //   await firestore.document(prefixedPath).delete();
+    //   return firestore.document(prefixedPath);
+    // }
 
-    testWidgets('throw a [FirebaseException] if permission is denied', (WidgetTester tester) async {
-      // TODO(ehesp): Implement once handled
-      // fail("TODO");
+    testWidgets('runs transaction handlers', (WidgetTester tester) async {
+      DocumentReference documentReference =
+          firestore.document('playground/transaction-test');
+      try {
+        dynamic result =
+            await firestore.runTransaction((Transaction transaction) async {
+          // DocumentSnapshot snapshot = await transaction.get(documentReference);
+
+          throw StateError("foo bar");
+        });
+
+        print('----------');
+        print(result);
+        print('----------');
+      } on StateError catch(e) {
+        print('Gracefully caught exception...');
+        print(e);
+      } catch (e) {
+        print('This was not expected!');
+        print(e);
+      }
     });
-
-
   });
 }

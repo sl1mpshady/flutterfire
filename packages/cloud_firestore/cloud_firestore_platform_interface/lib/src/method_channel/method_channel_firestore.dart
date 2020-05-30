@@ -39,8 +39,8 @@ class MethodChannelFirestore extends FirestorePlatform {
         case 'Firestore#DocumentSnapshotError':
           await _handleDocumentSnapshotError(call.arguments);
           break;
-        case 'Firestore#DoTransaction':
-          await _handleTransaction(call.arguments);
+        case 'Transaction#attempt':
+          return _handleTransaction(call.arguments);
           break;
         default:
           throw FallThroughError();
@@ -86,14 +86,31 @@ class MethodChannelFirestore extends FirestorePlatform {
   }
 
   /// TODO
-  void _handleTransaction(Map<dynamic, dynamic> arguments) async {
+  Future<Map<String, dynamic>> _handleTransaction(
+      Map<dynamic, dynamic> arguments) async {
     final int transactionId = arguments['transactionId'];
     final TransactionPlatform transaction =
-        MethodChannelTransaction(transactionId, arguments["app"]);
-    final dynamic result =
-        await _transactionHandlers[transactionId](transaction);
-    await transaction.finish();
-    return result;
+        MethodChannelTransaction(transactionId, arguments["appName"]);
+    final StreamController controller =
+        _transactionStreamControllerHandlers[transactionId];
+
+    try {
+      dynamic result = await _transactionHandlers[transactionId](transaction);
+
+      return <String, dynamic>{
+        'type': 'SUCCESS',
+        'result': result,
+        'commands': transaction.commands,
+      };
+    } catch (error) {
+      controller.addError(error);
+
+      // Signal native that a user error occurred, and finish the
+      // transaction
+      return <String, dynamic>{
+        'type': 'ERROR',
+      };
+    }
   }
 
   /// Attach a [FirebaseException] to a given [StreamController].
@@ -137,6 +154,10 @@ class MethodChannelFirestore extends FirestorePlatform {
 
   static final Map<int, TransactionHandler> _transactionHandlers =
       <int, TransactionHandler>{};
+
+  static final Map<int, StreamController> _transactionStreamControllerHandlers =
+      <int, StreamController>{};
+
   static int _transactionHandlerId = 0;
 
   /// Gets a [FirestorePlatform] with specific arguments such as a different
@@ -186,22 +207,47 @@ class MethodChannelFirestore extends FirestorePlatform {
   }
 
   @override
-  Future<Map<String, dynamic>> runTransaction(
+  Future<T> runTransaction<T>(
     TransactionHandler transactionHandler, {
     Duration timeout = const Duration(seconds: 5),
   }) async {
     assert(timeout.inMilliseconds > 0,
         'Transaction timeout must be more than 0 milliseconds');
+
     final int transactionId = _transactionHandlerId++;
+    StreamController streamController = StreamController();
+
     _transactionHandlers[transactionId] = transactionHandler;
-    final Map<String, dynamic> result = await channel
-        .invokeMapMethod<String, dynamic>(
-            'Firestore#runTransaction', <String, dynamic>{
+    _transactionStreamControllerHandlers[transactionId] = streamController;
+
+    T result;
+    Object exception;
+
+    // If the uses [TransactionHandler] throws an error, the stream broadcasts
+    // it so we don't lose it's context.
+    StreamSubscription subscription =
+        streamController.stream.listen(null, onError: (Object e) {
+      exception = e;
+    });
+
+    result =
+        await channel.invokeMethod<T>('Transaction#create', <String, dynamic>{
       'appName': app.name,
       'transactionId': transactionId,
-      'transactionTimeout': timeout.inMilliseconds
-    }).catchError(catchPlatformException);
-    return result ?? <String, dynamic>{};
+      'timeout': timeout.inMilliseconds
+    }).catchError((Object e) {
+      exception = e;
+    });
+
+    // The transaction is successful, cleanup the stream
+    await subscription.cancel();
+    _transactionStreamControllerHandlers.remove(transactionId);
+
+    if (exception != null) {
+      return Future.error((exception));
+    }
+
+    return result;
   }
 
   @override

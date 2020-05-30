@@ -27,6 +27,9 @@ class MethodChannelFirestore extends FirestorePlatform {
     if (_initialized) return;
     channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
+        case 'Firestore#snapshotsInSync':
+          await _handleSnapshotsInSync(call.arguments);
+          break;
         case 'Firestore#QuerySnapshot':
           await _handleQuerySnapshot(call.arguments);
           break;
@@ -47,6 +50,10 @@ class MethodChannelFirestore extends FirestorePlatform {
       }
     });
     _initialized = true;
+  }
+
+  void _handleSnapshotsInSync(Map<dynamic, dynamic> arguments) async {
+    snapshotInSyncObservers[arguments['handle']].add(null);
   }
 
   /// When a [QuerySnapshot] event is fired on the [MethodChannel],
@@ -164,6 +171,9 @@ class MethodChannelFirestore extends FirestorePlatform {
   static final Map<int, StreamController<DocumentSnapshotPlatform>>
       documentObservers = <int, StreamController<DocumentSnapshotPlatform>>{};
 
+  static final Map<int, StreamController<void>> snapshotInSyncObservers =
+      <int, StreamController<void>>{};
+
   /// Stores the users [TransactionHandlers] for usage when a transaction is
   /// running.
   static final Map<int, TransactionHandler> _transactionHandlers =
@@ -207,8 +217,9 @@ class MethodChannelFirestore extends FirestorePlatform {
   @override
   Future<void> disableNetwork() async {
     await channel
-        .invokeMethod<void>('Firestore#disableNetwork')
-        .catchError(catchPlatformException);
+        .invokeMethod<void>('Firestore#disableNetwork', <String, String>{
+      'appName': app.name,
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -219,8 +230,39 @@ class MethodChannelFirestore extends FirestorePlatform {
   @override
   Future<void> enableNetwork() async {
     await channel
-        .invokeMethod<void>('Firestore#enableNetwork')
-        .catchError(catchPlatformException);
+        .invokeMethod<void>('Firestore#enableNetwork', <String, String>{
+      'appName': app.name,
+    }).catchError(catchPlatformException);
+  }
+
+  @override
+  Stream<void> snapshotsInSync() {
+    Future<int> _handle;
+
+    StreamController<QuerySnapshotPlatform> controller; // ignore: close_sinks
+    controller = StreamController<QuerySnapshotPlatform>.broadcast(
+      onListen: () {
+        _handle = MethodChannelFirestore.channel.invokeMethod<int>(
+          'Firestore#addSnapshotsInSyncListener',
+          <String, dynamic>{
+            'appName': app.name,
+          },
+        ).then<int>((dynamic result) => result);
+        _handle.then((int handle) {
+          MethodChannelFirestore.snapshotInSyncObservers[handle] = controller;
+        });
+      },
+      onCancel: () {
+        _handle.then((int handle) async {
+          await MethodChannelFirestore.channel.invokeMethod<void>(
+            'Firestore#removeListener',
+            <String, dynamic>{'handle': handle},
+          );
+          MethodChannelFirestore.snapshotInSyncObservers.remove(handle);
+        });
+      },
+    );
+    return controller.stream;
   }
 
   @override
@@ -277,6 +319,21 @@ class MethodChannelFirestore extends FirestorePlatform {
     await channel.invokeMethod<void>('Firestore#settings', <String, dynamic>{
       'appName': app.name,
       'settings': settings.asMap,
+    }).catchError(catchPlatformException);
+  }
+
+  @override
+  Future<void> terminate() async {
+    await channel.invokeMethod<void>('Firestore#terminate', <String, dynamic>{
+      'appName': app.name,
+    }).catchError(catchPlatformException);
+  }
+
+  @override
+  Future<void> waitForPendingWrites() async {
+    await channel
+        .invokeMethod<void>('Firestore#waitForPendingWrites', <String, dynamic>{
+      'appName': app.name,
     }).catchError(catchPlatformException);
   }
 }

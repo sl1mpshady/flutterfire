@@ -63,11 +63,6 @@ class Firestore extends FirebasePluginPlatform {
     return CollectionReference._(this, _delegate.collection(collectionPath));
   }
 
-  @protected
-  FirestorePlatform delegateFor({FirebaseApp app}) {
-    throw UnimplementedError();
-  }
-
   /// Creates a write batch, used for performing multiple writes as a single
   /// atomic operation.
   ///
@@ -113,8 +108,8 @@ class Firestore extends FirebasePluginPlatform {
     return _delegate.enableNetwork();
   }
 
-  Future<void> onSnapshotsInSync() {
-    return _delegate.onSnapshotsInSync();
+  Stream<void> snapshotsInSync() {
+    return _delegate.snapshotsInSync();
   }
 
   /// Executes the given TransactionHandler and then attempts to commit the
@@ -138,8 +133,7 @@ class Firestore extends FirebasePluginPlatform {
   ///
   /// By default transactions are limited to 5 seconds of execution time. This
   /// timeout can be adjusted by setting the timeout parameter.
-  Future<T> runTransaction<T>(
-      TransactionHandler<T> transactionHandler,
+  Future<T> runTransaction<T>(TransactionHandler<T> transactionHandler,
       {Duration timeout = const Duration(seconds: 5)}) {
     return _delegate.runTransaction<T>(
         (transaction) => transactionHandler(Transaction._(this, transaction)),
@@ -151,13 +145,11 @@ class Firestore extends FirebasePluginPlatform {
   }
 
   Future<void> terminate() {
-    // TODO: implement terminate
-    throw UnimplementedError();
+    return _delegate.terminate();
   }
 
   Future<void> waitForPendingWrites() {
-    // TODO: implement waitForPendingWrites
-    throw UnimplementedError();
+    return _delegate.waitForPendingWrites();
   }
 
   @override

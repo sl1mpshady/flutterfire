@@ -33,22 +33,12 @@ class MethodChannelTransaction extends TransactionPlatform {
 
   @override
   List<Map<String, dynamic>> get commands {
-    return _commands;
-  }
-
-  @override
-  Future<void> commit() async {
     if (_documentGetCount > 0) {
       assert(_documentGetCount == _commands.length,
           "All transaction get operations must also be written.");
     }
 
-    await MethodChannelFirestore.channel.invokeMapMethod<String, dynamic>(
-        'Transaction#commit', <String, dynamic>{
-      'appName': appName,
-      'transactionId': _transactionId,
-      'commands': _commands,
-    });
+    return _commands;
   }
 
   @override
@@ -64,10 +54,7 @@ class MethodChannelTransaction extends TransactionPlatform {
     return DocumentSnapshotPlatform(
       _firestore,
       documentPath,
-      <String, dynamic>{
-        'data': Map<String, dynamic>.from(result['data']),
-        'metadata': Map<String, dynamic>.from(result['metadata']),
-      },
+      Map<String, dynamic>.from(result),
     );
   }
 

@@ -14,12 +14,10 @@ FutureOr<Map<String, dynamic>> catchPlatformException(Object exception) async {
     throw exception;
   }
 
-  PlatformException platformException = exception as PlatformException;
+  throw platformExceptionToFirebaseException(exception as PlatformException);
+}
 
-  if (platformException.code != 'cloud_firestore') {
-    throw exception;
-  }
-
+FirebaseException platformExceptionToFirebaseException(PlatformException platformException) {
   Map<String, String> details = platformException.details != null
       ? Map<String, String>.from(platformException.details)
       : null;
@@ -32,6 +30,6 @@ FutureOr<Map<String, dynamic>> catchPlatformException(Object exception) async {
     message = details['message'] ?? message;
   }
 
-  throw FirebaseException(
+  return FirebaseException(
       plugin: 'cloud_firestore', code: code, message: message);
 }

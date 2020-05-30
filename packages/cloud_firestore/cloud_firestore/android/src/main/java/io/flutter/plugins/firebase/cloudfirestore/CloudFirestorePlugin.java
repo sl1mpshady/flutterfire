@@ -267,8 +267,7 @@ public class CloudFirestorePlugin
     listenerRegistrations.clear();
   }
 
-  private Task<Object> createTransaction(
-      MethodChannel.Result result, Map<String, Object> arguments) {
+  private Task<Object> createTransaction(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
@@ -288,16 +287,15 @@ public class CloudFirestorePlugin
 
           TransactionResult transactionResult =
               Tasks.await(
-                  new CloudFirestoreTransactionHandler(
-                          channel, activity, transactionId)
+                  new CloudFirestoreTransactionHandler(channel, activity, transactionId)
                       .create(firestore, timeout));
-
+          Log.e("ELLIOT", "tranaction done");
           CloudFirestoreTransactionHandler.dispose(transactionId);
 
           if (transactionResult.exception != null) {
             throw transactionResult.exception;
           } else {
-            return transactionResult.result;
+            return null;
           }
         });
   }
@@ -536,7 +534,7 @@ public class CloudFirestorePlugin
   @Override
   public void onMethodCall(MethodCall call, @NonNull final MethodChannel.Result result) {
     Task methodCallTask;
-
+    Log.e("ELLIOT", call.method);
     switch (call.method) {
       case "Firestore#removeListener":
         int handle = Objects.requireNonNull(call.argument("handle"));
@@ -545,7 +543,7 @@ public class CloudFirestorePlugin
         result.success(null);
         return;
       case "Transaction#create":
-        methodCallTask = createTransaction(result, call.arguments());
+        methodCallTask = createTransaction(call.arguments());
         break;
       case "Transaction#get":
         methodCallTask = transactionGetDocumentData(call.arguments());

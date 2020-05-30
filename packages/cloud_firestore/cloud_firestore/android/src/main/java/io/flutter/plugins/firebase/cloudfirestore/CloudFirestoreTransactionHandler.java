@@ -109,8 +109,9 @@ class CloudFirestoreTransactionHandler {
             response = Tasks.await(sourceTask, timeout, TimeUnit.MILLISECONDS);
             String responseType = (String) Objects.requireNonNull(response.get("type"));
 
+            // Something went wrong in dart - finish this transaction
             if (responseType.equals("ERROR")) {
-              return TransactionResult.setResult(null);
+              return TransactionResult.complete();
             }
           } catch (Exception e) {
             return TransactionResult.fromException(e);
@@ -161,7 +162,7 @@ class CloudFirestoreTransactionHandler {
             }
           }
 
-          return TransactionResult.setResult(response.get("result"));
+          return TransactionResult.complete();
         });
   }
 }

@@ -98,6 +98,20 @@ void runTransactionTests() {
             throwsAssertionError);
       });
 
+      testWidgets('should throw if get is called after a command',
+          (WidgetTester tester) async {
+        DocumentReference documentReference =
+            firestore.document('flutter-tests/foo');
+
+        expect(
+            () => firestore.runTransaction((Transaction transaction) async {
+                  await transaction.get(documentReference);
+                  transaction.set(documentReference, {'foo': 'bar'});
+                  await transaction.get(documentReference);
+                }),
+            throwsAssertionError);
+      });
+
       testWidgets('should return a document snapshot',
           (WidgetTester tester) async {
         DocumentReference documentReference =
@@ -225,6 +239,49 @@ void runTransactionTests() {
         expect(snapshot.data(),
             equals(<String, dynamic>{'foo': 'bar', 'bar': 2, 'baz': 1}));
       });
+    });
+
+    testWidgets('runs all commands in a single transaction',
+        (WidgetTester tester) async {
+      DocumentReference documentReference =
+          await initializeTest('transaction-all');
+
+      DocumentReference documentReference2 =
+          firestore.document('flutter-tests/delete');
+
+      await documentReference2.setData({'foo': 'bar'});
+
+      await documentReference.setData({'foo': 1});
+
+      String result = await firestore
+          .runTransaction<String>((Transaction transaction) async {
+        DocumentSnapshot documentSnapshot =
+            await transaction.get(documentReference);
+
+        transaction.set(documentReference, {
+          'foo': documentSnapshot.data()['foo'] + 1,
+        });
+
+        transaction.update(documentReference, {'bar': 'baz'});
+
+        transaction.delete(documentReference2);
+
+        return 'done';
+      });
+
+      expect(result, equals('done'));
+
+      DocumentSnapshot snapshot = await documentReference.get();
+      expect(snapshot.exists, isTrue);
+      expect(
+          snapshot.data(),
+          equals(<String, dynamic>{
+            'foo': 2,
+            'bar': 'baz',
+          }));
+
+      DocumentSnapshot snapshot2 = await documentReference2.get();
+      expect(snapshot2.exists, isFalse);
     });
   });
 }

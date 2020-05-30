@@ -16,8 +16,6 @@ class Transaction {
     TransactionPlatform.verifyExtends(_delegate);
   }
 
-  Future<void> _commit() => _delegate.commit();
-
   /// Reads the document referenced by the provided DocumentReference.
   Future<DocumentSnapshot> get(DocumentReference documentReference) async {
     DocumentSnapshotPlatform documentSnapshotPlatform =

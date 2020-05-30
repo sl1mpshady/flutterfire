@@ -34,7 +34,7 @@ class MethodChannelTransaction extends TransactionPlatform {
   @override
   List<Map<String, dynamic>> get commands {
     if (_documentGetCount > 0) {
-      assert(_documentGetCount == _commands.length,
+      assert(_documentGetCount <= _commands.length,
           "All transaction get operations must also be written.");
     }
 
@@ -43,6 +43,9 @@ class MethodChannelTransaction extends TransactionPlatform {
 
   @override
   Future<DocumentSnapshotPlatform> get(documentPath) async {
+    assert(_commands.isEmpty,
+        "Transactions require all reads to be executed before all writes.");
+
     final Map<String, dynamic> result = await MethodChannelFirestore.channel
         .invokeMapMethod<String, dynamic>('Transaction#get', <String, dynamic>{
       'appName': appName,

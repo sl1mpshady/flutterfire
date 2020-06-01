@@ -200,8 +200,9 @@ class MethodChannelFirestore extends FirestorePlatform {
   @override
   Future<void> clearPersistence() async {
     await channel
-        .invokeMethod<void>('Firestore#clearPersistence')
-        .catchError(catchPlatformException);
+        .invokeMethod<void>('Firestore#clearPersistence', <String, String>{
+      'appName': app.name,
+    }).catchError(catchPlatformException);
   }
 
   @override

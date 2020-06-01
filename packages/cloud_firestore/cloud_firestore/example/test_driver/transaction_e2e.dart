@@ -22,6 +22,20 @@ void runTransactionTests() {
       return firestore.document(prefixedPath);
     }
 
+    // TODO(ehesp): always resolves - even web SDK has same behavior
+    // testWidgets('should fail when offline', (WidgetTester tester) async {
+    //   await firestore.disableNetwork();
+    //   DocumentReference reference = firestore.document('flutter-tests/foo');
+    //   int count = 0;
+    //   await firestore.runTransaction<String>((Transaction transaction) async {
+    //     count++;
+    //     await transaction.get(reference);
+    //     transaction.set(reference, {'foo': 'bar'});
+    //   });
+    //   expect(count, equals(5));
+    //   await firestore.enableNetwork();
+    // }, skip: true);
+
     testWidgets('should resolve with user value', (WidgetTester tester) async {
       int randomValue = Random().nextInt(9999);
       int response =
@@ -49,6 +63,19 @@ void runTransactionTests() {
       } catch (e) {
         DocumentSnapshot snapshot = await documentReference.get();
         expect(snapshot.data()['foo'], equals('bar'));
+      }
+    });
+
+    testWidgets('should abort if timeout is exceeded',
+        (WidgetTester tester) async {
+      try {
+        await firestore.runTransaction((Transaction transaction) async {
+          await Future.delayed(Duration(seconds: 4));
+        }, timeout: Duration(seconds: 1));
+        fail("Should have thrown");
+      } catch (e) {
+        expect(e, isA<FirebaseException>());
+        expect(e.code, equals('aborted'));
       }
     });
 

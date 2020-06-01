@@ -1,6 +1,7 @@
 package io.flutter.plugins.firebase.cloudfirestore;
 
 import android.app.Activity;
+import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.Nullable;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import io.flutter.plugin.common.MethodChannel;
 
@@ -103,6 +105,7 @@ class CloudFirestoreTransactionHandler {
                       }));
 
           Map<String, Object> response;
+            Log.e("ELLIOT", "WAITING TRANSACTION");
 
           try {
             response = Tasks.await(sourceTask, timeout, TimeUnit.MILLISECONDS);
@@ -112,9 +115,14 @@ class CloudFirestoreTransactionHandler {
             if (responseType.equals("ERROR")) {
               return TransactionResult.complete();
             }
+          } catch (TimeoutException e) {
+            return TransactionResult.fromException(
+                new FirebaseFirestoreException(
+                    e.getMessage(), FirebaseFirestoreException.Code.ABORTED));
           } catch (Exception e) {
             return TransactionResult.fromException(e);
           }
+            Log.e("ELLIOT", "ATTEMPTING TRANSACTION");
 
           // noinspection unchecked
           List<Map<String, Object>> commands =

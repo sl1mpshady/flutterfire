@@ -28,6 +28,35 @@ void runQueryTests() {
     }
 
     /**
+     * collectionGroup
+     */
+
+    // TODO(ehesp): specific rules need enabling
+    // group('collectionGroup()', () {
+    //   testWidgets('returns a data via a sub-collection',
+    //       (WidgetTester tester) async {
+    //     CollectionReference collection =
+    //         firestore.collection('flutter-tests/collection-group/group-test');
+    //     QuerySnapshot snapshot = await collection.get();
+    //     await Future.forEach(snapshot.documents,
+    //         (DocumentSnapshot documentSnapshot) {
+    //       return documentSnapshot.reference.delete();
+    //     });
+
+    //     await collection.document('doc1').setData({'foo': 1});
+    //     await collection.document('doc2').setData({'foo': 2});
+
+    //     QuerySnapshot groupSnapshot = await firestore
+    //         .collectionGroup('group-test')
+    //         .orderBy('foo', descending: true)
+    //         .get();
+    //     expect(groupSnapshot.size, equals(2));
+    //     expect(groupSnapshot.documents[0].data()['foo'], equals(2));
+    //     expect(groupSnapshot.documents[1].data()['foo'], equals(1));
+    //   });
+    // });
+
+    /**
      * get
      */
 
@@ -137,6 +166,7 @@ void runQueryTests() {
             count: 5,
             reason: "Stream should only have been called five times."));
 
+        await Future.delayed(Duration(milliseconds: 500));
         await collection.document('doc1').setData({'bar': 'baz'});
         await collection.document('doc1').delete();
         await collection.document('doc2').setData({'foo': 'bar'});

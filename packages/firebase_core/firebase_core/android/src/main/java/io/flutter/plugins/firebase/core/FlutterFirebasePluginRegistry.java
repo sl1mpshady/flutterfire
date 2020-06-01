@@ -31,9 +31,9 @@ public class FlutterFirebasePluginRegistry {
   }
 
   /**
-   * Each FlutterFire plugin implementing FlutterFirebasePlugin provides this method allowing
-   * it's constants to be initialized during FirebaseCore.initializeApp in Dart. Here we call this
-   * method on each of the registered plugins and gather their constants for use in Dart.
+   * Each FlutterFire plugin implementing FlutterFirebasePlugin provides this method allowing it's
+   * constants to be initialized during FirebaseCore.initializeApp in Dart. Here we call this method
+   * on each of the registered plugins and gather their constants for use in Dart.
    *
    * @param firebaseApp The Firebase App that the plugin should return constants for.
    * @return A task returning the discovered constants for each plugin (using channelName as the Map

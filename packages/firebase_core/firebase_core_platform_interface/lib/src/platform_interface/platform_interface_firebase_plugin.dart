@@ -9,6 +9,7 @@ part of firebase_core_platform_interface;
 /// This class provides access to common plugin properties and constants which
 /// are available once the user has initialized FlutterFire.
 abstract class FirebasePluginPlatform extends PlatformInterface {
+  // ignore: public_member_api_docs
   FirebasePluginPlatform(this._app, this._methodChannelName)
       : super(token: _token);
 
@@ -26,6 +27,7 @@ abstract class FirebasePluginPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
+  // ignore: public_member_api_docs
   static verifyExtends(FirebasePluginPlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
   }

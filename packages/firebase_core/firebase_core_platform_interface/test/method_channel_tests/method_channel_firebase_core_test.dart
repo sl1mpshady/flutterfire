@@ -47,7 +47,7 @@ void main() {
               'name': methodCall.arguments['appName'] ?? defaultFirebaseAppName,
               'options': <dynamic, dynamic>{
                 'apiKey': 'testing',
-                'appId':  'testing',
+                'appId': 'testing',
                 'messagingSenderId': 'testing',
                 'projectId': 'testing',
               },

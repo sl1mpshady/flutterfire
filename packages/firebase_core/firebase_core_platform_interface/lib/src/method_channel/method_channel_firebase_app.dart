@@ -13,6 +13,7 @@ part of firebase_core_platform_interface;
 /// FirebaseCore.instance.app('SecondaryApp`);
 /// ```
 class MethodChannelFirebaseApp extends FirebaseAppPlatform {
+  // ignore: public_member_api_docs
   MethodChannelFirebaseApp(
     String name,
     FirebaseOptions options, {
@@ -25,7 +26,6 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
   /// Keeps track of whether this app has been deleted by the user.
   bool _isDeleted = false;
 
-  ///
   bool _isAutomaticDataCollectionEnabled;
 
   /// Returns whether automatic data collection enabled or disabled.

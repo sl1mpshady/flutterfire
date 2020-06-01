@@ -48,10 +48,10 @@ void main() {
 
   testWidgets('FirebaseApp.delete()', (WidgetTester tester) async {
     await core.initializeApp(name: 'SecondaryApp', options: testAppOptions);
-    expect(core.apps.length, 2);
+    expect(core.apps.length, 3);
     FirebaseApp app = core.app('SecondaryApp');
     await app.delete();
-    expect(core.apps.length, 1);
+    expect(core.apps.length, 2);
   });
 
   testWidgets('FirebaseApp.setAutomaticDataCollectionEnabled()',

@@ -55,16 +55,9 @@ void main() {
       "hasPendingWrites": false,
       "isFromCache": false,
     };
-    const MethodChannel firebaseCoreChannel =
-        MethodChannel('plugins.flutter.io/firebase_core');
 
     setUp(() async {
       mockHandleId = 0;
-      // // Required for FirebaseApp.configure
-      // firebaseCoreChannel.setMockMethodCallHandler(
-      //   (MethodCall methodCall) async {},
-      // );
-
       firestore = MethodChannelFirestore(app: app);
       collectionReference = firestore.collection('foo');
       collectionGroupQuery = firestore.collectionGroup('bar');
@@ -225,19 +218,6 @@ void main() {
     group('Transaction', () {
       setUp(() async {
         mockHandleId = 0;
-        // Required for FirebaseApp.configure
-        firebaseCoreChannel.setMockMethodCallHandler(
-          (MethodCall methodCall) async {},
-        );
-        // app = await FirebaseCore.instance.initializeApp(
-        //   name: 'testApp',
-        //   options: const FirebaseOptions(
-        //     appId: '1:1234567890:ios:42424242424242',
-        //     apiKey: '123',
-        //     projectId: '123',
-        //     messagingSenderId: '1234567890',
-        //   ),
-        // );
       });
       test('runTransaction', () async {
         final Map<String, dynamic> result = await firestore.runTransaction(

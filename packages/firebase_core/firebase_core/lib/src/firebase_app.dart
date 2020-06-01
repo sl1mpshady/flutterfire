@@ -39,13 +39,14 @@ class FirebaseApp {
     return FirebaseCore.instance.apps;
   }
 
-  // @Deprecated("Deprecated in favor of FirebaseCore.instance.initializeApp()")
-  // static Future<FirebaseApp> configure({
-  //   @required String name,
-  //   @required FirebaseOptions options,
-  // }) {
-  //   return FirebaseCore.instance.initializeApp(name: name, options: options);
-  // }
+  @Deprecated("Deprecated in favor of FirebaseCore.instance.initializeApp()")
+  // ignore: public_member_api_docs
+  static Future<FirebaseApp> configure({
+    @required String name,
+    @required FirebaseOptions options,
+  }) {
+    return FirebaseCore.instance.initializeApp(name: name, options: options);
+  }
 
   @Deprecated("Deprecated in favor of FirebaseCore.instance.app()")
   // ignore: public_member_api_docs

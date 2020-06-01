@@ -18,7 +18,7 @@ void main() async {
 
   final FirebaseOptions firebaseOptions = (Platform.isIOS || Platform.isMacOS)
       ? const FirebaseOptions(
-          appId: '1:159623150305:android:ef48439a0cc0263d',
+          appId: '1:159623150305:ios:4a213ef3dbd8997b',
           messagingSenderId: '159623150305',
           apiKey: 'AIzaSyChk3KEG7QYrs4kQPLP1tjJNxBTbfCAdgg',
           projectId: 'flutter-firebase-plugins',

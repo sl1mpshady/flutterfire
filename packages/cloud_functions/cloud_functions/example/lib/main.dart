@@ -6,12 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
-// void main() => runApp(MyApp());
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FirebaseCore.instance.initializeApp();
-
   runApp(MyApp());
 }
 

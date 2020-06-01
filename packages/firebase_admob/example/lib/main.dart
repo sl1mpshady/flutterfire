@@ -17,7 +17,6 @@ const String testDevice = 'YOUR_DEVICE_ID';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FirebaseCore.instance.initializeApp();
-
   runApp(MyApp());
 }
 

@@ -12,13 +12,16 @@ import 'test_common.dart';
 
 void main() {
   initializeMethodChannel();
+
   group('$CloudFunctions', () {
     final List<MethodCall> log = <MethodCall>[];
 
     setUp(() async {
       await FirebaseCore.instance.initializeApp();
       await FirebaseCore.instance.initializeApp(
-          name: '1337', options: FirebaseCore.instance.app().options);
+        name: '1337',
+        options: FirebaseCore.instance.app().options,
+      );
 
       MethodChannelCloudFunctions.channel
           .setMockMethodCallHandler((MethodCall methodCall) async {

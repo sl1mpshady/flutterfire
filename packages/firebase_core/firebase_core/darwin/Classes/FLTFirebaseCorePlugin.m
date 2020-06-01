@@ -67,8 +67,11 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
     //  - Without this the iOS/MacOS app would crash immediately on calling [FIRApp configure]
     //  without
     //    providing helpful context about the crash to the user.
+    //
+    // Default app exists check is for backwards compatability of legacy FlutterFire plugins that
+    // call [FIRApp configure]; themselves internally.
     FIROptions *options = [FIROptions defaultOptions];
-    if (options != nil) {
+    if (options != nil && [FIRApp allApps][@"__FIRAPP_DEFAULT"] == nil) {
       [FIRApp configureWithOptions:options];
     }
   });

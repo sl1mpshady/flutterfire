@@ -47,8 +47,7 @@ class FirestoreWeb extends FirestorePlatform {
 
   @override
   QueryPlatform collectionGroup(String path) {
-    return QueryWeb(this, path, _webFirestore.collectionGroup(path),
-        isCollectionGroup: true);
+    return QueryWeb(this, path, _webFirestore.collectionGroup(path));
   }
 
   @override
@@ -56,7 +55,7 @@ class FirestoreWeb extends FirestorePlatform {
       DocumentReferenceWeb(this, _webFirestore, path);
 
   @override
-  WriteBatchPlatform batch() => WriteBatchWeb(_webFirestore.batch());
+  WriteBatchPlatform batch() => WriteBatchWeb(_webFirestore);
 
   @override
   Future<void> enablePersistence(bool enable) async {
@@ -71,7 +70,7 @@ class FirestoreWeb extends FirestorePlatform {
 
     if (settings.cacheSizeBytes == null) {
       cacheSizeBytes = 40000000;
-    } else if (settings.cacheSizeBytes == CACHE_SIZE_UNLIMITED) {
+    } else if (settings.cacheSizeBytes == Settings.CACHE_SIZE_UNLIMITED) {
       // https://github.com/firebase/firebase-js-sdk/blob/e67affba53a53d28492587b2f60521a00166db60/packages/firestore/src/local/lru_garbage_collector.ts#L175
       cacheSizeBytes = -1;
     } else {
@@ -93,13 +92,11 @@ class FirestoreWeb extends FirestorePlatform {
   }
 
   @override
-  Future<Map<String, dynamic>> runTransaction(
-      TransactionHandler transactionHandler,
+  Future<T> runTransaction<T>(TransactionHandler transactionHandler,
       {Duration timeout = const Duration(seconds: 5)}) async {
-    Map<String, dynamic> result;
-    await _webFirestore.runTransaction((transaction) async {
-      result = await transactionHandler(TransactionWeb(transaction, this));
+    return _webFirestore.runTransaction((transaction) async {
+      return transactionHandler(
+          TransactionWeb(this, _webFirestore, transaction));
     }).timeout(timeout);
-    return result is Map<String, dynamic> ? result : <String, dynamic>{};
   }
 }

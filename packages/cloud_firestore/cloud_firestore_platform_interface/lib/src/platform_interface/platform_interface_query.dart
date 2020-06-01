@@ -7,19 +7,35 @@ import 'dart:async';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 
+Map<String, dynamic> _initialParameters = Map<String, dynamic>.unmodifiable({
+  'where': List<List<dynamic>>.unmodifiable([]),
+  'orderBy': List<List<dynamic>>.unmodifiable([]),
+  'startAt': null,
+  'startAfter': null,
+  'endAt': null,
+  'endBefore': null,
+  'limit': null,
+  'limitToLast': null,
+});
+
 /// Represents a query over the data at a particular location.
 abstract class QueryPlatform extends PlatformInterface {
   /// The [FirestorePlatform] interface for this current query.
   final FirestorePlatform firestore;
 
+  /// Stores the instances query modifier filters.
+  Map<String, dynamic> _parameters;
+
   /// Create a [QueryPlatform] instance
-  QueryPlatform(this.firestore) : super(token: _token);
+  QueryPlatform(this.firestore, Map<String, dynamic> parameters)
+      : this._parameters = parameters ?? _initialParameters,
+        super(token: _token);
 
   static final Object _token = Object();
 
   /// Returns a Map of parameters current in use on the query.
   Map<String, dynamic> get parameters {
-    throw UnimplementedError("parameters is not implemented");
+    return _parameters;
   }
 
   /// Returns whether the current query is targetted at a collection group.

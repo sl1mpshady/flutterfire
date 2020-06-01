@@ -18,7 +18,7 @@ abstract class CollectionReferencePlatform extends QueryPlatform {
     FirestorePlatform firestore,
     String path,
   )   : _pointer = Pointer(path),
-        super(firestore);
+        super(firestore, <String, dynamic>{});
 
   /// Identifier of the referenced collection.
   String get id => _pointer.id;

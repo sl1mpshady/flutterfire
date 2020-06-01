@@ -34,6 +34,21 @@ class CodecUtility {
     if (value is FieldValuePlatform) {
       FieldValueWeb delegate = FieldValuePlatform.getDelegate(value);
       return delegate.data;
+    } else if (value is FieldPath) {
+      List<String> components = value.components;
+      return web.FieldPath(
+          components[0],
+          components[1],
+          components[2],
+          components[3],
+          components[4],
+          components[5],
+          components[6],
+          components[7],
+          components[8],
+          components[9]);
+    } else if (value == FieldPath.documentId) {
+      return web.FieldPath.documentId();
     } else if (value is Timestamp) {
       return value.toDate();
     } else if (value is GeoPoint) {
@@ -41,7 +56,7 @@ class CodecUtility {
     } else if (value is Blob) {
       return web.Blob.fromUint8Array(value.bytes);
     } else if (value is DocumentReferenceWeb) {
-      return value.delegate;
+      return value.firestoreWeb.doc(value.path);
     } else if (value is Map<String, dynamic>) {
       return encodeMapData(value);
     } else if (value is List<dynamic>) {

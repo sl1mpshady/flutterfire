@@ -12,7 +12,6 @@ String _reserved = "Paths must not contain '~', '*', '/', '[', or ']'.";
 ///
 /// Usage of a [FieldPath] allows querying of Firestore paths whose document ID
 /// contains a '.'.
-// TODO(ehesp): Handle messaging codec documentId
 class FieldPath {
   /// The [List] of components which make up this [FieldPath].
   final List<String> components;

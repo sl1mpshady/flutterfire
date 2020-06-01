@@ -12,34 +12,21 @@ import 'method_channel_query_snapshot.dart';
 import 'utils/source.dart';
 import 'utils/exception.dart';
 
-Map<String, dynamic> _initialParameters = Map<String, dynamic>.unmodifiable({
-  'where': List<List<dynamic>>.unmodifiable([]),
-  'orderBy': List<List<dynamic>>.unmodifiable([]),
-  'startAt': null,
-  'startAfter': null,
-  'endAt': null,
-  'endBefore': null,
-  'limit': null,
-  'limitToLast': null,
-});
-
 /// Represents a query over the data at a particular location.
 class MethodChannelQuery extends QueryPlatform {
-  /// Stores the instances query modifier filters.
   Map<String, dynamic> parameters;
 
   /// Flags whether the current query is for a collection group.
-  bool isCollectionGroup;
+  final bool isCollectionGroupQuery;
 
   /// Create a [MethodChannelQuery] from [pathComponents]
   MethodChannelQuery(
-    FirestorePlatform firestore,
+    FirestorePlatform _firestore,
     String path, {
     Map<String, dynamic> parameters,
-    this.isCollectionGroup = false,
-  }) : super(firestore) {
+    this.isCollectionGroupQuery = false,
+  }) : super(_firestore, parameters) {
     _pointer = Pointer(path);
-    this.parameters = parameters ?? _initialParameters;
   }
 
   Pointer _pointer;
@@ -50,23 +37,14 @@ class MethodChannelQuery extends QueryPlatform {
   /// This is in place to ensure that changes to a query don't mutate
   /// other queries.
   MethodChannelQuery _copyWithParameters(Map<String, dynamic> parameters) {
-    Map<String, dynamic> currentParameters =
-        Map<String, dynamic>.from(this.parameters);
-    currentParameters.addAll(parameters);
-
     return MethodChannelQuery(
       firestore,
       _pointer.path,
-      isCollectionGroup: isCollectionGroup,
+      isCollectionGroupQuery: isCollectionGroupQuery,
       parameters: Map<String, dynamic>.unmodifiable(
         Map<String, dynamic>.from(this.parameters)..addAll(parameters),
       ),
     );
-  }
-
-  @override
-  bool get isCollectionGroupQuery {
-    return isCollectionGroup;
   }
 
   @override
@@ -112,7 +90,7 @@ class MethodChannelQuery extends QueryPlatform {
       <String, dynamic>{
         'appName': firestore.app.name,
         'path': _pointer.path,
-        'isCollectionGroup': isCollectionGroup,
+        'isCollectionGroup': isCollectionGroupQuery,
         'parameters': parameters,
         'source': getSourceString(options.source),
       },
@@ -154,7 +132,7 @@ class MethodChannelQuery extends QueryPlatform {
           <String, dynamic>{
             'appName': firestore.app.name,
             'path': _pointer.path,
-            'isCollectionGroup': isCollectionGroup,
+            'isCollectionGroup': isCollectionGroupQuery,
             'parameters': parameters,
             'includeMetadataChanges': includeMetadataChanges,
           },

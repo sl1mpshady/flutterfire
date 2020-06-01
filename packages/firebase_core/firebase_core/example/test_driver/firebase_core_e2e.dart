@@ -26,9 +26,9 @@ void main() {
 
   testWidgets('FirebaseCore.apps', (WidgetTester tester) async {
     List<FirebaseApp> apps = core.apps;
-    expect(apps.length, 2);
-    expect(apps[1].name, testAppName);
-    expect(apps[1].options, testAppOptions);
+    expect(apps.length, 1);
+    expect(apps[0].name, testAppName);
+    expect(apps[0].options, testAppOptions);
   });
 
   testWidgets('FirebaseCore.app()', (WidgetTester tester) async {

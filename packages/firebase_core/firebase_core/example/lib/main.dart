@@ -11,39 +11,39 @@ void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   final String name = 'foo';
-  final FirebaseOptions options = const FirebaseOptions(
+  final FirebaseOptions firebaseOptions = const FirebaseOptions(
     appId: '1:448618578101:ios:0b650370bb29e29cac3efc',
     apiKey: 'AIzaSyAgUhHU8wSJgO5MVNy95tMT07NEjzMOfz0',
     projectId: 'react-native-firebase-testing',
     messagingSenderId: '448618578101',
   );
 
-  Future<void> _initializeDefault() async {
+  Future<void> initializeDefault() async {
     FirebaseApp app = await FirebaseCore.instance.initializeApp();
     assert(app != null);
     print('Initialized default app $app');
   }
 
-  Future<void> _initialize() async {
-    FirebaseApp app =
-        await FirebaseCore.instance.initializeApp(name: name, options: options);
+  Future<void> initializeSecondary() async {
+    FirebaseApp app = await FirebaseCore.instance
+        .initializeApp(name: name, options: firebaseOptions);
 
     assert(app != null);
     print('Initialized $app');
   }
 
-  void _apps() {
+  void apps() {
     final List<FirebaseApp> apps = FirebaseCore.instance.apps;
     print('Currently initialized apps: $apps');
   }
 
-  void _options() {
+  void options() {
     final FirebaseApp app = FirebaseCore.instance.app(name);
     final FirebaseOptions options = app?.options;
     print('Current options for app $name: $options');
   }
 
-  Future<void> _delete() async {
+  Future<void> delete() async {
     final FirebaseApp app = FirebaseCore.instance.app(name);
     await app?.delete();
     print('App $name deleted');
@@ -63,14 +63,15 @@ class MyApp extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               RaisedButton(
-                  onPressed: _initializeDefault,
+                  onPressed: initializeDefault,
                   child: const Text('Initialize default app')),
               RaisedButton(
-                  onPressed: _initialize, child: const Text('Initialize app')),
-              RaisedButton(onPressed: _apps, child: const Text('Get apps')),
+                  onPressed: initializeSecondary,
+                  child: const Text('Initialize secondary app')),
+              RaisedButton(onPressed: apps, child: const Text('Get apps')),
               RaisedButton(
-                  onPressed: _options, child: const Text('List options')),
-              RaisedButton(onPressed: _delete, child: const Text('Delete app')),
+                  onPressed: options, child: const Text('List options')),
+              RaisedButton(onPressed: delete, child: const Text('Delete app')),
             ],
           ),
         ),

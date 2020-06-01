@@ -17,6 +17,7 @@ void main() {
     apiKey: 'AIzaSyAgUhHU8wSJgO5MVNy95tMT07NEjzMOfz0',
     projectId: 'react-native-firebase-testing',
     messagingSenderId: '448618578101',
+    iosBundleId: 'io.flutter.plugins.firebasecoreexample',
   );
 
   setUpAll(() async {

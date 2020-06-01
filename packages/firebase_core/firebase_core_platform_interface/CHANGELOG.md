@@ -25,6 +25,10 @@
 * Added support for `setAutomaticDataCollectionEnabled` & `isAutomaticDataCollectionEnabled` on a `FirebaseApp` instance.
 * Added support for `setAutomaticResourceManagementEnabled` on a `FirebaseApp` instance.
 
+## 1.0.5
+
+* Update lower bound of dart dependency to 2.0.0.
+
 ## 1.0.4
 
 * Migrate to package:plugin_platform_interface.

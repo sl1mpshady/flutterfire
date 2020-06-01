@@ -23,6 +23,10 @@
 * Added a `FirebaseException` class to handle all FlutterFire related errors.
   * Matching the web sdk, the exception returns a formatted "[plugin/code] message" message when thrown.
 
+## 0.1.2
+
+* Update lower bound of dart dependency to 2.0.0.
+
 ## 0.1.1+3
 
 * Make the pedantic dev_dependency explicit.

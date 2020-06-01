@@ -74,7 +74,6 @@ jobs:
       - name: "Bootstrap Workspace"
         run: melos bootstrap
       - name: "Build Example"
-        if: ${{ success() || failure() }}
         run: |
           melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" -- \
             flutter build ios --no-codesign

@@ -13,6 +13,15 @@ class Query {
     QueryPlatform.verifyExtends(_delegate);
   }
 
+  /// Exposes the [parameters] on the query delegate.
+  ///
+  /// This should only be used for testing to ensure that all
+  /// query modifiers are correctly set on the underlying delegate
+  /// when being tested from a different package.
+  Map<String, dynamic> get parameters {
+    return _delegate.parameters;
+  }
+
   /// Returns whether the current query has a "start" cursor query.
   bool _hasStartCursor() {
     return parameters['startAt'] != null || parameters['startAfter'] != null;
@@ -85,15 +94,6 @@ class Query {
         "Too many arguments provided. The number of arguments must be less than or equal to the number of orderBy() clauses.");
 
     return fields;
-  }
-
-  /// Exposes the [parameters] on the query delegate.
-  ///
-  /// This should only be used for testing to ensure that all
-  /// query modifiers are correctly set on the underlying delegate
-  /// when being tested from a different package.
-  Map<String, dynamic> get parameters {
-    return _delegate.parameters;
   }
 
   /// Creates and returns a new [Query] that ends at the provided document

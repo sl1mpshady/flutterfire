@@ -24,19 +24,14 @@ abstract class QueryPlatform extends PlatformInterface {
   final FirestorePlatform firestore;
 
   /// Stores the instances query modifier filters.
-  Map<String, dynamic> _parameters;
+  Map<String, dynamic> parameters;
 
   /// Create a [QueryPlatform] instance
   QueryPlatform(this.firestore, Map<String, dynamic> parameters)
-      : this._parameters = parameters ?? _initialParameters,
+      : this.parameters = parameters ?? _initialParameters,
         super(token: _token);
 
   static final Object _token = Object();
-
-  /// Returns a Map of parameters current in use on the query.
-  Map<String, dynamic> get parameters {
-    return _parameters;
-  }
 
   /// Returns whether the current query is targetted at a collection group.
   bool get isCollectionGroupQuery {

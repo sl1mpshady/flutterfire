@@ -214,7 +214,7 @@ public class FlutterFirebaseCorePlugin implements FlutterPlugin, MethodChannel.M
 
   @Override
   public void onMethodCall(MethodCall call, @NonNull final MethodChannel.Result result) {
-    Task methodCallTask;
+    Task<?> methodCallTask;
 
     switch (call.method) {
       case "FirebaseCore#initializeApp":
@@ -237,7 +237,6 @@ public class FlutterFirebaseCorePlugin implements FlutterPlugin, MethodChannel.M
         return;
     }
 
-    // noinspection unchecked
     methodCallTask.addOnCompleteListener(
         task -> {
           if (task.isSuccessful()) {

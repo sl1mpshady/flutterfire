@@ -49,7 +49,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
         'path': path,
         'data': data,
       },
-    );
+    ).catchError(catchPlatformException);
   }
 
   @override

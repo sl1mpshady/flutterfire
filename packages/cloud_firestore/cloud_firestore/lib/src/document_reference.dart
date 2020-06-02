@@ -30,10 +30,12 @@ class DocumentReference {
   CollectionReference get parent =>
       CollectionReference._(firestore, _delegate.parent);
 
-  /// A string representing the path of the referenced document (relative to the root of the database).
+  /// A string representing the path of the referenced document (relative to the
+  /// root of the database).
   String get path => _delegate.path;
 
-  /// Gets a [CollectionReference] instance that refers to the collection at the specified path.
+  /// Gets a [CollectionReference] instance that refers to the collection at the
+  /// specified path, relative from this [DocumentReference].
   CollectionReference collection(String collectionPath) {
     return CollectionReference._(
         firestore, _delegate.collection(collectionPath));
@@ -52,32 +54,32 @@ class DocumentReference {
         firestore, await _delegate.get(options ?? const GetOptions()));
   }
 
-  /// Notifies of documents at this location
+  /// Notifies of document updates at this location.
+  /// 
+  /// An initial event is immediately sent, and further events will be
+  /// sent whenever the document is modified.
   Stream<DocumentSnapshot> snapshots({bool includeMetadataChanges = false}) =>
       _delegate.snapshots(includeMetadataChanges: includeMetadataChanges).map(
           (delegateSnapshot) =>
               DocumentSnapshot._(firestore, delegateSnapshot));
 
-  /// Writes to the document referred to by this [DocumentReference].
-  ///
-  /// If the document does not yet exist, it will be created.
+  /// Sets data on the document, overwriting any existing data. If the document
+  /// does not yet exist, it will be created.
   ///
   /// If [SetOptions] are provided, the data will be merged into an existing
   /// document instead of overwriting.
-  // TODO(ehesp): should this be `set()`?
+  // TODO(ehesp): verify method name
   Future<void> setData(Map<String, dynamic> data, [SetOptions options]) {
     assert(data != null);
     return _delegate.setData(
         _CodecUtility.replaceValueWithDelegatesInMap(data), options);
   }
 
-  /// Updates fields in the document referred to by this [DocumentReference].
-  ///
-  /// Values in [data] may be of any supported Firestore type as well as
-  /// special sentinel [FieldValue] type.
+  /// Updates data on the documnent. Data will be merged with any existing
+  /// document data.
   ///
   /// If no document exists yet, the update will fail.
-  // TODO(ehesp): should this be `update()`?
+  // TODO(ehesp): verify method name
   Future<void> updateData(Map<String, dynamic> data) {
     assert(data != null);
     return _delegate

@@ -121,28 +121,18 @@ class Query {
   ///
   /// The [values] must be in order of [orderBy] filters.
   ///
-  /// Cannot be used in combination with [endBefore], [endBeforeDocument], or
-  /// [endAtDocument], but can be used in combination with [startAt],
-  /// [startAfter], [startAtDocument] and [startAfterDocument].
+  /// Calling this method will replace any existing cursor "end" query modifiers.
   Query endAt(List<dynamic> values) {
     _assertQueryCursorValues(values);
     return Query._(firestore, _delegate.endAt(values));
   }
 
   /// Creates and returns a new [Query] that ends before the provided document
-  /// (exclusive). The end position is relative to the order of the query.
+  /// snapshot (exclusive). The end position is relative to the order of the query.
   /// The document must contain all of the fields provided in the orderBy of
   /// this query.
   ///
-  /// Cannot be used in combination with [endAt], [endBefore], or
-  /// [endAtDocument], but can be used in combination with [startAt],
-  /// [startAfter], [startAtDocument] and [startAfterDocument].
-  ///
-  /// See also:
-  ///
-  ///  * [startAfterDocument] for a query that starts after document.
-  ///  * [startAtDocument] for a query that starts at a document.
-  ///  * [endAtDocument] for a query that ends at a document.
+  /// Calling this method will replace any existing cursor "end" query modifiers.
   Query endBeforeDocument(DocumentSnapshot documentSnapshot) {
     Map<String, dynamic> results = _assertQueryCursorSnapshot(documentSnapshot);
     return Query._(firestore,
@@ -154,16 +144,16 @@ class Query {
   ///
   /// The [values] must be in order of [orderBy] filters.
   ///
-  /// Cannot be used in combination with [endAt], [endBeforeDocument], or
-  /// [endBeforeDocument], but can be used in combination with [startAt],
-  /// [startAfter], [startAtDocument] and [startAfterDocument].
+  /// Calling this method will replace any existing cursor "end" query modifiers.
   Query endBefore(List<dynamic> values) {
     _assertQueryCursorValues(values);
     return Query._(firestore, _delegate.endBefore(values));
   }
 
-  /// Fetch the documents for this query
-  // TODO(ehesp): This was called `getDocuments` - add deprecation if approved
+  /// Fetch the documents for this query.
+  ///
+  /// To modify how the query is fecthed, the [options] parameter can be provided
+  /// with a [GetOptions] instance.
   Future<QuerySnapshot> get([GetOptions options]) async {
     QuerySnapshotPlatform snapshotDelegate =
         await _delegate.get(options ?? const GetOptions());
@@ -189,7 +179,7 @@ class Query {
     return Query._(firestore, _delegate.limitToLast(limit));
   }
 
-  /// Notifies of query results at this location
+  /// Notifies of query results at this location.
   Stream<QuerySnapshot> snapshots({bool includeMetadataChanges = false}) =>
       _delegate
           .snapshots(includeMetadataChanges: includeMetadataChanges)
@@ -270,15 +260,7 @@ class Query {
   /// The document must contain all of the fields provided in the orderBy of
   /// this query.
   ///
-  /// Cannot be used in combination with [startAtDocument], [startAt], or
-  /// [startAfter], but can be used in combination with [endAt],
-  /// [endBefore], [endAtDocument] and [endBeforeDocument].
-  ///
-  /// See also:
-  ///
-  ///  * [endAfterDocument] for a query that ends after a document.
-  ///  * [startAtDocument] for a query that starts at a document.
-  ///  * [endAtDocument] for a query that ends at a document.
+  /// Calling this method will replace any existing cursor "start" query modifiers.
   Query startAfterDocument(DocumentSnapshot documentSnapshot) {
     Map<String, dynamic> results = _assertQueryCursorSnapshot(documentSnapshot);
     return Query._(firestore,
@@ -290,9 +272,7 @@ class Query {
   ///
   /// The [values] must be in order of [orderBy] filters.
   ///
-  /// Cannot be used in combination with [startAt], [startAfterDocument], or
-  /// [startAtDocument], but can be used in combination with [endAt],
-  /// [endBefore], [endAtDocument] and [endBeforeDocument].
+  /// Calling this method will replace any existing cursor "start" query modifiers.
   Query startAfter(List<dynamic> values) {
     _assertQueryCursorValues(values);
     return Query._(firestore, _delegate.startAfter(values));
@@ -303,15 +283,7 @@ class Query {
   /// The document must contain all of the fields provided in the orderBy of
   /// this query.
   ///
-  /// Cannot be used in combination with [startAfterDocument], [startAfter], or
-  /// [startAt], but can be used in combination with [endAt],
-  /// [endBefore], [endAtDocument] and [endBeforeDocument].
-  ///
-  /// See also:
-  ///
-  ///  * [startAfterDocument] for a query that starts after a document.
-  ///  * [endAtDocument] for a query that ends at a document.
-  ///  * [endBeforeDocument] for a query that ends before a document.
+  /// Calling this method will replace any existing cursor "start" query modifiers.
   Query startAtDocument(DocumentSnapshot documentSnapshot) {
     Map<String, dynamic> results = _assertQueryCursorSnapshot(documentSnapshot);
     return Query._(firestore,
@@ -322,10 +294,8 @@ class Query {
   /// the provided fields relative to the order of the query.
   ///
   /// The [values] must be in order of [orderBy] filters.
-  ///
-  /// Cannot be used in combination with [startAfter], [startAfterDocument],
-  /// or [startAtDocument], but can be used in combination with [endAt],
-  /// [endBefore], [endAtDocument] and [endBeforeDocument].
+  /// 
+  /// Calling this method will replace any existing cursor "start" query modifiers.
   Query startAt(List<dynamic> values) {
     _assertQueryCursorValues(values);
     return Query._(firestore, _delegate.startAt(values));

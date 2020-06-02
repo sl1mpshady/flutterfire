@@ -72,7 +72,10 @@ class Firestore extends FirebasePluginPlatform {
     return WriteBatch._(this, _delegate.batch());
   }
 
-  // TODO docs
+  /// Clears any persisted data for the current instance.
+  ///
+  /// If the current instance has already been used, the persisted data will
+  /// be cleared when the instance is next created/
   Future<void> clearPersistence() {
     return _delegate.clearPersistence();
   }
@@ -88,7 +91,11 @@ class Firestore extends FirebasePluginPlatform {
     return Query._(this, _delegate.collectionGroup(collectionPath));
   }
 
-  // TODO docs
+  /// Instructs Firestore to disable the network for the instance.
+  ///
+  /// Once disabled, any writes will only resolve once connection has been
+  /// restored. However, the local database will still be updated and any
+  /// listeners will still trigger.
   Future<void> disableNetwork() {
     return _delegate.disableNetwork();
   }
@@ -104,10 +111,14 @@ class Firestore extends FirebasePluginPlatform {
     return DocumentReference._(this, _delegate.document(documentPath));
   }
 
+  /// Enables the network for this instance. Any pending local-only writes
+  /// will be written to the remote servers.
   Future<void> enableNetwork() {
     return _delegate.enableNetwork();
   }
 
+  /// Returns a [Steam] which is called each time all of the active listeners
+  /// have been synchronised.
   Stream<void> snapshotsInSync() {
     return _delegate.snapshotsInSync();
   }
@@ -140,14 +151,42 @@ class Firestore extends FirebasePluginPlatform {
         timeout: timeout);
   }
 
+  /// Instructs the current Firestore instance to use the provided [settings].
+  ///
+  /// If the instance has already been consumed, the settings will take effect
+  /// the next time it is created.
   Future<void> settings(Settings settings) {
     return _delegate.settings(settings);
   }
 
+  /// Terminates this Firestore instance.
+  ///
+  /// After calling terminate() only the clearPersistence() method may be used.
+  /// Any other method will throw a [FirebaseException].
+  ///
+  /// Termination does not cancel any pending writes, and any promises that are
+  /// awaiting a response from the server will not be resolved. If you have
+  /// persistence enabled, the next time you start this instance, it will resume
+  ///  sending these writes to the server.
+  ///
+  /// Note: Under normal circumstances, calling terminate() is not required.
+  /// This method is useful only when you want to force this instance to release
+  ///  all of its resources or in combination with clearPersistence() to ensure
+  ///  that all local state is destroyed between test runs.
   Future<void> terminate() {
     return _delegate.terminate();
   }
 
+  /// Waits until all currently pending writes for the active user have been 
+  /// acknowledged by the backend.
+  ///
+  /// The returned Future resolves immediately if there are no outstanding writes.
+  /// Otherwise, the Promise waits for all previously issued writes (including 
+  /// those written in a previous app session), but it does not wait for writes 
+  /// that were added after the method is called. If you want to wait for 
+  /// additional writes, call [waitForPendingWrites] again.
+  ///
+  /// Any outstanding [waitForPendingWrites] calls are rejected during user changes.
   Future<void> waitForPendingWrites() {
     return _delegate.waitForPendingWrites();
   }

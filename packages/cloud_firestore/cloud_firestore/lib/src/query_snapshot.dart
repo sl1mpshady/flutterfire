@@ -13,7 +13,7 @@ class QuerySnapshot {
     QuerySnapshotPlatform.verifyExtends(_delegate);
   }
 
-  /// Gets a list of all the documents included in this snapshot
+  /// Gets a list of all the documents included in this snapshot.
   List<DocumentSnapshot> get documents => _delegate.documents
       .map((documentDelegate) =>
           DocumentSnapshot._(_firestore, documentDelegate))
@@ -25,7 +25,9 @@ class QuerySnapshot {
       .map((documentDelegate) => DocumentChange._(_firestore, documentDelegate))
       .toList();
 
+  /// Returns the [SnapshotMetadata] for this snapshot.
   SnapshotMetadata get metadata => SnapshotMetadata._(_delegate.metadata);
 
+  /// Returns the size (number of documents) of the QuerySnapshot.
   int get size => _delegate.size;
 }

@@ -13,12 +13,12 @@ class CollectionReference extends Query {
   CollectionReference._(Firestore firestore, this._delegate)
       : super._(firestore, _delegate);
 
-  /// ID of the referenced collection.
+  /// Returns the ID of the referenced collection.
   String get id => _delegate.id;
 
-  /// For subcollections, parent returns the containing [DocumentReference].
+  /// Returns the parent [DocumentReference] of this collection or `null`.
   ///
-  /// For root collections, null is returned.
+  /// If this collection is a root collection, `null` is returned.
   DocumentReference get parent {
     DocumentReferencePlatform _documentReferencePlatform = _delegate.parent;
 
@@ -40,6 +40,7 @@ class CollectionReference extends Query {
   /// The unique key generated is prefixed with a client-generated timestamp
   /// so that the resulting list will be chronologically-sorted.
   Future<DocumentReference> add(Map<String, dynamic> data) async {
+    assert(data != null);
     final DocumentReference newDocument = document();
     await newDocument.setData(data);
     return newDocument;

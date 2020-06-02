@@ -8,6 +8,7 @@ part of cloud_firestore;
 /// to handle multiple executions.
 typedef Future<T> TransactionHandler<T>(Transaction transaction);
 
+/// Transaction class which is created from a call to [runTransaction].
 class Transaction {
   final Firestore _firestore;
   final TransactionPlatform _delegate;
@@ -17,6 +18,10 @@ class Transaction {
   }
 
   /// Reads the document referenced by the provided DocumentReference.
+  /// 
+  /// If the document changes whilst the transaction is in progress, it will
+  /// be re-tried up to five times.
+  // TODO(ehesp): verify method name
   Future<DocumentSnapshot> get(DocumentReference documentReference) async {
     DocumentSnapshotPlatform documentSnapshotPlatform =
         await _delegate.get(documentReference.path);
@@ -25,9 +30,6 @@ class Transaction {
   }
 
   /// Deletes the document referred to by the provided [documentReference].
-  ///
-  /// Awaiting the returned [Future] is optional and will be done automatically
-  /// when the transaction handler completes.
   Transaction delete(DocumentReference documentReference) {
     assert(documentReference != null);
     assert(documentReference.firestore == _firestore,
@@ -38,9 +40,7 @@ class Transaction {
 
   /// Updates fields in the document referred to by [documentReference].
   /// The update will fail if applied to a document that does not exist.
-  ///
-  /// Awaiting the returned [Future] is optional and will be done automatically
-  /// when the transaction handler completes.
+  // TODO(ehesp): verify method name
   Transaction update(
       DocumentReference documentReference, Map<String, dynamic> data) {
     assert(documentReference != null);
@@ -56,10 +56,8 @@ class Transaction {
 
   /// Writes to the document referred to by the provided [DocumentReference].
   /// If the document does not exist yet, it will be created. If you pass
-  /// SetOptions, the provided data can be merged into the existing document.
-  ///
-  /// Awaiting the returned [Future] is optional and will be done automatically
-  /// when the transaction handler completes.
+  /// [SetOptions], the provided data can be merged into the existing document.
+  // TODO(ehesp): verify method name
   Transaction set(
       DocumentReference documentReference, Map<String, dynamic> data,
       [SetOptions options]) {

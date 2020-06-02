@@ -175,8 +175,8 @@ void runDocumentReferenceTests() {
       });
     });
 
-    group('set()', () {
-      testWidgets('set() sets data', (WidgetTester tester) async {
+    group('setData()', () {
+      testWidgets('sets data', (WidgetTester tester) async {
         DocumentReference document = await initializeTest('document-set');
         await document.setData({'foo': 'bar'});
         DocumentSnapshot snapshot = await document.get();
@@ -237,6 +237,31 @@ void runDocumentReferenceTests() {
           return;
         }
         fail("Should have thrown a [FirebaseException]");
+      });
+    });
+
+    group('updateData()', () {
+      testWidgets('updates data', (WidgetTester tester) async {
+        DocumentReference document = await initializeTest('document-update');
+        await document.setData({'foo': 'bar'});
+        DocumentSnapshot snapshot = await document.get();
+        expect(snapshot.data(), equals({'foo': 'bar'}));
+        await document.updateData({'bar': 'baz'});
+        DocumentSnapshot snapshot2 = await document.get();
+        expect(snapshot2.data(), equals({'foo': 'bar', 'bar': 'baz'}));
+      });
+
+      testWidgets('throws if document does not exist',
+          (WidgetTester tester) async {
+        DocumentReference document =
+            await initializeTest('document-update-not-exists');
+        try {
+          await document.updateData({'foo': 'bar'});
+          fail("Should have thrown");
+        } catch (e) {
+          expect(e, isA<FirebaseException>());
+          expect(e.code, equals('not-found'));
+        }
       });
     });
   });

@@ -35,7 +35,6 @@ class DocumentSnapshot {
 
   /// Contains all the data of this snapshot.
   Map<String, dynamic> data() {
-    // TODO(ehesp): Handle SnapshotOptions options:
     return _CodecUtility.replaceDelegatesWithValueInMap(
         _delegate.data(), _firestore);
   }

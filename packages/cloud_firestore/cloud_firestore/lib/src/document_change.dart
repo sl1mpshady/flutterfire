@@ -23,17 +23,17 @@ class DocumentChange {
   /// this [DocumentChange] (i.e. supposing that all prior DocumentChange objects
   /// have been applied).
   ///
-  /// -1 for [DocumentChangeType.added] events.
+  /// -1 is returned for [DocumentChangeType.added] events.
   int get oldIndex => _delegate.oldIndex;
 
   /// The index of the changed document in the result set immediately after this
   /// DocumentChange (i.e. supposing that all prior [DocumentChange] objects
   /// and the current [DocumentChange] object have been applied).
   ///
-  /// -1 for [DocumentChangeType.removed] events.
+  /// -1 is returned for [DocumentChangeType.removed] events.
   int get newIndex => _delegate.newIndex;
 
-  /// The document affected by this change.
+  /// Returns the [DocumentSnapshot] for this instance.
   DocumentSnapshot get document =>
       DocumentSnapshot._(_firestore, _delegate.document);
 }

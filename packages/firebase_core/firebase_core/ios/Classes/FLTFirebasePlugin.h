@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#import <Foundation/Foundation.h>
 #import <Firebase/Firebase.h>
 #import <Flutter/Flutter.h>
+#import <Foundation/Foundation.h>
 
 /**
  * Block that is capable of sending a success response to a method call operation.
@@ -16,13 +16,14 @@ typedef void (^FLTFirebaseMethodCallSuccessBlock)(id _Nullable result);
  * Block that is capable of sending an error response to a method call operation.
  * Use this for returning error information to a Method call.
  */
-typedef void(^FLTFirebaseMethodCallErrorBlock)
-(NSString * _Nonnull code, NSString * _Nonnull message, NSDictionary *_Nullable details, NSError  * _Nullable error);
+typedef void (^FLTFirebaseMethodCallErrorBlock)(NSString *_Nonnull code, NSString *_Nonnull message,
+                                                NSDictionary *_Nullable details,
+                                                NSError *_Nullable error);
 
 /**
  * A protocol that all FlutterFire plugins should implement.
  */
-@protocol FLTFirebasePlugin<NSObject>
+@protocol FLTFirebasePlugin <NSObject>
 /**
  * FlutterFire plugins implementing FLTFirebasePlugin must provide this method to provide it's
  * constants that are initialized during FirebaseCore.initializeApp in Dart.
@@ -30,7 +31,7 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  * @param registrar A helper providing application context and methods for
  *     registering callbacks.
  */
- @required
+@required
 - (NSDictionary *_Nonnull)pluginConstantsForFIRApp:(FIRApp *_Nonnull)firebaseApp;
 
 /**
@@ -41,7 +42,7 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  * Usually this is provided by the 'LIBRARY_NAME' preprocessor definition
  * defined in the plugins .podspec file.
  */
- @required
+@required
 - (NSString *_Nonnull)firebaseLibraryName;
 
 /**
@@ -52,7 +53,7 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  * Usually this is provided by the 'LIBRARY_VERSION' preprocessor definition
  * defined in the plugins .podspec file.
  */
- @required
+@required
 - (NSString *_Nonnull)firebaseLibraryVersion;
 
 /**
@@ -60,7 +61,7 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  * its main method channel name, used by FirebaseCore.initializeApp in Dart to identify
  * constants specific to a plugin.
  */
- @required
+@required
 - (NSString *_Nonnull)flutterChannelName;
 @end
 
@@ -68,7 +69,8 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  * An interface represent a returned result from a Flutter Method Call.
  */
 @interface FLTFirebaseMethodCallResult : NSObject
-+ (instancetype _Nonnull)createWithSuccess:(FLTFirebaseMethodCallSuccessBlock _Nonnull)successBlock andErrorBlock:(FLTFirebaseMethodCallErrorBlock _Nonnull)errorBlock;
++ (instancetype _Nonnull)createWithSuccess:(FLTFirebaseMethodCallSuccessBlock _Nonnull)successBlock
+                             andErrorBlock:(FLTFirebaseMethodCallErrorBlock _Nonnull)errorBlock;
 
 /**
  * Submit a result indicating a successful method call.
@@ -88,7 +90,8 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
 
 @interface FLTFirebasePlugin : NSObject
 /**
- * Creates a standardized instance of FlutterError using the values returned through FLTFirebaseMethodCallErrorBlock.
+ * Creates a standardized instance of FlutterError using the values returned through
+ * FLTFirebaseMethodCallErrorBlock.
  *
  * @param code Error Code.
  * @param message Error Message.
@@ -97,10 +100,14 @@ typedef void(^FLTFirebaseMethodCallErrorBlock)
  *
  * @return FlutterError
  */
-- (FlutterError *_Nonnull)createFlutterErrorFromCode:(NSString *_Nonnull)code message:(NSString *_Nonnull)message optionalDetails:(NSDictionary *_Nullable)details andOptionalNSError:(NSError *_Nullable)error;
+- (FlutterError *_Nonnull)createFlutterErrorFromCode:(NSString *_Nonnull)code
+                                             message:(NSString *_Nonnull)message
+                                     optionalDetails:(NSDictionary *_Nullable)details
+                                  andOptionalNSError:(NSError *_Nullable)error;
 
 /**
- * Converts the '[DEFAULT]' app name used in dart and other SDKs to the '__FIRAPP_DEFAULT' iOS equivalent.
+ * Converts the '[DEFAULT]' app name used in dart and other SDKs to the '__FIRAPP_DEFAULT' iOS
+ * equivalent.
  *
  * If name is not '[DEFAULT]' then just returns the same name that was passed in.
  *

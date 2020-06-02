@@ -18,10 +18,31 @@ import 'test_firestore_message_codec.dart';
 
 void main() {
   initializeMethodChannel();
+  FirebaseApp app;
+  setUpAll(() async {
+    app = await FirebaseCore.instance.initializeApp(
+      name: 'testApp',
+      options: const FirebaseOptions(
+        appId: '1:1234567890:ios:42424242424242',
+        apiKey: '123',
+        projectId: '123',
+        messagingSenderId: '1234567890',
+      ),
+    );
+    await FirebaseCore.instance.initializeApp(
+      name: 'testApp2',
+      options: const FirebaseOptions(
+        appId: '1:1234567890:ios:42424242424242',
+        apiKey: '123',
+        projectId: '123',
+        messagingSenderId: '1234567890',
+      ),
+    );
+  });
 
   group('MethodChannelFirestore()', () {
     int mockHandleId = 0;
-    FirebaseApp app;
+
     MethodChannelFirestore firestore;
     final List<MethodCall> log = <MethodCall>[];
     CollectionReferencePlatform collectionReference;
@@ -34,22 +55,9 @@ void main() {
       "hasPendingWrites": false,
       "isFromCache": false,
     };
-    const MethodChannel firebaseCoreChannel =
-        MethodChannel('plugins.flutter.io/firebase_core');
 
     setUp(() async {
       mockHandleId = 0;
-      // Required for FirebaseApp.configure
-      firebaseCoreChannel.setMockMethodCallHandler(
-        (MethodCall methodCall) async {},
-      );
-      app = await FirebaseCore.instance.initializeApp(
-        name: 'testApp',
-        options: const FirebaseOptions(
-          googleAppID: '1:1234567890:ios:42424242424242',
-          gcmSenderID: '1234567890',
-        ),
-      );
       firestore = MethodChannelFirestore(app: app);
       collectionReference = firestore.collection('foo');
       collectionGroupQuery = firestore.collectionGroup('bar');
@@ -182,12 +190,12 @@ void main() {
 
     test('multiple apps', () async {
       expect(FirestorePlatform.instance, equals(MethodChannelFirestore()));
-      final FirebaseApp app = FirebaseApp(name: firestore.app.name);
+      final FirebaseApp app = FirebaseCore.instance.app(firestore.app.name);
       expect(firestore, equals(MethodChannelFirestore(app: app)));
     });
 
     test('settings', () async {
-      final FirebaseApp app = FirebaseApp(name: "testApp2");
+      final FirebaseApp app = FirebaseCore.instance.app("testApp2");
       final MethodChannelFirestore firestoreWithSettings =
           MethodChannelFirestore(app: app);
       await firestoreWithSettings.settings(
@@ -208,6 +216,9 @@ void main() {
     });
 
     group('Transaction', () {
+      setUp(() async {
+        mockHandleId = 0;
+      });
       test('runTransaction', () async {
         final Map<String, dynamic> result = await firestore.runTransaction(
             (TransactionPlatform tx) async {},

@@ -15,6 +15,9 @@ part of firebase_core_web;
 class FirebaseAppWeb extends FirebaseAppPlatform {
   FirebaseAppWeb._(String name, FirebaseOptions options) : super(name, options);
 
+  /// Returns whether automatic data collection enabled or disabled.
+  bool _isAutomaticDataCollectionEnabled = false;
+
   /// Deletes this app and frees up system resources.
   ///
   /// Once deleted, any plugin functionality using this app instance will throw
@@ -22,5 +25,26 @@ class FirebaseAppWeb extends FirebaseAppPlatform {
   @override
   Future<void> delete() async {
     await firebase.app(name).delete();
+  }
+
+  /// Returns whether automatic data collection enabled or disabled.
+  /// This has no affect on web.
+  @override
+  bool get isAutomaticDataCollectionEnabled =>
+      _isAutomaticDataCollectionEnabled;
+
+  /// Sets whether automatic data collection is enabled or disabled.
+  /// This has no affect on web.
+  @override
+  Future<void> setAutomaticDataCollectionEnabled(bool enabled) {
+    _isAutomaticDataCollectionEnabled = enabled;
+    return Future.value();
+  }
+
+  /// Sets whether automatic resource management is enabled or disabled.
+  /// This has no affect on web.
+  @override
+  Future<void> setAutomaticResourceManagementEnabled(bool enabled) {
+    return Future.value();
   }
 }

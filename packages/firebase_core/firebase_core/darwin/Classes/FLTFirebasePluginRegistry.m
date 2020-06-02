@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#import <FirebaseCore/FIRAppInternal.h>
 #import "FLTFirebasePluginRegistry.h"
+#import <FirebaseCore/FIRAppInternal.h>
 
 @implementation FLTFirebasePluginRegistry {
   NSMutableDictionary<NSString *, id<FLTFirebasePlugin>> *registeredPlugins;
@@ -30,7 +30,8 @@
 
 - (void)registerFirebasePlugin:(id<FLTFirebasePlugin>)firebasePlugin {
   // Register the library with the Firebase backend.
-  [FIRApp registerLibrary:[firebasePlugin firebaseLibraryName] withVersion:[firebasePlugin firebaseLibraryVersion]];
+  [FIRApp registerLibrary:[firebasePlugin firebaseLibraryName]
+              withVersion:[firebasePlugin firebaseLibraryVersion]];
 
   // Store the plugin delegate for later usage.
   registeredPlugins[[firebasePlugin flutterChannelName]] = firebasePlugin;

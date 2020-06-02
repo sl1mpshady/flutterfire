@@ -29,6 +29,10 @@
 * Android: Removed Gradle ‘hacks’ and upgrade Flutter SDK requirement from `>=1.12.13+hotfix.4` to `>=1.12.13+hotfix.5` - based on PR https://github.com/flutter/plugins/pull/2651
 * Android: Switched to using Firebase BoM to manage SDK versions
 
+## 0.4.5
+
+* Update lower bound of dart dependency to 2.0.0.
+
 ## 0.4.4+3
 
 * Fix for missing UserAgent.h compilation failures.

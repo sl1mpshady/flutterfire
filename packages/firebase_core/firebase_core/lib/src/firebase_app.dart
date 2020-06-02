@@ -8,12 +8,6 @@ part of firebase_core;
 ///
 /// You can get an instance by calling [FirebaseCore.instance.app()].
 class FirebaseApp {
-  @deprecated
-  FirebaseApp({@required String name}) {
-    assert(name != null);
-    _delegate = FirebaseAppPlatform(name, FirebaseOptions.fromMap({}));
-  }
-
   FirebaseAppPlatform _delegate;
 
   /// A [FirebaseApp] instance can only be accessed from a call to `app()` on
@@ -34,16 +28,19 @@ class FirebaseApp {
   }
 
   @Deprecated("Deprecated in favor of FirebaseCore.instance.app()")
+  // ignore: public_member_api_docs
   static FirebaseApp appNamed(String name) {
     return FirebaseCore.instance.app(name);
   }
 
   @Deprecated("Deprecated in favor of FirebaseCore.instance.apps")
+  // ignore: public_member_api_docs
   static Future<List<FirebaseApp>> allApps() async {
     return FirebaseCore.instance.apps;
   }
 
   @Deprecated("Deprecated in favor of FirebaseCore.instance.initializeApp()")
+  // ignore: public_member_api_docs
   static Future<FirebaseApp> configure({
     @required String name,
     @required FirebaseOptions options,
@@ -52,11 +49,13 @@ class FirebaseApp {
   }
 
   @Deprecated("Deprecated in favor of FirebaseCore.instance.app()")
+  // ignore: public_member_api_docs
   static FirebaseApp get instance {
     return FirebaseCore.instance.app();
   }
 
   @Deprecated("Deprecated in favor of defaultFirebaseAppName")
+  // ignore: public_member_api_docs
   static String get defaultAppName {
     return defaultFirebaseAppName;
   }

@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:io';
 import 'package:e2e/e2e.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
@@ -11,14 +12,24 @@ void main() {
   E2EWidgetsFlutterBinding.ensureInitialized();
 
   FirebaseCore core;
-
   String testAppName = 'TestApp';
-  const FirebaseOptions testAppOptions = FirebaseOptions(
-    appId: '1:448618578101:web:0b650370bb29e29cac3efc',
-    apiKey: 'AIzaSyAgUhHU8wSJgO5MVNy95tMT07NEjzMOfz0',
-    projectId: 'react-native-firebase-testing',
-    messagingSenderId: '448618578101',
-  );
+  FirebaseOptions testAppOptions;
+  if (Platform.isIOS) {
+    testAppOptions = const FirebaseOptions(
+      appId: '1:448618578101:ios:0b650370bb29e29cac3efc',
+      apiKey: 'AIzaSyAgUhHU8wSJgO5MVNy95tMT07NEjzMOfz0',
+      projectId: 'react-native-firebase-testing',
+      messagingSenderId: '448618578101',
+      iosBundleId: 'io.flutter.plugins.firebasecoreexample',
+    );
+  } else {
+    testAppOptions = const FirebaseOptions(
+      appId: '1:448618578101:web:0b650370bb29e29cac3efc',
+      apiKey: 'AIzaSyAgUhHU8wSJgO5MVNy95tMT07NEjzMOfz0',
+      projectId: 'react-native-firebase-testing',
+      messagingSenderId: '448618578101',
+    );
+  }
 
   setUpAll(() async {
     core = FirebaseCore.instance;
@@ -27,9 +38,9 @@ void main() {
 
   testWidgets('FirebaseCore.apps', (WidgetTester tester) async {
     List<FirebaseApp> apps = core.apps;
-    expect(apps.length, 1);
-    expect(apps[0].name, testAppName);
-    expect(apps[0].options, testAppOptions);
+    expect(apps.length, 2);
+    expect(apps[1].name, testAppName);
+    expect(apps[1].options, testAppOptions);
   });
 
   testWidgets('FirebaseCore.app()', (WidgetTester tester) async {
@@ -42,17 +53,17 @@ void main() {
     try {
       await core.app('NoApp');
     } on FirebaseException catch (e) {
-      expect(e.toString(), noAppExists('NoApp'));
+      expect(e, noAppExists('NoApp'));
       return;
     }
   });
 
   testWidgets('FirebaseApp.delete()', (WidgetTester tester) async {
     await core.initializeApp(name: 'SecondaryApp', options: testAppOptions);
-    expect(core.apps.length, 2);
+    expect(core.apps.length, 3);
     FirebaseApp app = core.app('SecondaryApp');
     await app.delete();
-    expect(core.apps.length, 1);
+    expect(core.apps.length, 2);
   });
 
   testWidgets('FirebaseApp.setAutomaticDataCollectionEnabled()',

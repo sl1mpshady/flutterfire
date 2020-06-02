@@ -5,8 +5,8 @@
 #import "FLTFirebasePlugin.h"
 
 // Firebase default app name.
-NSString * _Nonnull const kFIRDefaultAppNameIOS = @"__FIRAPP_DEFAULT";
-NSString * _Nonnull const kFIRDefaultAppNameDart = @"[DEFAULT]";
+NSString *_Nonnull const kFIRDefaultAppNameIOS = @"__FIRAPP_DEFAULT";
+NSString *_Nonnull const kFIRDefaultAppNameDart = @"[DEFAULT]";
 
 @interface FLTFirebaseMethodCallResult ()
 @property(readwrite, nonatomic) FLTFirebaseMethodCallErrorBlock error;
@@ -14,7 +14,8 @@ NSString * _Nonnull const kFIRDefaultAppNameDart = @"[DEFAULT]";
 @end
 @implementation FLTFirebaseMethodCallResult
 
-+ (instancetype)createWithSuccess:(FLTFirebaseMethodCallSuccessBlock)successBlock andErrorBlock:(FLTFirebaseMethodCallErrorBlock)errorBlock {
++ (instancetype)createWithSuccess:(FLTFirebaseMethodCallSuccessBlock)successBlock
+                    andErrorBlock:(FLTFirebaseMethodCallErrorBlock)errorBlock {
   FLTFirebaseMethodCallResult *methodCallResult = [[FLTFirebaseMethodCallResult alloc] init];
   methodCallResult.error = errorBlock;
   methodCallResult.success = successBlock;
@@ -24,7 +25,10 @@ NSString * _Nonnull const kFIRDefaultAppNameDart = @"[DEFAULT]";
 @end
 
 @implementation FLTFirebasePlugin
-- (FlutterError *_Nonnull)createFlutterErrorFromCode:(NSString *_Nonnull)code message:(NSString *_Nonnull)message optionalDetails:(NSDictionary *_Nullable)details andOptionalNSError:(NSError *_Nullable)error {
+- (FlutterError *_Nonnull)createFlutterErrorFromCode:(NSString *_Nonnull)code
+                                             message:(NSString *_Nonnull)message
+                                     optionalDetails:(NSDictionary *_Nullable)details
+                                  andOptionalNSError:(NSError *_Nullable)error {
   NSMutableDictionary *detailsDict = [NSMutableDictionary dictionaryWithDictionary:details ?: @{}];
   if (error != nil) {
     detailsDict[@"nativeErrorCode"] = [@(error.code) stringValue];

@@ -64,14 +64,12 @@ void main() {
 
   group('.app()', () {
     setUp(() async {
-      firebaseMock = FirebaseMock(
-          app: js.allowInterop((String name) {
-            final dynamic error = js_util.newObject();
-            js_util.setProperty(error, 'name', 'FirebaseError');
-            js_util.setProperty(error, 'code', 'app/no-app');
-            throw error;
-          })
-      );
+      firebaseMock = FirebaseMock(app: js.allowInterop((String name) {
+        final dynamic error = js_util.newObject();
+        js_util.setProperty(error, 'name', 'FirebaseError');
+        js_util.setProperty(error, 'code', 'app/no-app');
+        throw error;
+      }));
       FirebaseCorePlatform.instance = FirebaseCoreWeb();
     });
 

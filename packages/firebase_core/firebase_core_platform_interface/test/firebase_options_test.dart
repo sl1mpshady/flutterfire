@@ -22,10 +22,10 @@ void main() {
           messagingSenderId: 'messagingSenderId',
           projectId: 'projectId');
 
-      expect(options1 == options2, true);
+      expect(options1 == options2, isTrue);
     });
 
-    test('should return equal if instances are the different', () {
+    test('should not return equal if instances are the different', () {
       const options1 = FirebaseOptions(
           apiKey: 'apiKey',
           appId: 'appId',
@@ -38,7 +38,7 @@ void main() {
           messagingSenderId: 'messagingSenderId2',
           projectId: 'projectId2');
 
-      expect(options1 == options2, false);
+      expect(options1 == options2, isFalse);
     });
 
     test('should construct an instance from a Map', () {
@@ -49,13 +49,13 @@ void main() {
         'projectId': 'projectId'
       });
 
-      const options2 = FirebaseOptions(
+      FirebaseOptions options2 = const FirebaseOptions(
           apiKey: 'apiKey',
           appId: 'appId',
           messagingSenderId: 'messagingSenderId',
           projectId: 'projectId');
 
-      expect(options1 == options2, true);
+      expect(options1 == options2, isTrue);
     });
 
     test('should return a Map', () {
@@ -72,6 +72,8 @@ void main() {
         deepLinkURLScheme: 'deepLinkURLScheme',
         androidClientId: 'androidClientId',
         iosBundleId: 'iosBundleId',
+        iosClientId: 'iosClientId',
+        appGroupId: 'appGroupId',
       );
 
       expect(options.asMap, {
@@ -87,6 +89,8 @@ void main() {
         'deepLinkURLScheme': 'deepLinkURLScheme',
         'androidClientId': 'androidClientId',
         'iosBundleId': 'iosBundleId',
+        'iosClientId': 'iosClientId',
+        'appGroupId': 'appGroupId',
       });
     });
   });

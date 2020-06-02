@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// ignore_for_file: deprecated_member_use_from_same_package
 part of firebase_core_platform_interface;
 
 /// The options used to configure a Firebase app.
@@ -96,7 +97,7 @@ class FirebaseOptions {
         bundleID = map['bundleID'] ?? map['iosBundleId'],
         clientID =
             map['clientID'] ?? map['androidClientId'] ?? map['iosClientId'],
-        gcmSenderID = map['gcmSenderID'] ?? map['messagingSenderId'] ;
+        gcmSenderID = map['gcmSenderID'] ?? map['messagingSenderId'];
 
   /// An API key used for authenticating requests from your app, for example
   /// "AIzaSyDdVgKwhZl0sTTTLZ7iTmt1r3N2cJLnaDk", used to identify your app to
@@ -169,21 +170,27 @@ class FirebaseOptions {
   final String appGroupId;
 
   @Deprecated("Deprecated in favor of 'appId'")
+  // ignore: public_member_api_docs
   final String googleAppID;
 
   @Deprecated("Deprecated in favor of 'projectId'")
+  // ignore: public_member_api_docs
   final String projectID;
 
   @Deprecated("Deprecated in favor of 'iosBundleId'")
+  // ignore: public_member_api_docs
   final String bundleID;
 
   @Deprecated("Deprecated in favor of 'androidClientId' or 'iosClientId")
+  // ignore: public_member_api_docs
   final String clientID;
 
   @Deprecated("Deprecated in favor of 'trackingId'")
+  // ignore: public_member_api_docs
   final String trackingID;
 
   @Deprecated("Deprecated in favor of 'messagingSenderId'")
+  // ignore: public_member_api_docs
   final String gcmSenderID;
 
   /// The current instance as a [Map].
@@ -211,26 +218,7 @@ class FirebaseOptions {
   bool operator ==(dynamic other) {
     if (identical(this, other)) return true;
     if (other is! FirebaseOptions) return false;
-    return other.apiKey == apiKey &&
-        other.appId == appId &&
-        other.messagingSenderId == messagingSenderId &&
-        other.projectId == projectId &&
-        other.authDomain == authDomain &&
-        other.databaseURL == databaseURL &&
-        other.storageBucket == storageBucket &&
-        other.measurementId == measurementId &&
-        other.trackingId == trackingId &&
-        other.deepLinkURLScheme == deepLinkURLScheme &&
-        other.androidClientId == androidClientId &&
-        other.iosClientId == iosClientId &&
-        other.iosBundleId == iosBundleId &&
-        other.appGroupId == appGroupId &&
-        other.googleAppID == googleAppID &&
-        other.projectID == projectID &&
-        other.bundleID == bundleID &&
-        other.clientID == clientID &&
-        other.trackingID == trackingID &&
-        other.gcmSenderID == gcmSenderID;
+    return other.asMap.toString() == asMap.toString();
   }
 
   @override

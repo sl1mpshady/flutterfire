@@ -10,7 +10,6 @@ function get_branch_base_sha() {
 }
 
 function check_changed_packages() {
-  pub global run melos bootstrap
   # Try get a merge base for the branch and calculate affected packages.
   # We need this check because some CIs can do a single branch clones with a limited history of commits.
   local packages

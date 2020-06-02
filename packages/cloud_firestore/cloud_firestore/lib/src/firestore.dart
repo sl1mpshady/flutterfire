@@ -57,6 +57,8 @@ class Firestore extends FirebasePluginPlatform {
     assert(collectionPath != null, "a collection path cannot be null");
     assert(collectionPath.isNotEmpty,
         "a collectionPath path must be a non-empty string");
+    assert(!collectionPath.contains("//"),
+        "a collection path must not contain '//'");
     assert(isValidCollectionPath(collectionPath),
         "a collection path must point to a valid collection.");
 
@@ -105,6 +107,8 @@ class Firestore extends FirebasePluginPlatform {
     assert(documentPath != null, "a document path cannot be null");
     assert(
         documentPath.isNotEmpty, "a document path must be a non-empty string");
+    assert(!documentPath.contains("//"),
+        "a collection path must not contain '//'");
     assert(isValidDocumentPath(documentPath),
         "a document path must point to a valid document.");
 
@@ -177,13 +181,13 @@ class Firestore extends FirebasePluginPlatform {
     return _delegate.terminate();
   }
 
-  /// Waits until all currently pending writes for the active user have been 
+  /// Waits until all currently pending writes for the active user have been
   /// acknowledged by the backend.
   ///
   /// The returned Future resolves immediately if there are no outstanding writes.
-  /// Otherwise, the Promise waits for all previously issued writes (including 
-  /// those written in a previous app session), but it does not wait for writes 
-  /// that were added after the method is called. If you want to wait for 
+  /// Otherwise, the Promise waits for all previously issued writes (including
+  /// those written in a previous app session), but it does not wait for writes
+  /// that were added after the method is called. If you want to wait for
   /// additional writes, call [waitForPendingWrites] again.
   ///
   /// Any outstanding [waitForPendingWrites] calls are rejected during user changes.

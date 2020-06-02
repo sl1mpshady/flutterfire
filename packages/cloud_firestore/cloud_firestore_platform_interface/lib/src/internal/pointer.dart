@@ -11,7 +11,8 @@ class Pointer {
   /// Create instance of [Pointer]
   Pointer(this.path)
       : assert(path != null),
-        components = path.split('/');
+        components =
+            path.split('/').where((element) => element.isNotEmpty).toList();
 
   /// The Firestore path the [Pointer] was initialized with.
   final String path;

@@ -36,6 +36,7 @@ void main() {
             }
           ]
         };
+
         DocumentReference ref = firestore.collection('foo').doc();
 
         ref

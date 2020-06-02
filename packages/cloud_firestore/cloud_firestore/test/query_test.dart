@@ -46,21 +46,20 @@ void main() {
           expect(() => query.where(123), throwsAssertionError);
         });
 
-        // TODO(kirstywilliams): re-enable when decision made on skipping null values
-//        test('throws if null or NaN filters', () {
-//          CollectionReference ref = firestore.collection('test');
-//          expect(
-//              () => ref.where('a', isGreaterThan: null), throwsAssertionError);
-//          expect(
-//              () => ref.where('a', arrayContains: null), throwsAssertionError);
-//          expect(() => ref.where('a', whereIn: null), throwsAssertionError);
-//          expect(() => ref.where('a', arrayContainsAny: null),
-//              throwsAssertionError);
-//          expect(() => ref.where('a', isGreaterThan: double.nan),
-//              throwsAssertionError);
-//          expect(() => ref.where('a', arrayContains: double.nan),
-//              throwsAssertionError);
-//        });
+        test('throws if null or NaN filters', () {
+          CollectionReference ref = firestore.collection('test');
+          expect(
+              () => ref.where('a', isGreaterThan: null), throwsAssertionError);
+          expect(
+              () => ref.where('a', arrayContains: null), throwsAssertionError);
+          expect(() => ref.where('a', whereIn: null), throwsAssertionError);
+          expect(() => ref.where('a', arrayContainsAny: null),
+              throwsAssertionError);
+          expect(() => ref.where('a', isGreaterThan: double.nan),
+              throwsAssertionError);
+          expect(() => ref.where('a', arrayContains: double.nan),
+              throwsAssertionError);
+        });
 
         test('throws if multiple inequalities on different paths is provided',
             () {

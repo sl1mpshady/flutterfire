@@ -2,11 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:flutter_test/flutter_test.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 import './mock.dart';
 
@@ -18,7 +17,7 @@ void main() {
   group("$CollectionReference", () {
     setUpAll(() async {
       await FirebaseCore.instance.initializeApp();
-      FirebaseApp secondayApp = await FirebaseCore.instance.initializeApp(
+      FirebaseApp secondaryApp = await FirebaseCore.instance.initializeApp(
           name: 'foo',
           options: FirebaseOptions(
             apiKey: '123',
@@ -28,7 +27,7 @@ void main() {
           ));
 
       firestore = Firestore.instance;
-      firestoreSecondary = Firestore.instanceFor(app: secondayApp);
+      firestoreSecondary = Firestore.instanceFor(app: secondaryApp);
     });
 
     test('extends $Query', () {
@@ -42,9 +41,11 @@ void main() {
     test('equality', () {
       CollectionReference ref = firestore.collection('foo');
       CollectionReference ref2 = firestoreSecondary.collection('foo');
+      CollectionReference ref3 = firestore.collection('bar');
 
       expect(ref == firestore.collection('foo'), isTrue);
       expect(ref2 == firestoreSecondary.collection('foo'), isTrue);
+      expect(ref3 == ref, isFalse);
     });
 
     test('returns the correct id', () {
@@ -78,6 +79,49 @@ void main() {
       CollectionReference ref = firestore.collection('foo');
 
       expect(ref.document('bar'), firestore.document('foo/bar'));
+    });
+
+    group('validate', () {
+      test('path must be non-empty strings', () {
+        DocumentReference docRef = firestore.document('foo/bar');
+        expect(() => firestore.collection(null), throwsAssertionError);
+        expect(() => firestore.collection(''), throwsAssertionError);
+        expect(() => docRef.collection(null), throwsAssertionError);
+        expect(() => docRef.collection(''), throwsAssertionError);
+      });
+
+      test('path must be odd length', () {
+        DocumentReference docRef = firestore.document('foo/bar');
+        expect(() => firestore.collection('foo/bar'), throwsAssertionError);
+        expect(() => firestore.collection('foo/bar/baz/quu'),
+            throwsAssertionError);
+        expect(() => docRef.collection('foo/bar'), throwsAssertionError);
+        expect(
+            () => docRef.collection('foo/bar/baz/quu'), throwsAssertionError);
+      });
+
+      test('must not have empty segments', () {
+        // NOTE: Leading / trailing slashes are okay.
+        firestore.collection('/foo/');
+        firestore.collection('/foo');
+        firestore.collection('foo/');
+
+        const badPaths = ['foo//bar//baz', '//foo', 'foo//'];
+        CollectionReference colRef = firestore.collection('test-collection');
+        DocumentReference docRef = colRef.document('test-document');
+
+        for (var path in badPaths) {
+          expect(() => firestore.collection(path), throwsAssertionError);
+          expect(() => firestore.document(path), throwsAssertionError);
+          expect(() => colRef.document(path), throwsAssertionError);
+          expect(() => docRef.collection(path), throwsAssertionError);
+        }
+      });
+
+      test('.add() data must not be null', () {
+        CollectionReference ref = firestore.collection('foo');
+        expect(() => ref.add(null), throwsAssertionError);
+      });
     });
   });
 }

@@ -14,10 +14,20 @@ import '../method_channel/method_channel_firestore.dart';
 /// Defines an interface to work with [FirestorePlatform] on web and mobile
 abstract class FirestorePlatform extends PlatformInterface {
   /// The [FirebaseApp] this instance was initialized with.
-  final FirebaseApp app;
+  @protected
+  final FirebaseApp appInstance;
 
   /// Create an instance using [app]
-  FirestorePlatform({this.app}) : super(token: _token);
+  FirestorePlatform({this.appInstance}) : super(token: _token);
+
+  /// Returns the [FirebaseApp] for the current instance.
+  FirebaseApp get app {
+    if (appInstance == null) {
+      return FirebaseCore.instance.app();
+    }
+
+    return appInstance;
+  }
 
   static final Object _token = Object();
 

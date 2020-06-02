@@ -13,7 +13,6 @@ import android.util.SparseArray;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
@@ -30,7 +29,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Source;
-import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
@@ -120,18 +118,19 @@ class FirebaseSharedPreferences {
 public class CloudFirestorePlugin
     implements FlutterFirebasePlugin, MethodCallHandler, FlutterPlugin, ActivityAware {
   private static final String TAG = "CloudFirestorePlugin";
-  private static final SparseArray<CloudFirestoreQuerySnapshotObserver> observers =
-      new SparseArray<>();
   private static final HashMap<String, Boolean> settingsLock = new HashMap<>();
+
+  private static final String SETTINGS_CLEAR_PERSISTENCE = "firebase_firestore_clear_persistence_";
+  private static final String SETTINGS_CACHE_SIZE = "firebase_firestore_cache_size_";
+  private static final String SETTINGS_HOST = "firebase_firestore_host_";
+  private static final String SETTINGS_PERSISTENCE = "firebase_firestore_persistence_";
+  private static final String SETTINGS_SSL = "firebase_firestore_ssl_";
+
   private final SparseArray<ListenerRegistration> listenerRegistrations = new SparseArray<>();
-  private final SparseArray<WriteBatch> batches = new SparseArray<>();
-  private final SparseArray<Transaction> transactions = new SparseArray<>();
-  private final SparseArray<TaskCompletionSource> completionTasks = new SparseArray<>();
   private MethodChannel channel;
   private Activity activity;
   // Handles are ints used as indexes into the sparse array of active observers
   private int nextListenerHandle = 0;
-  private int nextBatchHandle = 0;
 
   @SuppressWarnings("unused")
   public static void registerWith(PluginRegistry.Registrar registrar) {
@@ -296,7 +295,8 @@ public class CloudFirestorePlugin
               () -> {
                 Map<String, Integer> data = new HashMap<>();
                 data.put("handle", handle);
-                activity.runOnUiThread(() -> channel.invokeMethod("Firestore#snapshotsInSync", data));
+                activity.runOnUiThread(
+                    () -> channel.invokeMethod("Firestore#snapshotsInSync", data));
               };
 
           listenerRegistrations.put(
@@ -537,21 +537,18 @@ public class CloudFirestorePlugin
           FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
           preferences.setApplicationContext(activity.getApplicationContext());
 
-          // TODO(ehesp): make static constants
           if (settings.get("persistenceEnabled") != null) {
             preferences.setBooleanValue(
-                "firebase_firestore_persistence_" + appName,
-                (boolean) settings.get("persistenceEnabled"));
+                SETTINGS_CLEAR_PERSISTENCE + appName, (boolean) settings.get("persistenceEnabled"));
           }
 
           if (settings.get("host") != null) {
-            preferences.setStringValue(
-                "firebase_firestore_host_" + appName, (String) settings.get("host"));
+            preferences.setStringValue(SETTINGS_HOST + appName, (String) settings.get("host"));
           }
 
           if (settings.get("sslEnabled") != null) {
             preferences.setBooleanValue(
-                "firebase_firestore_ssl_" + appName, (boolean) settings.get("sslEnabled"));
+                SETTINGS_SSL + appName, (boolean) settings.get("sslEnabled"));
           }
 
           if (settings.get("cacheSizeBytes") != null) {
@@ -565,7 +562,7 @@ public class CloudFirestorePlugin
             }
 
             if (cacheSizeBytes != null) {
-              preferences.setLongValue("firebase_firestore_cache_size_" + appName, cacheSizeBytes);
+              preferences.setLongValue(SETTINGS_CACHE_SIZE + appName, cacheSizeBytes);
             }
           }
 
@@ -581,7 +578,7 @@ public class CloudFirestorePlugin
           FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
           preferences.setApplicationContext(activity.getApplicationContext());
 
-          preferences.setBooleanValue("firebase_firestore_clear_persistence_" + appName, true);
+          preferences.setBooleanValue(SETTINGS_PERSISTENCE + appName, true);
           return null;
         });
   }
@@ -606,7 +603,7 @@ public class CloudFirestorePlugin
 
   @Override
   public void onMethodCall(MethodCall call, @NonNull final MethodChannel.Result result) {
-    Task methodCallTask;
+    Task<?> methodCallTask;
 
     switch (call.method) {
       case "Firestore#removeListener":
@@ -671,7 +668,6 @@ public class CloudFirestorePlugin
         return;
     }
 
-    // noinspection unchecked
     methodCallTask.addOnCompleteListener(
         task -> {
           if (task.isSuccessful()) {
@@ -731,7 +727,7 @@ public class CloudFirestorePlugin
         cachedThreadPool,
         () -> {
           synchronized (settingsLock) {
-            String appName = (String) arguments.get("appName");
+            String appName = (String) Objects.requireNonNull(arguments.get("appName"));
             FirebaseFirestore instance =
                 FirebaseFirestore.getInstance(FirebaseApp.getInstance(appName));
             Tasks.await(setFirestoreSettings(instance, appName));
@@ -753,32 +749,30 @@ public class CloudFirestorePlugin
               new FirebaseFirestoreSettings.Builder();
 
           boolean clearPersistence =
-              preferences.getBooleanValue("firebase_firestore_clear_persistence_" + appName, false);
+              preferences.getBooleanValue(SETTINGS_CLEAR_PERSISTENCE + appName, false);
 
           if (clearPersistence) {
             Tasks.await(firebaseFirestore.clearPersistence());
-            preferences.setBooleanValue("firebase_firestore_clear_persistence_" + appName, false);
+            preferences.setBooleanValue(SETTINGS_CLEAR_PERSISTENCE + appName, false);
           }
 
           long cacheSizeBytes =
               preferences.getLongValue(
-                  "firebase_firestore_cache_size_" + appName,
+                  SETTINGS_CACHE_SIZE + appName,
                   firebaseFirestore.getFirestoreSettings().getCacheSizeBytes());
 
           String host =
               preferences.getStringValue(
-                  "firebase_firestore_host_" + appName,
-                  firebaseFirestore.getFirestoreSettings().getHost());
+                  SETTINGS_HOST + appName, firebaseFirestore.getFirestoreSettings().getHost());
 
           boolean persistence =
               preferences.getBooleanValue(
-                  "firebase_firestore_persistence_" + appName,
+                  SETTINGS_PERSISTENCE + appName,
                   firebaseFirestore.getFirestoreSettings().isPersistenceEnabled());
 
           boolean ssl =
               preferences.getBooleanValue(
-                  "firebase_firestore_ssl_" + appName,
-                  firebaseFirestore.getFirestoreSettings().isSslEnabled());
+                  SETTINGS_SSL + appName, firebaseFirestore.getFirestoreSettings().isSslEnabled());
 
           if (cacheSizeBytes == -1) {
             firestoreSettings.setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED);
@@ -866,7 +860,8 @@ public class CloudFirestorePlugin
 
           // "where" filters
           @SuppressWarnings("unchecked")
-          List<List<Object>> filters = (List<List<Object>>) parameters.get("where");
+          List<List<Object>> filters =
+              (List<List<Object>>) Objects.requireNonNull(parameters.get("where"));
           for (List<Object> condition : filters) {
             FieldPath fieldPath = (FieldPath) condition.get(0);
             String operator = (String) condition.get(1);

@@ -28,25 +28,25 @@ class MethodChannelFirestore extends FirestorePlatform {
     channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
         case 'Firestore#snapshotsInSync':
-          await _handleSnapshotsInSync(call.arguments);
+          return _handleSnapshotsInSync(call.arguments);
           break;
-        case 'Firestore#QuerySnapshot':
-          await _handleQuerySnapshot(call.arguments);
+        case 'QuerySnapshot#event':
+          return _handleQuerySnapshotEvent(call.arguments);
           break;
-        case 'Firestore#QuerySnapshotError':
-          await _handleQuerySnapshotError(call.arguments);
+        case 'QuerySnapshot#error':
+          return _handleQuerySnapshotError(call.arguments);
           break;
-        case 'Firestore#DocumentSnapshot':
-          await _handleDocumentSnapshot(call.arguments);
+        case 'DocumentSnapshot#event':
+          return _handleDocumentSnapshotEvent(call.arguments);
           break;
-        case 'Firestore#DocumentSnapshotError':
-          await _handleDocumentSnapshotError(call.arguments);
+        case 'DocumentSnapshot#error':
+          return _handleDocumentSnapshotError(call.arguments);
           break;
         case 'Transaction#attempt':
           return _handleTransactionAttempt(call.arguments);
           break;
         default:
-          throw FallThroughError();
+          throw UnimplementedError("${call.method} has not been implemented");
       }
     });
     _initialized = true;
@@ -58,7 +58,7 @@ class MethodChannelFirestore extends FirestorePlatform {
 
   /// When a [QuerySnapshot] event is fired on the [MethodChannel],
   /// add a [MethodChannelQuerySnapshot] to the [StreamController].
-  void _handleQuerySnapshot(Map<dynamic, dynamic> arguments) async {
+  void _handleQuerySnapshotEvent(Map<dynamic, dynamic> arguments) async {
     queryObservers[arguments['handle']]
         .add(MethodChannelQuerySnapshot(this, arguments['snapshot']));
   }
@@ -71,7 +71,7 @@ class MethodChannelFirestore extends FirestorePlatform {
 
   /// When a [DocumentSnapshot] event is fired on the [MethodChannel],
   /// add a [DocumentSnapshotPlatform] to the [StreamController].
-  void _handleDocumentSnapshot(Map<dynamic, dynamic> arguments) async {
+  void _handleDocumentSnapshotEvent(Map<dynamic, dynamic> arguments) async {
     Map<String, dynamic> snapshotMap =
         Map<String, dynamic>.from(arguments['snapshot']);
     final DocumentSnapshotPlatform snapshot = DocumentSnapshotPlatform(
@@ -171,6 +171,7 @@ class MethodChannelFirestore extends FirestorePlatform {
   static final Map<int, StreamController<DocumentSnapshotPlatform>>
       documentObservers = <int, StreamController<DocumentSnapshotPlatform>>{};
 
+  /// A map containing all observes for the [snapshotsInSync] method.
   static final Map<int, StreamController<void>> snapshotInSyncObservers =
       <int, StreamController<void>>{};
 

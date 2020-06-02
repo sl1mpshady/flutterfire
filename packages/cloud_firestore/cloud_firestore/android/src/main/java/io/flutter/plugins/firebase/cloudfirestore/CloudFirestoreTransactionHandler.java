@@ -1,7 +1,6 @@
 package io.flutter.plugins.firebase.cloudfirestore;
 
 import android.app.Activity;
-import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.Nullable;
@@ -105,7 +104,6 @@ class CloudFirestoreTransactionHandler {
                       }));
 
           Map<String, Object> response;
-            Log.e("ELLIOT", "WAITING TRANSACTION");
 
           try {
             response = Tasks.await(sourceTask, timeout, TimeUnit.MILLISECONDS);
@@ -122,7 +120,6 @@ class CloudFirestoreTransactionHandler {
           } catch (Exception e) {
             return TransactionResult.fromException(e);
           }
-            Log.e("ELLIOT", "ATTEMPTING TRANSACTION");
 
           // noinspection unchecked
           List<Map<String, Object>> commands =

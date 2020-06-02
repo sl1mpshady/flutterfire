@@ -37,12 +37,12 @@ class CloudFirestoreQuerySnapshotObserver implements EventListener<QuerySnapshot
       details.put("message", firestoreException.getMessage());
 
       arguments.put("error", details);
-      channel.invokeMethod("Firestore#QuerySnapshotError", arguments);
+      channel.invokeMethod("QuerySnapshot#error", arguments);
       return;
     }
 
     arguments.put("snapshot", parseQuerySnapshot(querySnapshot));
 
-    channel.invokeMethod("Firestore#QuerySnapshot", arguments);
+    channel.invokeMethod("QuerySnapshot#event", arguments);
   }
 }

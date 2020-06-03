@@ -12,7 +12,6 @@ import 'method_channel_query_snapshot.dart';
 import 'utils/source.dart';
 import 'utils/exception.dart';
 
-
 /// Represents a query over the data at a particular location.
 class MethodChannelQuery extends QueryPlatform {
   /// Flags whether the current query is for a collection group.
@@ -45,7 +44,7 @@ class MethodChannelQuery extends QueryPlatform {
       ),
     );
   }
-  
+
   @override
   QueryPlatform endAtDocument(List<dynamic> orders, List<dynamic> values) {
     return _copyWithParameters(<String, dynamic>{

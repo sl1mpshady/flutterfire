@@ -294,7 +294,7 @@ class Query {
   /// the provided fields relative to the order of the query.
   ///
   /// The [values] must be in order of [orderBy] filters.
-  /// 
+  ///
   /// Calling this method will replace any existing cursor "start" query modifiers.
   Query startAt(List<dynamic> values) {
     _assertQueryCursorValues(values);

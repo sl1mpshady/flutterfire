@@ -17,7 +17,8 @@ FutureOr<Map<String, dynamic>> catchPlatformException(Object exception) async {
   throw platformExceptionToFirebaseException(exception as PlatformException);
 }
 
-FirebaseException platformExceptionToFirebaseException(PlatformException platformException) {
+FirebaseException platformExceptionToFirebaseException(
+    PlatformException platformException) {
   Map<String, String> details = platformException.details != null
       ? Map<String, String>.from(platformException.details)
       : null;

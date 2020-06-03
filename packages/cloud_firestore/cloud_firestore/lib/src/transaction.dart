@@ -18,7 +18,7 @@ class Transaction {
   }
 
   /// Reads the document referenced by the provided DocumentReference.
-  /// 
+  ///
   /// If the document changes whilst the transaction is in progress, it will
   /// be re-tried up to five times.
   // TODO(ehesp): verify method name

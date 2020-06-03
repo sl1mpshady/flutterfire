@@ -50,8 +50,8 @@ void initializeMethodChannel() {
 
 void handleMethodCall(MethodCallCallback methodCallCallback) =>
     MethodChannelFirestore.channel.setMockMethodCallHandler((call) async {
-      expect(
-          call.arguments["app"], equals(FirestorePlatform.instance.app.name));
+      expect(call.arguments["appName"],
+          equals(FirestorePlatform.instance.app.name));
       expect(call.arguments["path"], equals("$kCollectionId/$kDocumentId"));
       return await methodCallCallback(call);
     });

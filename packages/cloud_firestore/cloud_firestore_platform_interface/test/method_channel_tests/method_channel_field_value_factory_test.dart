@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_field_value_factory.dart';
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_field_value.dart';
 
-import 'test_common.dart';
+import '../utils/test_common.dart';
 
 const _kCollectionId = "test";
 
@@ -28,7 +28,7 @@ void main() {
         ),
       );
       MethodChannelCollectionReference(
-          FirestorePlatform.instance, [_kCollectionId]);
+          FirestorePlatform.instance, _kCollectionId);
     });
     final MethodChannelFieldValueFactory factory =
         MethodChannelFieldValueFactory();

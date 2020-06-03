@@ -7,16 +7,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_query.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'test_common.dart';
+import '../utils/test_common.dart';
 
 const _kQueryPath = "test/collection";
 
 class TestQuery extends MethodChannelQuery {
-  TestQuery._()
-      : super(
-            firestore: FirestorePlatform.instance,
-            pathComponents: _kQueryPath.split("/"));
+  TestQuery._() : super(FirestorePlatform.instance, _kQueryPath);
 }
 
 void main() {
@@ -36,13 +34,6 @@ void main() {
     });
     test("parameters", () {
       _hasDefaultParameters(TestQuery._().parameters);
-    });
-
-    test("reference", () {
-      final testQuery = TestQuery._();
-      final actualCollection = testQuery.reference();
-      expect(actualCollection, isInstanceOf<CollectionReferencePlatform>());
-      expect(actualCollection.path, equals(_kQueryPath));
     });
 
     test("limit", () {

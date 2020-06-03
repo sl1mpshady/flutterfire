@@ -6,7 +6,7 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'test_common.dart';
+import '../utils/test_common.dart';
 
 const _kCollectionId = "test";
 const _kDocumentId = "document";
@@ -31,7 +31,7 @@ void main() {
       expect(parentPath, equals(_kCollectionId));
     });
 
-    test("documentID", () {
+    test("id", () {
       final document = TestDocumentReference._();
       expect(document.id, equals(_kDocumentId));
     });

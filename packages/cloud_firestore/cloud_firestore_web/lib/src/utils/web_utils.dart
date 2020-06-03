@@ -19,7 +19,11 @@ QuerySnapshotPlatform convertWebQuerySnapshot(
         .map((webDocumentSnapshot) =>
             convertWebDocumentSnapshot(firestore, webDocumentSnapshot))
         .toList(),
-    webQuerySnapshot.docChanges().map((webDocumentChange) => null).toList(),
+    webQuerySnapshot
+        .docChanges()
+        .map((webDocumentChange) =>
+            convertWebDocumentChange(firestore, webDocumentChange))
+        .toList(),
     convertWebSnapshotMetadata(webQuerySnapshot.metadata),
   );
 }
@@ -32,7 +36,10 @@ DocumentSnapshotPlatform convertWebDocumentSnapshot(
     webSnapshot.ref.path,
     <String, dynamic>{
       'data': CodecUtility.decodeMapData(webSnapshot.data()),
-      'metadata': webSnapshot.metadata,
+      'metadata': <String, bool>{
+        'hasPendingWrites': webSnapshot.metadata.hasPendingWrites,
+        'isFromCache': webSnapshot.metadata.fromCache,
+      },
     },
   );
 }

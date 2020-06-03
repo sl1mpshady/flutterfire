@@ -11,7 +11,8 @@ void main() {
     test('equality', () {
       expect(FieldPath(['foo']), equals(FieldPath(['foo'])));
       expect(FieldPath(['foo', 'bar']), equals(FieldPath(['foo', 'bar'])));
-      expect(FieldPath(['foo', 'bar']), equals(FieldPath.fromString('foo.bar')));
+      expect(
+          FieldPath(['foo', 'bar']), equals(FieldPath.fromString('foo.bar')));
     });
 
     test('throws is invalid path is provided', () {
@@ -24,7 +25,8 @@ void main() {
     test('returns a [List] of components', () {
       expect(FieldPath(['foo']).components, equals(['foo']));
       expect(FieldPath(['foo.bar']).components, equals(['foo.bar']));
-      expect(FieldPath(['foo.bar', 'baz']).components, equals(['foo.bar', 'baz']));
+      expect(
+          FieldPath(['foo.bar', 'baz']).components, equals(['foo.bar', 'baz']));
     });
 
     test('returns a [FieldPathType] for a documentId', () {
@@ -47,7 +49,8 @@ void main() {
 
       test('creates a [FieldPath]', () {
         expect(FieldPath.fromString('foo.bar.baz'), isA<FieldPath>());
-        expect(FieldPath.fromString('foo.bar.baz').components, equals(['foo', 'bar', 'baz']));
+        expect(FieldPath.fromString('foo.bar.baz').components,
+            equals(['foo', 'bar', 'baz']));
       });
     });
   });

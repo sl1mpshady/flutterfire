@@ -7,7 +7,7 @@ import 'package:cloud_firestore_platform_interface/src/source.dart';
 /// Converts [Source] to [String]
 String getSourceString(Source source) {
   assert(source != null);
-  switch(source) {
+  switch (source) {
     case Source.server:
       return 'server';
     case Source.cache:

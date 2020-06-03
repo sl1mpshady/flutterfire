@@ -21,7 +21,8 @@ class MethodChannelQuerySnapshot extends QuerySnapshotPlatform {
                   'data': Map<String, dynamic>.from(data['documents'][index]),
                   'metadata': <String, dynamic>{
                     'isFromCache': data['metadatas'][index]['isFromCache'],
-                    'hasPendingWrites': data['metadatas'][index]['hasPendingWrites'],
+                    'hasPendingWrites': data['metadatas'][index]
+                        ['hasPendingWrites'],
                   },
                 },
               );

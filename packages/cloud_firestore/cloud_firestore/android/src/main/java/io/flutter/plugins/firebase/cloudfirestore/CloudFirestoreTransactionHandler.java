@@ -2,9 +2,7 @@ package io.flutter.plugins.firebase.cloudfirestore;
 
 import android.app.Activity;
 import android.util.SparseArray;
-
 import androidx.annotation.Nullable;
-
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
@@ -15,15 +13,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
-
+import io.flutter.plugin.common.MethodChannel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import io.flutter.plugin.common.MethodChannel;
 
 class CloudFirestoreTransactionHandler {
   static final SparseArray<Transaction> transactions = new SparseArray<>();

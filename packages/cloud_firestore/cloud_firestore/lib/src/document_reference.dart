@@ -55,7 +55,7 @@ class DocumentReference {
   }
 
   /// Notifies of document updates at this location.
-  /// 
+  ///
   /// An initial event is immediately sent, and further events will be
   /// sent whenever the document is modified.
   Stream<DocumentSnapshot> snapshots({bool includeMetadataChanges = false}) =>

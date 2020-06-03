@@ -15,7 +15,7 @@ void runSnapshotMetadataTests() {
       firestore = Firestore.instance;
     });
 
-Future<CollectionReference> initializeTest(String id) async {
+    Future<CollectionReference> initializeTest(String id) async {
       CollectionReference collection =
           firestore.collection('flutter-tests/$id/query-tests');
       QuerySnapshot snapshot = await collection.get();
@@ -33,7 +33,8 @@ Future<CollectionReference> initializeTest(String id) async {
       QuerySnapshot qs = await collection.get(GetOptions(source: Source.cache));
       expect(qs.metadata.isFromCache, isTrue);
 
-      QuerySnapshot qs2 = await collection.get(GetOptions(source: Source.server));
+      QuerySnapshot qs2 =
+          await collection.get(GetOptions(source: Source.server));
       expect(qs2.metadata.isFromCache, isFalse);
     });
   });

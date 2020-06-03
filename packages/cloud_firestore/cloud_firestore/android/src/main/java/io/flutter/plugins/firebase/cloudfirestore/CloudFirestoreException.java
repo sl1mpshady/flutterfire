@@ -1,7 +1,6 @@
 package io.flutter.plugins.firebase.cloudfirestore;
 
 import com.google.firebase.firestore.FirebaseFirestoreException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

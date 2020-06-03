@@ -45,8 +45,21 @@ class FirestoreWeb extends FirestorePlatform {
   }
 
   @override
+  WriteBatchPlatform batch() => WriteBatchWeb(_webFirestore);
+
+  @override
+  Future<void> clearPersistence() async {
+    // TODO(ehesp): not supported on firebase-dart
+  }
+
+  @override
   QueryPlatform collectionGroup(String path) {
     return QueryWeb(this, path, _webFirestore.collectionGroup(path));
+  }
+
+  @override
+  Future<void> disableNetwork() async {
+    await _webFirestore.disableNetwork();
   }
 
   @override
@@ -54,13 +67,22 @@ class FirestoreWeb extends FirestorePlatform {
       DocumentReferenceWeb(this, _webFirestore, path);
 
   @override
-  WriteBatchPlatform batch() => WriteBatchWeb(_webFirestore);
+  Future<void> enableNetwork() async {
+    await _webFirestore.enableNetwork();
+  }
 
   @override
-  Future<void> enablePersistence(bool enable) async {
-    if (enable) {
-      await _webFirestore.enablePersistence();
-    }
+  Stream<void> snapshotsInSync() {
+    // TODO(ehesp): not supported on firebase-dart
+  }
+
+  @override
+  Future<T> runTransaction<T>(TransactionHandler transactionHandler,
+      {Duration timeout = const Duration(seconds: 5)}) async {
+    return _webFirestore.runTransaction((transaction) async {
+      return transactionHandler(
+          TransactionWeb(this, _webFirestore, transaction));
+    }).timeout(timeout);
   }
 
   @override
@@ -91,11 +113,12 @@ class FirestoreWeb extends FirestorePlatform {
   }
 
   @override
-  Future<T> runTransaction<T>(TransactionHandler transactionHandler,
-      {Duration timeout = const Duration(seconds: 5)}) async {
-    return _webFirestore.runTransaction((transaction) async {
-      return transactionHandler(
-          TransactionWeb(this, _webFirestore, transaction));
-    }).timeout(timeout);
+  Future<void> terminate() async {
+    // TODO(ehesp): not supported on firebase-dart
+  }
+
+  @override
+  Future<void> waitForPendingWrites() async {
+    // TODO(ehesp): not supported on firebase-dart
   }
 }

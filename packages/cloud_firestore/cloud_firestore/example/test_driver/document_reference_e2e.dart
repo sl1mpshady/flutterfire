@@ -238,6 +238,65 @@ void runDocumentReferenceTests() {
         }
         fail("Should have thrown a [FirebaseException]");
       });
+
+      testWidgets('set and return all possible datatypes',
+          (WidgetTester tester) async {
+        DocumentReference document = await initializeTest('document-types');
+
+        await document.setData({
+          'string': 'foo bar',
+          'number-32': 123,
+          'number-64': 1233453453453453453,
+          'bool-true': true,
+          'bool-false': false,
+          'map': {
+            'foo': 'bar',
+            'bar': {'baz': 'ben'}
+          },
+          'list': [
+            1,
+            '2',
+            true,
+            false,
+            {'foo': 'bar'}
+          ],
+          'null': null,
+          'timestamp': Timestamp.now(),
+          'geopoint': GeoPoint(1, 2),
+          'reference': firestore.document('foo/bar'),
+        });
+
+        DocumentSnapshot snapshot = await document.get();
+        Map<String, dynamic> data = snapshot.data();
+
+        expect(data['string'], equals('foo bar'));
+        expect(data['number-32'], equals(123));
+        expect(data['number-64'], equals(1233453453453453453));
+        expect(data['bool-true'], isTrue);
+        expect(data['bool-false'], isFalse);
+        expect(
+            data['map'],
+            equals(<String, dynamic>{
+              'foo': 'bar',
+              'bar': {'baz': 'ben'}
+            }));
+        expect(
+            data['list'],
+            equals([
+              1,
+              '2',
+              true,
+              false,
+              {'foo': 'bar'}
+            ]));
+        expect(data['null'], equals(null));
+        expect(data['timestamp'], isA<Timestamp>());
+        expect(data['geopoint'], isA<GeoPoint>());
+        expect((data['geopoint'] as GeoPoint).latitude, equals(1));
+        expect((data['geopoint'] as GeoPoint).longitude, equals(2));
+        expect(data['reference'], isA<DocumentReference>());
+        expect((data['reference'] as DocumentReference).id, equals('bar'));
+      });
     });
 
     group('updateData()', () {

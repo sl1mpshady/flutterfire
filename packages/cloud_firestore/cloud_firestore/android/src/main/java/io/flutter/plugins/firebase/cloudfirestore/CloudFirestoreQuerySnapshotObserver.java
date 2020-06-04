@@ -1,17 +1,14 @@
 package io.flutter.plugins.firebase.cloudfirestore;
 
-import androidx.annotation.Nullable;
+import static io.flutter.plugins.firebase.cloudfirestore.CloudFirestorePlugin.parseQuerySnapshot;
 
+import androidx.annotation.Nullable;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-
+import io.flutter.plugin.common.MethodChannel;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.flutter.plugin.common.MethodChannel;
-
-import static io.flutter.plugins.firebase.cloudfirestore.CloudFirestorePlugin.parseQuerySnapshot;
 
 class CloudFirestoreQuerySnapshotObserver implements EventListener<QuerySnapshot> {
 

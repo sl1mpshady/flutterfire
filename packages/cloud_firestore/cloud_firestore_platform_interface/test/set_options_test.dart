@@ -23,7 +23,8 @@ void main() {
           throwsAssertionError);
     });
 
-    test('mergeFields are set as a [FieldPath] & preserve current FieldPaths', () {
+    test('mergeFields are set as a [FieldPath] & preserve current FieldPaths',
+        () {
       expect(
           SetOptions(mergeFields: [
             'foo.bar',

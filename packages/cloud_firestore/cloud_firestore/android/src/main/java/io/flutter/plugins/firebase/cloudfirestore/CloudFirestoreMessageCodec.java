@@ -8,15 +8,13 @@ import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-
+import io.flutter.plugin.common.StandardMessageCodec;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import io.flutter.plugin.common.StandardMessageCodec;
 
 class CloudFirestoreMessageCodec extends StandardMessageCodec {
   public static final CloudFirestoreMessageCodec INSTANCE = new CloudFirestoreMessageCodec();

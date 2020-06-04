@@ -439,7 +439,7 @@ const UInt8 FIELD_PATH = 140;
     }
     case FIELD_PATH: {
       UInt32 length = [self readSize];
-      NSMutableArray* array = [NSMutableArray arrayWithCapacity:length];
+      NSMutableArray *array = [NSMutableArray arrayWithCapacity:length];
       for (UInt32 i = 0; i < length; i++) {
         id value = [self readValue];
         [array addObject:(value == nil ? [NSNull null] : value)];
@@ -611,8 +611,11 @@ const UInt8 FIELD_PATH = 140;
     if (![options isEqual:[NSNull null]] &&
         [options[@"merge"] isEqual:[NSNumber numberWithBool:YES]]) {
       [document setData:call.arguments[@"data"] merge:YES completion:defaultCompletionBlock];
-    } else if (![options isEqual:[NSNull null]] && ![options[@"mergeFields"] isEqual:[NSNull null]]) {
-      [document setData:call.arguments[@"data"] mergeFields:options[@"mergeFields"] completion:defaultCompletionBlock];
+    } else if (![options isEqual:[NSNull null]] &&
+               ![options[@"mergeFields"] isEqual:[NSNull null]]) {
+      [document setData:call.arguments[@"data"]
+            mergeFields:options[@"mergeFields"]
+             completion:defaultCompletionBlock];
     } else {
       [document setData:call.arguments[@"data"] completion:defaultCompletionBlock];
     }

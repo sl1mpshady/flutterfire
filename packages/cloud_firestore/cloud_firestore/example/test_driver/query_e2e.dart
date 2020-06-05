@@ -21,7 +21,7 @@ void runQueryTests() {
           firestore.collection('flutter-tests/$id/query-tests');
       QuerySnapshot snapshot = await collection.get();
       await Future.forEach(snapshot.documents,
-          (DocumentSnapshot documentSnapshot) {
+          (QueryDocumentSnapshot documentSnapshot) {
         return documentSnapshot.reference.delete();
       });
       return collection;
@@ -117,7 +117,8 @@ void runQueryTests() {
           call++;
           if (call == 1) {
             expect(snapshot.documents.length, equals(1));
-            DocumentSnapshot documentSnapshot = snapshot.documents[0];
+            expect(snapshot.documents[0], isA<QueryDocumentSnapshot>());
+            QueryDocumentSnapshot documentSnapshot = snapshot.documents[0];
             expect(documentSnapshot.data()['foo'], equals('bar'));
           } else {
             fail("Should not have been called");
@@ -138,11 +139,11 @@ void runQueryTests() {
           call++;
           if (call == 1) {
             expect(snapshot.documents.length, equals(1));
-            DocumentSnapshot documentSnapshot = snapshot.documents[0];
+            QueryDocumentSnapshot documentSnapshot = snapshot.documents[0];
             expect(documentSnapshot.data()['foo'], equals('bar'));
           } else if (call == 2) {
             expect(snapshot.documents.length, equals(2));
-            DocumentSnapshot documentSnapshot =
+            QueryDocumentSnapshot documentSnapshot =
                 snapshot.documents.firstWhere((doc) => doc.id == 'doc1');
             expect(documentSnapshot.data()['bar'], equals('baz'));
           } else if (call == 3) {
@@ -151,12 +152,12 @@ void runQueryTests() {
                 isTrue);
           } else if (call == 4) {
             expect(snapshot.documents.length, equals(2));
-            DocumentSnapshot documentSnapshot =
+            QueryDocumentSnapshot documentSnapshot =
                 snapshot.documents.firstWhere((doc) => doc.id == 'doc2');
             expect(documentSnapshot.data()['foo'], equals('bar'));
           } else if (call == 5) {
             expect(snapshot.documents.length, equals(2));
-            DocumentSnapshot documentSnapshot =
+            QueryDocumentSnapshot documentSnapshot =
                 snapshot.documents.firstWhere((doc) => doc.id == 'doc2');
             expect(documentSnapshot.data()['foo'], equals('baz'));
           } else {

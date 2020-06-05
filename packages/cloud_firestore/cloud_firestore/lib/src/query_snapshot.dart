@@ -14,9 +14,9 @@ class QuerySnapshot {
   }
 
   /// Gets a list of all the documents included in this snapshot.
-  List<DocumentSnapshot> get documents => _delegate.documents
+  List<QueryDocumentSnapshot> get documents => _delegate.documents
       .map((documentDelegate) =>
-          DocumentSnapshot._(_firestore, documentDelegate))
+          QueryDocumentSnapshot._(_firestore, documentDelegate))
       .toList();
 
   /// An array of the documents that changed since the last snapshot. If this

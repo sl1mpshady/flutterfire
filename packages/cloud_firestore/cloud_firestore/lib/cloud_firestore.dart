@@ -31,6 +31,7 @@ part 'src/collection_reference.dart';
 part 'src/document_change.dart';
 part 'src/document_reference.dart';
 part 'src/document_snapshot.dart';
+part 'src/query_document_snapshot.dart';
 part 'src/field_value.dart';
 part 'src/firestore.dart';
 part 'src/query.dart';

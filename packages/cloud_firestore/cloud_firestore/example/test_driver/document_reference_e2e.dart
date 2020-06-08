@@ -240,7 +240,8 @@ void runDocumentReferenceTests() {
         await document.setData({
           'string': 'foo bar',
           'number-32': 123,
-          'number-64': 1233453453453453453,
+          // Equivalent of `Number.MAX_SAFE_INTEGER` in JS, can't go higher than this.
+          'number-64': 9007199254740991,
           'bool-true': true,
           'bool-false': false,
           'map': {
@@ -265,7 +266,7 @@ void runDocumentReferenceTests() {
 
         expect(data['string'], equals('foo bar'));
         expect(data['number-32'], equals(123));
-        expect(data['number-64'], equals(1233453453453453453));
+        expect(data['number-64'], equals(9007199254740991));
         expect(data['bool-true'], isTrue);
         expect(data['bool-false'], isFalse);
         expect(

@@ -1,0 +1,71 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "melos:bootstrap",
+      "type": "shell",
+      "command": "melos bootstrap"
+    },
+    {
+      "label": "melos:clean",
+      "type": "shell",
+      "command": "melos clean"
+    },
+    {
+      "label": "melos:run",
+      "type": "shell",
+      "command": "melos run"
+    },
+    {
+      "label": "format",
+      "type": "shell",
+      "command": "melos run format"
+    },
+    {
+      "label": "chromedriver",
+      "isBackground": true,
+      "type": "shell",
+      "command": "chromedriver --port=4444"
+    },
+    {
+      "label": "firestore -> analyze",
+      "type": "shell",
+      "command": "melos exec -c 1 --scope=\"*firestore*\" --fail-fast -- pub global run tuneup check"
+    },
+    {
+      "label": "firestore -> test",
+      "type": "shell",
+      "command": "melos exec -c 1 --scope=\"*firestore*\" --fail-fast --ignore=\"*web*\" --ignore=\"*example*\" -- flutter test"
+    },
+    {
+      "label": "firestore -> test:e2e",
+      "type": "shell",
+      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --fail-fast --dir-exists=test_driver -- flutter drive --no-pub --target=./test_driver/MELOS_PARENT_PACKAGE_NAME_e2e.dart"
+    },
+    {
+      "label": "firestore -> test:e2e:web",
+      "type": "shell",
+      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --dir-exists=web --fail-fast --dir-exists=test_driver -- flutter drive --release -d chrome --no-pub --verbose-system-logs --browser-name=chrome --target=./test_driver/MELOS_PARENT_PACKAGE_NAME_e2e.dart"
+    },
+    {
+      "label": "firestore -> test:web",
+      "type": "shell",
+      "command": "melos exec -c 1 --scope=\"*cloud_firestore_web*\" --fail-fast --  flutter test --platform=chrome"
+    },
+    {
+      "label": "firestore -> build:example:ios",
+      "type": "shell",
+      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --fail-fast -- flutter build ios --no-codesign"
+    },
+    {
+      "label": "firestore -> build:example:android",
+      "type": "shell",
+      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --fail-fast -- flutter build apk"
+    },
+    {
+      "label": "firestore -> build:example:macos",
+      "type": "shell",
+      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --fail-fast -- flutter build macos"
+    }
+  ]
+}

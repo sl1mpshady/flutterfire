@@ -5,7 +5,7 @@
 part of cloud_firestore;
 
 /// A [QueryDocumentSnapshot] contains data read from a document in your Firestore
-/// database as part of a query. 
+/// database as part of a query.
 ///
 /// A [QueryDocumentSnapshot] offers the same API surface as a [DocumentSnapshot].
 /// Since query results contain only existing documents, the exists property

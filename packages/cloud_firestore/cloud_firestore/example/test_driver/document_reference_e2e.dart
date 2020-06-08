@@ -21,14 +21,14 @@ void runDocumentReferenceTests() {
       return firestore.document(prefixedPath);
     }
 
-    group('snapshots()', () {
-      testWidgets('returns a [Stream]', (WidgetTester tester) async {
+    group('DocumentReference.snapshots()', () {
+      test('returns a [Stream]', () async {
         DocumentReference document = await initializeTest('document-snapshot');
         Stream<DocumentSnapshot> stream = document.snapshots();
         expect(stream, isA<Stream<DocumentSnapshot>>());
       });
 
-      testWidgets('listens to a single response', (WidgetTester tester) async {
+      test('listens to a single response', () async {
         DocumentReference document = await initializeTest('document-snapshot');
         Stream<DocumentSnapshot> stream = document.snapshots();
         int call = 0;
@@ -43,8 +43,7 @@ void runDocumentReferenceTests() {
         }, count: 1, reason: "Stream should only have been called once."));
       });
 
-      testWidgets('listens to a multiple changes response',
-          (WidgetTester tester) async {
+      test('listens to a multiple changes response', () async {
         DocumentReference document =
             await initializeTest('document-snapshot-multiple');
         Stream<DocumentSnapshot> stream = document.snapshots();
@@ -83,8 +82,7 @@ void runDocumentReferenceTests() {
         subscription.cancel();
       });
 
-      testWidgets('listeners throws a [FirebaseException]',
-          (WidgetTester tester) async {
+      test('listeners throws a [FirebaseException]', () async {
         DocumentReference document = firestore.document('not-allowed/document');
         Stream<DocumentSnapshot> stream = document.snapshots();
 
@@ -101,8 +99,8 @@ void runDocumentReferenceTests() {
       });
     });
 
-    group('delete()', () {
-      testWidgets('delete() deletes a document', (WidgetTester tester) async {
+    group('DocumentReference.delete()', () {
+      test('delete() deletes a document', () async {
         DocumentReference document = await initializeTest('document-delete');
         await document.setData({
           'foo': 'bar',
@@ -114,8 +112,7 @@ void runDocumentReferenceTests() {
         expect(snapshot2.exists, isFalse);
       });
 
-      testWidgets('throws a [FirebaseException] on error',
-          (WidgetTester tester) async {
+      test('throws a [FirebaseException] on error', () async {
         DocumentReference document = firestore.document('not-allowed/document');
 
         try {
@@ -130,8 +127,8 @@ void runDocumentReferenceTests() {
       });
     });
 
-    group('get()', () {
-      testWidgets('gets a document from server', (WidgetTester tester) async {
+    group('DocumentReference.get()', () {
+      test('gets a document from server', () async {
         DocumentReference document =
             await initializeTest('document-get-server');
         await document.setData({'foo': 'bar'});
@@ -141,7 +138,7 @@ void runDocumentReferenceTests() {
         expect(snapshot.metadata.isFromCache, isFalse);
       });
 
-      testWidgets('gets a document from cache', (WidgetTester tester) async {
+      test('gets a document from cache', () async {
         DocumentReference document = await initializeTest('document-get-cache');
         await document.setData({'foo': 'bar'});
         DocumentSnapshot snapshot =
@@ -150,7 +147,7 @@ void runDocumentReferenceTests() {
         expect(snapshot.metadata.isFromCache, isTrue);
       });
 
-      testWidgets('gets a document from cache', (WidgetTester tester) async {
+      test('gets a document from cache', () async {
         DocumentReference document = await initializeTest('document-get-cache');
         await document.setData({'foo': 'bar'});
         DocumentSnapshot snapshot =
@@ -159,8 +156,7 @@ void runDocumentReferenceTests() {
         expect(snapshot.metadata.isFromCache, isTrue);
       });
 
-      testWidgets('throws a [FirebaseException] on error',
-          (WidgetTester tester) async {
+      test('throws a [FirebaseException] on error', () async {
         DocumentReference document = firestore.document('not-allowed/document');
 
         try {
@@ -175,8 +171,8 @@ void runDocumentReferenceTests() {
       });
     });
 
-    group('setData()', () {
-      testWidgets('sets data', (WidgetTester tester) async {
+    group('DocumentReference.setData()', () {
+      test('sets data', () async {
         DocumentReference document = await initializeTest('document-set');
         await document.setData({'foo': 'bar'});
         DocumentSnapshot snapshot = await document.get();
@@ -186,7 +182,7 @@ void runDocumentReferenceTests() {
         expect(snapshot2.data(), equals({'bar': 'baz'}));
       });
 
-      testWidgets('set() merges data', (WidgetTester tester) async {
+      test('set() merges data', () async {
         DocumentReference document = await initializeTest('document-set-merge');
         await document.setData({'foo': 'bar'});
         DocumentSnapshot snapshot = await document.get();
@@ -197,7 +193,7 @@ void runDocumentReferenceTests() {
         expect(snapshot2.data(), equals({'foo': 'ben', 'bar': 'baz'}));
       });
 
-      testWidgets('set() merges fields', (WidgetTester tester) async {
+      test('set() merges fields', () async {
         DocumentReference document =
             await initializeTest('document-set-merge-fields');
         Map<String, dynamic> initialData = {
@@ -224,8 +220,7 @@ void runDocumentReferenceTests() {
             snapshot2.data(), equals({'foo': 'bar', 'bar': 456, 'baz': 'foo'}));
       });
 
-      testWidgets('throws a [FirebaseException] on error',
-          (WidgetTester tester) async {
+      test('throws a [FirebaseException] on error', () async {
         DocumentReference document = firestore.document('not-allowed/document');
 
         try {
@@ -239,8 +234,7 @@ void runDocumentReferenceTests() {
         fail("Should have thrown a [FirebaseException]");
       });
 
-      testWidgets('set and return all possible datatypes',
-          (WidgetTester tester) async {
+      test('set and return all possible datatypes', () async {
         DocumentReference document = await initializeTest('document-types');
 
         await document.setData({
@@ -299,8 +293,8 @@ void runDocumentReferenceTests() {
       });
     });
 
-    group('updateData()', () {
-      testWidgets('updates data', (WidgetTester tester) async {
+    group('DocumentReference.updateData()', () {
+      test('updates data', () async {
         DocumentReference document = await initializeTest('document-update');
         await document.setData({'foo': 'bar'});
         DocumentSnapshot snapshot = await document.get();
@@ -310,8 +304,7 @@ void runDocumentReferenceTests() {
         expect(snapshot2.data(), equals({'foo': 'bar', 'bar': 'baz'}));
       });
 
-      testWidgets('throws if document does not exist',
-          (WidgetTester tester) async {
+      test('throws if document does not exist', () async {
         DocumentReference document =
             await initializeTest('document-update-not-exists');
         try {

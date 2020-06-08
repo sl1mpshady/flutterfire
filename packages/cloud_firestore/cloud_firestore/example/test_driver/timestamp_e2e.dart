@@ -21,7 +21,7 @@ void runTimestampTests() {
       return firestore.document(prefixedPath);
     }
 
-    testWidgets('sets a $Timestamp & returns one', (WidgetTester tester) async {
+    test('sets a $Timestamp & returns one', () async {
       DocumentReference doc = await initializeTest('timestamp');
       DateTime date = DateTime.utc(3000, 01, 01);
 
@@ -33,7 +33,7 @@ void runTimestampTests() {
           equals(date.millisecondsSinceEpoch));
     });
 
-    testWidgets('updates a $Timestamp & returns', (WidgetTester tester) async {
+    test('updates a $Timestamp & returns', () async {
       DocumentReference doc = await initializeTest('geo-point-update');
       DateTime date = DateTime.utc(3000, 01, 02);
       await doc.setData({'foo': DateTime.utc(3000, 01, 01)});

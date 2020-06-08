@@ -23,7 +23,7 @@ void runTransactionTests() {
     }
 
     // TODO(ehesp): always resolves - even web SDK has same behavior
-    // testWidgets('should fail when offline', (WidgetTester tester) async {
+    // test('should fail when offline', () async {
     //   await firestore.disableNetwork();
     //   DocumentReference reference = firestore.document('flutter-tests/foo');
     //   int count = 0;
@@ -36,7 +36,7 @@ void runTransactionTests() {
     //   await firestore.enableNetwork();
     // }, skip: true);
 
-    testWidgets('should resolve with user value', (WidgetTester tester) async {
+    test('should resolve with user value', () async {
       int randomValue = Random().nextInt(9999);
       int response =
           await firestore.runTransaction<int>((Transaction transaction) async {
@@ -45,8 +45,7 @@ void runTransactionTests() {
       expect(response, equals(randomValue));
     });
 
-    testWidgets('should abort if thrown and not continue',
-        (WidgetTester tester) async {
+    test('should abort if thrown and not continue', () async {
       DocumentReference documentReference =
           await initializeTest('transaction-abort');
 
@@ -66,8 +65,7 @@ void runTransactionTests() {
       }
     });
 
-    testWidgets('should abort if timeout is exceeded',
-        (WidgetTester tester) async {
+    test('should abort if timeout is exceeded', () async {
       try {
         await firestore.runTransaction((Transaction transaction) async {
           await Future.delayed(Duration(seconds: 4));
@@ -79,7 +77,7 @@ void runTransactionTests() {
       }
     });
 
-    testWidgets('should throw with exception', (WidgetTester tester) async {
+    test('should throw with exception', () async {
       try {
         await firestore.runTransaction((Transaction transaction) async {
           throw StateError('foo');
@@ -93,9 +91,8 @@ void runTransactionTests() {
       }
     });
 
-    testWidgets(
-        'should throw a native error, and convert to a [FirebaseException]',
-        (WidgetTester tester) async {
+    test('should throw a native error, and convert to a [FirebaseException]',
+        () async {
       DocumentReference documentReference =
           firestore.document('not-allowed/document');
 
@@ -112,9 +109,8 @@ void runTransactionTests() {
       }
     });
 
-    group('get()', () {
-      testWidgets('should throw if get is not written',
-          (WidgetTester tester) async {
+    group('Transaction.get()', () {
+      test('should throw if get is not written', () async {
         DocumentReference documentReference =
             firestore.document('flutter-tests/foo');
 
@@ -125,8 +121,7 @@ void runTransactionTests() {
             throwsAssertionError);
       });
 
-      testWidgets('should throw if get is called after a command',
-          (WidgetTester tester) async {
+      test('should throw if get is called after a command', () async {
         DocumentReference documentReference =
             firestore.document('flutter-tests/foo');
 
@@ -139,8 +134,7 @@ void runTransactionTests() {
             throwsAssertionError);
       });
 
-      testWidgets('should return a document snapshot',
-          (WidgetTester tester) async {
+      test('should return a document snapshot', () async {
         DocumentReference documentReference =
             await initializeTest('transaction-get');
 
@@ -157,8 +151,8 @@ void runTransactionTests() {
       });
     });
 
-    group('delete()', () {
-      testWidgets('should delete a document', (WidgetTester tester) async {
+    group('Transaction.delete()', () {
+      test('should delete a document', () async {
         DocumentReference documentReference =
             await initializeTest('transaction-delete');
 
@@ -173,8 +167,8 @@ void runTransactionTests() {
       });
     });
 
-    group('update()', () {
-      testWidgets('should update a document', (WidgetTester tester) async {
+    group('Transaction.update()', () {
+      test('should update a document', () async {
         DocumentReference documentReference =
             await initializeTest('transaction-update');
 
@@ -195,8 +189,8 @@ void runTransactionTests() {
       });
     });
 
-    group('set()', () {
-      testWidgets('sets a document', (WidgetTester tester) async {
+    group('Transaction.set()', () {
+      test('sets a document', () async {
         DocumentReference documentReference =
             await initializeTest('transaction-set');
 
@@ -219,7 +213,7 @@ void runTransactionTests() {
             }));
       });
 
-      testWidgets('merges a document with set', (WidgetTester tester) async {
+      test('merges a document with set', () async {
         DocumentReference documentReference =
             await initializeTest('transaction-set-merge');
 
@@ -242,8 +236,7 @@ void runTransactionTests() {
         expect(snapshot.data()['foo'], equals('bar'));
       });
 
-      testWidgets('merges fields a document with set',
-          (WidgetTester tester) async {
+      test('merges fields a document with set', () async {
         DocumentReference documentReference =
             await initializeTest('transaction-set-merge-fields');
 
@@ -268,8 +261,7 @@ void runTransactionTests() {
       });
     });
 
-    testWidgets('runs all commands in a single transaction',
-        (WidgetTester tester) async {
+    test('runs all commands in a single transaction', () async {
       DocumentReference documentReference =
           await initializeTest('transaction-all');
 

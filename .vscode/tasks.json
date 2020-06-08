@@ -4,68 +4,81 @@
     {
       "label": "melos:bootstrap",
       "type": "shell",
-      "command": "melos bootstrap"
+      "command": "melos bootstrap",
+      "problemMatcher": []
     },
     {
       "label": "melos:clean",
       "type": "shell",
-      "command": "melos clean"
+      "command": "melos clean",
+      "problemMatcher": []
     },
     {
       "label": "melos:run",
       "type": "shell",
-      "command": "melos run"
+      "command": "melos run",
+      "problemMatcher": []
     },
     {
       "label": "format",
       "type": "shell",
-      "command": "melos run format"
+      "command": "melos run format",
+      "problemMatcher": []
     },
     {
       "label": "chromedriver",
       "isBackground": true,
       "type": "shell",
-      "command": "chromedriver --port=4444"
+      "command": "chromedriver --port=4444",
+      "problemMatcher": []
     },
     {
       "label": "firestore -> analyze",
       "type": "shell",
-      "command": "melos exec -c 1 --scope=\"*firestore*\" --fail-fast -- pub global run tuneup check"
+      "command": "melos exec -c 1 --scope=\"*firestore*\" --fail-fast -- pub global run tuneup check",
+      "problemMatcher": []
     },
     {
       "label": "firestore -> test",
       "type": "shell",
-      "command": "melos exec -c 1 --scope=\"*firestore*\" --fail-fast --ignore=\"*web*\" --ignore=\"*example*\" -- flutter test"
+      "command": "melos exec -c 1 --scope=\"*firestore*\" --fail-fast --ignore=\"*web*\" --ignore=\"*example*\" -- flutter test",
+      "problemMatcher": []
     },
     {
       "label": "firestore -> test:e2e",
       "type": "shell",
-      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --fail-fast --dir-exists=test_driver -- flutter drive --no-pub --target=./test_driver/MELOS_PARENT_PACKAGE_NAME_e2e.dart"
+      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --fail-fast --dir-exists=test_driver -- flutter drive --no-pub --target=./test_driver/MELOS_PARENT_PACKAGE_NAME_e2e.dart",
+      "problemMatcher": []
     },
     {
       "label": "firestore -> test:e2e:web",
       "type": "shell",
-      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --dir-exists=web --fail-fast --dir-exists=test_driver -- flutter drive --release -d chrome --no-pub --verbose-system-logs --browser-name=chrome --target=./test_driver/MELOS_PARENT_PACKAGE_NAME_e2e.dart"
+      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --dir-exists=web --fail-fast --dir-exists=test_driver -- flutter drive --release -d chrome --no-pub --verbose-system-logs --browser-name=chrome --target=./test_driver/MELOS_PARENT_PACKAGE_NAME_e2e.dart",
+      "problemMatcher": []
     },
     {
       "label": "firestore -> test:web",
       "type": "shell",
-      "command": "melos exec -c 1 --scope=\"*cloud_firestore_web*\" --fail-fast --  flutter test --platform=chrome"
+      "command": "melos exec -c 1 --scope=\"*cloud_firestore_web*\" --fail-fast --  flutter test --platform=chrome",
+      "problemMatcher": []
     },
     {
       "label": "firestore -> build:example:ios",
       "type": "shell",
-      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --fail-fast -- flutter build ios --no-codesign"
+      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --fail-fast -- flutter build ios --no-codesign",
+      "problemMatcher": []
     },
     {
       "label": "firestore -> build:example:android",
       "type": "shell",
-      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --fail-fast -- flutter build apk"
+      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --fail-fast -- flutter build apk",
+      "problemMatcher": []
     },
     {
       "label": "firestore -> build:example:macos",
       "type": "shell",
-      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --fail-fast -- flutter build macos"
+      "command": "melos exec -c 1 --scope=\"*cloud_firestore_example*\" --fail-fast -- flutter build macos",
+      "problemMatcher": []
     }
   ]
 }

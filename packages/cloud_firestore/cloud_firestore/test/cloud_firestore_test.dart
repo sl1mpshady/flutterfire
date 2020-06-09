@@ -12,12 +12,12 @@ void main() {
   setupCloudFirestoreMocks();
   Firestore firestore;
   Firestore firestoreSecondary;
-  FirebaseApp secondayApp;
+  FirebaseApp secondaryApp;
 
   group('$Firestore', () {
     setUpAll(() async {
       await Firebase.initializeApp();
-      secondayApp = await Firebase.initializeApp(
+      secondaryApp = await Firebase.initializeApp(
           name: 'foo',
           options: FirebaseOptions(
             apiKey: '123',
@@ -27,13 +27,13 @@ void main() {
           ));
 
       firestore = Firestore.instance;
-      firestoreSecondary = Firestore.instanceFor(app: secondayApp);
+      firestoreSecondary = Firestore.instanceFor(app: secondaryApp);
     });
 
     test('equality', () {
       expect(firestore, equals(Firestore.instance));
       expect(
-          firestoreSecondary, equals(Firestore.instanceFor(app: secondayApp)));
+          firestoreSecondary, equals(Firestore.instanceFor(app: secondaryApp)));
     });
 
     test('returns the correct $FirebaseApp', () {

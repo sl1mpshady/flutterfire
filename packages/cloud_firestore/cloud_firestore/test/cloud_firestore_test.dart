@@ -3,11 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import './mock.dart';
 
@@ -15,12 +12,12 @@ void main() {
   setupCloudFirestoreMocks();
   Firestore firestore;
   Firestore firestoreSecondary;
-  FirebaseApp secondayApp;
+  FirebaseApp secondaryApp;
 
   group('$Firestore', () {
     setUpAll(() async {
       await FirebaseCore.instance.initializeApp();
-      secondayApp = await FirebaseCore.instance.initializeApp(
+      secondaryApp = await FirebaseCore.instance.initializeApp(
           name: 'foo',
           options: FirebaseOptions(
             apiKey: '123',
@@ -30,13 +27,13 @@ void main() {
           ));
 
       firestore = Firestore.instance;
-      firestoreSecondary = Firestore.instanceFor(app: secondayApp);
+      firestoreSecondary = Firestore.instanceFor(app: secondaryApp);
     });
 
     test('equality', () {
       expect(firestore, equals(Firestore.instance));
       expect(
-          firestoreSecondary, equals(Firestore.instanceFor(app: secondayApp)));
+          firestoreSecondary, equals(Firestore.instanceFor(app: secondaryApp)));
     });
 
     test('returns the correct $FirebaseApp', () {

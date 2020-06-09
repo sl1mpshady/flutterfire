@@ -83,19 +83,13 @@ void main() {
 
     group('validate', () {
       test('path must be a non-empty string', () {
-        CollectionReference ref = firestore.collection('foo');
         expect(() => firestore.document(null), throwsAssertionError);
         expect(() => firestore.document(''), throwsAssertionError);
-        expect(() => ref.document(null), throwsAssertionError);
-        expect(() => ref.document(''), throwsAssertionError);
       });
 
       test('path must be even-length', () {
-        CollectionReference ref = firestore.collection('foo');
         expect(() => firestore.document('foo'), throwsAssertionError);
         expect(() => firestore.document('foo/bar/baz'), throwsAssertionError);
-        expect(() => ref.document('/'), throwsAssertionError);
-        expect(() => ref.document('bar/baz'), throwsAssertionError);
       });
 
       test('merge options', () {

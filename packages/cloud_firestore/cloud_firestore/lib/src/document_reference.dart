@@ -37,6 +37,14 @@ class DocumentReference {
   /// Gets a [CollectionReference] instance that refers to the collection at the
   /// specified path, relative from this [DocumentReference].
   CollectionReference collection(String collectionPath) {
+    assert(collectionPath != null, "a collection path cannot be null");
+    assert(collectionPath.isNotEmpty,
+        "a collectionPath path must be a non-empty string");
+    assert(!collectionPath.contains("//"),
+        "a collection path must not contain '//'");
+    assert(isValidCollectionPath(collectionPath),
+        "a collection path must point to a valid collection.");
+
     return CollectionReference._(
         firestore, _delegate.collection(collectionPath));
   }

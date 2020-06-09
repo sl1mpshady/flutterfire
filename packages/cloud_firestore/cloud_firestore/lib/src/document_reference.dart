@@ -39,7 +39,7 @@ class DocumentReference {
   CollectionReference collection(String collectionPath) {
     assert(collectionPath != null, "a collection path cannot be null");
     assert(collectionPath.isNotEmpty,
-        "a collectionPath path must be a non-empty string");
+        "a collection path must be a non-empty string");
     assert(!collectionPath.contains("//"),
         "a collection path must not contain '//'");
     assert(isValidCollectionPath(collectionPath),

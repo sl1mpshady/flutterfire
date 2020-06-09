@@ -107,10 +107,14 @@ void main() {
         firestore.collection('foo/');
 
         const badPaths = ['foo//bar//baz', '//foo', 'foo//'];
+        CollectionReference colRef = firestore.collection('test-collection');
+        DocumentReference docRef = colRef.document('test-document');
 
         for (var path in badPaths) {
           expect(() => firestore.collection(path), throwsAssertionError);
           expect(() => firestore.document(path), throwsAssertionError);
+          expect(() => colRef.document(path), throwsAssertionError);
+          expect(() => docRef.collection(path), throwsAssertionError);
         }
       });
 

@@ -27,30 +27,39 @@ void main() {
 
   group("$WriteBatch", () {
     group('validate', () {
-      test('may contain indirectly nested arrays', () {
-        const data = {
-          'nested-array': [
-            1,
-            {
-              'foo': [2]
-            }
-          ]
-        };
-        DocumentReference ref = firestore.collection('foo').document();
+      // TODO(ehesp): Not sure how this works
+      // test('may contain indirectly nested arrays', () {
+      //   const data = {
+      //     'nested-array': [
+      //       1,
+      //       {
+      //         'foo': [2]
+      //       }
+      //     ]
+      //   };
+      //   DocumentReference ref = firestore.collection('foo').document();
 
-        ref
-            .setData(data)
-            .then((value) => ref.firestore.batch().setData(ref, data))
-            .then((value) => ref.updateData(data))
-            .then((value) => ref.firestore.batch().updateData(ref, data))
-            .then((value) => ref.firestore.runTransaction(
-                (transaction) async => transaction.update(ref, data)));
+      //   ref
+      //       .setData(data)
+      //       .then((value) => ref.firestore.batch().setData(ref, data))
+      //       .then((value) => ref.updateData(data))
+      //       .then((value) => ref.firestore.batch().updateData(ref, data))
+      //       .then((value) => ref.firestore.runTransaction(
+      //           (transaction) async => transaction.update(ref, data)));
+      // });
+
+      test('document references can not be null', () {
+        WriteBatch batch = firestore.batch();
+        const data = {'foo': 1};
+        expect(() => batch.setData(null, data), throwsAssertionError);
+        expect(() => batch.updateData(null, data), throwsAssertionError);
+        expect(() => batch.delete(null), throwsAssertionError);
       });
 
-      test('requires correct document references', () {
+      test('requires document references from the same Firebase instance', () {
         DocumentReference badRef = firestoreSecondary.document('foo/bar');
         const data = {'foo': 1};
-        var batch = firestore.batch();
+        WriteBatch batch = firestore.batch();
         expect(() => batch.setData(badRef, data), throwsAssertionError);
         expect(() => batch.updateData(badRef, data), throwsAssertionError);
         expect(() => batch.delete(badRef), throwsAssertionError);

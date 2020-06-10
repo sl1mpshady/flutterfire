@@ -74,87 +74,87 @@ void main() {
     expectUpdateToFail(data);
   }
 
-  group("$Firestore", () {
-    group('validate', () {
-      test('throws for invalid transaction functions', () {
-        expect(() => firestore.runTransaction(null), throwsAssertionError);
-      });
+  // group("$Firestore", () {
+  //   group('validate', () {
+  //     test('throws for invalid transaction functions', () {
+  //       expect(() => firestore.runTransaction(null), throwsAssertionError);
+  //     });
 
-      test('must be objects', () {
-        expectWriteToFail(1);
-        expectWriteToFail([2]);
-        expectWriteToFail(null);
-      });
+  //     test('must be objects', () {
+  //       expectWriteToFail(1);
+  //       expectWriteToFail([2]);
+  //       expectWriteToFail(null);
+  //     });
 
-      test('must not contain custom objects', () {
-        expectWriteToFail({'foo': () => {}});
-        expectWriteToFail({
-          'foo': {'bar': () => {}}
-        });
-      });
+  //     test('must not contain custom objects', () {
+  //       expectWriteToFail({'foo': () => {}});
+  //       expectWriteToFail({
+  //         'foo': {'bar': () => {}}
+  //       });
+  //     });
 
-      test('must not contain directly nested arrays', () {
-        expectWriteToFail({
-          'nested-array': [
-            1,
-            [2]
-          ]
-        });
-      });
+  //     test('must not contain directly nested arrays', () {
+  //       expectWriteToFail({
+  //         'nested-array': [
+  //           1,
+  //           [2]
+  //         ]
+  //       });
+  //     });
 
-      test('must not contain references to a different store', () {
-        var ref = firestoreSecondary.document('baz/quu');
-        var data = {'foo': ref};
-        expectWriteToFail(data);
-      });
+  //     test('must not contain references to a different store', () {
+  //       var ref = firestoreSecondary.document('baz/quu');
+  //       var data = {'foo': ref};
+  //       expectWriteToFail(data);
+  //     });
 
-      test('document fields cannot begin and end with "__"', () {
-        expectWriteToFail({'__baz__': 1});
-        expectWriteToFail({
-          'foo': {'__baz__': 1}
-        });
-        expectWriteToFail({
-          '__baz__': {'foo': 1}
-        });
-        expectUpdateToFail({'foo.__baz__': 1});
-        expectUpdateToFail({'__baz__.foo': 1});
-      });
+  //     test('document fields cannot begin and end with "__"', () {
+  //       expectWriteToFail({'__baz__': 1});
+  //       expectWriteToFail({
+  //         'foo': {'__baz__': 1}
+  //       });
+  //       expectWriteToFail({
+  //         '__baz__': {'foo': 1}
+  //       });
+  //       expectUpdateToFail({'foo.__baz__': 1});
+  //       expectUpdateToFail({'__baz__.foo': 1});
+  //     });
 
-      test('document fields must not be empty', () {
-        expectSetToFail({'': 'foo'});
-      });
+  //     test('document fields must not be empty', () {
+  //       expectSetToFail({'': 'foo'});
+  //     });
 
-      test('.set() must not contain FieldValue.delete()', () {
-        expectSetToFail({'foo': FieldValue.delete()});
-      });
+  //     test('.set() must not contain FieldValue.delete()', () {
+  //       expectSetToFail({'foo': FieldValue.delete()});
+  //     });
 
-      test('.update() must not contain nested FieldValue.delete()', () {
-        expectUpdateToFail({
-          'foo': {'bar': FieldValue.delete()}
-        });
-      });
+  //     test('.update() must not contain nested FieldValue.delete()', () {
+  //       expectUpdateToFail({
+  //         'foo': {'bar': FieldValue.delete()}
+  //       });
+  //     });
 
-      test('field paths must not have empty segments', () {
-        DocumentReference ref = firestore.collection('test').document();
-        ref.setData({'test': 1}).then((value) => ref.get()).then((snapshot) {
-              expectFieldPathToFail(snapshot, '');
-              expectFieldPathToFail(snapshot, 'foo..baz');
-              expectFieldPathToFail(snapshot, '.foo');
-              expectFieldPathToFail(snapshot, 'foo.');
-            });
-      });
+  //     test('field paths must not have empty segments', () {
+  //       DocumentReference ref = firestore.collection('test').document();
+  //       ref.setData({'test': 1}).then((value) => ref.get()).then((snapshot) {
+  //             expectFieldPathToFail(snapshot, '');
+  //             expectFieldPathToFail(snapshot, 'foo..baz');
+  //             expectFieldPathToFail(snapshot, '.foo');
+  //             expectFieldPathToFail(snapshot, 'foo.');
+  //           });
+  //     });
 
-      test('field paths must not have invalid segments', () {
-        DocumentReference ref = firestore.collection('test').document();
-        ref.setData({'test': 1}).then((value) => ref.get()).then((snapshot) {
-              expectFieldPathToFail(snapshot, 'foo~bar');
-              expectFieldPathToFail(snapshot, 'foo*bar');
-              expectFieldPathToFail(snapshot, 'foo/bar');
-              expectFieldPathToFail(snapshot, 'foo[1');
-              expectFieldPathToFail(snapshot, 'foo]1');
-              expectFieldPathToFail(snapshot, 'foo[1]');
-            });
-      });
-    });
-  });
+  //     test('field paths must not have invalid segments', () {
+  //       DocumentReference ref = firestore.collection('test').document();
+  //       ref.setData({'test': 1}).then((value) => ref.get()).then((snapshot) {
+  //             expectFieldPathToFail(snapshot, 'foo~bar');
+  //             expectFieldPathToFail(snapshot, 'foo*bar');
+  //             expectFieldPathToFail(snapshot, 'foo/bar');
+  //             expectFieldPathToFail(snapshot, 'foo[1');
+  //             expectFieldPathToFail(snapshot, 'foo]1');
+  //             expectFieldPathToFail(snapshot, 'foo[1]');
+  //           });
+  //     });
+  //   });
+  // });
 }

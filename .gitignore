@@ -13,7 +13,6 @@ flutter_export_environment.sh
 
 examples/all_plugins/pubspec.yaml
 
-Podfile
 Podfile.lock
 Pods/
 .symlinks/
@@ -46,3 +45,4 @@ build/
 .classpath
 .settings
 pubspec.yaml
+.last_build_id

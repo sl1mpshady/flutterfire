@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 #import <Flutter/Flutter.h>
+#import <Foundation/Foundation.h>
 
-@interface FLTCloudFirestorePlugin : NSObject <FlutterPlugin>
+@interface FLTFirebaseFirestoreReader : FlutterStandardReader
+- (id)readValueOfType:(UInt8)type;
 @end

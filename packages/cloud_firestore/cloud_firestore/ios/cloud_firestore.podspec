@@ -24,13 +24,16 @@ Pod::Spec.new do |s|
   s.license          = { :file => '../LICENSE' }
   s.authors          = 'The Chromium Authors'
   s.source           = { :path => '.' }
-  s.source_files     = 'Classes/**/*'
+  
+  s.source_files     = 'Classes/**/*.{h,m}'
+  s.public_header_files = 'Classes/Public/*.h'
+  s.private_header_files = 'Classes/Private/*.h'
 
-  s.public_header_files = 'Classes/**/*.h'
   s.ios.deployment_target = '8.0'
 
   # Flutter dependencies
   s.dependency 'Flutter'
+  
   s.dependency 'firebase_core'
   
   if ENV['USE_FIREBASE_FRAMEWORKS'] == 'true'

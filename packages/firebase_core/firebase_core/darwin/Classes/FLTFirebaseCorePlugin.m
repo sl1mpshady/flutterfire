@@ -83,10 +83,10 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
   FLTFirebaseMethodCallErrorBlock errorBlock =
       ^(NSString *_Nonnull code, NSString *_Nonnull message, NSDictionary *_Nullable details,
         NSError *_Nullable error) {
-        flutterResult([self createFlutterErrorFromCode:code
-                                               message:message
-                                       optionalDetails:details
-                                    andOptionalNSError:error]);
+        flutterResult([FLTFirebasePlugin createFlutterErrorFromCode:code
+                                                            message:message
+                                                    optionalDetails:details
+                                                 andOptionalNSError:error]);
       };
 
   FLTFirebaseMethodCallResult *methodCallResult =
@@ -111,10 +111,10 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 #pragma mark - API
 
 - (void)initializeApp:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
-  NSString *appNameIos = [self firebaseAppNameFromDartName:arguments[kAppName]];
+  NSString *appNameIos = [FLTFirebasePlugin firebaseAppNameFromDartName:arguments[kAppName]];
 
-  if ([self firebaseAppNamed:appNameIos]) {
-    result.success([self dictionaryFromFIRApp:[self firebaseAppNamed:appNameIos]]);
+  if ([FLTFirebasePlugin firebaseAppNamed:appNameIos]) {
+    result.success([self dictionaryFromFIRApp:[FLTFirebasePlugin firebaseAppNamed:appNameIos]]);
     return;
   }
 
@@ -193,7 +193,7 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 
 - (void)deleteApp:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
   NSString *appName = arguments[kAppName];
-  FIRApp *firebaseApp = [self firebaseAppNamed:appName];
+  FIRApp *firebaseApp = [FLTFirebasePlugin firebaseAppNamed:appName];
 
   if (firebaseApp) {
     [firebaseApp deleteApp:^(BOOL success) {
@@ -213,7 +213,7 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
   NSString *appName = arguments[kAppName];
   BOOL dataCollectionEnabled = [arguments[kEnabled] boolValue];
 
-  FIRApp *firebaseApp = [self firebaseAppNamed:appName];
+  FIRApp *firebaseApp = [FLTFirebasePlugin firebaseAppNamed:appName];
   if (firebaseApp) {
     [firebaseApp setDataCollectionDefaultEnabled:dataCollectionEnabled];
   }
@@ -241,7 +241,7 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 }
 
 - (NSDictionary *)dictionaryFromFIRApp:(FIRApp *)firebaseApp {
-  NSString *appNameDart = [self firebaseAppNameFromIosName:firebaseApp.name];
+  NSString *appNameDart = [FLTFirebasePlugin firebaseAppNameFromIosName:firebaseApp.name];
 
   return @{
     kName : appNameDart,

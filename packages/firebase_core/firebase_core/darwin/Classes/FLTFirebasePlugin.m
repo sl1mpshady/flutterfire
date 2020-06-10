@@ -25,7 +25,7 @@ NSString *_Nonnull const kFIRDefaultAppNameDart = @"[DEFAULT]";
 @end
 
 @implementation FLTFirebasePlugin
-- (FlutterError *_Nonnull)createFlutterErrorFromCode:(NSString *_Nonnull)code
++ (FlutterError *_Nonnull)createFlutterErrorFromCode:(NSString *_Nonnull)code
                                              message:(NSString *_Nonnull)message
                                      optionalDetails:(NSDictionary *_Nullable)details
                                   andOptionalNSError:(NSError *_Nullable)error {
@@ -37,7 +37,7 @@ NSString *_Nonnull const kFIRDefaultAppNameDart = @"[DEFAULT]";
   return [FlutterError errorWithCode:code message:message details:detailsDict];
 }
 
-- (NSString *)firebaseAppNameFromDartName:(NSString *_Nonnull)appName {
++ (NSString *)firebaseAppNameFromDartName:(NSString *_Nonnull)appName {
   NSString *appNameIOS = appName;
   if ([kFIRDefaultAppNameDart isEqualToString:appName]) {
     appNameIOS = kFIRDefaultAppNameIOS;
@@ -45,7 +45,7 @@ NSString *_Nonnull const kFIRDefaultAppNameDart = @"[DEFAULT]";
   return appNameIOS;
 }
 
-- (NSString *_Nonnull)firebaseAppNameFromIosName:(NSString *_Nonnull)appName {
++ (NSString *_Nonnull)firebaseAppNameFromIosName:(NSString *_Nonnull)appName {
   NSString *appNameDart = appName;
   if ([kFIRDefaultAppNameIOS isEqualToString:appName]) {
     appNameDart = kFIRDefaultAppNameDart;
@@ -53,7 +53,7 @@ NSString *_Nonnull const kFIRDefaultAppNameDart = @"[DEFAULT]";
   return appNameDart;
 }
 
-- (FIRApp *_Nullable)firebaseAppNamed:(NSString *_Nonnull)appName {
++ (FIRApp *_Nullable)firebaseAppNamed:(NSString *_Nonnull)appName {
   return [FIRApp allApps][[self firebaseAppNameFromDartName:appName]];
 }
 @end

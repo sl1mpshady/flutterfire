@@ -21,7 +21,7 @@ void runGeoPointTests() {
       return firestore.document(prefixedPath);
     }
 
-    testWidgets('sets a $GeoPoint & returns one', (WidgetTester tester) async {
+    test('sets a $GeoPoint & returns one', () async {
       DocumentReference doc = await initializeTest('geo-point');
       await doc.setData({'foo': GeoPoint(10, -10)});
       DocumentSnapshot snapshot = await doc.get();
@@ -31,7 +31,7 @@ void runGeoPointTests() {
       expect(geopoint.longitude, equals(-10));
     });
 
-    testWidgets('updates a $GeoPoint & returns', (WidgetTester tester) async {
+    test('updates a $GeoPoint & returns', () async {
       DocumentReference doc = await initializeTest('geo-point-update');
       await doc.setData({'foo': GeoPoint(10, -10)});
       await doc.updateData({'foo': GeoPoint(-10, 10)});

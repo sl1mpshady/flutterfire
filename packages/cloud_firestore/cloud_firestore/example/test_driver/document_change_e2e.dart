@@ -26,8 +26,7 @@ void runDocumentChangeTests() {
       return collection;
     }
 
-    testWidgets('returns the correct metadata when adding and removing',
-        (WidgetTester tester) async {
+    test('returns the correct metadata when adding and removing', () async {
       CollectionReference collection =
           await initializeTest('add-remove-document');
       DocumentReference doc1 = collection.document('doc1');
@@ -70,8 +69,7 @@ void runDocumentChangeTests() {
       subscription.cancel();
     });
 
-    testWidgets('returns the correct metadata when modifying',
-        (WidgetTester tester) async {
+    test('returns the correct metadata when modifying', () async {
       CollectionReference collection =
           await initializeTest('add-modify-document');
       DocumentReference doc1 = collection.document('doc1');

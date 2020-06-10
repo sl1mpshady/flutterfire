@@ -26,7 +26,7 @@ void runWriteBatchTests() {
       return collection;
     }
 
-    testWidgets('performs batch operations', (WidgetTester tester) async {
+    test('performs batch operations', () async {
       CollectionReference collection = await initializeTest('write-batch-ops');
       WriteBatch batch = firestore.batch();
 

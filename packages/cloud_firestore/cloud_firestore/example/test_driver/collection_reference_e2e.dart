@@ -26,7 +26,7 @@ void runCollectionReferenceTests() {
       return collection;
     }
 
-    testWidgets('add() adds a document', (WidgetTester tester) async {
+    test('add() adds a document', () async {
       CollectionReference collection =
           await initializeTest('collection-reference-add');
       var rand = Random();

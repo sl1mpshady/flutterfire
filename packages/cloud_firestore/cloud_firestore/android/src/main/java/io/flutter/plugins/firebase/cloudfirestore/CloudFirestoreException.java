@@ -15,7 +15,7 @@ class CloudFirestoreException extends Exception {
   private static String kDEADLINE_EXCEEDED =
       "Deadline expired before operation could complete. For operations that change the state of the system, this error may be returned even if the operation has completed successfully. For example, a successful response from a server could have been delayed long enough for the deadline to expire.";
   private static String kFAILED_PRECONDITION =
-      "Operation was rejected because the system is not in a state required for the operation's execution. Ensure your query has been indexed via the Firebase console.";
+      "Operation was rejected because the system is not in a state required for the operation's execution. If performing a query, ensure it has been indexed via the Firebase console.";
   private static String kINTERNAL =
       "Internal errors. Means some invariants expected by underlying system has been broken. If you see one of these errors, something is very broken.";
   private static String kINVALID_ARGUMENT =

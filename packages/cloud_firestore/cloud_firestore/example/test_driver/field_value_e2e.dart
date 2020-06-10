@@ -21,9 +21,8 @@ void runFieldValueTests() {
       return firestore.document(prefixedPath);
     }
 
-    group('increment()', () {
-      testWidgets('increments a number if it exists',
-          (WidgetTester tester) async {
+    group('FieldValue.increment()', () {
+      test('increments a number if it exists', () async {
         DocumentReference doc =
             await initializeTest('field-value-increment-exists');
         await doc.setData({'foo': 2});
@@ -32,7 +31,7 @@ void runFieldValueTests() {
         expect(snapshot.data()['foo'], equals(3));
       });
 
-      testWidgets('decrements a number', (WidgetTester tester) async {
+      test('decrements a number', () async {
         DocumentReference doc =
             await initializeTest('field-value-decrement-exists');
         await doc.setData({'foo': 2});
@@ -41,8 +40,7 @@ void runFieldValueTests() {
         expect(snapshot.data()['foo'], equals(1));
       });
 
-      testWidgets('sets an increment if it does not exist',
-          (WidgetTester tester) async {
+      test('sets an increment if it does not exist', () async {
         DocumentReference doc =
             await initializeTest('field-value-increment-not-exists');
         DocumentSnapshot snapshot = await doc.get();
@@ -53,8 +51,8 @@ void runFieldValueTests() {
       });
     });
 
-    group('serverTimestamp()', () {
-      testWidgets('sets a new server time value', (WidgetTester tester) async {
+    group('FieldValue.serverTimestamp()', () {
+      test('sets a new server time value', () async {
         DocumentReference doc =
             await initializeTest('field-value-server-timestamp-new');
         await doc.setData({'foo': FieldValue.serverTimestamp()});
@@ -62,7 +60,7 @@ void runFieldValueTests() {
         expect(snapshot.data()['foo'], isA<Timestamp>());
       });
 
-      testWidgets('updates a server time value', (WidgetTester tester) async {
+      test('updates a server time value', () async {
         DocumentReference doc =
             await initializeTest('field-value-server-timestamp-update');
         await doc.setData({'foo': FieldValue.serverTimestamp()});
@@ -81,8 +79,8 @@ void runFieldValueTests() {
       });
     });
 
-    group('delete()', () {
-      testWidgets('removes a value', (WidgetTester tester) async {
+    group('FieldValue.delete()', () {
+      test('removes a value', () async {
         DocumentReference doc = await initializeTest('field-value-delete');
         await doc.setData({'foo': 'bar', 'bar': 'baz'});
         await doc.updateData({'bar': FieldValue.delete()});
@@ -91,8 +89,8 @@ void runFieldValueTests() {
       });
     });
 
-    group('arrayUnion()', () {
-      testWidgets('updates an existing array', (WidgetTester tester) async {
+    group('FieldValue.arrayUnion()', () {
+      test('updates an existing array', () async {
         DocumentReference doc =
             await initializeTest('field-value-array-union-update-array');
         await doc.setData({
@@ -105,8 +103,7 @@ void runFieldValueTests() {
         expect(snapshot.data()['foo'], equals([1, 2, 3, 4]));
       });
 
-      testWidgets('updates an array if current value is not an array',
-          (WidgetTester tester) async {
+      test('updates an array if current value is not an array', () async {
         DocumentReference doc =
             await initializeTest('field-value-array-union-replace');
         await doc.setData({'foo': 'bar'});
@@ -117,8 +114,7 @@ void runFieldValueTests() {
         expect(snapshot.data()['foo'], equals([3, 4]));
       });
 
-      testWidgets('sets an array if current value is not an array',
-          (WidgetTester tester) async {
+      test('sets an array if current value is not an array', () async {
         DocumentReference doc =
             await initializeTest('field-value-array-union-replace');
         await doc.setData({'foo': 'bar'});
@@ -130,8 +126,8 @@ void runFieldValueTests() {
       });
     });
 
-    group('arrayRemove()', () {
-      testWidgets('removes items in an array', (WidgetTester tester) async {
+    group('FieldValue.arrayRemove()', () {
+      test('removes items in an array', () async {
         DocumentReference doc =
             await initializeTest('field-value-array-remove-existing');
         await doc.setData({
@@ -144,8 +140,8 @@ void runFieldValueTests() {
         expect(snapshot.data()['foo'], equals([1, 2]));
       });
 
-      testWidgets('removes & updates an array if existing item is not an array',
-          (WidgetTester tester) async {
+      test('removes & updates an array if existing item is not an array',
+          () async {
         DocumentReference doc =
             await initializeTest('field-value-array-remove-replace');
         await doc.setData({'foo': 'bar'});
@@ -156,8 +152,8 @@ void runFieldValueTests() {
         expect(snapshot.data()['foo'], equals([3, 4]));
       });
 
-      testWidgets('removes & sets an array if existing item is not an array',
-          (WidgetTester tester) async {
+      test('removes & sets an array if existing item is not an array',
+          () async {
         DocumentReference doc =
             await initializeTest('field-value-array-remove-replace');
         await doc.setData({'foo': 'bar'});

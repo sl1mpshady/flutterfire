@@ -99,6 +99,10 @@ class FirebaseSharedPreferences {
     return getPreferences().getString(key, defaultValue);
   }
 
+  public void remove(String key) {
+    getPreferences().edit().remove(key).apply();
+  }
+
   public void clearAll() {
     getPreferences().edit().clear().apply();
   }
@@ -114,7 +118,7 @@ class FirebaseSharedPreferences {
 public class CloudFirestorePlugin
     implements FlutterFirebasePlugin, MethodCallHandler, FlutterPlugin, ActivityAware {
   private static final String TAG = "CloudFirestorePlugin";
-  private static final HashMap<String, Boolean> settingsLock = new HashMap<>();
+  private static final HashMap<String, FirebaseFirestore> instanceCache = new HashMap<>();
 
   private static final String SETTINGS_CLEAR_PERSISTENCE = "firebase_firestore_clear_persistence_";
   private static final String SETTINGS_CACHE_SIZE = "firebase_firestore_cache_size_";
@@ -266,7 +270,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          FirebaseFirestore firebaseFirestore = Tasks.await(getFirestore(arguments));
+          FirebaseFirestore firebaseFirestore = getFirestore(arguments);
           return Tasks.await(firebaseFirestore.disableNetwork());
         });
   }
@@ -275,7 +279,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          FirebaseFirestore firebaseFirestore = Tasks.await(getFirestore(arguments));
+          FirebaseFirestore firebaseFirestore = getFirestore(arguments);
           return Tasks.await(firebaseFirestore.enableNetwork());
         });
   }
@@ -285,7 +289,7 @@ public class CloudFirestorePlugin
         cachedThreadPool,
         () -> {
           int handle = nextListenerHandle++;
-          FirebaseFirestore firebaseFirestore = Tasks.await(getFirestore(arguments));
+          FirebaseFirestore firebaseFirestore = getFirestore(arguments);
 
           Runnable snapshotsInSyncRunnable =
               () -> {
@@ -306,7 +310,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          FirebaseFirestore firestore = Tasks.await(getFirestore(arguments));
+          FirebaseFirestore firestore = getFirestore(arguments);
           int transactionId = (int) arguments.get("transactionId");
 
           Object value = arguments.get("timeout");
@@ -339,7 +343,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          DocumentReference documentReference = Tasks.await(getDocumentReference(arguments));
+          DocumentReference documentReference = getDocumentReference(arguments);
           DocumentSnapshot documentSnapshot =
               CloudFirestoreTransactionHandler.getDocument(
                   (int) arguments.get("transactionId"), documentReference);
@@ -355,7 +359,7 @@ public class CloudFirestorePlugin
           // noinspection unchecked
           List<Map<String, Object>> writes =
               (List<Map<String, Object>>) Objects.requireNonNull(arguments.get("writes"));
-          FirebaseFirestore firestore = Tasks.await(getFirestore(arguments));
+          FirebaseFirestore firestore = getFirestore(arguments);
           WriteBatch batch = firestore.batch();
 
           for (Map<String, Object> write : writes) {
@@ -410,7 +414,7 @@ public class CloudFirestorePlugin
                   ? MetadataChanges.INCLUDE
                   : MetadataChanges.EXCLUDE;
 
-          Query query = Tasks.await(getQuery(arguments));
+          Query query = getQuery(arguments);
 
           listenerRegistrations.put(handle, query.addSnapshotListener(metadataChanges, observer));
 
@@ -422,7 +426,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          Query query = Tasks.await(getQuery(arguments));
+          Query query = getQuery(arguments);
           Source source = getSource(arguments);
 
           QuerySnapshot snapshot = Tasks.await(query.get(source));
@@ -443,7 +447,7 @@ public class CloudFirestorePlugin
                   ? MetadataChanges.INCLUDE
                   : MetadataChanges.EXCLUDE;
 
-          DocumentReference documentReference = Tasks.await(getDocumentReference(arguments));
+          DocumentReference documentReference = getDocumentReference(arguments);
 
           listenerRegistrations.put(
               handle, documentReference.addSnapshotListener(metadataChanges, observer));
@@ -456,7 +460,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          DocumentReference documentReference = Tasks.await(getDocumentReference(arguments));
+          DocumentReference documentReference = getDocumentReference(arguments);
           Source source = getSource(arguments);
 
           DocumentSnapshot snapshot = Tasks.await(documentReference.get(source));
@@ -469,7 +473,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          final DocumentReference documentReference = Tasks.await(getDocumentReference(arguments));
+          final DocumentReference documentReference = getDocumentReference(arguments);
 
           // noinspection unchecked
           Map<String, Object> data =
@@ -499,7 +503,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          DocumentReference documentReference = Tasks.await(getDocumentReference(arguments));
+          DocumentReference documentReference = getDocumentReference(arguments);
           // noinspection unchecked
           Map<String, Object> data =
               (Map<String, Object>) Objects.requireNonNull(arguments.get("data"));
@@ -512,7 +516,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          DocumentReference documentReference = Tasks.await(getDocumentReference(arguments));
+          DocumentReference documentReference = getDocumentReference(arguments);
           return Tasks.await(documentReference.delete());
         });
   }
@@ -570,12 +574,8 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          String appName = (String) arguments.get("appName");
-          FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
-          preferences.setApplicationContext(activity.getApplicationContext());
-
-          preferences.setBooleanValue(SETTINGS_PERSISTENCE + appName, true);
-          return null;
+          FirebaseFirestore firebaseFirestore = getFirestore(arguments);
+          return Tasks.await(firebaseFirestore.clearPersistence());
         });
   }
 
@@ -583,7 +583,9 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          FirebaseFirestore firebaseFirestore = Tasks.await(getFirestore(arguments));
+          String appName = (String) arguments.get("appName");
+          FirebaseFirestore firebaseFirestore = getFirestore(arguments);
+          instanceCache.remove(appName);
           return Tasks.await(firebaseFirestore.terminate());
         });
   }
@@ -592,7 +594,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          FirebaseFirestore firebaseFirestore = Tasks.await(getFirestore(arguments));
+          FirebaseFirestore firebaseFirestore = getFirestore(arguments);
           return Tasks.await(firebaseFirestore.waitForPendingWrites());
         });
   }
@@ -718,110 +720,82 @@ public class CloudFirestorePlugin
     return details;
   }
 
-  private Task<FirebaseFirestore> getFirestore(Map<String, Object> arguments) {
-    return Tasks.call(
-        cachedThreadPool,
-        () -> {
-          synchronized (settingsLock) {
-            String appName = (String) Objects.requireNonNull(arguments.get("appName"));
-            FirebaseFirestore instance =
-                FirebaseFirestore.getInstance(FirebaseApp.getInstance(appName));
-            Tasks.await(setFirestoreSettings(instance, appName));
-            return instance;
-          }
-        });
+  private FirebaseFirestore getFirestore(Map<String, Object> arguments) {
+    String appName = (String) Objects.requireNonNull(arguments.get("appName"));
+    FirebaseFirestore cachedInstance = instanceCache.get(appName);
+
+    if (cachedInstance != null) {
+      return cachedInstance;
+    }
+
+    FirebaseFirestore instance = FirebaseFirestore.getInstance(FirebaseApp.getInstance(appName));
+    setFirestoreSettings(instance, appName);
+
+    instanceCache.put(appName, instance);
+    return instance;
   }
 
-  private Task<Void> setFirestoreSettings(FirebaseFirestore firebaseFirestore, String appName) {
-    return Tasks.call(
-        cachedThreadPool,
-        () -> {
-          // Ensure not already been set
-          if (settingsLock.containsKey(appName)) return null;
+  private Void setFirestoreSettings(FirebaseFirestore firebaseFirestore, String appName) {
+    FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
+    preferences.setApplicationContext(activity.getApplicationContext());
+    FirebaseFirestoreSettings.Builder firestoreSettings = new FirebaseFirestoreSettings.Builder();
 
-          FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
-          preferences.setApplicationContext(activity.getApplicationContext());
-          FirebaseFirestoreSettings.Builder firestoreSettings =
-              new FirebaseFirestoreSettings.Builder();
+    long cacheSizeBytes =
+        preferences.getLongValue(
+            SETTINGS_CACHE_SIZE + appName,
+            firebaseFirestore.getFirestoreSettings().getCacheSizeBytes());
 
-          boolean clearPersistence =
-              preferences.getBooleanValue(SETTINGS_CLEAR_PERSISTENCE + appName, false);
+    String host =
+        preferences.getStringValue(
+            SETTINGS_HOST + appName, firebaseFirestore.getFirestoreSettings().getHost());
 
-          if (clearPersistence) {
-            Tasks.await(firebaseFirestore.clearPersistence());
-            preferences.setBooleanValue(SETTINGS_CLEAR_PERSISTENCE + appName, false);
-          }
+    boolean persistence =
+        preferences.getBooleanValue(
+            SETTINGS_PERSISTENCE + appName,
+            firebaseFirestore.getFirestoreSettings().isPersistenceEnabled());
 
-          long cacheSizeBytes =
-              preferences.getLongValue(
-                  SETTINGS_CACHE_SIZE + appName,
-                  firebaseFirestore.getFirestoreSettings().getCacheSizeBytes());
+    boolean ssl =
+        preferences.getBooleanValue(
+            SETTINGS_SSL + appName, firebaseFirestore.getFirestoreSettings().isSslEnabled());
 
-          String host =
-              preferences.getStringValue(
-                  SETTINGS_HOST + appName, firebaseFirestore.getFirestoreSettings().getHost());
+    if (cacheSizeBytes == -1) {
+      firestoreSettings.setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED);
+    } else {
+      firestoreSettings.setCacheSizeBytes(cacheSizeBytes);
+    }
 
-          boolean persistence =
-              preferences.getBooleanValue(
-                  SETTINGS_PERSISTENCE + appName,
-                  firebaseFirestore.getFirestoreSettings().isPersistenceEnabled());
+    firestoreSettings.setHost(host);
+    firestoreSettings.setPersistenceEnabled(persistence);
+    firestoreSettings.setSslEnabled(ssl);
+    firebaseFirestore.setFirestoreSettings(firestoreSettings.build());
 
-          boolean ssl =
-              preferences.getBooleanValue(
-                  SETTINGS_SSL + appName, firebaseFirestore.getFirestoreSettings().isSslEnabled());
+    // Remove the users app setting preferences from cache
+    preferences.remove(SETTINGS_CACHE_SIZE + appName);
+    preferences.remove(SETTINGS_HOST + appName);
+    preferences.remove(SETTINGS_PERSISTENCE + appName);
+    preferences.remove(SETTINGS_SSL + appName);
 
-          if (cacheSizeBytes == -1) {
-            firestoreSettings.setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED);
-          } else {
-            firestoreSettings.setCacheSizeBytes(cacheSizeBytes);
-          }
-
-          firestoreSettings.setHost(host);
-          firestoreSettings.setPersistenceEnabled(persistence);
-          firestoreSettings.setSslEnabled(ssl);
-
-          firebaseFirestore.setFirestoreSettings(firestoreSettings.build());
-          settingsLock.put(appName, true);
-
-          return null;
-        });
+    return null;
   }
 
-  private Task<Query> getReference(Map<String, Object> arguments) {
-    return Tasks.call(
-        cachedThreadPool,
-        () -> {
-          if ((boolean) arguments.get("isCollectionGroup"))
-            return Tasks.await(getCollectionGroupReference(arguments));
-          else return Tasks.await(getCollectionReference(arguments));
-        });
+  private Query getReference(Map<String, Object> arguments) {
+    if ((boolean) arguments.get("isCollectionGroup")) return getCollectionGroupReference(arguments);
+    else return getCollectionReference(arguments);
   }
 
-  private Task<Query> getCollectionGroupReference(Map<String, Object> arguments) {
-    return Tasks.call(
-        cachedThreadPool,
-        () -> {
-          String path = (String) Objects.requireNonNull(arguments.get("path"));
-          return Tasks.await(getFirestore(arguments)).collectionGroup(path);
-        });
+  private Query getCollectionGroupReference(Map<String, Object> arguments) {
+    String path = (String) Objects.requireNonNull(arguments.get("path"));
+    return getFirestore(arguments).collectionGroup(path);
   }
 
-  private Task<CollectionReference> getCollectionReference(Map<String, Object> arguments) {
-    return Tasks.call(
-        cachedThreadPool,
-        () -> {
-          String path = (String) Objects.requireNonNull(arguments.get("path"));
-          return Tasks.await(getFirestore(arguments)).collection(path);
-        });
+  private CollectionReference getCollectionReference(Map<String, Object> arguments) {
+    String path = (String) Objects.requireNonNull(arguments.get("path"));
+    return getFirestore(arguments).collection(path);
   }
 
-  private Task<DocumentReference> getDocumentReference(Map<String, Object> arguments) {
-    return Tasks.call(
-        cachedThreadPool,
-        () -> {
-          String path = (String) Objects.requireNonNull(arguments.get("path"));
-          return Tasks.await(getFirestore(arguments)).document(path);
-        });
+  private DocumentReference getDocumentReference(Map<String, Object> arguments) {
+    String path = (String) Objects.requireNonNull(arguments.get("path"));
+    return getFirestore(arguments).document(path);
   }
 
   private DocumentReference getDocumentReference(FirebaseFirestore firestore, String path) {
@@ -845,91 +819,86 @@ public class CloudFirestorePlugin
     }
   }
 
-  private Task<Query> getQuery(Map<String, Object> arguments) {
-    return Tasks.call(
-        cachedThreadPool,
-        () -> {
-          Query query = Tasks.await(getReference(arguments));
-          @SuppressWarnings("unchecked")
-          Map<String, Object> parameters = (Map<String, Object>) arguments.get("parameters");
-          if (parameters == null) return query;
+  private Query getQuery(Map<String, Object> arguments) {
+    Query query = getReference(arguments);
+    @SuppressWarnings("unchecked")
+    Map<String, Object> parameters = (Map<String, Object>) arguments.get("parameters");
+    if (parameters == null) return query;
 
-          // "where" filters
-          @SuppressWarnings("unchecked")
-          List<List<Object>> filters =
-              (List<List<Object>>) Objects.requireNonNull(parameters.get("where"));
-          for (List<Object> condition : filters) {
-            FieldPath fieldPath = (FieldPath) condition.get(0);
-            String operator = (String) condition.get(1);
-            Object value = condition.get(2);
+    // "where" filters
+    @SuppressWarnings("unchecked")
+    List<List<Object>> filters =
+        (List<List<Object>>) Objects.requireNonNull(parameters.get("where"));
+    for (List<Object> condition : filters) {
+      FieldPath fieldPath = (FieldPath) condition.get(0);
+      String operator = (String) condition.get(1);
+      Object value = condition.get(2);
 
-            if ("==".equals(operator)) {
-              query = query.whereEqualTo(fieldPath, value);
-            } else if ("<".equals(operator)) {
-              query = query.whereLessThan(fieldPath, value);
-            } else if ("<=".equals(operator)) {
-              query = query.whereLessThanOrEqualTo(fieldPath, value);
-            } else if (">".equals(operator)) {
-              query = query.whereGreaterThan(fieldPath, value);
-            } else if (">=".equals(operator)) {
-              query = query.whereGreaterThanOrEqualTo(fieldPath, value);
-            } else if ("array-contains".equals(operator)) {
-              query = query.whereArrayContains(fieldPath, value);
-            } else if ("array-contains-any".equals(operator)) {
-              List<Object> values = (List<Object>) value;
-              query = query.whereArrayContainsAny(fieldPath, values);
-            } else if ("in".equals(operator)) {
-              List<Object> values = (List<Object>) value;
-              query = query.whereIn(fieldPath, values);
-            } else {
-              Log.w(
-                  TAG, "An invalid query operator " + operator + " was received but not handled.");
-            }
-          }
+      if ("==".equals(operator)) {
+        query = query.whereEqualTo(fieldPath, value);
+      } else if ("<".equals(operator)) {
+        query = query.whereLessThan(fieldPath, value);
+      } else if ("<=".equals(operator)) {
+        query = query.whereLessThanOrEqualTo(fieldPath, value);
+      } else if (">".equals(operator)) {
+        query = query.whereGreaterThan(fieldPath, value);
+      } else if (">=".equals(operator)) {
+        query = query.whereGreaterThanOrEqualTo(fieldPath, value);
+      } else if ("array-contains".equals(operator)) {
+        query = query.whereArrayContains(fieldPath, value);
+      } else if ("array-contains-any".equals(operator)) {
+        List<Object> values = (List<Object>) value;
+        query = query.whereArrayContainsAny(fieldPath, values);
+      } else if ("in".equals(operator)) {
+        List<Object> values = (List<Object>) value;
+        query = query.whereIn(fieldPath, values);
+      } else {
+        Log.w(TAG, "An invalid query operator " + operator + " was received but not handled.");
+      }
+    }
 
-          // "limit" filters
-          @SuppressWarnings("unchecked")
-          Number limit = (Number) parameters.get("limit");
-          if (limit != null) query = query.limit(limit.longValue());
+    // "limit" filters
+    @SuppressWarnings("unchecked")
+    Number limit = (Number) parameters.get("limit");
+    if (limit != null) query = query.limit(limit.longValue());
 
-          @SuppressWarnings("unchecked")
-          Number limitToLast = (Number) parameters.get("limitToLast");
-          if (limitToLast != null) query = query.limitToLast(limitToLast.longValue());
+    @SuppressWarnings("unchecked")
+    Number limitToLast = (Number) parameters.get("limitToLast");
+    if (limitToLast != null) query = query.limitToLast(limitToLast.longValue());
 
-          // "orderBy" filters
-          @SuppressWarnings("unchecked")
-          List<List<Object>> orderBy = (List<List<Object>>) parameters.get("orderBy");
-          if (orderBy == null) return query;
+    // "orderBy" filters
+    @SuppressWarnings("unchecked")
+    List<List<Object>> orderBy = (List<List<Object>>) parameters.get("orderBy");
+    if (orderBy == null) return query;
 
-          for (List<Object> order : orderBy) {
-            FieldPath fieldPath = (FieldPath) order.get(0);
-            boolean descending = (boolean) order.get(1);
+    for (List<Object> order : orderBy) {
+      FieldPath fieldPath = (FieldPath) order.get(0);
+      boolean descending = (boolean) order.get(1);
 
-            Query.Direction direction =
-                descending ? Query.Direction.DESCENDING : Query.Direction.ASCENDING;
+      Query.Direction direction =
+          descending ? Query.Direction.DESCENDING : Query.Direction.ASCENDING;
 
-            query = query.orderBy(fieldPath, direction);
-          }
+      query = query.orderBy(fieldPath, direction);
+    }
 
-          // cursor queries
-          @SuppressWarnings("unchecked")
-          List<Object> startAt = (List<Object>) parameters.get("startAt");
-          if (startAt != null) query = query.startAt(startAt.toArray());
+    // cursor queries
+    @SuppressWarnings("unchecked")
+    List<Object> startAt = (List<Object>) parameters.get("startAt");
+    if (startAt != null) query = query.startAt(startAt.toArray());
 
-          @SuppressWarnings("unchecked")
-          List<Object> startAfter = (List<Object>) parameters.get("startAfter");
-          if (startAfter != null) query = query.startAfter(startAfter.toArray());
+    @SuppressWarnings("unchecked")
+    List<Object> startAfter = (List<Object>) parameters.get("startAfter");
+    if (startAfter != null) query = query.startAfter(startAfter.toArray());
 
-          @SuppressWarnings("unchecked")
-          List<Object> endAt = (List<Object>) parameters.get("endAt");
-          if (endAt != null) query = query.endAt(endAt.toArray());
+    @SuppressWarnings("unchecked")
+    List<Object> endAt = (List<Object>) parameters.get("endAt");
+    if (endAt != null) query = query.endAt(endAt.toArray());
 
-          @SuppressWarnings("unchecked")
-          List<Object> endBefore = (List<Object>) parameters.get("endBefore");
-          if (endBefore != null) query = query.endBefore(endBefore.toArray());
+    @SuppressWarnings("unchecked")
+    List<Object> endBefore = (List<Object>) parameters.get("endBefore");
+    if (endBefore != null) query = query.endBefore(endBefore.toArray());
 
-          return query;
-        });
+    return query;
   }
 
   @Override

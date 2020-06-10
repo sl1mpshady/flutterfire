@@ -8,10 +8,18 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../utils/test_common.dart';
 
-const Map<String, dynamic> _kParameters = <String, dynamic>{};
+Map<String, dynamic> kMockParameters = {
+  'orderBy': ['foo'],
+  'limit': 1
+};
 
 class TestQuery extends QueryPlatform {
-  TestQuery._() : super(FirestorePlatform.instance, _kParameters);
+  TestQuery._() : super(FirestorePlatform.instance, null);
+}
+
+class TestQueryWithParameters extends QueryPlatform {
+  TestQueryWithParameters._(Map<String, dynamic> parameters)
+      : super(FirestorePlatform.instance, parameters);
 }
 
 void main() {
@@ -41,8 +49,13 @@ void main() {
       expect(query, isInstanceOf<QueryPlatform>());
     });
 
-    test("parameters", () {
+    test("should have default parameters", () {
       _hasDefaultParameters(TestQuery._().parameters);
+    });
+
+    test("should set parameters", () {
+      final query = TestQueryWithParameters._(kMockParameters);
+      expect(query.parameters, equals(kMockParameters));
     });
 
     group("Unimplemented Methods", () {

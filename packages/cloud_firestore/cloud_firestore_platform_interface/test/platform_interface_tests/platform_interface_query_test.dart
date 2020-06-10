@@ -6,15 +6,12 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_query.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
 import '../utils/test_common.dart';
 
-const _kQueryPath = "test/collection";
+const Map<String, dynamic> _kParameters = <String, dynamic>{};
 
-class TestQuery extends MethodChannelQuery {
-  TestQuery._() : super(FirestorePlatform.instance, _kQueryPath);
+class TestQuery extends QueryPlatform {
+  TestQuery._() : super(FirestorePlatform.instance, _kParameters);
 }
 
 void main() {
@@ -25,21 +22,40 @@ void main() {
       await Firebase.initializeApp(
         name: 'testApp',
         options: const FirebaseOptions(
-          appId: '1:1234567890:ios:42424242424242',
+          appId: '1:123:ios:123',
           apiKey: '123',
           projectId: '123',
-          messagingSenderId: '1234567890',
+          messagingSenderId: '123',
         ),
       );
     });
+
+    test("constructor", () {
+      final query = TestQuery._();
+      expect(query, isInstanceOf<QueryPlatform>());
+    });
+
+    test("verifyExtends", () {
+      final query = TestQuery._();
+      QueryPlatform.verifyExtends(query);
+      expect(query, isInstanceOf<QueryPlatform>());
+    });
+
     test("parameters", () {
       _hasDefaultParameters(TestQuery._().parameters);
     });
 
-    test("limit", () {
-      final testQuery = TestQuery._().limit(1);
-      expect(testQuery.parameters["limit"], equals(1));
-      _hasDefaultParameters(testQuery.parameters);
+    group("Unimplemented Methods", () {
+      // TODO(helena) test for each method
+      test("limit", () {
+        try {
+          TestQuery._().limit(1);
+        } on UnimplementedError catch (e) {
+          expect(e.message, equals("limit() is not implemented"));
+          return;
+        }
+        fail('Should have thrown an [UnimplementedError]');
+      });
     });
   });
 }

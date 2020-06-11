@@ -6,7 +6,7 @@ part of firebase_core_platform_interface;
 
 /// A class storing the name and options of a Firebase app.
 ///
-/// This is created as a result of calling [FirebaseCorePlatform.initializeApp].
+/// This is created as a result of calling [FirebasePlatform.initializeApp].
 class FirebaseAppPlatform extends PlatformInterface {
   // ignore: public_member_api_docs
   FirebaseAppPlatform(this.name, this.options) : super(token: _token);

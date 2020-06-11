@@ -17,7 +17,7 @@ class CloudFunctionsException implements Exception {
 /// You can get an instance by calling [CloudFunctions.instance].
 class CloudFunctions {
   CloudFunctions({FirebaseApp app, String region})
-      : _app = app ?? FirebaseCore.instance.app(),
+      : _app = app ?? Firebase.app(),
         _region = region;
 
   static CloudFunctions _instance = CloudFunctions();

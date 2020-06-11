@@ -21,11 +21,11 @@ void main() {
         apiKey: 'AIzaSyArgmRGfB5kiQT6CunAOmKRVKEsxKmy6YI-G72PVU',
         projectId: 'flutter-firestore',
       );
-      final FirebaseApp app = await FirebaseCore.instance.initializeApp(
+      final FirebaseApp app = await Firebase.initializeApp(
         name: 'test',
         options: firebaseOptions,
       );
-      final FirebaseApp app2 = await FirebaseCore.instance.initializeApp(
+      final FirebaseApp app2 = await Firebase.initializeApp(
         name: 'test2',
         options: firebaseOptions,
       );

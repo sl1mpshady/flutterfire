@@ -10,30 +10,30 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('$FirebaseCorePlatform', () {
+  group('$FirebasePlatform', () {
     // should allow read of default app from native
-    test('$MethodChannelFirebaseCore is the default instance', () {
-      expect(FirebaseCorePlatform.instance, isA<MethodChannelFirebaseCore>());
+    test('$MethodChannelFirebase is the default instance', () {
+      expect(FirebasePlatform.instance, isA<MethodChannelFirebase>());
     });
 
     test('Can be extended', () {
-      FirebaseCorePlatform.instance = ExtendsFirebaseCorePlatform();
+      FirebasePlatform.instance = ExtendsFirebasePlatform();
     });
 
     test('Cannot be implemented with `implements`', () {
       expect(() {
-        FirebaseCorePlatform.instance = ImplementsFirebaseCorePlatform();
+        FirebasePlatform.instance = ImplementsFirebasePlatform();
       }, throwsNoSuchMethodError);
     });
 
     test('Can be mocked with `implements`', () {
       final FirebaseCoreMockPlatform mock = FirebaseCoreMockPlatform();
-      FirebaseCorePlatform.instance = mock;
+      FirebasePlatform.instance = mock;
     });
   });
 }
 
-class ImplementsFirebaseCorePlatform implements FirebaseCorePlatform {
+class ImplementsFirebasePlatform implements FirebasePlatform {
   @override
   Future<FirebaseAppPlatform> initializeApp(
           {String name, FirebaseOptions options}) =>
@@ -48,8 +48,8 @@ class ImplementsFirebaseCorePlatform implements FirebaseCorePlatform {
   List<FirebaseAppPlatform> get apps => null;
 }
 
-class ExtendsFirebaseCorePlatform extends FirebaseCorePlatform {}
+class ExtendsFirebasePlatform extends FirebasePlatform {}
 
 class FirebaseCoreMockPlatform extends Mock
     with MockPlatformInterfaceMixin
-    implements FirebaseCorePlatform {}
+    implements FirebasePlatform {}

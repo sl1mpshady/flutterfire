@@ -17,10 +17,10 @@ void main() {
     final List<MethodCall> log = <MethodCall>[];
 
     setUp(() async {
-      await FirebaseCore.instance.initializeApp();
-      await FirebaseCore.instance.initializeApp(
+      await Firebase.initializeApp();
+      await Firebase.initializeApp(
         name: '1337',
-        options: FirebaseCore.instance.app().options,
+        options: Firebase.app().options,
       );
 
       MethodChannelCloudFunctions.channel
@@ -42,10 +42,10 @@ void main() {
       await CloudFunctions.instance
           .getHttpsCallable(functionName: 'baz')
           .call();
-      final HttpsCallable callable = CloudFunctions(
-              app: FirebaseCore.instance.app('1337'), region: 'space')
-          .getHttpsCallable(functionName: 'qux')
-            ..timeout = const Duration(days: 300);
+      final HttpsCallable callable =
+          CloudFunctions(app: Firebase.app('1337'), region: 'space')
+              .getHttpsCallable(functionName: 'qux')
+                ..timeout = const Duration(days: 300);
       await callable.call(<String, dynamic>{
         'quux': 'quuz',
       });

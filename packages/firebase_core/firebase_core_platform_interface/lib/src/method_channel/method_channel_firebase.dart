@@ -4,10 +4,8 @@
 
 part of firebase_core_platform_interface;
 
-/// The [FirebaseCorePlatform] implementation that delegates to a [MethodChannel].
-///
-/// You can get an instance by calling [FirebaseCore.instance].
-class MethodChannelFirebaseCore extends FirebaseCorePlatform {
+/// The [FirebasePlatform] implementation that delegates to a [MethodChannel].
+class MethodChannelFirebase extends FirebasePlatform {
   /// Tracks local [MethodChannelFirebaseApp] instances.
   @visibleForTesting
   static Map<String, MethodChannelFirebaseApp> appInstances = {};
@@ -22,7 +20,7 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
     'plugins.flutter.io/firebase_core',
   );
 
-  /// Calls the native FirebaseCore#initializeCore method.
+  /// Calls the native Firebase#initializeCore method.
   ///
   /// Before any plugins can be consumed, any platforms using the [MethodChannel]
   /// can use initializeCore method to return any initialization data, such as
@@ -30,14 +28,14 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
   /// for a plugin to function correctly before usage.
   Future<void> _initializeCore() async {
     List<Map> apps = await channel.invokeListMethod<Map>(
-      'FirebaseCore#initializeCore',
+      'Firebase#initializeCore',
     );
 
     apps.forEach(_initializeFirebaseAppFromMap);
     isCoreInitialized = true;
   }
 
-  /// Creates and attaches a new [MethodChannelFirebaseApp] to the [MethodChannelFirebaseCore]
+  /// Creates and attaches a new [MethodChannelFirebaseApp] to the [MethodChannelFirebase]
   /// and adds any constants to the [FirebasePluginPlatform] class.
   void _initializeFirebaseAppFromMap(Map<dynamic, dynamic> map) {
     MethodChannelFirebaseApp methodChannelFirebaseApp =
@@ -47,7 +45,7 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
       isAutomaticDataCollectionEnabled: map['isAutomaticDataCollectionEnabled'],
     );
 
-    MethodChannelFirebaseCore.appInstances[methodChannelFirebaseApp.name] =
+    MethodChannelFirebase.appInstances[methodChannelFirebaseApp.name] =
         methodChannelFirebaseApp;
 
     FirebasePluginPlatform
@@ -100,7 +98,7 @@ class MethodChannelFirebaseCore extends FirebaseCorePlatform {
     }
 
     _initializeFirebaseAppFromMap(await channel.invokeMapMethod(
-      'FirebaseCore#initializeApp',
+      'Firebase#initializeApp',
       <String, dynamic>{'appName': name, 'options': options.asMap},
     ));
 

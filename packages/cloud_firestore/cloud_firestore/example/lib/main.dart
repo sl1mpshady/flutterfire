@@ -112,7 +112,7 @@ class FilmList extends StatelessWidget {
             return ListView.builder(
               itemCount: querySnapshot.size,
               itemBuilder: (context, index) =>
-                  Movie(firestore, querySnapshot.documents[index]),
+                  Movie(firestore, querySnapshot.docs[index]),
             );
           },
         ));

@@ -63,7 +63,7 @@ class FirestoreWeb extends FirestorePlatform {
   }
 
   @override
-  DocumentReferencePlatform document(String path) =>
+  DocumentReferencePlatform doc(String path) =>
       DocumentReferenceWeb(this, _webFirestore, path);
 
   @override

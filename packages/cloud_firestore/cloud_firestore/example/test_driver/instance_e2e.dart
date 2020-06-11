@@ -17,7 +17,7 @@ void runInstanceTests() {
 
     test('snapshotsInSync()', () async {
       DocumentReference documentReference =
-          firestore.document('flutter-tests/insync');
+          firestore.doc('flutter-tests/insync');
 
       // Ensure deleted
       await documentReference.delete();
@@ -40,7 +40,7 @@ void runInstanceTests() {
       // Allow the snapshots to trigger...
       await Future.delayed(Duration(seconds: 1));
 
-      await documentReference.setData({'foo': 'bar'});
+      await documentReference.set({'foo': 'bar'});
 
       await expectLater(
           controller.stream,
@@ -61,8 +61,8 @@ void runInstanceTests() {
       // Write some data while online
       await firestore.enableNetwork();
       DocumentReference documentReference =
-          firestore.document('flutter-tests/enable-network');
-      await documentReference.setData({'foo': 'bar'});
+          firestore.doc('flutter-tests/enable-network');
+      await documentReference.set({'foo': 'bar'});
 
       // Disable the network
       await firestore.disableNetwork();
@@ -70,7 +70,7 @@ void runInstanceTests() {
       StreamController controller = StreamController();
 
       // Set some data while offline
-      documentReference.setData({'foo': 'baz'}).then((_) async {
+      documentReference.set({'foo': 'baz'}).then((_) async {
         // Only when back online will this trigger
         controller.add(true);
       });
@@ -86,8 +86,8 @@ void runInstanceTests() {
       // Write some data while online
       await firestore.enableNetwork();
       DocumentReference documentReference =
-          firestore.document('flutter-tests/disable-network');
-      await documentReference.setData({'foo': 'bar'});
+          firestore.doc('flutter-tests/disable-network');
+      await documentReference.set({'foo': 'bar'});
 
       // Disable the network
       await firestore.disableNetwork();
@@ -101,17 +101,26 @@ void runInstanceTests() {
       await firestore.enableNetwork();
     });
 
-    // TODO(ehesp): Not sure how to test this - kills the tests
-    // test('terminate()', () async {
-    //   await firestore.terminate();
-    // });
-
-    test('clearPersistence()', () async {
-      await firestore.clearPersistence();
-    });
-
     test('waitForPendingWrites()', () async {
       await firestore.waitForPendingWrites();
+    });
+
+    test('terminate() / clearPersistence()', () async {
+      // Since the firestore instance has already been used,
+      // calling `clearPersistence` will throw a native error.
+      // We first check it does throw as expected, then terminate
+      // the instance, and then check whether clearing succeeds.
+      try {
+        await firestore.clearPersistence();
+        fail("Should have thrown");
+      } on FirebaseException catch (e) {
+        expect(e.code, equals("failed-precondition"));
+      } catch (e) {
+        fail(e);
+      }
+
+      await firestore.terminate();
+      await firestore.clearPersistence();
     });
   });
 }

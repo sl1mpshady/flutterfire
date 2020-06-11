@@ -103,7 +103,7 @@ class Firestore extends FirebasePluginPlatform {
   }
 
   /// Gets a [DocumentReference] for the specified Firestore path.
-  DocumentReference document(String documentPath) {
+  DocumentReference doc(String documentPath) {
     assert(documentPath != null, "a document path cannot be null");
     assert(
         documentPath.isNotEmpty, "a document path must be a non-empty string");
@@ -112,8 +112,11 @@ class Firestore extends FirebasePluginPlatform {
     assert(isValidDocumentPath(documentPath),
         "a document path must point to a valid document.");
 
-    return DocumentReference._(this, _delegate.document(documentPath));
+    return DocumentReference._(this, _delegate.doc(documentPath));
   }
+
+  @Deprecated("Deprecated in favor of `.doc()`")
+  DocumentReference document(String documentPath) => doc(documentPath);
 
   /// Enables the network for this instance. Any pending local-only writes
   /// will be written to the remote servers.

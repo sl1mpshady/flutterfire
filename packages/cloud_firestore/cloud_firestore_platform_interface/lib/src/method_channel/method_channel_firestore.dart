@@ -225,7 +225,7 @@ class MethodChannelFirestore extends FirestorePlatform {
   }
 
   @override
-  DocumentReferencePlatform document(String path) {
+  DocumentReferencePlatform doc(String path) {
     return MethodChannelDocumentReference(this, path);
   }
 

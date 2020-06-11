@@ -45,18 +45,18 @@ abstract class WriteBatchPlatform extends PlatformInterface {
   ///
   /// If [SetOptions] are provided, the data will be merged into an existing
   /// document instead of overwriting.
-  void setData(String documentPath, Map<String, dynamic> data,
+  void set(String documentPath, Map<String, dynamic> data,
       [SetOptions options]) {
-    throw UnimplementedError("setData() not implemented");
+    throw UnimplementedError("set() not implemented");
   }
 
   /// Updates fields in the document referred to by [document].
   ///
   /// If the document does not exist, the operation will fail.
-  void updateData(
+  void update(
     String documentPath,
     Map<String, dynamic> data,
   ) {
-    throw UnimplementedError("updateData() not implemented");
+    throw UnimplementedError("update() not implemented");
   }
 }

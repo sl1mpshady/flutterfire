@@ -25,7 +25,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
   }
 
   @override
-  Future<void> setData(Map<String, dynamic> data, [SetOptions options]) {
+  Future<void> set(Map<String, dynamic> data, [SetOptions options]) {
     return MethodChannelFirestore.channel.invokeMethod<void>(
       'DocumentReference#setData',
       <String, dynamic>{
@@ -41,7 +41,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
   }
 
   @override
-  Future<void> updateData(Map<String, dynamic> data) {
+  Future<void> update(Map<String, dynamic> data) {
     return MethodChannelFirestore.channel.invokeMethod<void>(
       'DocumentReference#updateData',
       <String, dynamic>{

@@ -17,13 +17,13 @@ void runGeoPointTests() {
 
     Future<DocumentReference> initializeTest(String path) async {
       String prefixedPath = 'flutter-tests/$path';
-      await firestore.document(prefixedPath).delete();
-      return firestore.document(prefixedPath);
+      await firestore.doc(prefixedPath).delete();
+      return firestore.doc(prefixedPath);
     }
 
     test('sets a $GeoPoint & returns one', () async {
       DocumentReference doc = await initializeTest('geo-point');
-      await doc.setData({'foo': GeoPoint(10, -10)});
+      await doc.set({'foo': GeoPoint(10, -10)});
       DocumentSnapshot snapshot = await doc.get();
       GeoPoint geopoint = snapshot.data()['foo'];
       expect(geopoint, isA<GeoPoint>());
@@ -33,8 +33,8 @@ void runGeoPointTests() {
 
     test('updates a $GeoPoint & returns', () async {
       DocumentReference doc = await initializeTest('geo-point-update');
-      await doc.setData({'foo': GeoPoint(10, -10)});
-      await doc.updateData({'foo': GeoPoint(-10, 10)});
+      await doc.set({'foo': GeoPoint(10, -10)});
+      await doc.update({'foo': GeoPoint(-10, 10)});
       DocumentSnapshot snapshot = await doc.get();
       GeoPoint geopoint = snapshot.data()['foo'];
       expect(geopoint, isA<GeoPoint>());

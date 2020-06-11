@@ -21,7 +21,6 @@ class Transaction {
   ///
   /// If the document changes whilst the transaction is in progress, it will
   /// be re-tried up to five times.
-  // TODO(ehesp): verify method name
   Future<DocumentSnapshot> get(DocumentReference documentReference) async {
     DocumentSnapshotPlatform documentSnapshotPlatform =
         await _delegate.get(documentReference.path);
@@ -40,7 +39,6 @@ class Transaction {
 
   /// Updates fields in the document referred to by [documentReference].
   /// The update will fail if applied to a document that does not exist.
-  // TODO(ehesp): verify method name
   Transaction update(
       DocumentReference documentReference, Map<String, dynamic> data) {
     assert(documentReference != null);
@@ -57,7 +55,6 @@ class Transaction {
   /// Writes to the document referred to by the provided [DocumentReference].
   /// If the document does not exist yet, it will be created. If you pass
   /// [SetOptions], the provided data can be merged into the existing document.
-  // TODO(ehesp): verify method name
   Transaction set(
       DocumentReference documentReference, Map<String, dynamic> data,
       [SetOptions options]) {

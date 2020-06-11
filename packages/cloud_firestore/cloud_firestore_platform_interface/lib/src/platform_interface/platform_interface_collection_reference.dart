@@ -1,7 +1,6 @@
 // Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
-import 'dart:async';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:cloud_firestore_platform_interface/src/internal/pointer.dart';
@@ -33,7 +32,7 @@ abstract class CollectionReferencePlatform extends QueryPlatform {
       return null;
     }
 
-    return firestore.document(parentPath);
+    return firestore.doc(parentPath);
   }
 
   /// A string containing the slash-separated path to this [CollectionReferencePlatform]
@@ -46,7 +45,7 @@ abstract class CollectionReferencePlatform extends QueryPlatform {
   ///
   /// The unique key generated is prefixed with a client-generated timestamp
   /// so that the resulting list will be chronologically-sorted.
-  DocumentReferencePlatform document([String path]) {
-    throw UnimplementedError("document() is not implemented");
+  DocumentReferencePlatform doc([String path]) {
+    throw UnimplementedError("doc() is not implemented");
   }
 }

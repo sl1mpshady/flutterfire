@@ -17,8 +17,8 @@ void runDocumentReferenceTests() {
 
     Future<DocumentReference> initializeTest(String path) async {
       String prefixedPath = 'flutter-tests/$path';
-      await firestore.document(prefixedPath).delete();
-      return firestore.document(prefixedPath);
+      await firestore.doc(prefixedPath).delete();
+      return firestore.doc(prefixedPath);
     }
 
     group('DocumentReference.snapshots()', () {
@@ -74,16 +74,16 @@ void runDocumentReferenceTests() {
 
         await Future.delayed(
             Duration(seconds: 1)); // allow stream to return a noop-doc
-        await document.setData({'bar': 'baz'});
+        await document.set({'bar': 'baz'});
         await document.delete();
-        await document.setData({'foo': 'bar'});
-        await document.updateData({'foo': 'baz'});
+        await document.set({'foo': 'bar'});
+        await document.update({'foo': 'baz'});
 
         subscription.cancel();
       });
 
       test('listeners throws a [FirebaseException]', () async {
-        DocumentReference document = firestore.document('not-allowed/document');
+        DocumentReference document = firestore.doc('not-allowed/document');
         Stream<DocumentSnapshot> stream = document.snapshots();
 
         try {
@@ -102,7 +102,7 @@ void runDocumentReferenceTests() {
     group('DocumentReference.delete()', () {
       test('delete() deletes a document', () async {
         DocumentReference document = await initializeTest('document-delete');
-        await document.setData({
+        await document.set({
           'foo': 'bar',
         });
         DocumentSnapshot snapshot = await document.get();
@@ -113,7 +113,7 @@ void runDocumentReferenceTests() {
       });
 
       test('throws a [FirebaseException] on error', () async {
-        DocumentReference document = firestore.document('not-allowed/document');
+        DocumentReference document = firestore.doc('not-allowed/document');
 
         try {
           await document.delete();
@@ -131,7 +131,7 @@ void runDocumentReferenceTests() {
       test('gets a document from server', () async {
         DocumentReference document =
             await initializeTest('document-get-server');
-        await document.setData({'foo': 'bar'});
+        await document.set({'foo': 'bar'});
         DocumentSnapshot snapshot =
             await document.get(GetOptions(source: Source.server));
         expect(snapshot.data(), {'foo': 'bar'});
@@ -140,7 +140,7 @@ void runDocumentReferenceTests() {
 
       test('gets a document from cache', () async {
         DocumentReference document = await initializeTest('document-get-cache');
-        await document.setData({'foo': 'bar'});
+        await document.set({'foo': 'bar'});
         DocumentSnapshot snapshot =
             await document.get(GetOptions(source: Source.cache));
         expect(snapshot.data(), equals({'foo': 'bar'}));
@@ -149,7 +149,7 @@ void runDocumentReferenceTests() {
 
       test('gets a document from cache', () async {
         DocumentReference document = await initializeTest('document-get-cache');
-        await document.setData({'foo': 'bar'});
+        await document.set({'foo': 'bar'});
         DocumentSnapshot snapshot =
             await document.get(GetOptions(source: Source.cache));
         expect(snapshot.data(), equals({'foo': 'bar'}));
@@ -157,7 +157,7 @@ void runDocumentReferenceTests() {
       });
 
       test('throws a [FirebaseException] on error', () async {
-        DocumentReference document = firestore.document('not-allowed/document');
+        DocumentReference document = firestore.doc('not-allowed/document');
 
         try {
           await document.get();
@@ -174,21 +174,21 @@ void runDocumentReferenceTests() {
     group('DocumentReference.setData()', () {
       test('sets data', () async {
         DocumentReference document = await initializeTest('document-set');
-        await document.setData({'foo': 'bar'});
+        await document.set({'foo': 'bar'});
         DocumentSnapshot snapshot = await document.get();
         expect(snapshot.data(), equals({'foo': 'bar'}));
-        await document.setData({'bar': 'baz'});
+        await document.set({'bar': 'baz'});
         DocumentSnapshot snapshot2 = await document.get();
         expect(snapshot2.data(), equals({'bar': 'baz'}));
       });
 
       test('set() merges data', () async {
         DocumentReference document = await initializeTest('document-set-merge');
-        await document.setData({'foo': 'bar'});
+        await document.set({'foo': 'bar'});
         DocumentSnapshot snapshot = await document.get();
         expect(snapshot.data(), equals({'foo': 'bar'}));
         await document
-            .setData({'foo': 'ben', 'bar': 'baz'}, SetOptions(merge: true));
+            .set({'foo': 'ben', 'bar': 'baz'}, SetOptions(merge: true));
         DocumentSnapshot snapshot2 = await document.get();
         expect(snapshot2.data(), equals({'foo': 'ben', 'bar': 'baz'}));
       });
@@ -206,10 +206,10 @@ void runDocumentReferenceTests() {
           'bar': 456,
           'baz': 'foo',
         };
-        await document.setData(initialData);
+        await document.set(initialData);
         DocumentSnapshot snapshot = await document.get();
         expect(snapshot.data(), equals(initialData));
-        await document.setData(
+        await document.set(
             dataToSet,
             SetOptions(mergeFields: [
               'bar',
@@ -221,10 +221,10 @@ void runDocumentReferenceTests() {
       });
 
       test('throws a [FirebaseException] on error', () async {
-        DocumentReference document = firestore.document('not-allowed/document');
+        DocumentReference document = firestore.doc('not-allowed/document');
 
         try {
-          await document.setData({'foo': 'bar'});
+          await document.set({'foo': 'bar'});
         } catch (error) {
           expect(error, isA<FirebaseException>());
           expect(
@@ -237,7 +237,7 @@ void runDocumentReferenceTests() {
       test('set and return all possible datatypes', () async {
         DocumentReference document = await initializeTest('document-types');
 
-        await document.setData({
+        await document.set({
           'string': 'foo bar',
           'number-32': 123,
           // Equivalent of `Number.MAX_SAFE_INTEGER` in JS, can't go higher than this.
@@ -258,7 +258,7 @@ void runDocumentReferenceTests() {
           'null': null,
           'timestamp': Timestamp.now(),
           'geopoint': GeoPoint(1, 2),
-          'reference': firestore.document('foo/bar'),
+          'reference': firestore.doc('foo/bar'),
         });
 
         DocumentSnapshot snapshot = await document.get();
@@ -297,10 +297,10 @@ void runDocumentReferenceTests() {
     group('DocumentReference.updateData()', () {
       test('updates data', () async {
         DocumentReference document = await initializeTest('document-update');
-        await document.setData({'foo': 'bar'});
+        await document.set({'foo': 'bar'});
         DocumentSnapshot snapshot = await document.get();
         expect(snapshot.data(), equals({'foo': 'bar'}));
-        await document.updateData({'bar': 'baz'});
+        await document.update({'bar': 'baz'});
         DocumentSnapshot snapshot2 = await document.get();
         expect(snapshot2.data(), equals({'foo': 'bar', 'bar': 'baz'}));
       });
@@ -309,7 +309,7 @@ void runDocumentReferenceTests() {
         DocumentReference document =
             await initializeTest('document-update-not-exists');
         try {
-          await document.updateData({'foo': 'bar'});
+          await document.update({'foo': 'bar'});
           fail("Should have thrown");
         } catch (e) {
           expect(e, isA<FirebaseException>());

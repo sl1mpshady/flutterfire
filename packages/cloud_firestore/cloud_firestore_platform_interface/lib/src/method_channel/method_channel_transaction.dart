@@ -9,7 +9,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 
 import 'method_channel_firestore.dart';
-import 'utils/exception.dart';
 
 /// An implementation of [TransactionPlatform] which uses [MethodChannel] to
 /// communication with native plugin

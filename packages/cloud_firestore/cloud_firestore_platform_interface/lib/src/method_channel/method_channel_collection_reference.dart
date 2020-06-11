@@ -46,7 +46,7 @@ class MethodChannelCollectionReference extends MethodChannelQuery
   String get path => _pointer.path;
 
   @override
-  DocumentReferencePlatform document([String path]) {
+  DocumentReferencePlatform doc([String path]) {
     String documentPath;
 
     if (path != null) {

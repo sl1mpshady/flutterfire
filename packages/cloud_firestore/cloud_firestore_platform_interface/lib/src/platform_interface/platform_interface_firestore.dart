@@ -95,8 +95,8 @@ abstract class FirestorePlatform extends PlatformInterface {
   }
 
   /// Gets a [DocumentReferencePlatform] for the specified Firestore path.
-  DocumentReferencePlatform document(String documentPath) {
-    throw UnimplementedError('document() is not implemented');
+  DocumentReferencePlatform doc(String documentPath) {
+    throw UnimplementedError('doc() is not implemented');
   }
 
   /// Re-enables use of the network for this Firestore instance after a prior

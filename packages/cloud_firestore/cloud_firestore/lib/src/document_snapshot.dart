@@ -20,11 +20,10 @@ class DocumentSnapshot {
   /// This document's given ID for this snapshot.
   String get id => _delegate.id;
 
-  @Deprecated("Deprecated in favor of 'id'")
+  @Deprecated("Deprecated in favor of `.id`")
   String get documentID => id;
 
-  DocumentReference get reference =>
-      _firestore.document(_delegate.reference.path);
+  DocumentReference get reference => _firestore.doc(_delegate.reference.path);
 
   /// Metadata about this snapshot concerning its source and if it has local
   /// modifications.
@@ -45,7 +44,4 @@ class DocumentSnapshot {
   /// which recursivley finds the specified data. If no data could be found
   /// at the specified path, a [StateError] will be thrown.
   dynamic get(dynamic field) => _delegate.get(field);
-
-  /// Read individual keys from the snapshot data.
-  dynamic operator [](String key) => data()[key];
 }

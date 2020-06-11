@@ -17,15 +17,15 @@ void runTimestampTests() {
 
     Future<DocumentReference> initializeTest(String path) async {
       String prefixedPath = 'flutter-tests/$path';
-      await firestore.document(prefixedPath).delete();
-      return firestore.document(prefixedPath);
+      await firestore.doc(prefixedPath).delete();
+      return firestore.doc(prefixedPath);
     }
 
     test('sets a $Timestamp & returns one', () async {
       DocumentReference doc = await initializeTest('timestamp');
       DateTime date = DateTime.utc(3000, 01, 01);
 
-      await doc.setData({'foo': Timestamp.fromDate(date)});
+      await doc.set({'foo': Timestamp.fromDate(date)});
       DocumentSnapshot snapshot = await doc.get();
       Timestamp timestamp = snapshot.data()['foo'];
       expect(timestamp, isA<Timestamp>());
@@ -36,8 +36,8 @@ void runTimestampTests() {
     test('updates a $Timestamp & returns', () async {
       DocumentReference doc = await initializeTest('geo-point-update');
       DateTime date = DateTime.utc(3000, 01, 02);
-      await doc.setData({'foo': DateTime.utc(3000, 01, 01)});
-      await doc.updateData({'foo': date});
+      await doc.set({'foo': DateTime.utc(3000, 01, 01)});
+      await doc.update({'foo': date});
       DocumentSnapshot snapshot = await doc.get();
       Timestamp timestamp = snapshot.data()['foo'];
       expect(timestamp, isA<Timestamp>());

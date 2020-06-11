@@ -27,7 +27,7 @@ class DocumentReferenceWeb extends DocumentReferencePlatform {
         super(firestore, path);
 
   @override
-  Future<void> setData(Map<String, dynamic> data, [SetOptions options]) =>
+  Future<void> set(Map<String, dynamic> data, [SetOptions options]) =>
       _delegate.set(
         CodecUtility.encodeMapData(data),
         // TODO(ehesp): `mergeFields` missing from web implementation
@@ -35,7 +35,7 @@ class DocumentReferenceWeb extends DocumentReferencePlatform {
       );
 
   @override
-  Future<void> updateData(Map<String, dynamic> data) =>
+  Future<void> update(Map<String, dynamic> data) =>
       _delegate.update(data: CodecUtility.encodeMapData(data));
 
   @override

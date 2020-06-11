@@ -37,24 +37,36 @@ class WriteBatch {
   ///
   /// If [SetOptions] are provided, the data will be merged into an existing
   /// document instead of overwriting.
-  // TODO(ehesp): should this be `set()`?
-  void setData(DocumentReference document, Map<String, dynamic> data,
+  void set(DocumentReference document, Map<String, dynamic> data,
       [SetOptions options]) {
     assert(document != null);
     assert(data != null);
     assert(document.firestore == _firestore,
         "the document provided is from a different Firestore instance");
-    return _delegate.setData(document.path,
+    return _delegate.set(document.path,
         _CodecUtility.replaceValueWithDelegatesInMap(data), options);
   }
 
-  // TODO(ehesp): should this be `update()`?
-  void updateData(DocumentReference document, Map<String, dynamic> data) {
+  @Deprecated("Deprecated in favor of `.set`")
+  void setData(DocumentReference document, Map<String, dynamic> data,
+      [SetOptions options]) {
+    return set(document, data, options);
+  }
+
+  /// Updates a given [document].
+  ///
+  /// If the document does not yet exist, an exception will be thrown.
+  void update(DocumentReference document, Map<String, dynamic> data) {
     assert(document != null);
     assert(data != null);
     assert(document.firestore == _firestore,
         "the document provided is from a different Firestore instance");
-    return _delegate.updateData(
+    return _delegate.update(
         document.path, _CodecUtility.replaceValueWithDelegatesInMap(data));
+  }
+
+  @Deprecated("Deprecated in favor of `.update`")
+  void updateData(DocumentReference document, Map<String, dynamic> data) {
+    return update(document, data);
   }
 }

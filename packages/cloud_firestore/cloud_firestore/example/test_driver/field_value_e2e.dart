@@ -17,16 +17,16 @@ void runFieldValueTests() {
 
     Future<DocumentReference> initializeTest(String path) async {
       String prefixedPath = 'flutter-tests/$path';
-      await firestore.document(prefixedPath).delete();
-      return firestore.document(prefixedPath);
+      await firestore.doc(prefixedPath).delete();
+      return firestore.doc(prefixedPath);
     }
 
     group('FieldValue.increment()', () {
       test('increments a number if it exists', () async {
         DocumentReference doc =
             await initializeTest('field-value-increment-exists');
-        await doc.setData({'foo': 2});
-        await doc.updateData({'foo': FieldValue.increment(1)});
+        await doc.set({'foo': 2});
+        await doc.update({'foo': FieldValue.increment(1)});
         DocumentSnapshot snapshot = await doc.get();
         expect(snapshot.data()['foo'], equals(3));
       });
@@ -34,8 +34,8 @@ void runFieldValueTests() {
       test('decrements a number', () async {
         DocumentReference doc =
             await initializeTest('field-value-decrement-exists');
-        await doc.setData({'foo': 2});
-        await doc.updateData({'foo': FieldValue.increment(-1)});
+        await doc.set({'foo': 2});
+        await doc.update({'foo': FieldValue.increment(-1)});
         DocumentSnapshot snapshot = await doc.get();
         expect(snapshot.data()['foo'], equals(1));
       });
@@ -45,7 +45,7 @@ void runFieldValueTests() {
             await initializeTest('field-value-increment-not-exists');
         DocumentSnapshot snapshot = await doc.get();
         expect(snapshot.exists, isFalse);
-        await doc.setData({'foo': FieldValue.increment(1)});
+        await doc.set({'foo': FieldValue.increment(1)});
         DocumentSnapshot snapshot2 = await doc.get();
         expect(snapshot2.data()['foo'], equals(1));
       });
@@ -55,7 +55,7 @@ void runFieldValueTests() {
       test('sets a new server time value', () async {
         DocumentReference doc =
             await initializeTest('field-value-server-timestamp-new');
-        await doc.setData({'foo': FieldValue.serverTimestamp()});
+        await doc.set({'foo': FieldValue.serverTimestamp()});
         DocumentSnapshot snapshot = await doc.get();
         expect(snapshot.data()['foo'], isA<Timestamp>());
       });
@@ -63,12 +63,12 @@ void runFieldValueTests() {
       test('updates a server time value', () async {
         DocumentReference doc =
             await initializeTest('field-value-server-timestamp-update');
-        await doc.setData({'foo': FieldValue.serverTimestamp()});
+        await doc.set({'foo': FieldValue.serverTimestamp()});
         DocumentSnapshot snapshot = await doc.get();
         Timestamp serverTime1 = snapshot.data()['foo'];
         expect(serverTime1, isA<Timestamp>());
         await Future.delayed(const Duration(milliseconds: 100));
-        await doc.updateData({'foo': FieldValue.serverTimestamp()});
+        await doc.update({'foo': FieldValue.serverTimestamp()});
         DocumentSnapshot snapshot2 = await doc.get();
         Timestamp serverTime2 = snapshot2.data()['foo'];
         expect(serverTime2, isA<Timestamp>());
@@ -82,8 +82,8 @@ void runFieldValueTests() {
     group('FieldValue.delete()', () {
       test('removes a value', () async {
         DocumentReference doc = await initializeTest('field-value-delete');
-        await doc.setData({'foo': 'bar', 'bar': 'baz'});
-        await doc.updateData({'bar': FieldValue.delete()});
+        await doc.set({'foo': 'bar', 'bar': 'baz'});
+        await doc.update({'bar': FieldValue.delete()});
         DocumentSnapshot snapshot = await doc.get();
         expect(snapshot.data(), equals(<String, dynamic>{'foo': 'bar'}));
       });
@@ -93,10 +93,10 @@ void runFieldValueTests() {
       test('updates an existing array', () async {
         DocumentReference doc =
             await initializeTest('field-value-array-union-update-array');
-        await doc.setData({
+        await doc.set({
           'foo': [1, 2]
         });
-        await doc.updateData({
+        await doc.update({
           'foo': FieldValue.arrayUnion([3, 4])
         });
         DocumentSnapshot snapshot = await doc.get();
@@ -106,8 +106,8 @@ void runFieldValueTests() {
       test('updates an array if current value is not an array', () async {
         DocumentReference doc =
             await initializeTest('field-value-array-union-replace');
-        await doc.setData({'foo': 'bar'});
-        await doc.updateData({
+        await doc.set({'foo': 'bar'});
+        await doc.update({
           'foo': FieldValue.arrayUnion([3, 4])
         });
         DocumentSnapshot snapshot = await doc.get();
@@ -117,8 +117,8 @@ void runFieldValueTests() {
       test('sets an array if current value is not an array', () async {
         DocumentReference doc =
             await initializeTest('field-value-array-union-replace');
-        await doc.setData({'foo': 'bar'});
-        await doc.setData({
+        await doc.set({'foo': 'bar'});
+        await doc.set({
           'foo': FieldValue.arrayUnion([3, 4])
         });
         DocumentSnapshot snapshot = await doc.get();
@@ -130,10 +130,10 @@ void runFieldValueTests() {
       test('removes items in an array', () async {
         DocumentReference doc =
             await initializeTest('field-value-array-remove-existing');
-        await doc.setData({
+        await doc.set({
           'foo': [1, 2, 3, 4]
         });
-        await doc.updateData({
+        await doc.update({
           'foo': FieldValue.arrayRemove([3, 4])
         });
         DocumentSnapshot snapshot = await doc.get();
@@ -144,8 +144,8 @@ void runFieldValueTests() {
           () async {
         DocumentReference doc =
             await initializeTest('field-value-array-remove-replace');
-        await doc.setData({'foo': 'bar'});
-        await doc.updateData({
+        await doc.set({'foo': 'bar'});
+        await doc.update({
           'foo': FieldValue.arrayUnion([3, 4])
         });
         DocumentSnapshot snapshot = await doc.get();
@@ -156,8 +156,8 @@ void runFieldValueTests() {
           () async {
         DocumentReference doc =
             await initializeTest('field-value-array-remove-replace');
-        await doc.setData({'foo': 'bar'});
-        await doc.setData({
+        await doc.set({'foo': 'bar'});
+        await doc.set({
           'foo': FieldValue.arrayUnion([3, 4])
         });
         DocumentSnapshot snapshot = await doc.get();

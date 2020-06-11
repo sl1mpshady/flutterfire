@@ -41,7 +41,7 @@ class CollectionReference extends Query {
   /// so that the resulting list will be chronologically-sorted.
   Future<DocumentReference> add(Map<String, dynamic> data) async {
     assert(data != null);
-    final DocumentReference newDocument = document();
+    final DocumentReference newDocument = doc();
     await newDocument.setData(data);
     return newDocument;
   }
@@ -52,8 +52,11 @@ class CollectionReference extends Query {
   ///
   /// The unique key generated is prefixed with a client-generated timestamp
   /// so that the resulting list will be chronologically-sorted.
-  DocumentReference document([String path]) =>
-      DocumentReference._(firestore, _delegate.document(path));
+  DocumentReference doc([String path]) =>
+      DocumentReference._(firestore, _delegate.doc(path));
+
+  @Deprecated("Deprecated in favor of `.doc()`")
+  DocumentReference document([String path]) => doc(path);
 
   @override
   bool operator ==(dynamic o) =>

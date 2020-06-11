@@ -19,8 +19,7 @@ void runWriteBatchTests() {
       CollectionReference collection =
           firestore.collection('flutter-tests/$id/query-tests');
       QuerySnapshot snapshot = await collection.get();
-      await Future.forEach(snapshot.documents,
-          (DocumentSnapshot documentSnapshot) {
+      await Future.forEach(snapshot.docs, (DocumentSnapshot documentSnapshot) {
         return documentSnapshot.reference.delete();
       });
       return collection;
@@ -30,56 +29,53 @@ void runWriteBatchTests() {
       CollectionReference collection = await initializeTest('write-batch-ops');
       WriteBatch batch = firestore.batch();
 
-      DocumentReference doc1 = await collection.document('doc1'); // delete
-      DocumentReference doc2 = await collection.document('doc2'); // set
-      DocumentReference doc3 = await collection.document('doc3'); // update
-      DocumentReference doc4 =
-          await collection.document('doc4'); // update w/ merge
+      DocumentReference doc1 = await collection.doc('doc1'); // delete
+      DocumentReference doc2 = await collection.doc('doc2'); // set
+      DocumentReference doc3 = await collection.doc('doc3'); // update
+      DocumentReference doc4 = await collection.doc('doc4'); // update w/ merge
       DocumentReference doc5 =
-          await collection.document('doc5'); // update w/ mergeFields
+          await collection.doc('doc5'); // update w/ mergeFields
 
       await Future.wait([
-        doc1.setData({'foo': 'bar'}),
-        doc2.setData({'foo': 'bar'}),
-        doc3.setData({'foo': 'bar', 'bar': 'baz'}),
-        doc4.setData({'foo': 'bar'}),
-        doc5.setData({'foo': 'bar', 'bar': 'baz'}),
+        doc1.set({'foo': 'bar'}),
+        doc2.set({'foo': 'bar'}),
+        doc3.set({'foo': 'bar', 'bar': 'baz'}),
+        doc4.set({'foo': 'bar'}),
+        doc5.set({'foo': 'bar', 'bar': 'baz'}),
       ]);
 
       batch.delete(doc1);
-      batch.setData(doc2, <String, dynamic>{'bar': 'baz'});
-      batch.updateData(doc3, <String, dynamic>{'bar': 'ben'});
-      batch.setData(
-          doc4, <String, dynamic>{'bar': 'ben'}, SetOptions(merge: true));
-      batch.setData(doc5, <String, dynamic>{'bar': 'ben'},
+      batch.set(doc2, <String, dynamic>{'bar': 'baz'});
+      batch.update(doc3, <String, dynamic>{'bar': 'ben'});
+      batch.set(doc4, <String, dynamic>{'bar': 'ben'}, SetOptions(merge: true));
+      batch.set(doc5, <String, dynamic>{'bar': 'ben'},
           SetOptions(mergeFields: ['bar']));
 
       await batch.commit();
 
       QuerySnapshot snapshot = await collection.get();
 
-      expect(snapshot.documents.length, equals(4));
+      expect(snapshot.docs.length, equals(4));
+      expect(snapshot.docs.where((doc) => doc.id == 'doc1').isEmpty, isTrue);
       expect(
-          snapshot.documents.where((doc) => doc.id == 'doc1').isEmpty, isTrue);
-      expect(
-          snapshot.documents.firstWhere((doc) => doc.id == 'doc2').data(),
+          snapshot.docs.firstWhere((doc) => doc.id == 'doc2').data(),
           equals(<String, dynamic>{
             'bar': 'baz',
           }));
       expect(
-          snapshot.documents.firstWhere((doc) => doc.id == 'doc3').data(),
+          snapshot.docs.firstWhere((doc) => doc.id == 'doc3').data(),
           equals(<String, dynamic>{
             'foo': 'bar',
             'bar': 'ben',
           }));
       expect(
-          snapshot.documents.firstWhere((doc) => doc.id == 'doc4').data(),
+          snapshot.docs.firstWhere((doc) => doc.id == 'doc4').data(),
           equals(<String, dynamic>{
             'foo': 'bar',
             'bar': 'ben',
           }));
       expect(
-          snapshot.documents.firstWhere((doc) => doc.id == 'doc5').data(),
+          snapshot.docs.firstWhere((doc) => doc.id == 'doc5').data(),
           equals(<String, dynamic>{
             'foo': 'bar',
             'bar': 'ben',

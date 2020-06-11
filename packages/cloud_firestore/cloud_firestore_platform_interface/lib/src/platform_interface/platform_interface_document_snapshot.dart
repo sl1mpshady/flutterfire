@@ -52,7 +52,7 @@ class DocumentSnapshotPlatform extends PlatformInterface {
   }
 
   /// The reference that produced this snapshot.
-  DocumentReferencePlatform get reference => _firestore.document(_pointer.path);
+  DocumentReferencePlatform get reference => _firestore.doc(_pointer.path);
 
   /// Contains all the data of this snapshot.
   Map<String, dynamic> data() {

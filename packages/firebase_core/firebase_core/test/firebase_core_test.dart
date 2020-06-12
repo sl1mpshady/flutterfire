@@ -24,7 +24,7 @@ void main() {
 
     setUp(() async {
       mock = MockFirebaseCore();
-      FirebasePlatform.instance = mock;
+      Firebase.delegatePackingProperty = mock;
 
       final FirebaseAppPlatform platformApp =
           FirebaseAppPlatform(testAppName, testOptions);

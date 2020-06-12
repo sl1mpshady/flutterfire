@@ -6,7 +6,21 @@ part of firebase_core;
 
 /// The entry point for accessing Firebase.
 class Firebase {
-  static FirebasePlatform _delegate = FirebasePlatform.instance;
+  // Cached & lazily loaded instance of [FirebasePlatform].
+  // Avoids a [MethodChannelFirebase] being initialized until the user
+  // starts using Firebase.
+  // The property is visible for testing to allow tests to set a mock
+  // instance directly as a static property since the class is not initialized.
+  @visibleForTesting
+  // ignore: public_member_api_docs
+  static FirebasePlatform delegatePackingProperty;
+
+  static FirebasePlatform get _delegate {
+    if (delegatePackingProperty == null) {
+      delegatePackingProperty = FirebasePlatform.instance;
+    }
+    return delegatePackingProperty;
+  }
 
   // Ensures end-users cannot initialize the class.
   Firebase._();

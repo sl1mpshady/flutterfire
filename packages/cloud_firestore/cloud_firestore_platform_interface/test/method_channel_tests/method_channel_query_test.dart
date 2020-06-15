@@ -126,7 +126,8 @@ void main() {
           switch (methodCall.method) {
             case 'Query#getDocuments':
               if (methodCall.arguments['path'] == 'foo/unknown') {
-                throw PlatformException(code: 'UNKNOWN_PATH');
+                throw PlatformException(
+                    code: 'ERROR', details: {'code': 'UNKNOWN_PATH'});
               }
 
               return <String, dynamic>{
@@ -152,7 +153,7 @@ void main() {
         final GetOptions getOptions = const GetOptions(source: Source.cache);
         QuerySnapshotPlatform snapshot = await query.get(getOptions);
 
-        expect(snapshot.documents.length, 1);
+        expect(snapshot.docs.length, 1);
 
         // TODO(helenaford) fix log
         // expect(
@@ -175,12 +176,6 @@ void main() {
                 parameters: {
                   'where': [],
                   'orderBy': [],
-                  'startAt': null,
-                  'startAfter': null,
-                  'endAt': [],
-                  'endBefore': null,
-                  'limit': null,
-                  'limitToLast': null
                 },
                 isCollectionGroupQuery: false);
         final GetOptions getOptions = const GetOptions(source: Source.cache);
@@ -188,10 +183,7 @@ void main() {
         try {
           await testQuery.get(getOptions);
         } on FirebaseException catch (e) {
-          // TODO(heleanford) check what error code should be
-          // Currently returning 'unknown' not using code 'UNKNOWN_PATH' from platform exception
-          // See platformExceptionToFirebaseException()
-          expect(e.code, equals('unknown'));
+          expect(e.code, equals('UNKNOWN_PATH'));
           return;
         }
         fail("Should have thrown a [FirebaseException]");

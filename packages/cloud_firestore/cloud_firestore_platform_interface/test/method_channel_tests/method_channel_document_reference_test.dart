@@ -54,7 +54,7 @@ void main() {
           expect(call.arguments["data"]["test"], equals(data["test"]));
         }
       });
-      await _documentReference.updateData(data);
+      await _documentReference.update(data);
       expect(isMethodCalled, isTrue,
           reason: "DocumentReference.updateData was not called");
     });
@@ -132,10 +132,9 @@ void _assertSetDataMethodCalled(DocumentReferencePlatform documentReference,
     }
   });
   if (expectedMergeValue == null) {
-    await documentReference.setData(data);
+    await documentReference.set(data);
   } else {
-    await documentReference.setData(
-        data, SetOptions(merge: expectedMergeValue));
+    await documentReference.set(data, SetOptions(merge: expectedMergeValue));
   }
   expect(isMethodCalled, isTrue,
       reason: "DocumentReference.setData was not called");

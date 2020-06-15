@@ -37,13 +37,13 @@ void main() {
 
     test("documentChanges", () {
       final snapshot = TestQuerySnapshot._();
-      final documentChanges = snapshot.documentChanges;
+      final documentChanges = snapshot.docChanges;
       expect(documentChanges, isInstanceOf<List<DocumentChangePlatform>>());
       expect(documentChanges, _kDocumentChanges);
     });
     test("documents", () {
       final snapshot = TestQuerySnapshot._();
-      final documents = snapshot.documents;
+      final documents = snapshot.docs;
       expect(documents, isInstanceOf<List<DocumentSnapshotPlatform>>());
       expect(documents, _kDocuments);
     });

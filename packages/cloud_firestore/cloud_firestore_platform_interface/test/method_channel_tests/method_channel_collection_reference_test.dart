@@ -43,8 +43,8 @@ void main() {
           equals("$_kCollectionId/$_kDocumentId"));
     });
     test("Document", () {
-      expect(_testCollection.document().path.split("/").length, equals(2));
-      expect(_testCollection.document(_kDocumentId).path.split("/").last,
+      expect(_testCollection.doc().path.split("/").length, equals(2));
+      expect(_testCollection.doc(_kDocumentId).path.split("/").last,
           equals(_kDocumentId));
     });
   });

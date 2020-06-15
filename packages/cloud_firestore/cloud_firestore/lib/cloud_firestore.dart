@@ -5,7 +5,6 @@
 library cloud_firestore;
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:collection/collection.dart' show ListEquality;

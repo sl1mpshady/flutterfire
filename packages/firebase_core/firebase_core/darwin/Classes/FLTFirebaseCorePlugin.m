@@ -8,9 +8,9 @@
 // Flutter method channel name.
 NSString *const kFLTFirebaseCoreChannelName = @"plugins.flutter.io/firebase_core";
 
-// FirebaseCore method names.
-NSString *const kMethodCoreInitializeApp = @"FirebaseCore#initializeApp";
-NSString *const kMethodCoreInitializeCore = @"FirebaseCore#initializeCore";
+// Firebase method names.
+NSString *const kMethodCoreInitializeApp = @"Firebase#initializeApp";
+NSString *const kMethodCoreInitializeCore = @"Firebase#initializeCore";
 
 // FirebaseApp method names.
 NSString *const kMethodAppDelete = @"FirebaseApp#delete";

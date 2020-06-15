@@ -15,7 +15,7 @@ abstract class FirebasePluginPlatform extends PlatformInterface {
 
   /// The global data store for all constants, for each plugin and [FirebaseAppPlatform] instance.
   ///
-  /// When Firebase is initialized by the user with [FirebaseCorePlatform.initializeApp],
+  /// When Firebase is initialized by the user with [FirebasePlatform.initializeApp],
   /// any constant values which are required before the plugins can be consumed are registered
   /// here. For example, calling [FirebaseAppPlatform.isAutomaticDataCollectionEnabled]
   /// requires that the value is synchronously available for use after initialization.

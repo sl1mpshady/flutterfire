@@ -7,8 +7,8 @@ import 'package:firebase_core_platform_interface/firebase_core_platform_interfac
 
 void initializeMethodChannel() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  MethodChannelFirebaseCore.channel.setMockMethodCallHandler((call) async {
-    if (call.method == 'FirebaseCore#initializeCore') {
+  MethodChannelFirebase.channel.setMockMethodCallHandler((call) async {
+    if (call.method == 'Firebase#initializeCore') {
       return [
         {
           'name': '[DEFAULT]',
@@ -22,7 +22,7 @@ void initializeMethodChannel() {
         }
       ];
     }
-    if (call.method == 'FirebaseCore#initializeApp') {
+    if (call.method == 'Firebase#initializeApp') {
       return {
         'name': call.arguments['appName'],
         'options': call.arguments['options'],

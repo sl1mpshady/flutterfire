@@ -16,7 +16,7 @@ void main() {
   FirebaseApp app;
 
   setUpAll(() async {
-    app = await FirebaseCore.instance.initializeApp(
+    app = await Firebase.initializeApp(
       name: 'testApp',
       options: const FirebaseOptions(
         appId: '1:1234567890:ios:42424242424242',

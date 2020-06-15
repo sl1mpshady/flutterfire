@@ -9,7 +9,7 @@ part of firebase_core_platform_interface;
 ///
 /// ```dart
 /// try {
-///   await FirebaseCore.instance.initializeApp();
+///   await Firebase.initializeApp();
 /// } catch (e) {
 ///   print(e.toString());
 /// }
@@ -20,7 +20,7 @@ class FirebaseException implements Exception {
   ///
   /// ```dart
   /// try {
-  ///   await FirebaseCore.instance.initializeApp();
+  ///   await Firebase.initializeApp();
   /// } catch (e) {
   ///   print(e.toString());
   /// }

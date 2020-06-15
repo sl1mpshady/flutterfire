@@ -10,7 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final FirebaseApp app = await FirebaseCore.instance.initializeApp(
+  final FirebaseApp app = await Firebase.initializeApp(
     name: 'test',
     options: const FirebaseOptions(
       appId: '1:79601577497:ios:5f2bcc6ba8cecddd',

@@ -30,7 +30,7 @@ class FirestoreWeb extends FirestorePlatform {
   /// If [app] is null then the created instance will use the default [FirebaseApp]
   FirestoreWeb({FirebaseApp app})
       : _webFirestore = firebase.firestore(firebase.app((app ?? '[DEFAULT]'))),
-        super(app: app ?? FirebaseCore.instance.app()) {
+        super(app: app ?? Firebase.app()) {
     FieldValueFactoryPlatform.instance = FieldValueFactoryWeb();
   }
 

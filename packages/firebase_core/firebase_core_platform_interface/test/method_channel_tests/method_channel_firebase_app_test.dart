@@ -23,7 +23,7 @@ void main() {
         MethodChannelFirebaseApp('foo', testOptions);
 
     setUp(() async {
-      MethodChannelFirebaseCore.channel
+      MethodChannelFirebase.channel
           .setMockMethodCallHandler((MethodCall methodCall) async {
         methodCallLog.add(methodCall);
         print(methodCall);

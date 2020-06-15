@@ -217,10 +217,10 @@ public class FlutterFirebaseCorePlugin implements FlutterPlugin, MethodChannel.M
     Task<?> methodCallTask;
 
     switch (call.method) {
-      case "FirebaseCore#initializeApp":
+      case "Firebase#initializeApp":
         methodCallTask = initializeApp(call.arguments());
         break;
-      case "FirebaseCore#initializeCore":
+      case "Firebase#initializeCore":
         methodCallTask = initializeCore();
         break;
       case "FirebaseApp#setAutomaticDataCollectionEnabled":

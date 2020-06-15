@@ -11,24 +11,24 @@ part of firebase_core_platform_interface;
 /// changes. Extending this class (using `extends`) ensures that the subclass
 /// will get the default implementation, while platform implementations that
 /// `implements` this interface will be broken by newly added
-/// [FirebaseCorePlatform] methods.
-abstract class FirebaseCorePlatform extends PlatformInterface {
+/// [FirebasePlatform] methods.
+abstract class FirebasePlatform extends PlatformInterface {
   // ignore: public_member_api_docs
-  FirebaseCorePlatform() : super(token: _token);
+  FirebasePlatform() : super(token: _token);
 
   static final Object _token = Object();
 
-  /// The default instance of [FirebaseCorePlatform] to use.
+  /// The default instance of [FirebasePlatform] to use.
   ///
   /// Platform-specific plugins should override this with their own class
-  /// that extends [FirebaseCorePlatform] when they register themselves.
+  /// that extends [FirebasePlatform] when they register themselves.
   ///
-  /// Defaults to [MethodChannelFirebaseCore].
-  static FirebaseCorePlatform get instance => _instance;
+  /// Defaults to [MethodChannelFirebase].
+  static FirebasePlatform get instance => _instance;
 
-  static FirebaseCorePlatform _instance = MethodChannelFirebaseCore();
+  static FirebasePlatform _instance = MethodChannelFirebase();
 
-  static set instance(FirebaseCorePlatform instance) {
+  static set instance(FirebasePlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }

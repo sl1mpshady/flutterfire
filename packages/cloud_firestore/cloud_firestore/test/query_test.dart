@@ -180,17 +180,6 @@ void main() {
                   .where('foo', whereIn: [2, 3]).where('foo', whereIn: [2, 3]),
               throwsAssertionError);
         });
-
-        // TODO: validation when filtering on FieldPath.documentId
-        // when querying with documentId, can't be empty string
-        // when querying with documentId, string can't contain slashes
-        // when querying with documentId, value can't be int (has to be string)
-        // when querying with documentId, value must result in valid path, can't be odds number of segments
-        // when querying with documentId, can't perform arrayContains
-        // when querying with documentId, can't perform arrayContainsAny
-        // when querying with documentId, whereIn must have proper doc references in array [''] - check !empty string
-        // when querying with documentId, whereIn must provide a plain doc ID, ['foo/bar/baz'] - check !slashes
-        // when querying with documentId, whereIn must provide valid string, [1] - check !number
       });
 
       group('cursor queries', () {

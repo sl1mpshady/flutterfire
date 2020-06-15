@@ -81,23 +81,23 @@ void main() {
       });
     });
 
-    group('validate', () {
-      test('path must be a non-empty string', () {
-        CollectionReference ref = firestore.collection('foo');
-        expect(() => firestore.doc(null), throwsAssertionError);
-        expect(() => firestore.doc(''), throwsAssertionError);
-        expect(() => ref.doc(null), throwsAssertionError);
-        expect(() => ref.doc(''), throwsAssertionError);
-      });
+    test('path must be a non-empty string', () {
+      CollectionReference ref = firestore.collection('foo');
+      expect(() => firestore.doc(null), throwsAssertionError);
+      expect(() => firestore.doc(''), throwsAssertionError);
+      expect(() => ref.doc(null), throwsAssertionError);
+      expect(() => ref.doc(''), throwsAssertionError);
+    });
 
-      test('path must be even-length', () {
-        CollectionReference ref = firestore.collection('foo');
-        expect(() => firestore.doc('foo'), throwsAssertionError);
-        expect(() => firestore.doc('foo/bar/baz'), throwsAssertionError);
-        expect(() => ref.doc('/'), throwsAssertionError);
-        expect(() => ref.doc('bar/baz'), throwsAssertionError);
-      });
+    test('path must be even-length', () {
+      CollectionReference ref = firestore.collection('foo');
+      expect(() => firestore.doc('foo'), throwsAssertionError);
+      expect(() => firestore.doc('foo/bar/baz'), throwsAssertionError);
+      expect(() => ref.doc('/'), throwsAssertionError);
+      expect(() => ref.doc('bar/baz'), throwsAssertionError);
+    });
 
+    group('.setData', () {
       test('merge options', () {
         DocumentReference ref = firestore.collection('foo').doc();
         // can't specify both merge and mergeFields
@@ -108,6 +108,11 @@ void main() {
         // all mergeFields to be a string or a FieldPath
         expect(() => ref.set({}, SetOptions(mergeFields: ['foo', false])),
             throwsAssertionError);
+      });
+
+      test('data must not be null', () {
+        DocumentReference ref = firestore.collection('foo').doc();
+        expect(() => ref.set(null), throwsAssertionError);
       });
     });
   });

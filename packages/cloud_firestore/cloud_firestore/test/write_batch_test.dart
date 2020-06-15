@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +10,32 @@ void main() {
   setupCloudFirestoreMocks();
   Firestore firestore;
   Firestore firestoreSecondary;
+
+  MethodChannelFirestore.channel.setMockMethodCallHandler((call) async {
+    String path = call.arguments['path'];
+
+    if (call.method == 'DocumentReference#get' && path == 'doc/exists') {
+      return {
+        'data': {
+          'foo': 'bar',
+        },
+        'metadata': {
+          'hasPendingWrites': true,
+          'isFromCache': true,
+        }
+      };
+    }
+
+    if (call.method == 'DocumentReference#set' && path == 'doc/exists') {
+      return {
+        'data': {
+          'foo': 'bar',
+        },
+      };
+    }
+
+    return null;
+  });
 
   setUpAll(() async {
     await Firebase.initializeApp();
@@ -36,8 +63,7 @@ void main() {
             }
           ]
         };
-
-        DocumentReference ref = firestore.collection('foo').doc();
+        DocumentReference ref = firestore.collection('doc').doc('exists');
 
         ref
             .set(data)
@@ -49,7 +75,8 @@ void main() {
       });
 
       test('requires correct document references', () {
-        DocumentReference badRef = firestoreSecondary.doc('foo/bar');
+        DocumentReference badRef = firestoreSecondary.doc('doc/exists');
+
         const data = {'foo': 1};
         var batch = firestore.batch();
         expect(() => batch.set(badRef, data), throwsAssertionError);

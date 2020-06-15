@@ -26,12 +26,11 @@ void main() {
   });
 
   expectWriteToFail(data, [includeSets = true, includeUpdates = true]) {
-    DocumentReference ref = firestore.document('foo/bar');
+    DocumentReference ref = firestore.doc('foo/bar');
 
     if (includeSets) {
-      expect(() => ref.setData(data), throwsAssertionError);
-      expect(
-          () => ref.firestore.batch().setData(ref, data), throwsAssertionError);
+      expect(() => ref.set(data), throwsAssertionError);
+      expect(() => ref.firestore.batch().set(ref, data), throwsAssertionError);
     }
 
     if (includeUpdates) {
@@ -135,8 +134,8 @@ void main() {
       });
 
       test('field paths must not have empty segments', () {
-        DocumentReference ref = firestore.collection('test').document();
-        ref.setData({'test': 1}).then((value) => ref.get()).then((snapshot) {
+        DocumentReference ref = firestore.collection('test').doc();
+        ref.set({'test': 1}).then((value) => ref.get()).then((snapshot) {
               expectFieldPathToFail(snapshot, '');
               expectFieldPathToFail(snapshot, 'foo..baz');
               expectFieldPathToFail(snapshot, '.foo');
@@ -145,8 +144,8 @@ void main() {
       });
 
       test('field paths must not have invalid segments', () {
-        DocumentReference ref = firestore.collection('test').document();
-        ref.setData({'test': 1}).then((value) => ref.get()).then((snapshot) {
+        DocumentReference ref = firestore.collection('test').doc();
+        ref.set({'test': 1}).then((value) => ref.get()).then((snapshot) {
               expectFieldPathToFail(snapshot, 'foo~bar');
               expectFieldPathToFail(snapshot, 'foo*bar');
               expectFieldPathToFail(snapshot, 'foo/bar');

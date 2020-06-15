@@ -41,7 +41,7 @@ void main() {
       expect(firestoreSecondary.app, equals(Firebase.app('foo')));
     });
 
-    group('.collection()', () {
+    group('.collection', () {
       test('returns a $CollectionReference', () {
         expect(firestore.collection('foo'), isA<CollectionReference>());
       });
@@ -60,7 +60,7 @@ void main() {
       });
     });
 
-    group('.collectionGroup()', () {
+    group('.collectionGroup', () {
       test('returns a $Query', () {
         expect(firestore.collectionGroup('foo'), isA<Query>());
       });
@@ -79,7 +79,7 @@ void main() {
       });
     });
 
-    group('.document()', () {
+    group('.document', () {
       test('returns a $DocumentReference', () {
         expect(firestore.doc('foo/bar'), isA<DocumentReference>());
       });

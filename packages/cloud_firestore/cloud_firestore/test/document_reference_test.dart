@@ -85,7 +85,6 @@ void main() {
       CollectionReference ref = firestore.collection('foo');
       expect(() => firestore.doc(null), throwsAssertionError);
       expect(() => firestore.doc(''), throwsAssertionError);
-      expect(() => ref.doc(null), throwsAssertionError);
       expect(() => ref.doc(''), throwsAssertionError);
     });
 
@@ -94,26 +93,23 @@ void main() {
       expect(() => firestore.doc('foo'), throwsAssertionError);
       expect(() => firestore.doc('foo/bar/baz'), throwsAssertionError);
       expect(() => ref.doc('/'), throwsAssertionError);
-      expect(() => ref.doc('bar/baz'), throwsAssertionError);
     });
 
-    group('.setData', () {
-      test('merge options', () {
-        DocumentReference ref = firestore.collection('foo').doc();
-        // can't specify both merge and mergeFields
-        expect(() => ref.set({}, SetOptions(merge: true, mergeFields: [])),
-            throwsAssertionError);
-        expect(() => ref.set({}, SetOptions(merge: false, mergeFields: [])),
-            throwsAssertionError);
-        // all mergeFields to be a string or a FieldPath
-        expect(() => ref.set({}, SetOptions(mergeFields: ['foo', false])),
-            throwsAssertionError);
-      });
+    test('merge options', () {
+      DocumentReference ref = firestore.collection('foo').doc();
+      // can't specify both merge and mergeFields
+      expect(() => ref.set({}, SetOptions(merge: true, mergeFields: [])),
+          throwsAssertionError);
+      expect(() => ref.set({}, SetOptions(merge: false, mergeFields: [])),
+          throwsAssertionError);
+      // all mergeFields to be a string or a FieldPath
+      expect(() => ref.set({}, SetOptions(mergeFields: ['foo', false])),
+          throwsAssertionError);
+    });
 
-      test('data must not be null', () {
-        DocumentReference ref = firestore.collection('foo').doc();
-        expect(() => ref.set(null), throwsAssertionError);
-      });
+    test('data must not be null', () {
+      DocumentReference ref = firestore.collection('foo').doc();
+      expect(() => ref.set(null), throwsAssertionError);
     });
   });
 }

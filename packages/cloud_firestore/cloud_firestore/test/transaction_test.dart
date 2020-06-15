@@ -9,20 +9,7 @@ void main() {
   Firestore firestore;
 
   setUpAll(() async {
-<<<<<<< HEAD
     await Firebase.initializeApp();
-    FirebaseApp secondayApp = await Firebase.initializeApp(
-        name: 'foo',
-        options: FirebaseOptions(
-          apiKey: '123',
-          appId: '123',
-          messagingSenderId: '123',
-          projectId: '123',
-        ));
-
-=======
-    await FirebaseCore.instance.initializeApp();
->>>>>>> 3703e843... Cleanup.
     firestore = Firestore.instance;
   });
 

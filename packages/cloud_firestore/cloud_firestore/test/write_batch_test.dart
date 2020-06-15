@@ -53,36 +53,34 @@ void main() {
   });
 
   group("$WriteBatch", () {
-    group('validate', () {
-      test('may contain indirectly nested arrays', () {
-        const data = {
-          'nested-array': [
-            1,
-            {
-              'foo': [2]
-            }
-          ]
-        };
-        DocumentReference ref = firestore.collection('doc').doc('exists');
+    test('may contain indirectly nested arrays', () {
+      const data = {
+        'nested-array': [
+          1,
+          {
+            'foo': [2]
+          }
+        ]
+      };
+      DocumentReference ref = firestore.collection('doc').doc('exists');
 
-        ref
-            .set(data)
-            .then((value) => ref.firestore.batch().set(ref, data))
-            .then((value) => ref.update(data))
-            .then((value) => ref.firestore.batch().update(ref, data))
-            .then((value) => ref.firestore.runTransaction(
-                (transaction) async => transaction.update(ref, data)));
-      });
+      ref
+          .set(data)
+          .then((value) => ref.firestore.batch().set(ref, data))
+          .then((value) => ref.update(data))
+          .then((value) => ref.firestore.batch().update(ref, data))
+          .then((value) => ref.firestore.runTransaction(
+              (transaction) async => transaction.update(ref, data)));
+    });
 
-      test('requires correct document references', () {
-        DocumentReference badRef = firestoreSecondary.doc('doc/exists');
+    test('requires correct document references', () {
+      DocumentReference badRef = firestoreSecondary.doc('doc/exists');
 
-        const data = {'foo': 1};
-        var batch = firestore.batch();
-        expect(() => batch.set(badRef, data), throwsAssertionError);
-        expect(() => batch.update(badRef, data), throwsAssertionError);
-        expect(() => batch.delete(badRef), throwsAssertionError);
-      });
+      const data = {'foo': 1};
+      var batch = firestore.batch();
+      expect(() => batch.set(badRef, data), throwsAssertionError);
+      expect(() => batch.update(badRef, data), throwsAssertionError);
+      expect(() => batch.delete(badRef), throwsAssertionError);
     });
   });
 }

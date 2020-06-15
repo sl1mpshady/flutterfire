@@ -76,17 +76,9 @@ class DocumentReference {
   ///
   /// If [SetOptions] are provided, the data will be merged into an existing
   /// document instead of overwriting.
-<<<<<<< HEAD
   Future<void> set(Map<String, dynamic> data, [SetOptions options]) {
     assert(data != null);
     return _delegate.set(
-=======
-  // TODO(ehesp): verify method name
-  Future<void> setData(Map<String, dynamic> data, [SetOptions options]) {
-    assert(data != null, 'data cannot be null');
-
-    return _delegate.setData(
->>>>>>> 3703e843... Cleanup.
         _CodecUtility.replaceValueWithDelegatesInMap(data), options);
   }
 

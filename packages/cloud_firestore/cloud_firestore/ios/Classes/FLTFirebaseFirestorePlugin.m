@@ -28,60 +28,6 @@ static FIRDocumentReference *getDocumentReference(NSDictionary *arguments) {
   return [getFirestore(arguments) documentWithPath:arguments[@"path"]];
 }
 
-// TODO remove
-// TODO remove
-// TODO remove
-// TODO remove
-static NSArray *getDocumentValues(NSDictionary *document, NSArray *orderBy,
-                                  BOOL isCollectionGroup) {
-  NSMutableArray *values = [[NSMutableArray alloc] init];
-  NSDictionary *documentData = document[@"data"];
-  if (orderBy) {
-    for (id item in orderBy) {
-      NSArray *orderByParameters = item;
-      NSObject *field = orderByParameters[0];
-
-      if ([field isKindOfClass:[FIRFieldPath class]]) {
-        if ([field isEqual:FIRFieldPath.documentID]) {
-          // This is also checked by an assertion on the Dart side.
-          [NSException
-              raise:@"Invalid use of FieldValue.documentId"
-             format:
-                 @"You cannot order by the document id when using "
-                 "{start/end}{At/After/Before}Document as the library will order by the document"
-                 " id implicitly in order to to add other fields to the order clause."];
-        } else {
-          // Unsupported type.
-        }
-      } else if ([field isKindOfClass:[NSString class]]) {
-        NSString *fieldName = orderByParameters[0];
-        if ([fieldName rangeOfString:@"."].location != NSNotFound) {
-          NSArray *fieldNameParts = [fieldName componentsSeparatedByString:@"."];
-          NSDictionary *currentMap = [documentData objectForKey:[fieldNameParts objectAtIndex:0]];
-          for (int i = 1; i < [fieldNameParts count] - 1; i++) {
-            currentMap = [currentMap objectForKey:[fieldNameParts objectAtIndex:i]];
-          }
-          [values
-              addObject:[currentMap objectForKey:[fieldNameParts
-                  objectAtIndex:[fieldNameParts count] - 1]]];
-        } else {
-          [values addObject:[documentData objectForKey:fieldName]];
-        }
-      } else {
-        // Invalid type.
-      }
-    }
-  }
-  if (isCollectionGroup) {
-    NSString *path = document[@"path"];
-    [values addObject:path];
-  } else {
-    NSString *documentId = document[@"id"];
-    [values addObject:documentId];
-  }
-  return values;
-}
-
 static FIRQuery *getQuery(NSDictionary *arguments) {
   FIRQuery *query;
   NSDictionary *parameters = arguments[@"parameters"];
@@ -205,13 +151,13 @@ static NSDictionary *parseQuerySnapshot(FIRQuerySnapshot *snapshot) {
     NSUInteger MAX_VAL = (NSUInteger) [@(-1) integerValue];
     if (documentChange.newIndex == NSNotFound || documentChange.newIndex == 4294967295
         || documentChange.newIndex == MAX_VAL) {
-      newIndex = @([@(-1) doubleValue]);
+      newIndex = @([@(-1) intValue]);
     } else {
       newIndex = @([@(documentChange.newIndex) doubleValue]);
     }
     if (documentChange.oldIndex == NSNotFound || documentChange.oldIndex == 4294967295
         || documentChange.oldIndex == MAX_VAL) {
-      oldIndex = @([@(-1) doubleValue]);
+      oldIndex = @([@(-1) intValue]);
     } else {
       oldIndex = @([@(documentChange.oldIndex) doubleValue]);
     }
@@ -515,7 +461,7 @@ static NSDictionary *parseQuerySnapshot(FIRQuerySnapshot *snapshot) {
                       }
                       result(parseQuerySnapshot(snapshot));
                     }];
-  } else if ([@"removeListener" isEqualToString:call.method]) {
+  } else if ([@"Firestore#removeListener" isEqualToString:call.method]) {
     NSNumber *handle = call.arguments[@"handle"];
     [[_listeners objectForKey:handle] remove];
     [_listeners removeObjectForKey:handle];

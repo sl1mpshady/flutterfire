@@ -19,8 +19,8 @@ void main() {
 
   group('$Firestore', () {
     setUpAll(() async {
-      await FirebaseCore.instance.initializeApp();
-      secondayApp = await FirebaseCore.instance.initializeApp(
+      await Firebase.initializeApp();
+      secondayApp = await Firebase.initializeApp(
           name: 'foo',
           options: FirebaseOptions(
             apiKey: '123',
@@ -40,8 +40,8 @@ void main() {
     });
 
     test('returns the correct $FirebaseApp', () {
-      expect(firestore.app, equals(FirebaseCore.instance.app()));
-      expect(firestoreSecondary.app, equals(FirebaseCore.instance.app('foo')));
+      expect(firestore.app, equals(Firebase.app()));
+      expect(firestoreSecondary.app, equals(Firebase.app('foo')));
     });
 
     group('.collection()', () {

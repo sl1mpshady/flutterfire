@@ -17,8 +17,8 @@ void main() {
 
   group("$CollectionReference", () {
     setUpAll(() async {
-      await FirebaseCore.instance.initializeApp();
-      FirebaseApp secondayApp = await FirebaseCore.instance.initializeApp(
+      await Firebase.initializeApp();
+      FirebaseApp secondayApp = await Firebase.initializeApp(
           name: 'foo',
           options: FirebaseOptions(
             apiKey: '123',

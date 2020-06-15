@@ -66,7 +66,7 @@ void main() {
 
   group("$DocumentSnapshot", () {
     setUpAll(() async {
-      await FirebaseCore.instance.initializeApp();
+      await Firebase.initializeApp();
       firestore = Firestore.instance;
     });
 

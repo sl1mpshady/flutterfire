@@ -24,7 +24,7 @@ bool USE_EMULATOR = false;
 
 void testsMain() {
   setUpAll(() async {
-    await FirebaseCore.instance.initializeApp();
+    await Firebase.initializeApp();
 
     if (USE_EMULATOR) {
       await Firestore.instance

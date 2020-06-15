@@ -15,7 +15,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder(
       /// Initialize FlutterFire
-      future: FirebaseCore.instance.initializeApp(),
+      future: Firebase.initializeApp(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return FirestoreExampleApp.error(snapshot.error.toString());

@@ -11,7 +11,7 @@ part of cloud_firestore;
 /// [Firestore.instanceFor], for example:
 ///
 /// ```dart
-/// FirebaseApp secondaryApp = FirebaseCore.instance.app('SecondaryApp');
+/// FirebaseApp secondaryApp = Firebase.app('SecondaryApp');
 ///
 /// Firestore firestore = Firestore.instanceFor(app: secondaryApp);
 /// ```
@@ -36,7 +36,7 @@ class Firestore extends FirebasePluginPlatform {
   /// Returns an instance using the default [FirebaseApp].
   static Firestore get instance {
     return Firestore._(
-      app: FirebaseCore.instance.app(),
+      app: Firebase.app(),
     );
   }
 

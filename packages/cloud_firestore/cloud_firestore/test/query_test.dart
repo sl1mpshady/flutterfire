@@ -17,9 +17,9 @@ void main() {
 
   group("$Query", () {
     setUpAll(() async {
-      await FirebaseCore.instance.initializeApp();
+      await Firebase.initializeApp();
       // secondary app
-      await FirebaseCore.instance.initializeApp(
+      await Firebase.initializeApp(
           name: 'foo',
           options: FirebaseOptions(
             apiKey: '123',

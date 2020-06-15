@@ -23,7 +23,7 @@ abstract class FirestorePlatform extends PlatformInterface {
   /// Returns the [FirebaseApp] for the current instance.
   FirebaseApp get app {
     if (appInstance == null) {
-      return FirebaseCore.instance.app();
+      return Firebase.app();
     }
 
     return appInstance;
@@ -42,7 +42,7 @@ abstract class FirestorePlatform extends PlatformInterface {
   /// if no other implementation was provided.
   static FirestorePlatform get instance {
     if (_instance == null) {
-      _instance = MethodChannelFirestore(app: FirebaseCore.instance.app());
+      _instance = MethodChannelFirestore(app: Firebase.app());
     }
     return _instance;
   }

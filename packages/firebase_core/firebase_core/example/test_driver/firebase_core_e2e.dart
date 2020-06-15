@@ -11,7 +11,6 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   E2EWidgetsFlutterBinding.ensureInitialized();
 
-  FirebaseCore core;
   String testAppName = 'TestApp';
   FirebaseOptions testAppOptions;
   if (Platform.isIOS) {
@@ -32,26 +31,25 @@ void main() {
   }
 
   setUpAll(() async {
-    core = FirebaseCore.instance;
-    await core.initializeApp(name: testAppName, options: testAppOptions);
+    await Firebase.initializeApp(name: testAppName, options: testAppOptions);
   });
 
-  testWidgets('FirebaseCore.apps', (WidgetTester tester) async {
-    List<FirebaseApp> apps = core.apps;
+  testWidgets('Firebase.apps', (WidgetTester tester) async {
+    List<FirebaseApp> apps = Firebase.apps;
     expect(apps.length, 2);
     expect(apps[1].name, testAppName);
     expect(apps[1].options, testAppOptions);
   });
 
-  testWidgets('FirebaseCore.app()', (WidgetTester tester) async {
-    FirebaseApp app = core.app(testAppName);
+  testWidgets('Firebase.app()', (WidgetTester tester) async {
+    FirebaseApp app = Firebase.app(testAppName);
     expect(app.name, testAppName);
     expect(app.options, testAppOptions);
   });
 
-  testWidgets('FirebaseCore.app() Exception', (WidgetTester tester) async {
+  testWidgets('Firebase.app() Exception', (WidgetTester tester) async {
     try {
-      await core.app('NoApp');
+      await Firebase.app('NoApp');
     } on FirebaseException catch (e) {
       expect(e, noAppExists('NoApp'));
       return;
@@ -59,16 +57,16 @@ void main() {
   });
 
   testWidgets('FirebaseApp.delete()', (WidgetTester tester) async {
-    await core.initializeApp(name: 'SecondaryApp', options: testAppOptions);
-    expect(core.apps.length, 3);
-    FirebaseApp app = core.app('SecondaryApp');
+    await Firebase.initializeApp(name: 'SecondaryApp', options: testAppOptions);
+    expect(Firebase.apps.length, 3);
+    FirebaseApp app = Firebase.app('SecondaryApp');
     await app.delete();
-    expect(core.apps.length, 2);
+    expect(Firebase.apps.length, 2);
   });
 
   testWidgets('FirebaseApp.setAutomaticDataCollectionEnabled()',
       (WidgetTester tester) async {
-    FirebaseApp app = core.app(testAppName);
+    FirebaseApp app = Firebase.app(testAppName);
     bool enabled = app.isAutomaticDataCollectionEnabled;
     await app.setAutomaticDataCollectionEnabled(!enabled);
     expect(app.isAutomaticDataCollectionEnabled, !enabled);
@@ -76,7 +74,7 @@ void main() {
 
   testWidgets('FirebaseApp.setAutomaticResourceManagementEnabled()',
       (WidgetTester tester) async {
-    FirebaseApp app = core.app(testAppName);
+    FirebaseApp app = Firebase.app(testAppName);
     await app.setAutomaticResourceManagementEnabled(true);
   });
 }

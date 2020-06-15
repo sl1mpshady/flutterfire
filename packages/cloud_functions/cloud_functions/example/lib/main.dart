@@ -8,7 +8,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FirebaseCore.instance.initializeApp();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 

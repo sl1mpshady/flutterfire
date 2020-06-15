@@ -24,7 +24,7 @@ void main() {
 
     setUp(() async {
       mock = MockFirebaseCore();
-      FirebaseCorePlatform.instance = mock;
+      Firebase.delegatePackingProperty = mock;
 
       final FirebaseAppPlatform platformApp =
           FirebaseAppPlatform(testAppName, testOptions);
@@ -38,13 +38,13 @@ void main() {
     });
 
     test('.apps', () {
-      List<FirebaseApp> apps = FirebaseCore.instance.apps;
+      List<FirebaseApp> apps = Firebase.apps;
       verify(mock.apps);
-      expect(apps[0], FirebaseCore.instance.app(testAppName));
+      expect(apps[0], Firebase.app(testAppName));
     });
 
     test('.app()', () {
-      FirebaseApp app = FirebaseCore.instance.app(testAppName);
+      FirebaseApp app = Firebase.app(testAppName);
       verify(mock.app(testAppName));
 
       expect(app.name, testAppName);
@@ -52,9 +52,9 @@ void main() {
     });
 
     test('.initializeApp()', () async {
-      FirebaseApp initializedApp = await FirebaseCore.instance
-          .initializeApp(name: testAppName, options: testOptions);
-      FirebaseApp app = FirebaseCore.instance.app(testAppName);
+      FirebaseApp initializedApp =
+          await Firebase.initializeApp(name: testAppName, options: testOptions);
+      FirebaseApp app = Firebase.app(testAppName);
 
       expect(initializedApp, app);
       verifyInOrder([
@@ -67,4 +67,4 @@ void main() {
 
 class MockFirebaseCore extends Mock
     with MockPlatformInterfaceMixin
-    implements FirebaseCorePlatform {}
+    implements FirebasePlatform {}

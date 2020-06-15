@@ -1,9 +1,9 @@
 ## 1.0.0-1.0.pre
 
-* DEPRECATED: `FirebaseApp.configure` method is now deprecated in favor of the `FirebaseCore.instance.initializeApp` method.
-* DEPRECATED: `FirebaseApp.allApps` method is now deprecated in favor of the `FirebaseCore.instance.apps` property.
+* DEPRECATED: `FirebaseApp.configure` method is now deprecated in favor of the `Firebase.initializeApp` method.
+* DEPRECATED: `FirebaseApp.allApps` method is now deprecated in favor of the `Firebase.apps` property.
   * Previously, `allApps` was asynchronous where it is now synchronous.
-* DEPRECATED: `FirebaseApp.appNamed` method is now deprecated in favor of the `FirebaseCore.instance.app` method.
+* DEPRECATED: `FirebaseApp.appNamed` method is now deprecated in favor of the `Firebase.app` method.
 * BREAKING: `FirebaseApp.options` getter is now synchronous.
 
 * `FirebaseOptions` has been reworked to better match web property names:

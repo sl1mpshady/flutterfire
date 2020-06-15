@@ -7,10 +7,10 @@ part of firebase_core_web;
 /// The entry point for accessing Firebase.
 ///
 /// You can get an instance by calling [FirebaseCore.instance].
-class FirebaseCoreWeb extends FirebaseCorePlatform {
+class FirebaseCoreWeb extends FirebasePlatform {
   /// Registers that [FirebaseCoreWeb] is the platform implementation.
   static void registerWith(Registrar registrar) {
-    FirebaseCorePlatform.instance = FirebaseCoreWeb();
+    FirebasePlatform.instance = FirebaseCoreWeb();
   }
 
   /// Returns all created [FirebaseAppPlatform] instances.

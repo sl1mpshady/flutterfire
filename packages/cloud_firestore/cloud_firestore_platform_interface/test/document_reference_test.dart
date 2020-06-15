@@ -21,7 +21,7 @@ void main() {
 
   group("$DocumentReferencePlatform()", () {
     setUpAll(() async {
-      await FirebaseCore.instance.initializeApp();
+      await Firebase.initializeApp();
     });
     test("Parent", () {
       final document = TestDocumentReference._();

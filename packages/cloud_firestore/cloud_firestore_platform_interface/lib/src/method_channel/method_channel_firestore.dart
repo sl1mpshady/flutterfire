@@ -23,7 +23,7 @@ class MethodChannelFirestore extends FirestorePlatform {
   /// Create an instance of [MethodChannelFirestore] with optional [FirebaseApp]
   MethodChannelFirestore({FirebaseApp app})
       : assert(app != null),
-        super(appInstance: app) {
+        super(app: app ?? Firebase.app()) {
     if (_initialized) return;
     channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {

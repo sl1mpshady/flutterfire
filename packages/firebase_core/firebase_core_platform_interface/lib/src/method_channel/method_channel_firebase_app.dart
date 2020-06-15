@@ -10,7 +10,7 @@ part of firebase_core_platform_interface;
 /// instance, for example:
 ///
 /// ```dart
-/// FirebaseCore.instance.app('SecondaryApp`);
+/// Firebase.app('SecondaryApp`);
 /// ```
 class MethodChannelFirebaseApp extends FirebaseAppPlatform {
   // ignore: public_member_api_docs
@@ -47,12 +47,12 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
       return;
     }
 
-    await MethodChannelFirebaseCore.channel.invokeMethod<void>(
+    await MethodChannelFirebase.channel.invokeMethod<void>(
       'FirebaseApp#delete',
       <String, dynamic>{'appName': name, 'options': options.asMap},
     );
 
-    MethodChannelFirebaseCore.appInstances.remove(name);
+    MethodChannelFirebase.appInstances.remove(name);
     FirebasePluginPlatform._constantsForPluginApps.remove(name);
     _isDeleted = true;
   }
@@ -61,7 +61,7 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
   @override
   Future<void> setAutomaticDataCollectionEnabled(bool enabled) async {
     assert(enabled != null);
-    await MethodChannelFirebaseCore.channel.invokeMethod<void>(
+    await MethodChannelFirebase.channel.invokeMethod<void>(
       'FirebaseApp#setAutomaticDataCollectionEnabled',
       <String, dynamic>{'appName': name, 'enabled': enabled},
     );
@@ -73,7 +73,7 @@ class MethodChannelFirebaseApp extends FirebaseAppPlatform {
   @override
   Future<void> setAutomaticResourceManagementEnabled(bool enabled) async {
     assert(enabled != null);
-    await MethodChannelFirebaseCore.channel.invokeMethod<void>(
+    await MethodChannelFirebase.channel.invokeMethod<void>(
       'FirebaseApp#setAutomaticResourceManagementEnabled',
       <String, dynamic>{'appName': name, 'enabled': enabled},
     );

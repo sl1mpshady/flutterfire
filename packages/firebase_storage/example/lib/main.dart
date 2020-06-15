@@ -30,8 +30,8 @@ void main() async {
           projectId: 'flutter-firebase-plugins',
         );
 
-  final FirebaseApp app = await FirebaseCore.instance
-      .initializeApp(name: 'test', options: firebaseOptions);
+  final FirebaseApp app =
+      await Firebase.initializeApp(name: 'test', options: firebaseOptions);
   final FirebaseStorage storage = FirebaseStorage(
       app: app, storageBucket: 'gs://flutter-firebase-plugins.appspot.com');
   runApp(MyApp(storage: storage));

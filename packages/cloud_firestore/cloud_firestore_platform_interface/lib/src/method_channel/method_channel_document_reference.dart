@@ -75,38 +75,35 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
     ).catchError(catchPlatformException);
   }
 
-  // TODO(jackson): Reduce code duplication with [Query]
   @override
   Stream<DocumentSnapshotPlatform> snapshots(
       {bool includeMetadataChanges = false}) {
     assert(includeMetadataChanges != null);
-    Future<int> _handle;
+    int handle = MethodChannelFirestore.nextMethodChannelHandleId;
+
     // It's fine to let the StreamController be garbage collected once all the
     // subscribers have cancelled; this analyzer warning is safe to ignore.
     StreamController<DocumentSnapshotPlatform>
         controller; // ignore: close_sinks
     controller = StreamController<DocumentSnapshotPlatform>.broadcast(
       onListen: () {
-        _handle = MethodChannelFirestore.channel.invokeMethod<int>(
+        MethodChannelFirestore.documentObservers[handle] = controller;
+        MethodChannelFirestore.channel.invokeMethod<void>(
           'DocumentReference#addSnapshotListener',
           <String, dynamic>{
+            'handle': handle,
             'appName': firestore.app.name,
             'path': path,
             'includeMetadataChanges': includeMetadataChanges,
           },
-        ).then<int>((dynamic result) => result);
-        _handle.then((int handle) {
-          MethodChannelFirestore.documentObservers[handle] = controller;
-        });
+        );
       },
       onCancel: () {
-        _handle.then((int handle) async {
-          await MethodChannelFirestore.channel.invokeMethod<void>(
-            'Firestore#removeListener',
-            <String, dynamic>{'handle': handle},
-          );
-          MethodChannelFirestore.documentObservers.remove(handle);
-        });
+        MethodChannelFirestore.documentObservers.remove(handle);
+        MethodChannelFirestore.channel.invokeMethod<void>(
+          'Firestore#removeListener',
+          <String, dynamic>{'handle': handle},
+        );
       },
     );
     return controller.stream;

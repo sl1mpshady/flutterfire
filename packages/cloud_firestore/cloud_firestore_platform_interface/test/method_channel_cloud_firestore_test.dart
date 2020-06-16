@@ -20,7 +20,7 @@ void main() {
   initializeMethodChannel();
   FirebaseApp app;
   setUpAll(() async {
-    app = await FirebaseCore.instance.initializeApp(
+    app = await Firebase.initializeApp(
       name: 'testApp',
       options: const FirebaseOptions(
         appId: '1:1234567890:ios:42424242424242',
@@ -29,7 +29,7 @@ void main() {
         messagingSenderId: '1234567890',
       ),
     );
-    await FirebaseCore.instance.initializeApp(
+    await Firebase.initializeApp(
       name: 'testApp2',
       options: const FirebaseOptions(
         appId: '1:1234567890:ios:42424242424242',
@@ -72,7 +72,7 @@ void main() {
             // Otherwise the first request didn't have the time to finish.
             // ignore: unawaited_futures
             Future<void>.delayed(Duration.zero).then<void>((_) {
-              // TODO(hterkelsen): Remove this when defaultBinaryMessages is in stable.
+              // TODO(hterkelsen): Remove this when defaultBinaryMessages is in stable.`
               // https://github.com/flutter/flutter/issues/33446
               // ignore: deprecated_member_use
               BinaryMessages.handlePlatformMessage(
@@ -190,12 +190,12 @@ void main() {
 
     test('multiple apps', () async {
       expect(FirestorePlatform.instance, equals(MethodChannelFirestore()));
-      final FirebaseApp app = FirebaseCore.instance.app(firestore.app.name);
+      final FirebaseApp app = Firebase.app(firestore.app.name);
       expect(firestore, equals(MethodChannelFirestore(app: app)));
     });
 
     test('settings', () async {
-      final FirebaseApp app = FirebaseCore.instance.app("testApp2");
+      final FirebaseApp app = Firebase.app("testApp2");
       final MethodChannelFirestore firestoreWithSettings =
           MethodChannelFirestore(app: app);
       await firestoreWithSettings.settings(

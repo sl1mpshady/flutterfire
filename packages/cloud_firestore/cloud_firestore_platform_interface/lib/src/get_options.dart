@@ -4,8 +4,6 @@
 
 import 'source.dart';
 
-// TODO(ehesp): source comments imply `.get()` is used on DocumentReference and Query - check once confirmed
-
 /// An options class that configures the behavior of get() calls on [DocumentReference] and [Query].
 ///
 /// By providing a GetOptions object, these methods can be configured to fetch

@@ -9,9 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('$MethodChannelFirebaseCore', () {
-    final MethodChannelFirebaseCore channelPlatform =
-        MethodChannelFirebaseCore();
+  group('$MethodChannelFirebase', () {
+    final MethodChannelFirebase channelPlatform = MethodChannelFirebase();
     final List<MethodCall> methodCallLog = <MethodCall>[];
 
     const FirebaseOptions testOptions = FirebaseOptions(
@@ -22,15 +21,15 @@ void main() {
     );
 
     setUp(() async {
-      MethodChannelFirebaseCore.isCoreInitialized = false;
-      MethodChannelFirebaseCore.appInstances = {};
+      MethodChannelFirebase.isCoreInitialized = false;
+      MethodChannelFirebase.appInstances = {};
 
-      MethodChannelFirebaseCore.channel
+      MethodChannelFirebase.channel
           .setMockMethodCallHandler((MethodCall methodCall) async {
         methodCallLog.add(methodCall);
 
         switch (methodCall.method) {
-          case 'FirebaseCore#initializeCore':
+          case 'Firebase#initializeCore':
             return [
               {
                 'name': defaultFirebaseAppName,
@@ -42,7 +41,7 @@ void main() {
                 },
               }
             ];
-          case 'FirebaseCore#initializeApp':
+          case 'Firebase#initializeApp':
             return <dynamic, dynamic>{
               'name': methodCall.arguments['appName'] ?? defaultFirebaseAppName,
               'options': <dynamic, dynamic>{
@@ -79,7 +78,7 @@ void main() {
           methodCallLog,
           <Matcher>[
             isMethodCall(
-              'FirebaseCore#initializeCore',
+              'Firebase#initializeCore',
               arguments: null,
             ),
           ],
@@ -94,12 +93,12 @@ void main() {
       group('no default app', () {
         // Mock no default app being available
         setUp(() {
-          MethodChannelFirebaseCore.channel
+          MethodChannelFirebase.channel
               .setMockMethodCallHandler((MethodCall methodCall) async {
             methodCallLog.add(methodCall);
 
             switch (methodCall.method) {
-              case 'FirebaseCore#initializeCore':
+              case 'Firebase#initializeCore':
                 return [];
               default:
                 return null;
@@ -143,18 +142,18 @@ void main() {
             methodCallLog,
             <Matcher>[
               isMethodCall(
-                'FirebaseCore#initializeCore',
+                'Firebase#initializeCore',
                 arguments: null,
               ),
               isMethodCall(
-                'FirebaseCore#initializeApp',
+                'Firebase#initializeApp',
                 arguments: <String, dynamic>{
                   'appName': 'foo',
                   'options': testOptions.asMap,
                 },
               ),
               isMethodCall(
-                'FirebaseCore#initializeApp',
+                'Firebase#initializeApp',
                 arguments: <String, dynamic>{
                   'appName': 'bar',
                   'options': testOptions.asMap,

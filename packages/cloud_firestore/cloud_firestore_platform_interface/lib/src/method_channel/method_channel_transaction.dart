@@ -22,8 +22,7 @@ class MethodChannelTransaction extends TransactionPlatform {
   MethodChannelTransaction(int transactionId, this.appName)
       : _transactionId = transactionId,
         super() {
-    _firestore =
-        FirestorePlatform.instanceFor(app: FirebaseCore.instance.app(appName));
+    _firestore = FirestorePlatform.instanceFor(app: Firebase.app(appName));
   }
 
   int _documentGetCount = 0;

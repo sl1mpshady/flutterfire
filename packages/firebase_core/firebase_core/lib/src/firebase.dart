@@ -5,19 +5,28 @@
 part of firebase_core;
 
 /// The entry point for accessing Firebase.
-///
-/// You can get an instance by calling [FirebaseCore.instance].
-class FirebaseCore {
-  FirebaseCorePlatform _delegate = FirebaseCorePlatform.instance;
+class Firebase {
+  // Cached & lazily loaded instance of [FirebasePlatform].
+  // Avoids a [MethodChannelFirebase] being initialized until the user
+  // starts using Firebase.
+  // The property is visible for testing to allow tests to set a mock
+  // instance directly as a static property since the class is not initialized.
+  @visibleForTesting
+  // ignore: public_member_api_docs
+  static FirebasePlatform delegatePackingProperty;
+
+  static FirebasePlatform get _delegate {
+    if (delegatePackingProperty == null) {
+      delegatePackingProperty = FirebasePlatform.instance;
+    }
+    return delegatePackingProperty;
+  }
 
   // Ensures end-users cannot initialize the class.
-  FirebaseCore._();
-
-  /// Returns the entry point for accessing the class.
-  static FirebaseCore get instance => FirebaseCore._();
+  Firebase._();
 
   /// Returns a list of all [FirebaseApp] instances that have been created.
-  List<FirebaseApp> get apps {
+  static List<FirebaseApp> get apps {
     return _delegate.apps
         .map((app) => FirebaseApp._(app))
         .toList(growable: false);
@@ -28,7 +37,7 @@ class FirebaseCore {
   ///
   /// The default app instance cannot be initialized here and should be created
   /// using the platform Firebase integration.
-  Future<FirebaseApp> initializeApp(
+  static Future<FirebaseApp> initializeApp(
       {String name, FirebaseOptions options}) async {
     FirebaseAppPlatform app =
         await _delegate.initializeApp(name: name, options: options);
@@ -39,7 +48,7 @@ class FirebaseCore {
   ///
   /// If no name is provided, the default app instance is returned.
   /// Throws if the app does not exist.
-  FirebaseApp app([String name = defaultFirebaseAppName]) {
+  static FirebaseApp app([String name = defaultFirebaseAppName]) {
     FirebaseAppPlatform app = _delegate.app(name);
     return app == null ? null : FirebaseApp._(app);
   }
@@ -47,7 +56,7 @@ class FirebaseCore {
   @override
   bool operator ==(dynamic other) {
     if (identical(this, other)) return true;
-    if (other is! FirebaseCore) return false;
+    if (other is! Firebase) return false;
     return other.hashCode == hashCode;
   }
 
@@ -55,5 +64,5 @@ class FirebaseCore {
   int get hashCode => this.toString().hashCode;
 
   @override
-  String toString() => '$FirebaseCore';
+  String toString() => '$Firebase';
 }

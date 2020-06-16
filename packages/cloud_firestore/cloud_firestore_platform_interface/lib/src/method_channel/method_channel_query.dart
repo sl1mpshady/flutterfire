@@ -113,40 +113,37 @@ class MethodChannelQuery extends QueryPlatform {
     });
   }
 
-  // TODO(jackson): Reduce code duplication with [DocumentReference]
   @override
   Stream<QuerySnapshotPlatform> snapshots({
     bool includeMetadataChanges = false,
   }) {
     assert(includeMetadataChanges != null);
-    Future<int> _handle;
+    int handle = MethodChannelFirestore.nextMethodChannelHandleId;
+
     // It's fine to let the StreamController be garbage collected once all the
     // subscribers have cancelled; this analyzer warning is safe to ignore.
     StreamController<QuerySnapshotPlatform> controller; // ignore: close_sinks
     controller = StreamController<QuerySnapshotPlatform>.broadcast(
       onListen: () {
-        _handle = MethodChannelFirestore.channel.invokeMethod<int>(
+        MethodChannelFirestore.queryObservers[handle] = controller;
+        MethodChannelFirestore.channel.invokeMethod<void>(
           'Query#addSnapshotListener',
           <String, dynamic>{
+            'handle': handle,
             'appName': firestore.app.name,
             'path': _pointer.path,
             'isCollectionGroup': isCollectionGroupQuery,
             'parameters': parameters,
             'includeMetadataChanges': includeMetadataChanges,
           },
-        ).then<int>((dynamic result) => result);
-        _handle.then((int handle) {
-          MethodChannelFirestore.queryObservers[handle] = controller;
-        });
+        );
       },
       onCancel: () {
-        _handle.then((int handle) async {
-          await MethodChannelFirestore.channel.invokeMethod<void>(
-            'Firestore#removeListener',
-            <String, dynamic>{'handle': handle},
-          );
-          MethodChannelFirestore.queryObservers.remove(handle);
-        });
+        MethodChannelFirestore.queryObservers.remove(handle);
+        MethodChannelFirestore.channel.invokeMethod<void>(
+          'Firestore#removeListener',
+          <String, dynamic>{'handle': handle},
+        );
       },
     );
     return controller.stream;

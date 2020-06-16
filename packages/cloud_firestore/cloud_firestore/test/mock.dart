@@ -11,8 +11,8 @@ typedef Callback(MethodCall call);
 setupCloudFirestoreMocks([Callback customHandlers]) {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  MethodChannelFirebaseCore.channel.setMockMethodCallHandler((call) async {
-    if (call.method == 'FirebaseCore#initializeCore') {
+  MethodChannelFirebase.channel.setMockMethodCallHandler((call) async {
+    if (call.method == 'Firebase#initializeCore') {
       return [
         {
           'name': defaultFirebaseAppName,
@@ -27,7 +27,7 @@ setupCloudFirestoreMocks([Callback customHandlers]) {
       ];
     }
 
-    if (call.method == 'FirebaseCore#initializeApp') {
+    if (call.method == 'Firebase#initializeApp') {
       return {
         'name': call.arguments['appName'],
         'options': call.arguments['options'],

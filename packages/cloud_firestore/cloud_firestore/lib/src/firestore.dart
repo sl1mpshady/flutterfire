@@ -11,7 +11,7 @@ part of cloud_firestore;
 /// [Firestore.instanceFor], for example:
 ///
 /// ```dart
-/// FirebaseApp secondaryApp = FirebaseCore.instance.app('SecondaryApp');
+/// FirebaseApp secondaryApp = Firebase.app('SecondaryApp');
 ///
 /// Firestore firestore = Firestore.instanceFor(app: secondaryApp);
 /// ```
@@ -28,6 +28,7 @@ class Firestore extends FirebasePluginPlatform {
     return _delegatePackingProperty;
   }
 
+  /// The [FirebaseApp] for this current Firestore instance.
   FirebaseApp app;
 
   Firestore._({this.app})
@@ -36,7 +37,7 @@ class Firestore extends FirebasePluginPlatform {
   /// Returns an instance using the default [FirebaseApp].
   static Firestore get instance {
     return Firestore._(
-      app: FirebaseCore.instance.app(),
+      app: Firebase.app(),
     );
   }
 
@@ -75,9 +76,6 @@ class Firestore extends FirebasePluginPlatform {
   }
 
   /// Clears any persisted data for the current instance.
-  ///
-  /// If the current instance has already been used, the persisted data will
-  /// be cleared when the instance is next created/
   Future<void> clearPersistence() {
     return _delegate.clearPersistence();
   }

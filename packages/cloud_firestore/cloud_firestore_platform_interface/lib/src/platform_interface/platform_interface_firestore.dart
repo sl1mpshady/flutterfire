@@ -23,7 +23,7 @@ abstract class FirestorePlatform extends PlatformInterface {
   /// Returns the [FirebaseApp] for the current instance.
   FirebaseApp get app {
     if (appInstance == null) {
-      return FirebaseCore.instance.app();
+      return Firebase.app();
     }
 
     return appInstance;
@@ -42,7 +42,7 @@ abstract class FirestorePlatform extends PlatformInterface {
   /// if no other implementation was provided.
   static FirestorePlatform get instance {
     if (_instance == null) {
-      _instance = MethodChannelFirestore(app: FirebaseCore.instance.app());
+      _instance = MethodChannelFirestore(app: Firebase.app());
     }
     return _instance;
   }
@@ -71,7 +71,7 @@ abstract class FirestorePlatform extends PlatformInterface {
     throw UnimplementedError('batch() is not implemented');
   }
 
-  // TODO(ehesp): Needs implementing
+  /// Clears any persisted data for the current instance.
   Future<void> clearPersistence() {
     throw UnimplementedError('clearPersistence() is not implemented');
   }
@@ -105,6 +105,8 @@ abstract class FirestorePlatform extends PlatformInterface {
     throw UnimplementedError('enableNetwork() is not implemented');
   }
 
+  /// Returns a [Steam] which is called each time all of the active listeners
+  /// have been synchronised.
   Stream<void> snapshotsInSync() {
     throw UnimplementedError('onSnapshotsInSync() is not implemented');
   }
@@ -144,12 +146,34 @@ abstract class FirestorePlatform extends PlatformInterface {
     throw UnimplementedError('settings() is not implemented');
   }
 
-  // TODO(ehesp): Check if supported on native
+  /// Terminates this Firestore instance.
+  ///
+  /// After calling terminate() only the clearPersistence() method may be used.
+  /// Any other method will throw a [FirebaseException].
+  ///
+  /// Termination does not cancel any pending writes, and any promises that are
+  /// awaiting a response from the server will not be resolved. If you have
+  /// persistence enabled, the next time you start this instance, it will resume
+  ///  sending these writes to the server.
+  ///
+  /// Note: Under normal circumstances, calling terminate() is not required.
+  /// This method is useful only when you want to force this instance to release
+  ///  all of its resources or in combination with clearPersistence() to ensure
+  ///  that all local state is destroyed between test runs.
   Future<void> terminate() {
     throw UnimplementedError('terminate() is not implemented');
   }
 
-  // TODO(ehesp): Check if supported on native
+  /// Waits until all currently pending writes for the active user have been
+  /// acknowledged by the backend.
+  ///
+  /// The returned Future resolves immediately if there are no outstanding writes.
+  /// Otherwise, the Promise waits for all previously issued writes (including
+  /// those written in a previous app session), but it does not wait for writes
+  /// that were added after the method is called. If you want to wait for
+  /// additional writes, call [waitForPendingWrites] again.
+  ///
+  /// Any outstanding [waitForPendingWrites] calls are rejected during user changes.
   Future<void> waitForPendingWrites() {
     throw UnimplementedError('waitForPendingWrites() is not implemented');
   }

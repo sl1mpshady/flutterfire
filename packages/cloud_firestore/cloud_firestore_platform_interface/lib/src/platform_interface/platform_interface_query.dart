@@ -45,7 +45,6 @@ abstract class QueryPlatform extends PlatformInterface {
   /// the object in which it's going to delegate calls has been
   /// constructed properly.
   static verifyExtends(QueryPlatform instance) {
-    // TODO(ehesp): Verify if statement is still required
     if (instance is! CollectionReferencePlatform) {
       PlatformInterface.verifyToken(instance, _token);
     }
@@ -133,6 +132,10 @@ abstract class QueryPlatform extends PlatformInterface {
     throw UnimplementedError("limit() is not implemented");
   }
 
+  /// Creates and returns a new Query that only returns the last matching documents.
+  ///
+  /// You must specify at least one orderBy clause for limitToLast queries,
+  /// otherwise an exception will be thrown during execution.
   QueryPlatform limitToLast(int limit) {
     throw UnimplementedError("limitToLast() is not implemented");
   }

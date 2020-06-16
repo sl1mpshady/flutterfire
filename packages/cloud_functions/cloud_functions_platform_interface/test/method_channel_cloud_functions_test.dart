@@ -15,7 +15,7 @@ void main() {
     final List<MethodCall> log = <MethodCall>[];
     FirebaseApp app;
     setUp(() async {
-      app = await FirebaseCore.instance.initializeApp();
+      app = await Firebase.initializeApp();
       MethodChannelCloudFunctions.channel
           .setMockMethodCallHandler((MethodCall methodCall) async {
         log.add(methodCall);

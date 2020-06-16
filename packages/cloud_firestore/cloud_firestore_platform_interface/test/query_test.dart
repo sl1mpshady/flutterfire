@@ -24,7 +24,7 @@ void main() {
 
   group("$QueryPlatform()", () {
     setUpAll(() async {
-      await FirebaseCore.instance.initializeApp(
+      await Firebase.initializeApp(
         name: 'testApp',
         options: const FirebaseOptions(
           appId: '1:1234567890:ios:42424242424242',

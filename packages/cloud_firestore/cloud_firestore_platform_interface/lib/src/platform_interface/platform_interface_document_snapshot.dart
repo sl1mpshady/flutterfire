@@ -46,7 +46,7 @@ class DocumentSnapshotPlatform extends PlatformInterface {
         _data['metadata']['isFromCache']);
   }
 
-  /// Signals whether or not the data exists. True if the document exists.
+  /// Signals whether or not the data exists.
   bool get exists {
     return _data['data'] != null;
   }

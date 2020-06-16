@@ -71,10 +71,10 @@ class FirestoreWeb extends FirestorePlatform {
     await _webFirestore.enableNetwork();
   }
 
-  @override
-  Stream<void> snapshotsInSync() {
-    // TODO(ehesp): not supported on firebase-dart
-  }
+  // @override
+  // Stream<void> snapshotsInSync() {
+  //   // TODO(ehesp): not supported on firebase-dart
+  // }
 
   @override
   Future<T> runTransaction<T>(TransactionHandler transactionHandler,

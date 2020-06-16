@@ -32,35 +32,35 @@ void main() {
     });
 
     test('equality', () {
-      DocumentReference ref = firestore.document('foo/bar');
-      DocumentReference ref2 = firestore.document('foo/bar/baz/bert');
+      DocumentReference ref = firestore.doc('foo/bar');
+      DocumentReference ref2 = firestore.doc('foo/bar/baz/bert');
 
-      expect(ref, equals(firestore.document('foo/bar')));
-      expect(ref2, equals(firestore.document('foo/bar/baz/bert')));
+      expect(ref, equals(firestore.doc('foo/bar')));
+      expect(ref2, equals(firestore.doc('foo/bar/baz/bert')));
 
-      expect(ref == firestoreSecondary.document('foo/bar'), isFalse);
-      expect(ref2 == firestoreSecondary.document('foo/bar/baz/bert'), isFalse);
+      expect(ref == firestoreSecondary.doc('foo/bar'), isFalse);
+      expect(ref2 == firestoreSecondary.doc('foo/bar/baz/bert'), isFalse);
     });
 
     test("returns document() returns a $DocumentReference", () {
-      DocumentReference ref = firestore.document('foo/bar');
-      DocumentReference ref2 = firestore.document('foo/bar/baz/bert');
+      DocumentReference ref = firestore.doc('foo/bar');
+      DocumentReference ref2 = firestore.doc('foo/bar/baz/bert');
 
       expect(ref, isA<DocumentReference>());
       expect(ref2, isA<DocumentReference>());
     });
 
     test("returns the same firestore instance", () {
-      DocumentReference ref = firestore.document('foo/bar');
-      DocumentReference ref2 = firestoreSecondary.document('foo/bar');
+      DocumentReference ref = firestore.doc('foo/bar');
+      DocumentReference ref2 = firestoreSecondary.doc('foo/bar');
 
       expect(ref.firestore, equals(firestore));
       expect(ref2.firestore, equals(firestoreSecondary));
     });
 
     test("returns the correct ID", () {
-      DocumentReference ref = firestore.document('foo/bar');
-      DocumentReference ref2 = firestore.document('foo/bar/baz/bert');
+      DocumentReference ref = firestore.doc('foo/bar');
+      DocumentReference ref2 = firestore.doc('foo/bar/baz/bert');
 
       expect(ref, isA<DocumentReference>());
       expect(ref.id, equals('bar'));
@@ -69,13 +69,13 @@ void main() {
 
     group('.parent', () {
       test("returns a $CollectionReference", () {
-        DocumentReference ref = firestore.document('foo/bar');
+        DocumentReference ref = firestore.doc('foo/bar');
 
         expect(ref.parent, isA<CollectionReference>());
       });
 
       test("returns the correct $CollectionReference", () {
-        DocumentReference ref = firestore.document('foo/bar');
+        DocumentReference ref = firestore.doc('foo/bar');
         CollectionReference colRef = firestore.collection('foo');
 
         expect(ref.parent, equals(colRef));

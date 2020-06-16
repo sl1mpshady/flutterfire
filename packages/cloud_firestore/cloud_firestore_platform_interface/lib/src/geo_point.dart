@@ -5,7 +5,7 @@ import 'dart:ui';
 
 /// Represents a geographical point by its longitude and latitude
 class GeoPoint {
-  /// Create [GeoPoint] instance
+  /// Create [GeoPoint] instance.
   const GeoPoint(this.latitude, this.longitude)
       : assert(latitude >= -90 && latitude <= 90),
         assert(longitude >= -180 && longitude <= 180);

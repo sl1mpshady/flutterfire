@@ -84,6 +84,7 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
     });
   }
 
+  /// Ensures that once a batch has been committed, it can not be modified again.
   void _assertNotCommitted() {
     if (_committed) {
       throw StateError(

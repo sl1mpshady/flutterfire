@@ -133,7 +133,6 @@ class QueryWeb extends QueryPlatform {
   //   });
   // }
 
-  // TODO
   @override
   Stream<QuerySnapshotPlatform> snapshots({
     bool includeMetadataChanges = false,

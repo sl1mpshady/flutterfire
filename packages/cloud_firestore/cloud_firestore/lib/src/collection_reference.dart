@@ -42,7 +42,7 @@ class CollectionReference extends Query {
   Future<DocumentReference> add(Map<String, dynamic> data) async {
     assert(data != null);
     final DocumentReference newDocument = doc();
-    await newDocument.setData(data);
+    await newDocument.set(data);
     return newDocument;
   }
 

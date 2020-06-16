@@ -4,8 +4,6 @@
 
 import 'field_path.dart';
 
-// TODO(ehesp): comments imply `.set()` is used on DocumentReference, WriteBatch & Transaction - check once confirmed
-
 /// An options class that configures the behavior of set() calls in [DocumentReference],
 /// [WriteBatcerh] and [Transaction].
 class SetOptions {

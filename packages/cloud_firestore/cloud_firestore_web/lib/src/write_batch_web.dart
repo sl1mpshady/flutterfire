@@ -6,7 +6,6 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 import 'package:firebase/firestore.dart' as web;
 
 import 'package:cloud_firestore_web/src/utils/codec_utility.dart';
-import 'package:cloud_firestore_web/src/document_reference_web.dart';
 
 /// A web specific for [WriteBatch]
 class WriteBatchWeb extends WriteBatchPlatform {

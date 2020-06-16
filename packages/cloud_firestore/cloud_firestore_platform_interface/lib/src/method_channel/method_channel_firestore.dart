@@ -57,6 +57,8 @@ class MethodChannelFirestore extends FirestorePlatform {
   /// Increments and returns the next channel ID handler for Firestore.
   static int get nextMethodChannelHandleId => _methodChannelHandleId++;
 
+  /// When a [snapshotsInSync] event is fired on the [MethodChannel], trigger
+  /// a new Stream event.
   void _handleSnapshotsInSync(Map<dynamic, dynamic> arguments) async {
     snapshotInSyncObservers[arguments['handle']].add(null);
   }

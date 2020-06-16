@@ -28,6 +28,7 @@ class Firestore extends FirebasePluginPlatform {
     return _delegatePackingProperty;
   }
 
+  /// The [FirebaseApp] for this current Firestore instance.
   FirebaseApp app;
 
   Firestore._({this.app})
@@ -75,9 +76,6 @@ class Firestore extends FirebasePluginPlatform {
   }
 
   /// Clears any persisted data for the current instance.
-  ///
-  /// If the current instance has already been used, the persisted data will
-  /// be cleared when the instance is next created/
   Future<void> clearPersistence() {
     return _delegate.clearPersistence();
   }

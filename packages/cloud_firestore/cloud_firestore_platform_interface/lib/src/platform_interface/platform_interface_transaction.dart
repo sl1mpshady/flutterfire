@@ -28,22 +28,26 @@ abstract class TransactionPlatform extends PlatformInterface {
     PlatformInterface.verifyToken(instance, _token);
   }
 
+  /// Returns all transaction commands for the current instance.
   List<Map<String, dynamic>> get commands {
     throw UnimplementedError("commands not implemented");
   }
 
-  Future<void> commit() {
-    throw UnimplementedError("commit() not implemented");
-  }
-
+  /// Reads the document referenced by the provided DocumentReference.
+  ///
+  /// If the document changes whilst the transaction is in progress, it will
+  /// be re-tried up to five times.
   Future<DocumentSnapshotPlatform> get(String documentPath) {
     throw UnimplementedError("get() not implemented");
   }
 
+  /// Deletes the document referred to by the provided [documentPath].
   TransactionPlatform delete(String documentPath) {
     throw UnimplementedError("delete() not implemented");
   }
 
+  /// Updates fields in the document referred to by [documentPath].
+  /// The update will fail if applied to a document that does not exist.
   TransactionPlatform update(
     String documentPath,
     Map<String, dynamic> data,
@@ -51,6 +55,9 @@ abstract class TransactionPlatform extends PlatformInterface {
     throw UnimplementedError("update() not implemented");
   }
 
+  /// Writes to the document referred to by the provided [documentPath].
+  /// If the document does not exist yet, it will be created. If you pass
+  /// [SetOptions], the provided data can be merged into the existing document.
   TransactionPlatform set(String documentPath, Map<String, dynamic> data,
       [SetOptions options]) {
     throw UnimplementedError("set() not implemented");

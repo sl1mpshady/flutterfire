@@ -53,26 +53,6 @@ void main() {
   });
 
   group("$WriteBatch", () {
-    test('may contain indirectly nested arrays', () {
-      const data = {
-        'nested-array': [
-          1,
-          {
-            'foo': [2]
-          }
-        ]
-      };
-      DocumentReference ref = firestore.collection('doc').doc('exists');
-
-      ref
-          .set(data)
-          .then((value) => ref.firestore.batch().set(ref, data))
-          .then((value) => ref.update(data))
-          .then((value) => ref.firestore.batch().update(ref, data))
-          .then((value) => ref.firestore.runTransaction(
-              (transaction) async => transaction.update(ref, data)));
-    });
-
     test('requires correct document references', () {
       DocumentReference badRef = firestoreSecondary.doc('doc/exists');
 

@@ -23,12 +23,17 @@ void main() {
     setUpAll(() async {
       await Firebase.initializeApp();
     });
-    test("Parent", () {
+
+    test("constructor", () {
+      final testDocRef = TestDocumentReference._();
+      expect(testDocRef, isInstanceOf<DocumentReferencePlatform>());
+      expect(testDocRef.id, equals(_kDocumentId));
+      expect(testDocRef.path, equals('$_kCollectionId/$_kDocumentId'));
+    });
+
+    test("path", () {
       final document = TestDocumentReference._();
-      final parent = document.parent;
-      final parentPath = parent.path;
-      expect(parent, isInstanceOf<CollectionReferencePlatform>());
-      expect(parentPath, equals(_kCollectionId));
+      expect(document.path, equals("$_kCollectionId/$_kDocumentId"));
     });
 
     test("id", () {
@@ -36,15 +41,73 @@ void main() {
       expect(document.id, equals(_kDocumentId));
     });
 
-    test("Path", () {
+    test("parent", () {
       final document = TestDocumentReference._();
-      expect(document.path, equals("$_kCollectionId/$_kDocumentId"));
+      final parent = document.parent;
+      final parentPath = parent.path;
+      expect(parent, isInstanceOf<CollectionReferencePlatform>());
+      expect(parentPath, equals(_kCollectionId));
     });
 
-    test("Collection", () {
+    test("collection", () {
       final document = TestDocumentReference._();
       expect(document.collection("extra").path,
           equals("$_kCollectionId/$_kDocumentId/extra"));
+    });
+
+    test("throws if .delete", () async {
+      final document = TestDocumentReference._();
+      try {
+        await document.delete();
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("delete() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .get", () async {
+      final document = TestDocumentReference._();
+      try {
+        await document.get();
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("get() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .snapshots", () {
+      final document = TestDocumentReference._();
+      try {
+        document.snapshots();
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("snapshots() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .set", () async {
+      final document = TestDocumentReference._();
+      try {
+        await document.set({});
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("set() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .update", () async {
+      final document = TestDocumentReference._();
+      try {
+        await document.update({});
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("update() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
     });
   });
 }

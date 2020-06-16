@@ -30,7 +30,7 @@ abstract class TransactionPlatform extends PlatformInterface {
 
   /// Returns all transaction commands for the current instance.
   List<Map<String, dynamic>> get commands {
-    throw UnimplementedError("commands not implemented");
+    throw UnimplementedError("commands is not implemented");
   }
 
   /// Reads the document referenced by the provided DocumentReference.
@@ -38,12 +38,12 @@ abstract class TransactionPlatform extends PlatformInterface {
   /// If the document changes whilst the transaction is in progress, it will
   /// be re-tried up to five times.
   Future<DocumentSnapshotPlatform> get(String documentPath) {
-    throw UnimplementedError("get() not implemented");
+    throw UnimplementedError("get() is not implemented");
   }
 
   /// Deletes the document referred to by the provided [documentPath].
   TransactionPlatform delete(String documentPath) {
-    throw UnimplementedError("delete() not implemented");
+    throw UnimplementedError("delete() is not implemented");
   }
 
   /// Updates fields in the document referred to by [documentPath].
@@ -52,7 +52,7 @@ abstract class TransactionPlatform extends PlatformInterface {
     String documentPath,
     Map<String, dynamic> data,
   ) {
-    throw UnimplementedError("update() not implemented");
+    throw UnimplementedError("update() is not implemented");
   }
 
   /// Writes to the document referred to by the provided [documentPath].
@@ -60,6 +60,6 @@ abstract class TransactionPlatform extends PlatformInterface {
   /// [SetOptions], the provided data can be merged into the existing document.
   TransactionPlatform set(String documentPath, Map<String, dynamic> data,
       [SetOptions options]) {
-    throw UnimplementedError("set() not implemented");
+    throw UnimplementedError("set() is not implemented");
   }
 }

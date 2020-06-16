@@ -41,12 +41,14 @@ void main() {
       expect(documentChanges, isInstanceOf<List<DocumentChangePlatform>>());
       expect(documentChanges, _kDocumentChanges);
     });
+
     test("documents", () {
       final snapshot = TestQuerySnapshot._();
       final documents = snapshot.docs;
       expect(documents, isInstanceOf<List<DocumentSnapshotPlatform>>());
       expect(documents, _kDocuments);
     });
+
     test("metadata", () {
       final snapshot = TestQuerySnapshot._();
       final metaData = snapshot.metadata;
@@ -54,6 +56,7 @@ void main() {
       expect(metaData.hasPendingWrites, isTrue);
       expect(metaData.isFromCache, isTrue);
     });
+
     test("size", () {
       final snapshot = TestQuerySnapshot._();
       expect(snapshot.size, 1);

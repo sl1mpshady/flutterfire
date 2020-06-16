@@ -43,7 +43,7 @@ void main() {
       expect(query, isInstanceOf<QueryPlatform>());
     });
 
-    test("QueryPlatform.verifyExtends()", () {
+    test("verifyExtends()", () {
       final query = TestQuery._();
       QueryPlatform.verifyExtends(query);
       expect(query, isInstanceOf<QueryPlatform>());
@@ -58,17 +58,169 @@ void main() {
       expect(query.parameters, equals(kMockParameters));
     });
 
-    group("Unimplemented Methods", () {
-      // TODO(helena) test for each method
-      test("limit", () {
-        try {
-          TestQuery._().limit(1);
-        } on UnimplementedError catch (e) {
-          expect(e.message, equals("limit() is not implemented"));
-          return;
-        }
-        fail('Should have thrown an [UnimplementedError]');
-      });
+    test("throws if .isCollectionGroupQuery", () {
+      final query = TestQuery._();
+      try {
+        query.isCollectionGroupQuery;
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("isCollectionGroupQuery is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .endAtDocument", () {
+      final query = TestQuery._();
+      try {
+        query.endAtDocument([], []);
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("endAtDocument() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .endAt", () {
+      final query = TestQuery._();
+      try {
+        query.endAt([]);
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("endAt() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .endBeforeDocument", () {
+      final query = TestQuery._();
+      try {
+        query.endBeforeDocument([], []);
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("endBeforeDocument() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .endBefore", () {
+      final query = TestQuery._();
+      try {
+        query.endBefore([]);
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("endBefore() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .get", () async {
+      final query = TestQuery._();
+      try {
+        await query.get();
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("get() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .limit", () {
+      final query = TestQuery._();
+      try {
+        query.limit(1);
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("limit() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .limitToLast", () {
+      final query = TestQuery._();
+      try {
+        query.limitToLast(1);
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("limitToLast() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .snapshots", () {
+      final query = TestQuery._();
+      try {
+        query.snapshots();
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("snapshots() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .orderBy", () {
+      final query = TestQuery._();
+      try {
+        query.orderBy([]);
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("orderBy() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .startAfterDocument", () {
+      final query = TestQuery._();
+      try {
+        query.startAfterDocument([], []);
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("startAfterDocument() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .startAfter", () {
+      final query = TestQuery._();
+      try {
+        query.startAfter([]);
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("startAfter() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .startAtDocument", () {
+      final query = TestQuery._();
+      try {
+        query.startAtDocument([], []);
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("startAtDocument() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .startAt", () {
+      final query = TestQuery._();
+      try {
+        query.startAt([]);
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("startAt() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if .where", () {
+      final query = TestQuery._();
+      try {
+        query.where([]);
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("where() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
     });
   });
 }

@@ -29,6 +29,7 @@ void main() {
     setUpAll(() async {
       await FirebaseCore.instance.initializeApp();
     });
+
     test("constructor", () {
       final testDocumentChangePlatform = TestDocumentChange._();
       expect(

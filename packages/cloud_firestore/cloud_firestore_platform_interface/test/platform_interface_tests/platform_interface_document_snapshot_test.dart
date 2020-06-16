@@ -9,13 +9,13 @@ import 'package:flutter_test/flutter_test.dart';
 import '../utils/test_common.dart';
 
 const _kPath = "document";
+const _kMetadata = {'isFromCache': true, 'hasPendingWrites': true};
+const _kData = {'foo': 'bar'};
 
 class TestDocumentSnapshot extends DocumentSnapshotPlatform {
   TestDocumentSnapshot._()
-      : super(FirestorePlatform.instance, _kPath, {
-          'data': {},
-          'metadata': {'isFromCache': true, 'hasPendingWrites': true}
-        });
+      : super(FirestorePlatform.instance, _kPath,
+            {'data': _kData, 'metadata': _kMetadata});
 }
 
 void main() {
@@ -24,6 +24,11 @@ void main() {
   group("$DocumentReferencePlatform()", () {
     setUpAll(() async {
       await FirebaseCore.instance.initializeApp();
+    });
+
+    test("constructor", () {
+      final snapshot = TestDocumentSnapshot._();
+      expect(snapshot, isInstanceOf<DocumentSnapshotPlatform>());
     });
 
     test("id", () {
@@ -38,19 +43,27 @@ void main() {
       expect(metaData.hasPendingWrites, isTrue);
       expect(metaData.isFromCache, isTrue);
     });
+
     test("exists", () {
       final snapshot = TestDocumentSnapshot._();
       expect(snapshot.exists, isTrue);
     });
+
     test("reference", () {
       final snapshot = TestDocumentSnapshot._();
       final reference = snapshot.reference;
       expect(reference, isInstanceOf<DocumentReferencePlatform>());
       expect(reference.id, equals(_kPath));
     });
+
     test("data", () {
       final snapshot = TestDocumentSnapshot._();
-      expect(snapshot.data(), {});
+      expect(snapshot.data(), _kData);
+    });
+
+    test("get", () {
+      final snapshot = TestDocumentSnapshot._();
+      expect(snapshot.get('foo'), 'bar');
     });
   });
 }

@@ -10,17 +10,17 @@ import '../utils/test_common.dart';
 
 const _kCollectionId = "test";
 const _kDocumentId = "document";
-const _kSubCollectionId = "subTest";
+const _kChildCollectionId = "childTest";
 
 class TestCollectionReference extends CollectionReferencePlatform {
   TestCollectionReference._()
       : super(FirestorePlatform.instance, '$_kCollectionId');
 }
 
-class TestSubCollectionReference extends CollectionReferencePlatform {
-  TestSubCollectionReference._()
+class TestChildCollectionReference extends CollectionReferencePlatform {
+  TestChildCollectionReference._()
       : super(FirestorePlatform.instance,
-            '$_kCollectionId/$_kDocumentId/$_kSubCollectionId');
+            '$_kCollectionId/$_kDocumentId/$_kChildCollectionId');
 }
 
 void main() {
@@ -30,12 +30,11 @@ void main() {
     setUpAll(() async {
       await FirebaseCore.instance.initializeApp();
     });
-    test("Parent", () {
-      final collection = TestSubCollectionReference._();
-      final parent = collection.parent;
-      final parentPath = parent.path;
-      expect(parent, isInstanceOf<DocumentReferencePlatform>());
-      expect(parentPath, equals("$_kCollectionId/$_kDocumentId"));
+
+    test("constructor", () {
+      final testColRef = TestCollectionReference._();
+      expect(testColRef, isInstanceOf<CollectionReferencePlatform>());
+      expect(testColRef.id, equals(_kCollectionId));
     });
 
     test("id", () {
@@ -43,9 +42,28 @@ void main() {
       expect(collection.id, equals(_kCollectionId));
     });
 
-    test("Path", () {
+    test("parent", () {
+      final collection = TestChildCollectionReference._();
+      final parent = collection.parent;
+      final parentPath = parent.path;
+      expect(parent, isInstanceOf<DocumentReferencePlatform>());
+      expect(parentPath, equals("$_kCollectionId/$_kDocumentId"));
+    });
+
+    test("path", () {
       final document = TestCollectionReference._();
       expect(document.path, equals("$_kCollectionId"));
+    });
+
+    test("throws if .doc", () {
+      final document = TestCollectionReference._();
+      try {
+        document.doc();
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("doc() is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
     });
   });
 }

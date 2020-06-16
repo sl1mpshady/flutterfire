@@ -108,7 +108,7 @@ abstract class FirestorePlatform extends PlatformInterface {
   /// Returns a [Steam] which is called each time all of the active listeners
   /// have been synchronised.
   Stream<void> snapshotsInSync() {
-    throw UnimplementedError('onSnapshotsInSync() is not implemented');
+    throw UnimplementedError('snapshotsInSync() is not implemented');
   }
 
   /// Executes the given [TransactionHandler] and then attempts to commit the

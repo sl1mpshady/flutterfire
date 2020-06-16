@@ -55,7 +55,7 @@ void main() {
 //     const Map<String, dynamic> kMockSnapshotMetadata = <String, dynamic>{
 //       "hasPendingWrites": false,
 //       "isFromCache": false,
-//     };
+//     };]
 
 //     setUp(() async {
 //       mockHandleId = 0;

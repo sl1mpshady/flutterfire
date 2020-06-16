@@ -15,14 +15,19 @@ import '../utils/test_common.dart';
 class MockDocumentReference extends Mock implements DocumentReferencePlatform {}
 
 const _kTransactionId = 1022;
-
+const Map<String, dynamic> kMockSnapshotMetadata = <String, dynamic>{
+  "hasPendingWrites": false,
+  "isFromCache": false,
+};
 void main() {
   initializeMethodChannel();
 
   final FieldValuePlatform mockFieldValue =
       FieldValuePlatform(MethodChannelFieldValueFactory().increment(2.0));
 
-  group("MethodChannelTransaction()", () {
+  bool isMethodCalled = false;
+
+  group('$MethodChannelTransaction', () {
     setUpAll(() async {
       await Firebase.initializeApp(
         name: 'testApp',
@@ -33,6 +38,16 @@ void main() {
           messagingSenderId: '1234567890',
         ),
       );
+      handleMethodCall((call) {
+        if (call.method == "Transaction#get") {
+          isMethodCalled = true;
+          return <String, dynamic>{
+            'path': 'foo/bar',
+            'data': <String, dynamic>{'key1': 'val1'},
+            'metadata': kMockSnapshotMetadata,
+          };
+        }
+      });
     });
     TransactionPlatform transaction;
     final mockDocumentReference = MockDocumentReference();
@@ -43,62 +58,78 @@ void main() {
           _kTransactionId, FirestorePlatform.instance.app.name);
     });
 
-    test("get", () async {
-      bool isMethodCalled = false;
-      handleMethodCall((call) {
-        if (call.method == "Transaction#get") {
-          isMethodCalled = true;
-        }
+    group('commands', () {
+      test('should throw if get is not written', () async {
+        await transaction.get(mockDocumentReference.path);
+        expect(() => transaction.commands, throwsAssertionError);
       });
-      await transaction.get(mockDocumentReference.path);
-      expect(isMethodCalled, isTrue, reason: "Transaction.get was not called");
+
+      test('returns with equal checks', () async {
+        await transaction.get(mockDocumentReference.path);
+        transaction.set(mockDocumentReference.path, {'foo': 'bar'});
+        expect(transaction.commands.length, equals(1));
+      });
     });
 
-    test("delete", () async {
-      bool isMethodCalled = false;
-      handleMethodCall((call) {
-        if (call.method == "Transaction#delete") {
-          isMethodCalled = true;
-        }
+    group('get()', () {
+      test('should throw if get is called after a command', () async {
+        transaction.set(mockDocumentReference.path, {'foo': 'bar'});
+        expect(transaction.commands.length, 1);
+        expect(() => transaction.get(mockDocumentReference.path),
+            throwsAssertionError);
       });
-      await transaction.delete(mockDocumentReference.path);
-      expect(isMethodCalled, isTrue,
-          reason: "Transaction.delete was not called");
+
+      test('returns a [DocumentSnapshotPlatform] ', () async {
+        DocumentSnapshotPlatform result =
+            await transaction.get(mockDocumentReference.path);
+        expect(isMethodCalled, isTrue,
+            reason: "Transaction.get was not called");
+        expect(result, isInstanceOf<DocumentSnapshotPlatform>());
+        expect(result.data(), equals(<String, dynamic>{'key1': 'val1'}));
+      });
     });
 
-    test("update", () async {
-      bool isMethodCalled = false;
+    test("delete()", () {
+      transaction.delete(mockDocumentReference.path);
+
+      expect(transaction.commands.length, 1);
+
+      Map<String, dynamic> command = transaction.commands[0];
+      expect(command['type'], 'DELETE');
+      expect(command['path'], 'foo/bar');
+      expect(command['data'], equals(null));
+    });
+
+    test("update()", () {
       final Map<String, dynamic> data = {
         "test": "test",
         "fieldValue": mockFieldValue
       };
-      handleMethodCall((call) {
-        if (call.method == "Transaction#update") {
-          isMethodCalled = true;
-          expect(call.arguments["transactionId"], equals(_kTransactionId));
-          expect(call.arguments["data"]["test"], equals(data["test"]));
-        }
-      });
-      await transaction.update(mockDocumentReference.id, data);
-      expect(isMethodCalled, isTrue,
-          reason: "Transaction#update was not called");
+      transaction.update(mockDocumentReference.path, data);
+
+      expect(transaction.commands.length, 1);
+
+      Map<String, dynamic> command = transaction.commands[0];
+      expect(command['type'], 'UPDATE');
+      expect(command['path'], 'foo/bar');
+      expect(command['data'], equals(data));
     });
 
-    test("set", () async {
-      bool isMethodCalled = false;
+    test("set()", () {
       final Map<String, dynamic> data = {
         "test": "test",
         "fieldValue": mockFieldValue
       };
-      handleMethodCall((call) {
-        if (call.method == "Transaction#set") {
-          isMethodCalled = true;
-          expect(call.arguments["transactionId"], equals(_kTransactionId));
-          expect(call.arguments["data"]["test"], equals(data["test"]));
-        }
-      });
-      await transaction.set(mockDocumentReference.id, data);
-      expect(isMethodCalled, isTrue, reason: "Transaction#set was not called");
+      final SetOptions options = SetOptions(merge: true, mergeFields: null);
+
+      transaction.set(mockDocumentReference.path, data, options);
+      expect(transaction.commands.length, 1);
+
+      Map<String, dynamic> command = transaction.commands[0];
+      expect(command['type'], 'SET');
+      expect(command['path'], 'foo/bar');
+      expect(command['data'], equals(data));
+      expect(command['options'], equals({'merge': true, 'mergeFields': null}));
     });
   });
 }

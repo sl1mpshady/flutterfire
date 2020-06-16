@@ -59,7 +59,7 @@ jobs:
 
   apple:
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v1
         with:
@@ -86,6 +86,11 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: "dev"
+      - name: Enable MacOS Support
+        run: |
+          flutter upgrade
+          flutter config --enable-macos-desktop
+          flutter devices
       - name: "Build MacOS Example"
         run: |
           melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" -- \

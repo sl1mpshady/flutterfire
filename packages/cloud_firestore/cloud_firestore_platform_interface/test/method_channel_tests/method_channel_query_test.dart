@@ -120,7 +120,6 @@ void main() {
     });
     group("get()", () {
       setUp(() async {
-        log.clear();
         MethodChannelFirestore.channel
             .setMockMethodCallHandler((MethodCall methodCall) async {
           log.add(methodCall);
@@ -156,20 +155,30 @@ void main() {
         expect(snapshot, isA<QuerySnapshotPlatform>());
         expect(snapshot.docs.length, 1);
 
-        // TODO(helenaford) fix log
-        // expect(
-        //   log,
-        //   equals(<Matcher>[
-        //     isMethodCall(
-        //       'Query#getDocuments',
-        //       arguments: <String, dynamic>{
-        //         'appName': FirestorePlatform.instance.app,
-        //         'path': 'foo/bar',
-        //         'source': 'cache',
-        //       },
-        //     ),
-        //   ]),
-        // );
+        expect(
+          log,
+          equals(<Matcher>[
+            isMethodCall(
+              'Query#getDocuments',
+              arguments: <String, dynamic>{
+                'appName': '[DEFAULT]',
+                'path': 'foo/bar',
+                'source': 'cache',
+                'parameters': <String, dynamic>{
+                  'where': [],
+                  'orderBy': ['foo'],
+                  'startAt': null,
+                  'startAfter': null,
+                  'endAt': ['0'],
+                  'endBefore': null,
+                  'limit': null,
+                  'limitToLast': null
+                },
+                'isCollectionGroup': false,
+              },
+            ),
+          ]),
+        );
       });
 
       test('listeners throws a [FirebaseException]', () async {
@@ -233,16 +242,45 @@ void main() {
     });
 
     group("snapshots()", () {
-      test('sets a default value for includeMetadataChanges', () {
-        try {
-          query.snapshots();
-        } on AssertionError catch (_) {
-          fail("Default value not set for includeMetadataChanges");
-        }
-      });
-      test('should throw if includeMetadataChanges is null', () {
-        expect(() => query.snapshots(includeMetadataChanges: null),
-            throwsAssertionError);
+      int mockHandleId = 0;
+      final List<MethodCall> log = <MethodCall>[];
+      setUp(() {
+        mockHandleId++;
+        BinaryMessenger defaultBinaryMessenger =
+            ServicesBinding.instance.defaultBinaryMessenger;
+        handleMethodCall((MethodCall call) {
+          log.add(call);
+          if (call.method == "Query#addSnapshotListener") {
+            // ignore: unawaited_futures
+            Future<void>.delayed(Duration.zero).then<void>((_) {
+              final handle = mockHandleId;
+              defaultBinaryMessenger.handlePlatformMessage(
+                MethodChannelFirestore.channel.name,
+                MethodChannelFirestore.channel.codec.encodeMethodCall(
+                    MethodCall('QuerySnapshot', <String, dynamic>{
+                  'appName': 'testApp',
+                  'handle': handle,
+                  'paths': <String>["${call.arguments['path']}/0"],
+                  'documents': <dynamic>[kMockSnapshotMetadata],
+                  'metadatas': <Map<String, dynamic>>[kMockSnapshotMetadata],
+                  'metadata': kMockSnapshotMetadata,
+                  'documentChanges': <dynamic>[
+                    <String, dynamic>{
+                      'oldIndex': -1,
+                      'newIndex': 0,
+                      'type': 'DocumentChangeType.added',
+                      'document': kMockDocumentSnapshotData,
+                      'metadata': kMockSnapshotMetadata,
+                    },
+                  ],
+                })),
+                (_) {},
+              );
+            });
+          }
+        });
+
+        log.clear();
       });
 
       test('returns a [Stream]', () {
@@ -250,100 +288,56 @@ void main() {
         expect(stream, isA<Stream<QuerySnapshotPlatform>>());
       });
 
-      test('listens to a single response', () async {
+      test('onListen and onCancel invokes native methods with correct args',
+          () async {
         Stream<QuerySnapshotPlatform> stream = query.snapshots();
-        int call = 0;
-
-        await stream.listen(expectAsync1((QuerySnapshotPlatform snapshot) {
-          call++;
-          if (call == 1) {
-            expect(snapshot.docs.length, equals(1));
-            expect(snapshot.docs[0], isA<DocumentSnapshotPlatform>());
-            DocumentSnapshotPlatform documentSnapshot = snapshot.docs[0];
-            expect(documentSnapshot.data()['foo'], equals('bar'));
-          } else {
-            fail("Should not have been called");
-          }
-        }, count: 1, reason: "Stream should only have been called once."));
-
-        await Future.delayed(Duration(seconds: 1));
-      });
-
-      test('listens to a multiple changes response', () async {
-        Stream<QuerySnapshotPlatform> stream = query.snapshots();
-        int call = 0;
-
-        StreamSubscription subscription = stream.listen(expectAsync1(
-            (QuerySnapshotPlatform snapshot) {
-          call++;
-          if (call == 1) {
-            expect(snapshot.docs.length, equals(1));
-            DocumentSnapshotPlatform documentSnapshot = snapshot.docs[0];
-            expect(documentSnapshot.data()['foo'], equals('bar'));
-          } else if (call == 2) {
-            expect(snapshot.docs.length, equals(2));
-            DocumentSnapshotPlatform documentSnapshot =
-                snapshot.docs.firstWhere((doc) => doc.id == 'doc1');
-            expect(documentSnapshot.data()['bar'], equals('baz'));
-          } else if (call == 3) {
-            expect(snapshot.docs.length, equals(1));
-            expect(
-                snapshot.docs.where((doc) => doc.id == 'doc1').isEmpty, isTrue);
-          } else if (call == 4) {
-            expect(snapshot.docs.length, equals(2));
-            DocumentSnapshotPlatform documentSnapshot =
-                snapshot.docs.firstWhere((doc) => doc.id == 'doc2');
-            expect(documentSnapshot.data()['foo'], equals('bar'));
-          } else if (call == 5) {
-            expect(snapshot.docs.length, equals(2));
-            DocumentSnapshotPlatform documentSnapshot =
-                snapshot.docs.firstWhere((doc) => doc.id == 'doc2');
-            expect(documentSnapshot.data()['foo'], equals('baz'));
-          } else {
-            fail("Should not have been called");
-          }
-        },
-            count: 5,
-            reason: "Stream should only have been called five times."));
-
-        await Future.delayed(Duration(milliseconds: 500));
-        // await snapshot.doc('doc1').set({'bar': 'baz'});
-        // await collection.doc('doc1').delete();
-        // await collection.doc('doc2').set({'foo': 'bar'});
-        // await collection.doc('doc2').update({'foo': 'baz'});
+        final StreamSubscription<QuerySnapshotPlatform> subscription =
+            await stream.listen((QuerySnapshotPlatform snapshot) {});
 
         await subscription.cancel();
+        await Future<void>.delayed(Duration.zero);
+        expect(
+          log,
+          equals(<Matcher>[
+            isMethodCall(
+              'Query#addSnapshotListener',
+              arguments: <String, dynamic>{
+                'handle': mockHandleId - 1,
+                'appName': '[DEFAULT]',
+                'path': 'foo/bar',
+                'isCollectionGroup': false,
+                'parameters': <String, dynamic>{
+                  "where": <List<dynamic>>[],
+                  "orderBy": ["foo"],
+                  "startAt": null,
+                  "startAfter": null,
+                  "endAt": ['0'],
+                  "endBefore": null,
+                  "limit": null,
+                  "limitToLast": null
+                },
+                'includeMetadataChanges': false,
+              },
+            ),
+            isMethodCall(
+              'Firestore#removeListener',
+              arguments: <String, dynamic>{'handle': mockHandleId - 1},
+            ),
+          ]),
+        );
       });
-      test('onListen should invoke Query#addSnapshotListener', () {
-        // final DocumentSnapshotPlatform snapshot = await firestore
-        // .document('path/to/foo')
-        // .snapshots(includeMetadataChanges: true)
-        // .first;
-        // expect(snapshot.id, equals('foo'));
-        //  expect(snapshot.reference.path, equals('path/to/foo'));
-        // expect(snapshot.data, equals(kMockDocumentSnapshotData));
-        // // Flush the async removeListener call
-        // await Future<void>.delayed(Duration.zero);
-        // expect(
-        //   log,
-        //   <Matcher>[
-        //     isMethodCall(
-        //       'DocumentReference#addSnapshotListener',
-        //       arguments: <String, dynamic>{
-        //         'app': app.name,
-        //         'path': 'path/to/foo',
-        //         'includeMetadataChanges': true,
-        //       },
-        //     ),
-        //     isMethodCall(
-        //       'removeListener',
-        //       arguments: <String, dynamic>{'handle': 0},
-        //     ),
-        //   ],
-        // );
-      });
+    });
 
-      test('onCancel should invoke Firestore#removeListener', () {});
+    test('sets a default value for includeMetadataChanges', () {
+      try {
+        query.snapshots();
+      } on AssertionError catch (_) {
+        fail("Default value not set for includeMetadataChanges");
+      }
+    });
+    test('should throw if includeMetadataChanges is null', () {
+      expect(() => query.snapshots(includeMetadataChanges: null),
+          throwsAssertionError);
     });
 
     test("startAfterDocument()", () {

@@ -23,9 +23,6 @@ const Map<String, dynamic> kMockDocumentSnapshotData = <String, dynamic>{
   '1': 2
 };
 
-BinaryMessenger defaultBinaryMessenger =
-    ServicesBinding.instance.defaultBinaryMessenger;
-
 void initializeMethodChannel() {
   // Install the Codec that is able to decode FieldValues.
   MethodChannelFirestore.channel = MethodChannel(
@@ -58,7 +55,8 @@ void initializeMethodChannel() {
     }
     return null;
   });
-  MethodChannelFirestore.channel.setMockMethodCallHandler((call) async {
+  MethodChannelFirestore.channel
+      .setMockMethodCallHandler((MethodCall call) async {
     switch (call.method) {
       case 'DocumentReference#setData':
         return true;
@@ -105,32 +103,6 @@ void initializeMethodChannel() {
         return null;
       case 'WriteBatch#create':
         return 1;
-      case 'Query#addSnapshotListener':
-        // ignore: unawaited_futures
-        Future<void>.delayed(Duration.zero).then<void>((_) {
-          defaultBinaryMessenger.handlePlatformMessage(
-            MethodChannelFirestore.channel.name,
-            MethodChannelFirestore.channel.codec
-                .encodeMethodCall(MethodCall('QuerySnapshot', <String, dynamic>{
-              'appName': 'TestApp',
-              'handle': 1,
-              'paths': <String>["${call.arguments['path']}/0"],
-              'documents': <dynamic>[kMockSnapshotMetadata],
-              'metadatas': <Map<String, dynamic>>[kMockSnapshotMetadata],
-              'metadata': kMockSnapshotMetadata,
-              'documentChanges': <dynamic>[
-                <String, dynamic>{
-                  'oldIndex': -1,
-                  'newIndex': 0,
-                  'type': 'DocumentChangeType.added',
-                  'document': kMockDocumentSnapshotData,
-                  'metadata': kMockSnapshotMetadata,
-                },
-              ],
-            })),
-            (_) {},
-          );
-        });
     }
 
     return null;
@@ -139,8 +111,5 @@ void initializeMethodChannel() {
 
 void handleMethodCall(MethodCallCallback methodCallCallback) =>
     MethodChannelFirestore.channel.setMockMethodCallHandler((call) async {
-      expect(call.arguments["appName"],
-          equals(FirestorePlatform.instance.app.name));
-      expect(call.arguments["path"], equals("$kCollectionId/$kDocumentId"));
       return await methodCallCallback(call);
     });

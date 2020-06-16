@@ -27,7 +27,7 @@ void main() {
   };
   const Map<String, dynamic> kMockDocumentSnapshotDocument = <String, dynamic>{
     'path': 'foo/bar',
-    'data': [kMockSnapshotData],
+    'data': kMockSnapshotData,
     'metadata': [kMockSnapshotMetadata]
   };
 
@@ -139,8 +139,10 @@ void main() {
                   <String, dynamic>{
                     'oldIndex': -1,
                     'newIndex': 0,
+                    'path': 'foo/bar',
+                    'metadata': kMockSnapshotMetadata,
                     'type': 'DocumentChangeType.added',
-                    'document': kMockDocumentSnapshotDocument,
+                    'document': kMockDocumentSnapshotDocument['data'],
                   },
                 ]
               };
@@ -181,20 +183,6 @@ void main() {
         );
       });
 
-      test('listeners throws a [FirebaseException]', () async {
-        Stream<QuerySnapshotPlatform> stream = query.snapshots();
-
-        try {
-          await stream.first;
-        } catch (error) {
-          expect(error, isA<FirebaseException>());
-          expect(
-              (error as FirebaseException).code, equals('permission-denied'));
-          return;
-        }
-
-        fail("Should have thrown a [FirebaseException]");
-      });
       test("throws a [FirebaseException]", () async {
         MethodChannelQuery testQuery =
             MethodChannelQuery(FirestorePlatform.instance, 'foo/unknown',
@@ -264,15 +252,7 @@ void main() {
                   'documents': <dynamic>[kMockSnapshotMetadata],
                   'metadatas': <Map<String, dynamic>>[kMockSnapshotMetadata],
                   'metadata': kMockSnapshotMetadata,
-                  'documentChanges': <dynamic>[
-                    <String, dynamic>{
-                      'oldIndex': -1,
-                      'newIndex': 0,
-                      'type': 'DocumentChangeType.added',
-                      'document': kMockDocumentSnapshotData,
-                      'metadata': kMockSnapshotMetadata,
-                    },
-                  ],
+                  'documentChanges': <dynamic>[],
                 })),
                 (_) {},
               );

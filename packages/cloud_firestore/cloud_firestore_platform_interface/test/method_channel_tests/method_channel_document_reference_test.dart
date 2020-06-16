@@ -128,7 +128,7 @@ void _assertSetDataMethodCalled(DocumentReferencePlatform documentReference,
     if (call.method == "DocumentReference#setData") {
       isMethodCalled = true;
       expect(call.arguments["data"]["test"], equals(data["test"]));
-      expect(call.arguments["options"]["merge"], expectedMergeValue ?? false);
+      expect(call.arguments["options"]["merge"], expectedMergeValue);
     }
   });
   if (expectedMergeValue == null) {

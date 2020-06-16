@@ -1,4 +1,4 @@
-// Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
@@ -16,7 +16,7 @@ void main() {
   initializeMethodChannel();
   group("$FirestorePlatform()", () {
     setUpAll(() async {
-      await FirebaseCore.instance.initializeApp();
+      await Firebase.initializeApp();
     });
 
     test("constructor", () {
@@ -28,7 +28,7 @@ void main() {
       final firestore = TestFirestore._();
 
       expect(firestore.app, isInstanceOf<FirebaseApp>());
-      expect(firestore.app, equals(FirebaseCore.instance.app()));
+      expect(firestore.app, equals(Firebase.app()));
     });
 
     test("throws if .batch", () {

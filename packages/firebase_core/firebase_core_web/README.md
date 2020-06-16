@@ -2,6 +2,8 @@
 
 The web implementation of `firebase_core`.
 
+To learn more about Firebase, please visit the [Firebase website](https://firebase.google.com)
+
 ## Getting Started
 
 To get started with FlutterFire, please [see the documentation](https://firebase.flutter.dev/docs/overview)

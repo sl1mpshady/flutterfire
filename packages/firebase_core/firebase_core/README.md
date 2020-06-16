@@ -4,6 +4,8 @@
 
 A Flutter plugin to use the Firebase Core API, which enables connecting to multiple Firebase apps.
 
+To learn more about Firebase, please visit the [Firebase website](https://firebase.google.com)
+
 ## Getting Started
 
 To get started with FlutterFire, please [see the documentation](https://firebase.flutter.dev/docs/overview)

@@ -53,7 +53,7 @@ void main() {
   });
 
   group("$WriteBatch", () {
-    test('requires correct document references', () {
+    test('requires document reference from same Firestore instance', () {
       DocumentReference badRef = firestoreSecondary.doc('doc/exists');
 
       const data = {'foo': 1};

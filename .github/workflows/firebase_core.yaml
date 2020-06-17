@@ -78,7 +78,7 @@ jobs:
       - name: "Build iOS Example"
         run: |
           melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" -- \
-            flutter build ios --no-codesign --no-pub
+            flutter build ios --no-codesign
       - name: "Boot Simulator"
         run: xcrun simctl boot "iPhone 11"
       - name: "Drive iOS Example"
@@ -90,7 +90,7 @@ jobs:
       - name: "Build MacOS Example"
         run: |
           melos exec -c 1 --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" -- \
-            flutter build macos --no-pub
+            flutter build macos
       - name: "Drive MacOS Example"
         run: |
           melos exec -c 1 --fail-fast --scope="$FLUTTERFIRE_PLUGIN_SCOPE_EXAMPLE" --dir-exists=test_driver -- \

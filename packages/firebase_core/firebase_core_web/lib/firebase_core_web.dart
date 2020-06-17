@@ -51,7 +51,7 @@ String _getJSErrorCode(dynamic e) {
 /// If a JavaScript error is thrown and not manually handled using the code,
 /// this function ensures that if the error is Firebase related, it is instead
 /// re-created as a [FirebaseException] with a familiar code and message.
-FirebaseException _catchFirebaseJSError(dynamic e) {
+FirebaseException _catchJSError(dynamic e) {
   if (js_util.getProperty(e, 'name') == 'FirebaseError') {
     String rawCode = js_util.getProperty(e, 'code');
     String code = rawCode;

@@ -2,19 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 // import 'dart:async';
-import 'dart:typed_data';
+
 import 'dart:async';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_firestore.dart';
-import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_transaction.dart';
-// import 'package:cloud_firestore_platform_interface/src/method_channel/utils/firestore_message_codec.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../utils/test_common.dart';
-//import '../utils/test_firestore_message_codec.dart';
 
 void main() {
   initializeMethodChannel();

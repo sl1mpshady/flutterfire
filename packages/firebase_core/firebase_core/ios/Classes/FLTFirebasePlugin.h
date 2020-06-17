@@ -100,7 +100,7 @@ typedef void (^FLTFirebaseMethodCallErrorBlock)(NSString *_Nonnull code, NSStrin
  *
  * @return FlutterError
  */
-+ (FlutterError *_Nonnull)createFlutterErrorFromCode:(NSString *_Nonnull)code
+- (FlutterError *_Nonnull)createFlutterErrorFromCode:(NSString *_Nonnull)code
                                              message:(NSString *_Nonnull)message
                                      optionalDetails:(NSDictionary *_Nullable)details
                                   andOptionalNSError:(NSError *_Nullable)error;
@@ -115,7 +115,7 @@ typedef void (^FLTFirebaseMethodCallErrorBlock)(NSString *_Nonnull code, NSStrin
  *
  * @return NSString
  */
-+ (NSString *_Nonnull)firebaseAppNameFromDartName:(NSString *_Nonnull)appName;
+- (NSString *_Nonnull)firebaseAppNameFromDartName:(NSString *_Nonnull)appName;
 
 /**
  * Converts the '__FIRAPP_DEFAULT' app name used in iOS to '[DEFAULT]' - used in Dart & other SDKs.
@@ -126,7 +126,7 @@ typedef void (^FLTFirebaseMethodCallErrorBlock)(NSString *_Nonnull code, NSStrin
  *
  * @return NSString
  */
-+ (NSString *_Nonnull)firebaseAppNameFromIosName:(NSString *_Nonnull)appName;
+- (NSString *_Nonnull)firebaseAppNameFromIosName:(NSString *_Nonnull)appName;
 
 /**
  * Retrieves a FIRApp instance based on the app name provided from Dart code.
@@ -135,5 +135,5 @@ typedef void (^FLTFirebaseMethodCallErrorBlock)(NSString *_Nonnull code, NSStrin
  *
  * @return FIRApp - returns nil if Firebase app does not exist.
  */
-+ (FIRApp *_Nullable)firebaseAppNamed:(NSString *_Nonnull)appName;
+- (FIRApp *_Nullable)firebaseAppNamed:(NSString *_Nonnull)appName;
 @end

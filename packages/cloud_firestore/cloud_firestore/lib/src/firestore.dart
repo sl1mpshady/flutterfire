@@ -151,9 +151,10 @@ class Firestore extends FirebasePluginPlatform {
   /// timeout can be adjusted by setting the timeout parameter.
   Future<T> runTransaction<T>(TransactionHandler<T> transactionHandler,
       {Duration timeout = const Duration(seconds: 5)}) {
-    return _delegate.runTransaction<T>(
-        (transaction) => transactionHandler(Transaction._(this, transaction)),
-        timeout: timeout);
+    assert(transactionHandler != null, "transactionHandler cannot be null");
+    return _delegate.runTransaction<T>((transaction) {
+      return transactionHandler(Transaction._(this, transaction));
+    }, timeout: timeout);
   }
 
   /// Instructs the current Firestore instance to use the provided [settings].

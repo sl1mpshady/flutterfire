@@ -2,11 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:flutter_test/flutter_test.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 import './mock.dart';
 
@@ -18,7 +17,7 @@ void main() {
   group("$DocumentReference", () {
     setUpAll(() async {
       await Firebase.initializeApp();
-      FirebaseApp secondayApp = await Firebase.initializeApp(
+      FirebaseApp secondaryApp = await Firebase.initializeApp(
           name: 'foo',
           options: FirebaseOptions(
             apiKey: '123',
@@ -28,7 +27,7 @@ void main() {
           ));
 
       firestore = Firestore.instance;
-      firestoreSecondary = Firestore.instanceFor(app: secondayApp);
+      firestoreSecondary = Firestore.instanceFor(app: secondaryApp);
     });
 
     test('equality', () {
@@ -80,6 +79,37 @@ void main() {
 
         expect(ref.parent, equals(colRef));
       });
+    });
+
+    test('path must be a non-empty string', () {
+      CollectionReference ref = firestore.collection('foo');
+      expect(() => firestore.doc(null), throwsAssertionError);
+      expect(() => firestore.doc(''), throwsAssertionError);
+      expect(() => ref.doc(''), throwsAssertionError);
+    });
+
+    test('path must be even-length', () {
+      CollectionReference ref = firestore.collection('foo');
+      expect(() => firestore.doc('foo'), throwsAssertionError);
+      expect(() => firestore.doc('foo/bar/baz'), throwsAssertionError);
+      expect(() => ref.doc('/'), throwsAssertionError);
+    });
+
+    test('merge options', () {
+      DocumentReference ref = firestore.collection('foo').doc();
+      // can't specify both merge and mergeFields
+      expect(() => ref.set({}, SetOptions(merge: true, mergeFields: [])),
+          throwsAssertionError);
+      expect(() => ref.set({}, SetOptions(merge: false, mergeFields: [])),
+          throwsAssertionError);
+      // all mergeFields to be a string or a FieldPath
+      expect(() => ref.set({}, SetOptions(mergeFields: ['foo', false])),
+          throwsAssertionError);
+    });
+
+    test('data must not be null', () {
+      DocumentReference ref = firestore.collection('foo').doc();
+      expect(() => ref.set(null), throwsAssertionError);
     });
   });
 }

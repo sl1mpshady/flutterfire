@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -48,8 +49,12 @@ void runWriteBatchTests() {
       batch.set(doc2, <String, dynamic>{'bar': 'baz'});
       batch.update(doc3, <String, dynamic>{'bar': 'ben'});
       batch.set(doc4, <String, dynamic>{'bar': 'ben'}, SetOptions(merge: true));
-      batch.set(doc5, <String, dynamic>{'bar': 'ben'},
-          SetOptions(mergeFields: ['bar']));
+
+      // TODO(ehesp): firebase-dart does not support mergeFields
+      if (!kIsWeb) {
+        batch.set(doc5, <String, dynamic>{'bar': 'ben'},
+            SetOptions(mergeFields: ['bar']));
+      }
 
       await batch.commit();
 
@@ -74,12 +79,15 @@ void runWriteBatchTests() {
             'foo': 'bar',
             'bar': 'ben',
           }));
-      expect(
-          snapshot.docs.firstWhere((doc) => doc.id == 'doc5').data(),
-          equals(<String, dynamic>{
-            'foo': 'bar',
-            'bar': 'ben',
-          }));
+      // TODO(ehesp): firebase-dart does not support mergeFields
+      if (!kIsWeb) {
+        expect(
+            snapshot.docs.firstWhere((doc) => doc.id == 'doc5').data(),
+            equals(<String, dynamic>{
+              'foo': 'bar',
+              'bar': 'ben',
+            }));
+      }
     });
   });
 }

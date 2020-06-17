@@ -14,14 +14,22 @@ class QueryWeb extends QueryPlatform {
   final FirestorePlatform _firestore;
   final String _path;
 
+  /// Flags whether the current query is for a collection group.
+  final bool isCollectionGroupQuery;
+
   /// Builds an instance of [QueryWeb] delegating to a package:firebase [Query]
   /// to delegate queries to underlying firestore web plugin
-  QueryWeb(this._firestore, this._path, this._webQuery,
-      {Map<String, dynamic> parameters})
-      : super(_firestore, parameters);
+  QueryWeb(
+    this._firestore,
+    this._path,
+    this._webQuery, {
+    Map<String, dynamic> parameters,
+    this.isCollectionGroupQuery = false,
+  }) : super(_firestore, parameters);
 
   QueryWeb _copyWithParameters(Map<String, dynamic> parameters) {
     return QueryWeb(_firestore, _path, _webQuery,
+        isCollectionGroupQuery: isCollectionGroupQuery,
         parameters: Map<String, dynamic>.unmodifiable(
           Map<String, dynamic>.from(this.parameters)..addAll(parameters),
         ));
@@ -112,6 +120,7 @@ class QueryWeb extends QueryPlatform {
 
   @override
   Future<QuerySnapshotPlatform> get([GetOptions options]) async {
+    // TODO(ehesp): web implementation not handling options
     return convertWebQuerySnapshot(
         firestore, await _buildWebQueryWithParameters().get());
   }
@@ -137,10 +146,11 @@ class QueryWeb extends QueryPlatform {
   Stream<QuerySnapshotPlatform> snapshots({
     bool includeMetadataChanges = false,
   }) {
-    assert(_webQuery != null);
-    Stream<web.QuerySnapshot> querySnapshots = _webQuery.onSnapshot;
+    Stream<web.QuerySnapshot> querySnapshots;
     if (includeMetadataChanges) {
-      querySnapshots = _webQuery.onSnapshotMetadata;
+      querySnapshots = _buildWebQueryWithParameters().onSnapshotMetadata;
+    } else {
+      querySnapshots = _buildWebQueryWithParameters().onSnapshot;
     }
     return querySnapshots.map((webQuerySnapshot) =>
         convertWebQuerySnapshot(firestore, webQuerySnapshot));
@@ -148,14 +158,13 @@ class QueryWeb extends QueryPlatform {
 
   @override
   QueryPlatform orderBy(List<List<dynamic>> orders) {
-    return _copyWithParameters(
-        <String, dynamic>{'orderBy': CodecUtility.valueEncode(orders)});
+    return _copyWithParameters(<String, dynamic>{'orderBy': orders});
   }
 
   @override
   QueryPlatform startAfterDocument(List<dynamic> orders, List<dynamic> values) {
     return _copyWithParameters(<String, dynamic>{
-      'orderBy': CodecUtility.valueEncode(orders),
+      'orderBy': orders,
       'startAt': null,
       'startAfter': CodecUtility.valueEncode(values),
     });
@@ -172,7 +181,7 @@ class QueryWeb extends QueryPlatform {
   @override
   QueryPlatform startAtDocument(List<dynamic> orders, List<dynamic> values) {
     return _copyWithParameters(<String, dynamic>{
-      'orderBy': CodecUtility.valueEncode(orders),
+      'orderBy': orders,
       'startAt': CodecUtility.valueEncode(values),
       'startAfter': null,
     });

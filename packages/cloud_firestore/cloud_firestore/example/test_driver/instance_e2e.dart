@@ -4,6 +4,8 @@
 
 import 'dart:async';
 
+import 'package:drive/common.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -16,6 +18,8 @@ void runInstanceTests() {
     });
 
     test('snapshotsInSync()', () async {
+      if (kIsWeb) return;
+
       DocumentReference documentReference =
           firestore.doc('flutter-tests/insync');
 
@@ -58,6 +62,8 @@ void runInstanceTests() {
     });
 
     test('enableNetwork()', () async {
+      if (kIsWeb) return;
+
       // Write some data while online
       await firestore.enableNetwork();
       DocumentReference documentReference =
@@ -83,6 +89,8 @@ void runInstanceTests() {
     });
 
     test('disableNetwork()', () async {
+      if (kIsWeb) return;
+
       // Write some data while online
       await firestore.enableNetwork();
       DocumentReference documentReference =
@@ -103,7 +111,7 @@ void runInstanceTests() {
 
     test('waitForPendingWrites()', () async {
       await firestore.waitForPendingWrites();
-    });
+    }, skip: kIsWeb);
 
     test('terminate() / clearPersistence()', () async {
       // Since the firestore instance has already been used,
@@ -122,5 +130,5 @@ void runInstanceTests() {
       await firestore.terminate();
       await firestore.clearPersistence();
     });
-  });
+  }, skip: kIsWeb);
 }

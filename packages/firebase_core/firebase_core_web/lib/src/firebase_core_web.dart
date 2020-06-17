@@ -78,7 +78,7 @@ class FirebaseCoreWeb extends FirebasePlatform {
           throw duplicateApp(name);
         }
 
-        throw _catchJSError(e);
+        throw _catchFirebaseJSError(e);
       }
     }
 
@@ -107,7 +107,7 @@ class FirebaseCoreWeb extends FirebasePlatform {
         throw noAppExists(name);
       }
 
-      throw _catchJSError(e);
+      throw _catchFirebaseJSError(e);
     }
 
     return _createFromJsApp(app);

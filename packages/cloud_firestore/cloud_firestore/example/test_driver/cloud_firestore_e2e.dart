@@ -42,7 +42,7 @@ void testsMain() {
   runQueryTests();
   runSnapshotMetadataTests();
   runTimestampTests();
-  runTransactionTests();
+  runTransactionTests(); // ignored on web
   runWriteBatchTests();
 }
 

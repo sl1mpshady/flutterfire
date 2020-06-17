@@ -47,10 +47,10 @@ class FirestoreWeb extends FirestorePlatform {
   @override
   WriteBatchPlatform batch() => WriteBatchWeb(_webFirestore);
 
-  @override
-  Future<void> clearPersistence() async {
-    // TODO(ehesp): not supported on firebase-dart
-  }
+  // @override
+  // Future<void> clearPersistence() async {
+  //   // TODO(ehesp): not supported on firebase-dart
+  // }
 
   @override
   QueryPlatform collectionGroup(String path) {
@@ -112,13 +112,13 @@ class FirestoreWeb extends FirestorePlatform {
     }
   }
 
-  @override
-  Future<void> terminate() async {
-    // TODO(ehesp): not supported on firebase-dart
-  }
+  // @override
+  // Future<void> terminate() async {
+  //   // TODO(ehesp): not supported on firebase-dart
+  // }
 
-  @override
-  Future<void> waitForPendingWrites() async {
-    // TODO(ehesp): not supported on firebase-dart
-  }
+  // @override
+  // Future<void> waitForPendingWrites() async {
+  //   // TODO(ehesp): not supported on firebase-dart
+  // }
 }

@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -301,5 +302,5 @@ void runTransactionTests() {
       DocumentSnapshot snapshot2 = await documentReference2.get();
       expect(snapshot2.exists, isFalse);
     });
-  });
+  }, skip: kIsWeb);
 }

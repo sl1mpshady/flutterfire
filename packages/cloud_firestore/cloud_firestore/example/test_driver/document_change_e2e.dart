@@ -78,7 +78,6 @@ void runDocumentChangeTests() {
       await doc1.set({'value': 1});
       await doc2.set({'value': 2});
       await doc3.set({'value': 3});
-
       Stream<QuerySnapshot> stream = collection.orderBy('value').snapshots();
 
       int call = 0;

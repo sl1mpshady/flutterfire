@@ -294,13 +294,6 @@ void main() {
         handleId = mockTransactionHandleId;
       });
 
-      // TODO (helenaford): write test
-      // expect(firestore.runTransaction(), 1);
-      // setUp(() {
-      // MethodChannelTransaction transaction = MethodChannelTransaction(
-      //     'test', FirestorePlatform.instance.app.name);
-      // transactionHandler = await TransactionHandler;
-      // });
       test('throws [AssertionError] for timeout more than 0 ms', () {
         expect(
             firestore.runTransaction(transactionHandler,

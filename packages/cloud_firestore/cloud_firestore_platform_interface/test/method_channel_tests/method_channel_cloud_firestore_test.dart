@@ -7,7 +7,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_firestore.dart';
-// import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_transaction.dart';
+import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_transaction.dart';
 // import 'package:cloud_firestore_platform_interface/src/method_channel/utils/firestore_message_codec.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
@@ -21,10 +21,12 @@ void main() {
   MethodChannelFirestore firestore;
   FirebaseApp secondaryApp;
   bool mockPlatformExceptionThrown = false;
+  bool mockExceptionThrown = false;
+  int mockTransactionHandleId = 0;
   final List<MethodCall> log = <MethodCall>[];
-  int mockHandleId = 0;
-  BinaryMessenger defaultBinaryMessenger =
-      ServicesBinding.instance.defaultBinaryMessenger;
+
+  // BinaryMessenger defaultBinaryMessenger =
+  //     ServicesBinding.instance.defaultBinaryMessenger;
 
   setUpAll(() async {
     secondaryApp = await Firebase.initializeApp(
@@ -51,32 +53,25 @@ void main() {
     handleMethodCall((MethodCall call) {
       log.add(call);
       switch (call.method) {
-        // case 'Firestore#snapshotsInSync':
-        //   return Future.delayed(Duration.zero);
-        // case 'QuerySnapshot#event':
-        //   return Future.delayed(Duration.zero);
-        // case 'QuerySnapshot#error':
-        //   return Future.delayed(Duration.zero);
-        // case 'DocumentSnapshot#event':
-        //   return Future.delayed(Duration.zero);
-        // case 'DocumentSnapshot#error':
-        //   return Future.delayed(Duration.zero);
-        // case 'Transaction#attempt':
-        //   return Future.delayed(Duration.zero);
-        // case 'Firestore#addSnapshotsInSyncListener':
-        //   Future<void>.delayed(Duration.zero);
-
-        //   break;
+        case 'Transaction#create':
+          if (mockExceptionThrown) {
+            throw Exception();
+          } else if (mockPlatformExceptionThrown) {
+            throw PlatformException(code: 'UNKNOWN');
+          }
+          mockTransactionHandleId++;
+          return Future.delayed(Duration.zero);
         case 'Firestore#addSnapshotsInSyncListener':
         case 'Firestore#removeListener':
         case 'Firestore#waitForPendingWrites':
         case 'Firestore#terminate':
         case 'Firestore#settings':
-        case 'Transaction#create':
         case 'Firestore#enableNetwork':
         case 'Firestore#disableNetwork':
         case 'Firestore#clearPersistence':
-          if (mockPlatformExceptionThrown) {
+          if (mockExceptionThrown) {
+            throw Exception();
+          } else if (mockPlatformExceptionThrown) {
             throw PlatformException(code: 'UNKNOWN');
           }
           return Future.delayed(Duration.zero);
@@ -88,6 +83,7 @@ void main() {
 
   setUp(() {
     mockPlatformExceptionThrown = false;
+    mockExceptionThrown = false;
     log.clear();
   });
 
@@ -121,6 +117,9 @@ void main() {
       final handleId = MethodChannelFirestore.nextMethodChannelHandleId;
 
       expect(MethodChannelFirestore.nextMethodChannelHandleId, handleId + 1);
+
+      nextMockHandleId;
+      nextMockHandleId;
     });
 
     test('queryObservers', () {
@@ -250,50 +249,107 @@ void main() {
     });
 
     group('snapshotsInSync()', () {
-      // TODO (helenaford): write test
       int handle;
       setUp(() {
-        handle = mockHandleId;
+        handle = nextMockHandleId;
       });
-      // test('returns a [Stream]', () {
-      //   final stream = firestore.snapshotsInSync();
+      test('returns a [Stream]', () {
+        final stream = firestore.snapshotsInSync();
 
-      //   expect(stream, isInstanceOf<Stream<void>>());
-      //   mockHandleId++;
-      // });
+        expect(stream, isInstanceOf<Stream<void>>());
+      });
 
-      // test('onListen and onCancel invokes native methods with correct args',
-      //     () async {
-      //   final Stream<void> stream = firestore.snapshotsInSync();
-      //   final StreamSubscription<QuerySnapshotPlatform> subscription =
-      //       await stream.listen((event) {});
+      test('onListen and onCancel invokes native methods with correct args',
+          () async {
+        final Stream<void> stream = firestore.snapshotsInSync();
+        final StreamSubscription<QuerySnapshotPlatform> subscription =
+            await stream.listen((event) {});
 
-      //   await subscription.cancel();
-      //   await Future<void>.delayed(Duration.zero);
-      //   mockHandleId++;
+        await subscription.cancel();
+        await Future<void>.delayed(Duration.zero);
 
-      //   expect(
-      //     log,
-      //     equals(<Matcher>[
-      //       isMethodCall(
-      //         'Query#addSnapshotListener',
-      //         arguments: <String, dynamic>{
-      //           'handle': handle,
-      //           'appName': '[DEFAULT]',
-      //         },
-      //       ),
-      //       isMethodCall(
-      //         'Firestore#removeListener',
-      //         arguments: <String, dynamic>{'handle': handle},
-      //       ),
-      //     ]),
-      //   );
-      // });
+        expect(
+          log,
+          equals(<Matcher>[
+            isMethodCall(
+              'Firestore#addSnapshotsInSyncListener',
+              arguments: <String, dynamic>{
+                'handle': handle,
+                'appName': '[DEFAULT]',
+              },
+            ),
+            isMethodCall(
+              'Firestore#removeListener',
+              arguments: <String, dynamic>{'handle': handle},
+            ),
+          ]),
+        );
+      });
     });
 
-    test('runTransaction()', () {
+    group('runTransaction()', () {
+      TransactionHandler transactionHandler;
+      int handleId;
+      setUp(() {
+        handleId = mockTransactionHandleId;
+      });
+
       // TODO (helenaford): write test
       // expect(firestore.runTransaction(), 1);
+      // setUp(() {
+      // MethodChannelTransaction transaction = MethodChannelTransaction(
+      //     'test', FirestorePlatform.instance.app.name);
+      // transactionHandler = await TransactionHandler;
+      // });
+      test('throws [AssertionError] for timeout more than 0 ms', () {
+        expect(
+            firestore.runTransaction(transactionHandler,
+                timeout: Duration.zero),
+            throwsAssertionError);
+      });
+
+      test('sets timeout to a default value', () async {
+        final transactionFuture = firestore.runTransaction(transactionHandler);
+        expect(transactionFuture, isInstanceOf<Future>());
+      });
+
+      test('returns result of a successful transaction', () async {
+        await firestore.runTransaction((TransactionPlatform tx) async {},
+            timeout: const Duration(seconds: 3));
+
+        expect(log, <Matcher>[
+          isMethodCall('Transaction#create', arguments: <String, dynamic>{
+            'appName': firestore.app.name,
+            'transactionId': handleId,
+            'timeout': 3000
+          }),
+        ]);
+      });
+
+      test(
+          'catches [PlatformException] from Transaction#create and throws a [FirebaseException]',
+          () async {
+        mockPlatformExceptionThrown = true;
+        try {
+          await firestore.runTransaction(transactionHandler);
+        } on FirebaseException catch (_) {
+          return;
+        } catch (_) {
+          fail("Transaction threw invalid exeption");
+        }
+      });
+
+      test('catches and throws a [Exception] from Transaction#create',
+          () async {
+        mockExceptionThrown = true;
+        try {
+          await firestore.runTransaction(transactionHandler);
+        } on Exception catch (_) {
+          return;
+        } catch (_) {
+          fail("Transaction threw invalid exeption");
+        }
+      });
     });
 
     group('settings()', () {

@@ -22,6 +22,10 @@ const Map<String, dynamic> kMockDocumentSnapshotData = <String, dynamic>{
   '1': 2
 };
 
+int mockHandleId = 0;
+
+int get nextMockHandleId => mockHandleId++;
+
 void initializeMethodChannel() {
   // Install the Codec that is able to decode FieldValues.
   MethodChannelFirestore.channel = MethodChannel(

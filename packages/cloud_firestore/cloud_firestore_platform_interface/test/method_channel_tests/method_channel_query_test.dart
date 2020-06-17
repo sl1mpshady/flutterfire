@@ -95,8 +95,8 @@ void main() {
     test("endBeforeDocument()", () {
       List<List<dynamic>> orders = List.from([
         ['bar']
-      ]); // orderby
-      List<dynamic> values = [1]; // where
+      ]);
+      List<dynamic> values = [1];
       MethodChannelQuery q = query.endBeforeDocument(orders, values);
 
       expect(q, isNot(same(query)));
@@ -230,37 +230,18 @@ void main() {
     });
 
     group("snapshots()", () {
-      int mockHandleId = 0;
+      int handleId;
       final List<MethodCall> log = <MethodCall>[];
       setUp(() {
-        mockHandleId++;
-        BinaryMessenger defaultBinaryMessenger =
-            ServicesBinding.instance.defaultBinaryMessenger;
+        log.clear();
+        handleId = nextMockHandleId;
+
         handleMethodCall((MethodCall call) {
           log.add(call);
           if (call.method == "Query#addSnapshotListener") {
-            // ignore: unawaited_futures
-            Future<void>.delayed(Duration.zero).then<void>((_) {
-              final handle = mockHandleId;
-              defaultBinaryMessenger.handlePlatformMessage(
-                MethodChannelFirestore.channel.name,
-                MethodChannelFirestore.channel.codec.encodeMethodCall(
-                    MethodCall('QuerySnapshot', <String, dynamic>{
-                  'appName': 'testApp',
-                  'handle': handle,
-                  'paths': <String>["${call.arguments['path']}/0"],
-                  'documents': <dynamic>[kMockSnapshotMetadata],
-                  'metadatas': <Map<String, dynamic>>[kMockSnapshotMetadata],
-                  'metadata': kMockSnapshotMetadata,
-                  'documentChanges': <dynamic>[],
-                })),
-                (_) {},
-              );
-            });
+            Future<void>.delayed(Duration.zero);
           }
         });
-
-        log.clear();
       });
 
       test('returns a [Stream]', () {
@@ -282,7 +263,7 @@ void main() {
             isMethodCall(
               'Query#addSnapshotListener',
               arguments: <String, dynamic>{
-                'handle': mockHandleId - 1,
+                'handle': handleId,
                 'appName': '[DEFAULT]',
                 'path': 'foo/bar',
                 'isCollectionGroup': false,
@@ -301,7 +282,7 @@ void main() {
             ),
             isMethodCall(
               'Firestore#removeListener',
-              arguments: <String, dynamic>{'handle': mockHandleId - 1},
+              arguments: <String, dynamic>{'handle': handleId},
             ),
           ]),
         );
@@ -323,8 +304,8 @@ void main() {
     test("startAfterDocument()", () {
       List<List<dynamic>> orders = List.from([
         ['bar']
-      ]); // orderby
-      List<dynamic> values = [1]; // where
+      ]);
+      List<dynamic> values = [1];
       MethodChannelQuery q = query.startAfterDocument(orders, values);
 
       expect(q, isNot(same(query)));
@@ -348,8 +329,8 @@ void main() {
     test("startAtDocument()", () {
       List<List<dynamic>> orders = List.from([
         ['bar']
-      ]); // orderby
-      List<dynamic> values = [1]; // where
+      ]);
+      List<dynamic> values = [1];
       MethodChannelQuery q = query.startAtDocument(orders, values);
 
       expect(q, isNot(same(query)));

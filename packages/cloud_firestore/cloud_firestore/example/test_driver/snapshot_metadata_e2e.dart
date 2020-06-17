@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -35,5 +36,5 @@ void runSnapshotMetadataTests() {
           await collection.get(GetOptions(source: Source.server));
       expect(qs2.metadata.isFromCache, isFalse);
     });
-  });
+  }, skip: kIsWeb);
 }

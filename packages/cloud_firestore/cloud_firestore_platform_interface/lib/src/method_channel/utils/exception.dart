@@ -18,7 +18,7 @@ FutureOr<Map<String, dynamic>> catchPlatformException(Object exception) async {
 }
 
 /// Converts a [PlatformException] into a [FirebaseException].
-/// 
+///
 /// A [PlatformException] can only be converted to a [FirebaseException] if the
 /// `details` of the exception exist. Firebase returns specific codes and messages
 /// which can be converted into user friendly exceptions.

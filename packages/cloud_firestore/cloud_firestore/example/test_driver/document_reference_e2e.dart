@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -89,9 +90,12 @@ void runDocumentReferenceTests() {
         try {
           await stream.first;
         } catch (error) {
-          expect(error, isA<FirebaseException>());
-          expect(
-              (error as FirebaseException).code, equals('permission-denied'));
+          // TODO(ehesp): Web does not support handling exceptions yet.
+          if (!kIsWeb) {
+            expect(error, isA<FirebaseException>());
+            expect(
+                (error as FirebaseException).code, equals('permission-denied'));
+          }
           return;
         }
 
@@ -118,9 +122,11 @@ void runDocumentReferenceTests() {
         try {
           await document.delete();
         } catch (error) {
-          expect(error, isA<FirebaseException>());
-          expect(
-              (error as FirebaseException).code, equals('permission-denied'));
+          if (!kIsWeb) {
+            expect(error, isA<FirebaseException>());
+            expect(
+                (error as FirebaseException).code, equals('permission-denied'));
+          }
           return;
         }
         fail("Should have thrown a [FirebaseException]");
@@ -145,16 +151,7 @@ void runDocumentReferenceTests() {
             await document.get(GetOptions(source: Source.cache));
         expect(snapshot.data(), equals({'foo': 'bar'}));
         expect(snapshot.metadata.isFromCache, isTrue);
-      });
-
-      test('gets a document from cache', () async {
-        DocumentReference document = await initializeTest('document-get-cache');
-        await document.set({'foo': 'bar'});
-        DocumentSnapshot snapshot =
-            await document.get(GetOptions(source: Source.cache));
-        expect(snapshot.data(), equals({'foo': 'bar'}));
-        expect(snapshot.metadata.isFromCache, isTrue);
-      });
+      }, skip: kIsWeb);
 
       test('throws a [FirebaseException] on error', () async {
         DocumentReference document = firestore.doc('not-allowed/document');
@@ -162,9 +159,12 @@ void runDocumentReferenceTests() {
         try {
           await document.get();
         } catch (error) {
-          expect(error, isA<FirebaseException>());
-          expect(
-              (error as FirebaseException).code, equals('permission-denied'));
+          // TODO(ehesp): Web does not support handling exceptions yet.
+          if (!kIsWeb) {
+            expect(error, isA<FirebaseException>());
+            expect(
+                (error as FirebaseException).code, equals('permission-denied'));
+          }
           return;
         }
         fail("Should have thrown a [FirebaseException]");
@@ -218,7 +218,7 @@ void runDocumentReferenceTests() {
         DocumentSnapshot snapshot2 = await document.get();
         expect(
             snapshot2.data(), equals({'foo': 'bar', 'bar': 456, 'baz': 'foo'}));
-      });
+      }, skip: kIsWeb);
 
       test('throws a [FirebaseException] on error', () async {
         DocumentReference document = firestore.doc('not-allowed/document');
@@ -226,9 +226,12 @@ void runDocumentReferenceTests() {
         try {
           await document.set({'foo': 'bar'});
         } catch (error) {
-          expect(error, isA<FirebaseException>());
-          expect(
-              (error as FirebaseException).code, equals('permission-denied'));
+          // TODO(ehesp): Web does not support handling exceptions yet.
+          if (!kIsWeb) {
+            expect(error, isA<FirebaseException>());
+            expect(
+                (error as FirebaseException).code, equals('permission-denied'));
+          }
           return;
         }
         fail("Should have thrown a [FirebaseException]");
@@ -294,7 +297,7 @@ void runDocumentReferenceTests() {
       });
     });
 
-    group('DocumentReference.updateData()', () {
+    group('DocumentReference.update()', () {
       test('updates data', () async {
         DocumentReference document = await initializeTest('document-update');
         await document.set({'foo': 'bar'});
@@ -312,8 +315,11 @@ void runDocumentReferenceTests() {
           await document.update({'foo': 'bar'});
           fail("Should have thrown");
         } catch (e) {
-          expect(e, isA<FirebaseException>());
-          expect(e.code, equals('not-found'));
+          // TODO(ehesp): Web does not support handling exceptions yet.
+          if (!kIsWeb) {
+            expect(e, isA<FirebaseException>());
+            expect(e.code, equals('not-found'));
+          }
         }
       });
     });

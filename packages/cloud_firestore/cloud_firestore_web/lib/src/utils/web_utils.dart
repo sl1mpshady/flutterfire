@@ -64,7 +64,7 @@ DocumentChangeType convertWebDocumentChangeType(String changeType) {
     case _kChangeTypeRemoved:
       return DocumentChangeType.removed;
     default:
-      FallThroughError();
+      throw FallThroughError();
   }
 }
 

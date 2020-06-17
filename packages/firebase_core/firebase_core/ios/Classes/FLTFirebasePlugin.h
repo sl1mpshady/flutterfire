@@ -3,8 +3,13 @@
 // found in the LICENSE file.
 
 #import <Firebase/Firebase.h>
-#import <Flutter/Flutter.h>
 #import <Foundation/Foundation.h>
+
+#if TARGET_OS_OSX
+#import <FlutterMacOS/FlutterMacOS.h>
+#else
+#import <Flutter/Flutter.h>
+#endif
 
 /**
  * Block that is capable of sending a success response to a method call operation.

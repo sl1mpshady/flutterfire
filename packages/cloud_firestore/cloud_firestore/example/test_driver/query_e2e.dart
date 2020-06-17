@@ -5,6 +5,7 @@
 import 'dart:math';
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -30,7 +31,6 @@ void runQueryTests() {
     /**
      * collectionGroup
      */
-
     // TODO(ehesp): specific rules need enabling
     // group('collectionGroup()', () {
     //   test('returns a data via a sub-collection',
@@ -73,7 +73,7 @@ void runQueryTests() {
             await collection.get(GetOptions(source: Source.cache));
         expect(qs, isA<QuerySnapshot>());
         expect(qs.metadata.isFromCache, isTrue);
-      });
+      }, skip: kIsWeb);
 
       test('uses [GetOptions] server', () async {
         CollectionReference collection = await initializeTest('get');
@@ -89,17 +89,20 @@ void runQueryTests() {
         try {
           await collection.get();
         } catch (error) {
-          expect(error, isA<FirebaseException>());
-          expect(
-              (error as FirebaseException).code, equals('permission-denied'));
+          if (!kIsWeb) {
+            expect(error, isA<FirebaseException>());
+            expect(
+                (error as FirebaseException).code, equals('permission-denied'));
+          }
+          return;
         }
+        fail("Should have thrown a [FireebaseException]");
       });
     });
 
     /**
      * snapshots
      */
-
     group('Query.snapshots()', () {
       test('returns a [Stream]', () async {
         CollectionReference collection = await initializeTest('get');
@@ -182,9 +185,11 @@ void runQueryTests() {
         try {
           await stream.first;
         } catch (error) {
-          expect(error, isA<FirebaseException>());
-          expect(
-              (error as FirebaseException).code, equals('permission-denied'));
+          if (!kIsWeb) {
+            expect(error, isA<FirebaseException>());
+            expect(
+                (error as FirebaseException).code, equals('permission-denied'));
+          }
           return;
         }
 
@@ -754,7 +759,7 @@ void runQueryTests() {
         expect(snapshot2.docs.length, equals(2));
         expect(snapshot2.docs[0].id, equals('doc2'));
         expect(snapshot2.docs[1].id, equals('doc1'));
-      });
+      }, skip: kIsWeb);
     });
 
     /**

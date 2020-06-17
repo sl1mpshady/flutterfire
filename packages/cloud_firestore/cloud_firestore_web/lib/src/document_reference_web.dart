@@ -4,6 +4,8 @@
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:firebase/firestore.dart' as web;
+import 'package:firebase_core_web/firebase_core_web.dart'
+    show catchFirebaseJSError;
 
 import 'package:cloud_firestore_web/src/collection_reference_web.dart';
 import 'package:cloud_firestore_web/src/utils/web_utils.dart';
@@ -27,12 +29,13 @@ class DocumentReferenceWeb extends DocumentReferencePlatform {
         super(firestore, path);
 
   @override
-  Future<void> set(Map<String, dynamic> data, [SetOptions options]) =>
-      _delegate.set(
-        CodecUtility.encodeMapData(data),
-        // TODO(ehesp): `mergeFields` missing from web implementation
-        web.SetOptions(merge: options.merge),
-      );
+  Future<void> set(Map<String, dynamic> data, [SetOptions options]) {
+    return _delegate.set(
+      CodecUtility.encodeMapData(data),
+      // TODO(ehesp): `mergeFields` missing from web implementation
+      options != null ? web.SetOptions(merge: options.merge) : null,
+    );
+  }
 
   @override
   Future<void> update(Map<String, dynamic> data) =>

@@ -32,6 +32,14 @@ class Query {
     return parameters['endAt'] != null || parameters['endBefore'] != null;
   }
 
+  /// Returns whether the current operator is an inequality operator.
+  bool _isInequality(String operator) {
+    return (operator == '<' ||
+        operator == '<=' ||
+        operator == '>' ||
+        operator == '>=');
+  }
+
   /// Asserts that a [DocumentSnapshot] can be used within the current
   /// query.
   ///
@@ -42,7 +50,7 @@ class Query {
       DocumentSnapshot documentSnapshot) {
     assert(documentSnapshot != null);
     assert(documentSnapshot.exists,
-        "a document snaphot must exist to be used within a query");
+        "a document snapshot must exist to be used within a query");
 
     List<List<dynamic>> orders = List.from(parameters['orderBy']);
     List<dynamic> values = [];
@@ -94,6 +102,12 @@ class Query {
         "Too many arguments provided. The number of arguments must be less than or equal to the number of orderBy() clauses.");
 
     return fields;
+  }
+
+  /// Asserts that the query field is either a String or a [FieldPath].
+  void _assertValidFieldType(dynamic field) {
+    assert(field is String || field is FieldPath,
+        'Supported [field] types are [String] and [FieldPath].');
   }
 
   /// Creates and returns a new [Query] that ends at the provided document
@@ -199,8 +213,7 @@ class Query {
   /// is added by these methods implicitly.
   Query orderBy(dynamic field, {bool descending = false}) {
     assert(field != null && descending != null);
-    assert(field is String || field is FieldPath,
-        'Supported [field] types are [String] and [FieldPath].');
+    _assertValidFieldType(field);
     assert(!_hasStartCursor(),
         "Invalid query. You must not call startAt(), startAtDocument(), startAfter() or startAfterDocument() before calling orderBy()");
     assert(!_hasEndCursor(),
@@ -226,10 +239,7 @@ class Query {
 
         // Initial orderBy() parameter has to match every where() fieldPath parameter when
         // inequality operator is invoked
-        if (operator == '<' ||
-            operator == '<=' ||
-            operator == '>' ||
-            operator == '>=') {
+        if (_isInequality(operator)) {
           assert(field == orders[0][0],
               "The initial orderBy() field '$orders[0][0]' has to be the same as the where() field parameter '$field' when an inequality operator is invoked.");
         }
@@ -324,8 +334,7 @@ class Query {
     List<dynamic> whereIn,
     bool isNull,
   }) {
-    assert(field is String || field is FieldPath,
-        'Supported [field] types are [String] and [FieldPath].');
+    _assertValidFieldType(field);
 
     final ListEquality<dynamic> equality = const ListEquality<dynamic>();
     final List<List<dynamic>> conditions =
@@ -380,6 +389,14 @@ class Query {
       String operator = condition[1];
       dynamic value = condition[2];
 
+      // Initial orderBy() parameter has to match every where() fieldPath parameter when
+      // inequality operator is invoked
+      List<List<dynamic>> orders = List.from(parameters['orderBy']);
+      if (_isInequality(operator) && orders.isNotEmpty) {
+        assert(field == orders[0][0],
+            "The initial orderBy() field '$orders[0][0]' has to be the same as the where() field parameter '$field' when an inequality operator is invoked.");
+      }
+
       if (value == null) {
         assert(operator == '==',
             'You can only perform equals comparisons on null.');
@@ -423,10 +440,7 @@ class Query {
             "You cannot use both 'array-contains-any' or 'array-contains' filters together.");
       }
 
-      if (operator == '<' ||
-          operator == '<=' ||
-          operator == '>' ||
-          operator == '>=') {
+      if (_isInequality(operator)) {
         if (hasInequality == null) {
           hasInequality = field;
         } else {

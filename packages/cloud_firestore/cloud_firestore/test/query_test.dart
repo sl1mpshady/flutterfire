@@ -2,11 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:flutter_test/flutter_test.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 import './mock.dart';
 
@@ -36,23 +35,12 @@ void main() {
       query = firestore.collection('foo');
     });
 
-    // TODO(ehesp): Query equality checks
-    // test('equality', () {
-    //   CollectionReference ref = firestore.collection('foo');
-    //   CollectionReference ref2 = firestoreSecondary.collection('foo');
-
-    //   expect(ref == firestore.collection('foo'), isTrue);
-    //   expect(ref2 == firestoreSecondary.collection('foo'), isTrue);
-    // });
-
-    group('limit()', () {
-      test('throws if limit is negative', () {
-        expect(() => query.limit(0), throwsAssertionError);
-        expect(() => query.limitToLast(-1), throwsAssertionError);
-      });
+    test('.limit() throws if limit is negative', () {
+      expect(() => query.limit(0), throwsAssertionError);
+      expect(() => query.limitToLast(-1), throwsAssertionError);
     });
 
-    group('where()', () {
+    group('.where()', () {
       test('throws if field is invalid', () {
         expect(() => query.where(123), throwsAssertionError);
       });
@@ -176,22 +164,11 @@ void main() {
                 .where('foo', whereIn: [2, 3]).where('foo', whereIn: [2, 3]),
             throwsAssertionError);
       });
-
-      // TODO: validation when filtering on FieldPath.documentId
-      // when querying with documentId, can't be empty string
-      // when querying with documentId, string can't contain slashes
-      // when querying with documentId, value can't be int (has to be string)
-      // when querying with documentId, value must result in valid path, can't be odds number of segments
-      // when querying with documentId, can't perform arrayContains
-      // when querying with documentId, can't perform arrayContainsAny
-      // when querying with documentId, whereIn must have proper doc references in array [''] - check !empty string
-      // when querying with documentId, whereIn must provide a plain doc ID, ['foo/bar/baz'] - check !slashes
-      // when querying with documentId, whereIn must provide valid string, [1] - check !number
     });
 
     group('cursor queries', () {
       test('throws if starting or ending point specified after orderBy', () {
-        var q = query.orderBy('foo');
+        Query q = query.orderBy('foo');
         expect(() => q.startAt([1]).orderBy('bar'), throwsAssertionError);
         expect(() => q.startAfter([1]).orderBy('bar'), throwsAssertionError);
         expect(() => q.endAt([1]).orderBy('bar'), throwsAssertionError);
@@ -226,17 +203,11 @@ void main() {
       });
 
       test('endAt() replaces all end parameters', () {
-        var q = query.orderBy('foo').endBefore(['123']);
-        expect(
-            q.parameters['endBefore'], equals([FieldPath.fromString('123')]));
+        Query q = query.orderBy('foo').endBefore(['123']);
+        expect(q.parameters['endBefore'], equals(['123']));
         q = q.endAt(['456']);
         expect(q.parameters['endBefore'], isNull);
-        expect(q.parameters['endAt'], equals([FieldPath.fromString('456')]));
-      });
-
-      test('throws if order-by-key bounds are strings with slashes', () {
-        expect(() => query.orderBy('foo').startAt(['foo/bar']),
-            throwsAssertionError);
+        expect(q.parameters['endAt'], equals(['456']));
       });
     });
   });

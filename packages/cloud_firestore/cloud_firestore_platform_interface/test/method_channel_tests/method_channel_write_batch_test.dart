@@ -27,6 +27,12 @@ void main() {
       log.add(call);
       switch (call.method) {
         case 'WriteBatch#commit':
+          if (mockExceptionThrown) {
+            throw Exception();
+          } else if (mockPlatformExceptionThrown) {
+            throw PlatformException(code: 'UNKNOWN');
+          }
+
           return <String, dynamic>{
             'path': 'foo/bar',
             'data': <String, dynamic>{'key1': 'val1'},
@@ -106,6 +112,7 @@ void main() {
         } catch (_) {
           fail("WriteBatch threw invalid exeption");
         }
+        fail("WriteBatch should have thrown an exception");
       });
 
       test('catches and throws a [Exception] from WriteBatch#commit', () async {
@@ -120,6 +127,7 @@ void main() {
         } catch (_) {
           fail("WriteBatch threw invalid exeption");
         }
+        fail("WriteBatch should have thrown an exception");
       });
     });
 

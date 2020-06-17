@@ -104,13 +104,13 @@ class FirestoreMessageCodec extends StandardMessageCodec {
         final int appNameLength = readSize(buffer);
         final String appName =
             utf8.decoder.convert(buffer.getUint8List(appNameLength));
-        final FirebaseApp app = FirebaseCore.instance.app(appName);
+        final FirebaseApp app = Firebase.app(appName);
         final FirestorePlatform firestore =
             FirestorePlatform.instanceFor(app: app);
         final int pathLength = readSize(buffer);
         final String path =
             utf8.decoder.convert(buffer.getUint8List(pathLength));
-        return firestore.document(path);
+        return firestore.doc(path);
       case _kBlob:
         final int length = readSize(buffer);
         final List<int> bytes = buffer.getUint8List(length);

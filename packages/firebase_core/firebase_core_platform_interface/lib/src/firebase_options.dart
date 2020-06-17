@@ -8,7 +8,7 @@ part of firebase_core_platform_interface;
 /// The options used to configure a Firebase app.
 ///
 /// ```dart
-/// await FirebaseCore.instance.initializeApp(
+/// await Firebase.initializeApp(
 ///   name: 'SecondaryApp',
 ///   options: const FirebaseOptions(
 ///     apiKey: '...',
@@ -22,7 +22,7 @@ class FirebaseOptions {
   /// The options used to configure a Firebase app.
   ///
   /// ```dart
-  /// await FirebaseCore.instance.initializeApp(
+  /// await Firebase.initializeApp(
   ///   name: 'SecondaryApp',
   ///   options: const FirebaseOptions(
   ///     apiKey: '...',

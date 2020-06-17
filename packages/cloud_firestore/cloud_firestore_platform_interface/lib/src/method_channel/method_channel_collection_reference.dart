@@ -1,14 +1,11 @@
 // Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
-import 'dart:async';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:cloud_firestore_platform_interface/src/internal/pointer.dart';
 
 import 'method_channel_document_reference.dart';
-import 'method_channel_document_reference.dart';
-import 'method_channel_query.dart';
 import 'method_channel_query.dart';
 import 'utils/auto_id_generator.dart';
 
@@ -46,7 +43,7 @@ class MethodChannelCollectionReference extends MethodChannelQuery
   String get path => _pointer.path;
 
   @override
-  DocumentReferencePlatform document([String path]) {
+  DocumentReferencePlatform doc([String path]) {
     String documentPath;
 
     if (path != null) {

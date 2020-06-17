@@ -20,7 +20,7 @@ void runQueryTests() {
       CollectionReference collection =
           firestore.collection('flutter-tests/$id/query-tests');
       QuerySnapshot snapshot = await collection.get();
-      await Future.forEach(snapshot.documents,
+      await Future.forEach(snapshot.docs,
           (QueryDocumentSnapshot documentSnapshot) {
         return documentSnapshot.reference.delete();
       });
@@ -38,21 +38,21 @@ void runQueryTests() {
     //     CollectionReference collection =
     //         firestore.collection('flutter-tests/collection-group/group-test');
     //     QuerySnapshot snapshot = await collection.get();
-    //     await Future.forEach(snapshot.documents,
+    //     await Future.forEach(snapshot.docs,
     //         (DocumentSnapshot documentSnapshot) {
     //       return documentSnapshot.reference.delete();
     //     });
 
-    //     await collection.document('doc1').setData({'foo': 1});
-    //     await collection.document('doc2').setData({'foo': 2});
+    //     await collection.doc('doc1').set({'foo': 1});
+    //     await collection.doc('doc2').set({'foo': 2});
 
     //     QuerySnapshot groupSnapshot = await firestore
     //         .collectionGroup('group-test')
     //         .orderBy('foo', descending: true)
     //         .get();
     //     expect(groupSnapshot.size, equals(2));
-    //     expect(groupSnapshot.documents[0].data()['foo'], equals(2));
-    //     expect(groupSnapshot.documents[1].data()['foo'], equals(1));
+    //     expect(groupSnapshot.docs[0].data()['foo'], equals(2));
+    //     expect(groupSnapshot.docs[1].data()['foo'], equals(1));
     //   });
     // });
 
@@ -116,9 +116,9 @@ void runQueryTests() {
         stream.listen(expectAsync1((QuerySnapshot snapshot) {
           call++;
           if (call == 1) {
-            expect(snapshot.documents.length, equals(1));
-            expect(snapshot.documents[0], isA<QueryDocumentSnapshot>());
-            QueryDocumentSnapshot documentSnapshot = snapshot.documents[0];
+            expect(snapshot.docs.length, equals(1));
+            expect(snapshot.docs[0], isA<QueryDocumentSnapshot>());
+            QueryDocumentSnapshot documentSnapshot = snapshot.docs[0];
             expect(documentSnapshot.data()['foo'], equals('bar'));
           } else {
             fail("Should not have been called");
@@ -137,27 +137,27 @@ void runQueryTests() {
             (QuerySnapshot snapshot) {
           call++;
           if (call == 1) {
-            expect(snapshot.documents.length, equals(1));
-            QueryDocumentSnapshot documentSnapshot = snapshot.documents[0];
+            expect(snapshot.docs.length, equals(1));
+            QueryDocumentSnapshot documentSnapshot = snapshot.docs[0];
             expect(documentSnapshot.data()['foo'], equals('bar'));
           } else if (call == 2) {
-            expect(snapshot.documents.length, equals(2));
+            expect(snapshot.docs.length, equals(2));
             QueryDocumentSnapshot documentSnapshot =
-                snapshot.documents.firstWhere((doc) => doc.id == 'doc1');
+                snapshot.docs.firstWhere((doc) => doc.id == 'doc1');
             expect(documentSnapshot.data()['bar'], equals('baz'));
           } else if (call == 3) {
-            expect(snapshot.documents.length, equals(1));
-            expect(snapshot.documents.where((doc) => doc.id == 'doc1').isEmpty,
-                isTrue);
+            expect(snapshot.docs.length, equals(1));
+            expect(
+                snapshot.docs.where((doc) => doc.id == 'doc1').isEmpty, isTrue);
           } else if (call == 4) {
-            expect(snapshot.documents.length, equals(2));
+            expect(snapshot.docs.length, equals(2));
             QueryDocumentSnapshot documentSnapshot =
-                snapshot.documents.firstWhere((doc) => doc.id == 'doc2');
+                snapshot.docs.firstWhere((doc) => doc.id == 'doc2');
             expect(documentSnapshot.data()['foo'], equals('bar'));
           } else if (call == 5) {
-            expect(snapshot.documents.length, equals(2));
+            expect(snapshot.docs.length, equals(2));
             QueryDocumentSnapshot documentSnapshot =
-                snapshot.documents.firstWhere((doc) => doc.id == 'doc2');
+                snapshot.docs.firstWhere((doc) => doc.id == 'doc2');
             expect(documentSnapshot.data()['foo'], equals('baz'));
           } else {
             fail("Should not have been called");
@@ -167,10 +167,10 @@ void runQueryTests() {
             reason: "Stream should only have been called five times."));
 
         await Future.delayed(Duration(milliseconds: 500));
-        await collection.document('doc1').setData({'bar': 'baz'});
-        await collection.document('doc1').delete();
-        await collection.document('doc2').setData({'foo': 'bar'});
-        await collection.document('doc2').updateData({'foo': 'baz'});
+        await collection.doc('doc1').set({'bar': 'baz'});
+        await collection.doc('doc1').delete();
+        await collection.doc('doc2').set({'foo': 'bar'});
+        await collection.doc('doc2').update({'foo': 'baz'});
 
         subscription.cancel();
       });
@@ -200,15 +200,15 @@ void runQueryTests() {
       test('ends at string field paths', () async {
         CollectionReference collection = await initializeTest('endAt-string');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
             'bar': {'value': 1}
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
             'bar': {'value': 2}
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
             'bar': {'value': 3}
           }),
@@ -218,31 +218,31 @@ void runQueryTests() {
             .orderBy('bar.value', descending: true)
             .endAt([2]).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc3'));
-        expect(snapshot.documents[1].id, equals('doc2'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc3'));
+        expect(snapshot.docs[1].id, equals('doc2'));
 
         QuerySnapshot snapshot2 =
             await collection.orderBy('foo').endAt([2]).get();
 
-        expect(snapshot2.documents.length, equals(2));
-        expect(snapshot2.documents[0].id, equals('doc1'));
-        expect(snapshot2.documents[1].id, equals('doc2'));
+        expect(snapshot2.docs.length, equals(2));
+        expect(snapshot2.docs[0].id, equals('doc1'));
+        expect(snapshot2.docs[1].id, equals('doc2'));
       });
 
       test('ends at field paths', () async {
         CollectionReference collection =
             await initializeTest('endAt-field-path');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
             'bar': {'value': 1}
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
             'bar': {'value': 2}
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
             'bar': {'value': 3}
           }),
@@ -252,72 +252,70 @@ void runQueryTests() {
             .orderBy(FieldPath(['bar', 'value']), descending: true)
             .endAt([2]).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc3'));
-        expect(snapshot.documents[1].id, equals('doc2'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc3'));
+        expect(snapshot.docs[1].id, equals('doc2'));
 
         QuerySnapshot snapshot2 =
             await collection.orderBy(FieldPath(['foo'])).endAt([2]).get();
 
-        expect(snapshot2.documents.length, equals(2));
-        expect(snapshot2.documents[0].id, equals('doc1'));
-        expect(snapshot2.documents[1].id, equals('doc2'));
+        expect(snapshot2.docs.length, equals(2));
+        expect(snapshot2.docs[0].id, equals('doc1'));
+        expect(snapshot2.docs[1].id, equals('doc2'));
       });
 
       test('endAtDocument() ends at a document field value', () async {
         CollectionReference collection = await initializeTest('endAt-document');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'bar': {'value': 3}
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'bar': {'value': 2}
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'bar': {'value': 1}
           }),
         ]);
 
-        DocumentSnapshot endAtSnapshot =
-            await collection.document('doc2').get();
+        DocumentSnapshot endAtSnapshot = await collection.doc('doc2').get();
 
         QuerySnapshot snapshot = await collection
             .orderBy('bar.value')
             .endAtDocument(endAtSnapshot)
             .get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc3'));
-        expect(snapshot.documents[1].id, equals('doc2'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc3'));
+        expect(snapshot.docs[1].id, equals('doc2'));
       });
 
       test('endAtDocument() ends at a document', () async {
         CollectionReference collection = await initializeTest('endAt-document');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'bar': {'value': 1}
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'bar': {'value': 2}
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'bar': {'value': 3}
           }),
-          collection.document('doc4').setData({
+          collection.doc('doc4').set({
             'bar': {'value': 4}
           }),
         ]);
 
-        DocumentSnapshot endAtSnapshot =
-            await collection.document('doc3').get();
+        DocumentSnapshot endAtSnapshot = await collection.doc('doc3').get();
 
         QuerySnapshot snapshot =
             await collection.endAtDocument(endAtSnapshot).get();
 
-        expect(snapshot.documents.length, equals(3));
-        expect(snapshot.documents[0].id, equals('doc1'));
-        expect(snapshot.documents[1].id, equals('doc2'));
-        expect(snapshot.documents[2].id, equals('doc3'));
+        expect(snapshot.docs.length, equals(3));
+        expect(snapshot.docs[0].id, equals('doc1'));
+        expect(snapshot.docs[1].id, equals('doc2'));
+        expect(snapshot.docs[2].id, equals('doc3'));
       });
     });
 
@@ -329,15 +327,15 @@ void runQueryTests() {
       test('starts at string field paths', () async {
         CollectionReference collection = await initializeTest('startAt-string');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
             'bar': {'value': 1}
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
             'bar': {'value': 2}
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
             'bar': {'value': 3}
           }),
@@ -347,31 +345,31 @@ void runQueryTests() {
             .orderBy('bar.value', descending: true)
             .startAt([2]).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc2'));
-        expect(snapshot.documents[1].id, equals('doc1'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc2'));
+        expect(snapshot.docs[1].id, equals('doc1'));
 
         QuerySnapshot snapshot2 =
             await collection.orderBy('foo').startAt([2]).get();
 
-        expect(snapshot2.documents.length, equals(2));
-        expect(snapshot2.documents[0].id, equals('doc2'));
-        expect(snapshot2.documents[1].id, equals('doc3'));
+        expect(snapshot2.docs.length, equals(2));
+        expect(snapshot2.docs[0].id, equals('doc2'));
+        expect(snapshot2.docs[1].id, equals('doc3'));
       });
 
       test('starts at field paths', () async {
         CollectionReference collection =
             await initializeTest('startAt-field-path');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
             'bar': {'value': 1}
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
             'bar': {'value': 2}
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
             'bar': {'value': 3}
           }),
@@ -381,73 +379,71 @@ void runQueryTests() {
             .orderBy(FieldPath(['bar', 'value']), descending: true)
             .startAt([2]).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc2'));
-        expect(snapshot.documents[1].id, equals('doc1'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc2'));
+        expect(snapshot.docs[1].id, equals('doc1'));
 
         QuerySnapshot snapshot2 =
             await collection.orderBy(FieldPath(['foo'])).startAt([2]).get();
 
-        expect(snapshot2.documents.length, equals(2));
-        expect(snapshot2.documents[0].id, equals('doc2'));
-        expect(snapshot2.documents[1].id, equals('doc3'));
+        expect(snapshot2.docs.length, equals(2));
+        expect(snapshot2.docs[0].id, equals('doc2'));
+        expect(snapshot2.docs[1].id, equals('doc3'));
       });
 
       test('startAtDocument() starts at a document field value', () async {
         CollectionReference collection =
             await initializeTest('startAt-document');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'bar': {'value': 3}
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'bar': {'value': 2}
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'bar': {'value': 1}
           }),
         ]);
 
-        DocumentSnapshot startAtSnapshot =
-            await collection.document('doc2').get();
+        DocumentSnapshot startAtSnapshot = await collection.doc('doc2').get();
 
         QuerySnapshot snapshot = await collection
             .orderBy('bar.value')
             .startAtDocument(startAtSnapshot)
             .get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc2'));
-        expect(snapshot.documents[1].id, equals('doc1'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc2'));
+        expect(snapshot.docs[1].id, equals('doc1'));
       });
 
       test('startAtDocument() starts at a document', () async {
         CollectionReference collection =
             await initializeTest('startAt-document');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'bar': {'value': 1}
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'bar': {'value': 2}
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'bar': {'value': 3}
           }),
-          collection.document('doc4').setData({
+          collection.doc('doc4').set({
             'bar': {'value': 4}
           }),
         ]);
 
-        DocumentSnapshot startAtSnapshot =
-            await collection.document('doc3').get();
+        DocumentSnapshot startAtSnapshot = await collection.doc('doc3').get();
 
         QuerySnapshot snapshot =
             await collection.startAtDocument(startAtSnapshot).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc3'));
-        expect(snapshot.documents[1].id, equals('doc4'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc3'));
+        expect(snapshot.docs[1].id, equals('doc4'));
       });
     });
 
@@ -460,15 +456,15 @@ void runQueryTests() {
         CollectionReference collection =
             await initializeTest('endBefore-string');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
             'bar': {'value': 1}
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
             'bar': {'value': 2}
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
             'bar': {'value': 3}
           }),
@@ -478,31 +474,31 @@ void runQueryTests() {
             .orderBy('bar.value', descending: true)
             .endBefore([1]).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc3'));
-        expect(snapshot.documents[1].id, equals('doc2'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc3'));
+        expect(snapshot.docs[1].id, equals('doc2'));
 
         QuerySnapshot snapshot2 =
             await collection.orderBy('foo').endBefore([3]).get();
 
-        expect(snapshot2.documents.length, equals(2));
-        expect(snapshot2.documents[0].id, equals('doc1'));
-        expect(snapshot2.documents[1].id, equals('doc2'));
+        expect(snapshot2.docs.length, equals(2));
+        expect(snapshot2.docs[0].id, equals('doc1'));
+        expect(snapshot2.docs[1].id, equals('doc2'));
       });
 
       test('ends before field paths', () async {
         CollectionReference collection =
             await initializeTest('endBefore-field-path');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
             'bar': {'value': 1}
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
             'bar': {'value': 2}
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
             'bar': {'value': 3}
           }),
@@ -512,74 +508,72 @@ void runQueryTests() {
             .orderBy(FieldPath(['bar', 'value']), descending: true)
             .endBefore([1]).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc3'));
-        expect(snapshot.documents[1].id, equals('doc2'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc3'));
+        expect(snapshot.docs[1].id, equals('doc2'));
 
         QuerySnapshot snapshot2 =
             await collection.orderBy(FieldPath(['foo'])).endBefore([3]).get();
 
-        expect(snapshot2.documents.length, equals(2));
-        expect(snapshot2.documents[0].id, equals('doc1'));
-        expect(snapshot2.documents[1].id, equals('doc2'));
+        expect(snapshot2.docs.length, equals(2));
+        expect(snapshot2.docs[0].id, equals('doc1'));
+        expect(snapshot2.docs[1].id, equals('doc2'));
       });
 
       test('endbeforeDocument() ends before a document field value', () async {
         CollectionReference collection =
             await initializeTest('endBefore-document');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'bar': {'value': 3}
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'bar': {'value': 2}
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'bar': {'value': 1}
           }),
         ]);
 
-        DocumentSnapshot endAtSnapshot =
-            await collection.document('doc1').get();
+        DocumentSnapshot endAtSnapshot = await collection.doc('doc1').get();
 
         QuerySnapshot snapshot = await collection
             .orderBy('bar.value')
             .endBeforeDocument(endAtSnapshot)
             .get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc3'));
-        expect(snapshot.documents[1].id, equals('doc2'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc3'));
+        expect(snapshot.docs[1].id, equals('doc2'));
       });
 
       test('endBeforeDocument() ends before a document', () async {
         CollectionReference collection =
             await initializeTest('endBefore-document');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'bar': {'value': 1}
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'bar': {'value': 2}
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'bar': {'value': 3}
           }),
-          collection.document('doc4').setData({
+          collection.doc('doc4').set({
             'bar': {'value': 4}
           }),
         ]);
 
-        DocumentSnapshot endAtSnapshot =
-            await collection.document('doc4').get();
+        DocumentSnapshot endAtSnapshot = await collection.doc('doc4').get();
 
         QuerySnapshot snapshot =
             await collection.endBeforeDocument(endAtSnapshot).get();
 
-        expect(snapshot.documents.length, equals(3));
-        expect(snapshot.documents[0].id, equals('doc1'));
-        expect(snapshot.documents[1].id, equals('doc2'));
-        expect(snapshot.documents[2].id, equals('doc3'));
+        expect(snapshot.docs.length, equals(3));
+        expect(snapshot.docs[0].id, equals('doc1'));
+        expect(snapshot.docs[1].id, equals('doc2'));
+        expect(snapshot.docs[2].id, equals('doc3'));
       });
     });
 
@@ -592,16 +586,16 @@ void runQueryTests() {
         CollectionReference collection =
             await initializeTest('start-end-string');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
           }),
-          collection.document('doc4').setData({
+          collection.doc('doc4').set({
             'foo': 4,
           }),
         ]);
@@ -609,25 +603,25 @@ void runQueryTests() {
         QuerySnapshot snapshot =
             await collection.orderBy('foo').startAt([2]).endAt([3]).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc2'));
-        expect(snapshot.documents[1].id, equals('doc3'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc2'));
+        expect(snapshot.docs[1].id, equals('doc3'));
       });
 
       test('starts at & ends before a document', () async {
         CollectionReference collection =
             await initializeTest('start-end-string');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
           }),
-          collection.document('doc4').setData({
+          collection.doc('doc4').set({
             'foo': 4,
           }),
         ]);
@@ -635,25 +629,25 @@ void runQueryTests() {
         QuerySnapshot snapshot =
             await collection.orderBy('foo').startAt([2]).endBefore([4]).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc2'));
-        expect(snapshot.documents[1].id, equals('doc3'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc2'));
+        expect(snapshot.docs[1].id, equals('doc3'));
       });
 
       test('starts after & ends at a document', () async {
         CollectionReference collection =
             await initializeTest('start-end-field-path');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
           }),
-          collection.document('doc4').setData({
+          collection.doc('doc4').set({
             'foo': 4,
           }),
         ]);
@@ -661,42 +655,40 @@ void runQueryTests() {
         QuerySnapshot snapshot =
             await collection.orderBy('foo').startAfter([1]).endAt([3]).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc2'));
-        expect(snapshot.documents[1].id, equals('doc3'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc2'));
+        expect(snapshot.docs[1].id, equals('doc3'));
       });
 
       test('starts a document and ends before document', () async {
         CollectionReference collection =
             await initializeTest('start-end-document');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
           }),
-          collection.document('doc4').setData({
+          collection.doc('doc4').set({
             'foo': 4,
           }),
         ]);
 
-        DocumentSnapshot startAtSnapshot =
-            await collection.document('doc2').get();
-        DocumentSnapshot endBeforeSnapshot =
-            await collection.document('doc4').get();
+        DocumentSnapshot startAtSnapshot = await collection.doc('doc2').get();
+        DocumentSnapshot endBeforeSnapshot = await collection.doc('doc4').get();
 
         QuerySnapshot snapshot = await collection
             .startAtDocument(startAtSnapshot)
             .endBeforeDocument(endBeforeSnapshot)
             .get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc2'));
-        expect(snapshot.documents[1].id, equals('doc3'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc2'));
+        expect(snapshot.docs[1].id, equals('doc3'));
       });
     });
 
@@ -708,41 +700,41 @@ void runQueryTests() {
       test('limits documents', () async {
         CollectionReference collection = await initializeTest('limit');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
           }),
         ]);
 
         QuerySnapshot snapshot = await collection.limit(2).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc1'));
-        expect(snapshot.documents[1].id, equals('doc2'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc1'));
+        expect(snapshot.docs[1].id, equals('doc2'));
 
         QuerySnapshot snapshot2 =
             await collection.orderBy('foo', descending: true).limit(2).get();
 
-        expect(snapshot2.documents.length, equals(2));
-        expect(snapshot2.documents[0].id, equals('doc3'));
-        expect(snapshot2.documents[1].id, equals('doc2'));
+        expect(snapshot2.docs.length, equals(2));
+        expect(snapshot2.docs[0].id, equals('doc3'));
+        expect(snapshot2.docs[1].id, equals('doc2'));
       });
 
       test('limits to last documents', () async {
         CollectionReference collection = await initializeTest('limitToLast');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
           }),
         ]);
@@ -750,18 +742,18 @@ void runQueryTests() {
         QuerySnapshot snapshot =
             await collection.orderBy('foo').limitToLast(2).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].id, equals('doc2'));
-        expect(snapshot.documents[1].id, equals('doc3'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].id, equals('doc2'));
+        expect(snapshot.docs[1].id, equals('doc3'));
 
         QuerySnapshot snapshot2 = await collection
             .orderBy('foo', descending: true)
             .limitToLast(2)
             .get();
 
-        expect(snapshot2.documents.length, equals(2));
-        expect(snapshot2.documents[0].id, equals('doc2'));
-        expect(snapshot2.documents[1].id, equals('doc1'));
+        expect(snapshot2.docs.length, equals(2));
+        expect(snapshot2.docs[0].id, equals('doc2'));
+        expect(snapshot2.docs[1].id, equals('doc1'));
       });
     });
 
@@ -772,35 +764,35 @@ void runQueryTests() {
       test('orders async by default', () async {
         CollectionReference collection = await initializeTest('order-asc');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 3,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 1,
           }),
         ]);
 
         QuerySnapshot snapshot = await collection.orderBy('foo').get();
 
-        expect(snapshot.documents.length, equals(3));
-        expect(snapshot.documents[0].id, equals('doc3'));
-        expect(snapshot.documents[1].id, equals('doc2'));
-        expect(snapshot.documents[2].id, equals('doc1'));
+        expect(snapshot.docs.length, equals(3));
+        expect(snapshot.docs[0].id, equals('doc3'));
+        expect(snapshot.docs[1].id, equals('doc2'));
+        expect(snapshot.docs[2].id, equals('doc1'));
       });
 
       test('orders descending', () async {
         CollectionReference collection = await initializeTest('order-desc');
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': 1,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': 2,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': 3,
           }),
         ]);
@@ -808,10 +800,10 @@ void runQueryTests() {
         QuerySnapshot snapshot =
             await collection.orderBy('foo', descending: true).get();
 
-        expect(snapshot.documents.length, equals(3));
-        expect(snapshot.documents[0].id, equals('doc3'));
-        expect(snapshot.documents[1].id, equals('doc2'));
-        expect(snapshot.documents[2].id, equals('doc1'));
+        expect(snapshot.docs.length, equals(3));
+        expect(snapshot.docs[0].id, equals('doc3'));
+        expect(snapshot.docs[1].id, equals('doc2'));
+        expect(snapshot.docs[2].id, equals('doc1'));
       });
     });
 
@@ -825,13 +817,13 @@ void runQueryTests() {
         int rand = Random().nextInt(9999);
 
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': rand,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': rand,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': rand + 1,
           }),
         ]);
@@ -839,8 +831,8 @@ void runQueryTests() {
         QuerySnapshot snapshot =
             await collection.where('foo', isEqualTo: rand).get();
 
-        expect(snapshot.documents.length, equals(2));
-        snapshot.documents.forEach((doc) {
+        expect(snapshot.docs.length, equals(2));
+        snapshot.docs.forEach((doc) {
           expect(doc.data()['foo'], equals(rand));
         });
       });
@@ -851,16 +843,16 @@ void runQueryTests() {
         int rand = Random().nextInt(9999);
 
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': rand - 1,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': rand,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': rand + 1,
           }),
-          collection.document('doc4').setData({
+          collection.doc('doc4').set({
             'foo': rand + 2,
           }),
         ]);
@@ -868,8 +860,8 @@ void runQueryTests() {
         QuerySnapshot snapshot =
             await collection.where('foo', isGreaterThan: rand).get();
 
-        expect(snapshot.documents.length, equals(2));
-        snapshot.documents.forEach((doc) {
+        expect(snapshot.docs.length, equals(2));
+        snapshot.docs.forEach((doc) {
           expect(doc.data()['foo'] > rand, isTrue);
         });
       });
@@ -880,16 +872,16 @@ void runQueryTests() {
         int rand = Random().nextInt(9999);
 
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': rand - 1,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': rand,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': rand + 1,
           }),
-          collection.document('doc4').setData({
+          collection.doc('doc4').set({
             'foo': rand + 2,
           }),
         ]);
@@ -897,8 +889,8 @@ void runQueryTests() {
         QuerySnapshot snapshot =
             await collection.where('foo', isGreaterThanOrEqualTo: rand).get();
 
-        expect(snapshot.documents.length, equals(3));
-        snapshot.documents.forEach((doc) {
+        expect(snapshot.docs.length, equals(3));
+        snapshot.docs.forEach((doc) {
           expect(doc.data()['foo'] >= rand, isTrue);
         });
       });
@@ -909,13 +901,13 @@ void runQueryTests() {
         int rand = Random().nextInt(9999);
 
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': -(rand) + 1,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': -(rand) + 2,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': rand,
           }),
         ]);
@@ -923,8 +915,8 @@ void runQueryTests() {
         QuerySnapshot snapshot =
             await collection.where('foo', isLessThan: rand).get();
 
-        expect(snapshot.documents.length, equals(2));
-        snapshot.documents.forEach((doc) {
+        expect(snapshot.docs.length, equals(2));
+        snapshot.docs.forEach((doc) {
           expect(doc.data()['foo'] < rand, isTrue);
         });
       });
@@ -935,16 +927,16 @@ void runQueryTests() {
         int rand = Random().nextInt(9999);
 
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': -(rand) + 1,
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': -(rand) + 2,
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': rand,
           }),
-          collection.document('doc4').setData({
+          collection.doc('doc4').set({
             'foo': rand + 1,
           }),
         ]);
@@ -952,8 +944,8 @@ void runQueryTests() {
         QuerySnapshot snapshot =
             await collection.where('foo', isLessThanOrEqualTo: rand).get();
 
-        expect(snapshot.documents.length, equals(3));
-        snapshot.documents.forEach((doc) {
+        expect(snapshot.docs.length, equals(3));
+        snapshot.docs.forEach((doc) {
           expect(doc.data()['foo'] <= rand, isTrue);
         });
       });
@@ -964,13 +956,13 @@ void runQueryTests() {
         int rand = Random().nextInt(9999);
 
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'foo': [1, '2', rand],
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'foo': [1, '2', '$rand'],
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'foo': [1, '2', '$rand'],
           }),
         ]);
@@ -978,8 +970,8 @@ void runQueryTests() {
         QuerySnapshot snapshot =
             await collection.where('foo', arrayContains: '$rand').get();
 
-        expect(snapshot.documents.length, equals(2));
-        snapshot.documents.forEach((doc) {
+        expect(snapshot.docs.length, equals(2));
+        snapshot.docs.forEach((doc) {
           expect(doc.data()['foo'], equals([1, '2', '$rand']));
         });
       });
@@ -988,16 +980,16 @@ void runQueryTests() {
         CollectionReference collection = await initializeTest('where-in');
 
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'status': 'Ordered',
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'status': 'Ready to Ship',
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'status': 'Ready to Ship',
           }),
-          collection.document('doc4').setData({
+          collection.doc('doc4').set({
             'status': 'Incomplete',
           }),
         ]);
@@ -1005,8 +997,8 @@ void runQueryTests() {
         QuerySnapshot snapshot = await collection
             .where('status', whereIn: ['Ready to Ship', 'Ordered']).get();
 
-        expect(snapshot.documents.length, equals(3));
-        snapshot.documents.forEach((doc) {
+        expect(snapshot.docs.length, equals(3));
+        snapshot.docs.forEach((doc) {
           String status = doc.data()['status'];
           expect(status == 'Ready to Ship' || status == 'Ordered', isTrue);
         });
@@ -1017,16 +1009,16 @@ void runQueryTests() {
             await initializeTest('where-array-contains-any');
 
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'category': ['Appliances', 'Housewares', 'Cooking'],
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'category': ['Appliances', 'Electronics', 'Nursery'],
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'category': ['Audio/Video', 'Electronics'],
           }),
-          collection.document('doc4').setData({
+          collection.doc('doc4').set({
             'category': ['Beauty'],
           }),
         ]);
@@ -1035,7 +1027,7 @@ void runQueryTests() {
             arrayContainsAny: ['Appliances', 'Electronics']).get();
 
         // 2nd record should only be returned once
-        expect(snapshot.documents.length, equals(3));
+        expect(snapshot.docs.length, equals(3));
       });
 
       // When documents have a key with a "." in them, only a [FieldPath]
@@ -1047,18 +1039,18 @@ void runQueryTests() {
         FieldPath fieldPath = FieldPath(['nested', 'foo.bar@gmail.com']);
 
         await Future.wait([
-          collection.document('doc1').setData({
+          collection.doc('doc1').set({
             'nested': {
               'foo.bar@gmail.com': true,
             }
           }),
-          collection.document('doc2').setData({
+          collection.doc('doc2').set({
             'nested': {
               'foo.bar@gmail.com': true,
             },
             'foo': 'bar',
           }),
-          collection.document('doc3').setData({
+          collection.doc('doc3').set({
             'nested': {
               'foo.bar@gmail.com': false,
             }
@@ -1068,10 +1060,10 @@ void runQueryTests() {
         QuerySnapshot snapshot =
             await collection.where(fieldPath, isEqualTo: true).get();
 
-        expect(snapshot.documents.length, equals(2));
-        expect(snapshot.documents[0].get(fieldPath), isTrue);
-        expect(snapshot.documents[1].get(fieldPath), isTrue);
-        expect(snapshot.documents[1].get('foo'), equals('bar'));
+        expect(snapshot.docs.length, equals(2));
+        expect(snapshot.docs[0].get(fieldPath), isTrue);
+        expect(snapshot.docs[1].get(fieldPath), isTrue);
+        expect(snapshot.docs[1].get('foo'), equals('bar'));
       });
     });
   });

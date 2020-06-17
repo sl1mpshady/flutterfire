@@ -52,6 +52,11 @@ class MethodChannelFirestore extends FirestorePlatform {
     _initialized = true;
   }
 
+  static int _methodChannelHandleId = 0;
+
+  /// Increments and returns the next channel ID handler for Firestore.
+  static int get nextMethodChannelHandleId => _methodChannelHandleId++;
+
   void _handleSnapshotsInSync(Map<dynamic, dynamic> arguments) async {
     snapshotInSyncObservers[arguments['handle']].add(null);
   }
@@ -225,7 +230,7 @@ class MethodChannelFirestore extends FirestorePlatform {
   }
 
   @override
-  DocumentReferencePlatform document(String path) {
+  DocumentReferencePlatform doc(String path) {
     return MethodChannelDocumentReference(this, path);
   }
 
@@ -239,29 +244,26 @@ class MethodChannelFirestore extends FirestorePlatform {
 
   @override
   Stream<void> snapshotsInSync() {
-    Future<int> _handle;
+    int handle = MethodChannelFirestore.nextMethodChannelHandleId;
 
     StreamController<QuerySnapshotPlatform> controller; // ignore: close_sinks
     controller = StreamController<QuerySnapshotPlatform>.broadcast(
       onListen: () {
-        _handle = MethodChannelFirestore.channel.invokeMethod<int>(
+        MethodChannelFirestore.snapshotInSyncObservers[handle] = controller;
+        MethodChannelFirestore.channel.invokeMethod<int>(
           'Firestore#addSnapshotsInSyncListener',
           <String, dynamic>{
+            'handle': handle,
             'appName': app.name,
           },
-        ).then<int>((dynamic result) => result);
-        _handle.then((int handle) {
-          MethodChannelFirestore.snapshotInSyncObservers[handle] = controller;
-        });
+        );
       },
-      onCancel: () {
-        _handle.then((int handle) async {
-          await MethodChannelFirestore.channel.invokeMethod<void>(
-            'Firestore#removeListener',
-            <String, dynamic>{'handle': handle},
-          );
-          MethodChannelFirestore.snapshotInSyncObservers.remove(handle);
-        });
+      onCancel: () async {
+        MethodChannelFirestore.snapshotInSyncObservers.remove(handle);
+        await MethodChannelFirestore.channel.invokeMethod<void>(
+          'Firestore#removeListener',
+          <String, dynamic>{'handle': handle},
+        );
       },
     );
     return controller.stream;

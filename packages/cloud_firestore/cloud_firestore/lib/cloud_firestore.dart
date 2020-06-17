@@ -6,8 +6,8 @@ library cloud_firestore;
 
 import 'dart:async';
 
-import 'package:collection/collection.dart' show ListEquality;
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
+import 'package:collection/collection.dart' show ListEquality;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart'
     show FirebasePluginPlatform;
@@ -31,12 +31,12 @@ part 'src/collection_reference.dart';
 part 'src/document_change.dart';
 part 'src/document_reference.dart';
 part 'src/document_snapshot.dart';
-part 'src/query_document_snapshot.dart';
 part 'src/field_value.dart';
 part 'src/firestore.dart';
 part 'src/query.dart';
+part 'src/query_document_snapshot.dart';
 part 'src/query_snapshot.dart';
-part 'src/utils/codec_utility.dart';
 part 'src/snapshot_metadata.dart';
 part 'src/transaction.dart';
+part 'src/utils/codec_utility.dart';
 part 'src/write_batch.dart';

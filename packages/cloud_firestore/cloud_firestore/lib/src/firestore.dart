@@ -11,7 +11,7 @@ part of cloud_firestore;
 /// [Firestore.instanceFor], for example:
 ///
 /// ```dart
-/// FirebaseApp secondaryApp = FirebaseCore.instance.app('SecondaryApp');
+/// FirebaseApp secondaryApp = Firebase.app('SecondaryApp');
 ///
 /// Firestore firestore = Firestore.instanceFor(app: secondaryApp);
 /// ```
@@ -36,7 +36,7 @@ class Firestore extends FirebasePluginPlatform {
   /// Returns an instance using the default [FirebaseApp].
   static Firestore get instance {
     return Firestore._(
-      app: FirebaseCore.instance.app(),
+      app: Firebase.app(),
     );
   }
 
@@ -103,7 +103,7 @@ class Firestore extends FirebasePluginPlatform {
   }
 
   /// Gets a [DocumentReference] for the specified Firestore path.
-  DocumentReference document(String documentPath) {
+  DocumentReference doc(String documentPath) {
     assert(documentPath != null, "a document path cannot be null");
     assert(
         documentPath.isNotEmpty, "a document path must be a non-empty string");
@@ -112,8 +112,11 @@ class Firestore extends FirebasePluginPlatform {
     assert(isValidDocumentPath(documentPath),
         "a document path must point to a valid document.");
 
-    return DocumentReference._(this, _delegate.document(documentPath));
+    return DocumentReference._(this, _delegate.doc(documentPath));
   }
+
+  @Deprecated("Deprecated in favor of `.doc()`")
+  DocumentReference document(String documentPath) => doc(documentPath);
 
   /// Enables the network for this instance. Any pending local-only writes
   /// will be written to the remote servers.
@@ -150,9 +153,10 @@ class Firestore extends FirebasePluginPlatform {
   /// timeout can be adjusted by setting the timeout parameter.
   Future<T> runTransaction<T>(TransactionHandler<T> transactionHandler,
       {Duration timeout = const Duration(seconds: 5)}) {
-    return _delegate.runTransaction<T>(
-        (transaction) => transactionHandler(Transaction._(this, transaction)),
-        timeout: timeout);
+    assert(transactionHandler != null, "transactionHandler cannot be null");
+    return _delegate.runTransaction<T>((transaction) {
+      return transactionHandler(Transaction._(this, transaction));
+    }, timeout: timeout);
   }
 
   /// Instructs the current Firestore instance to use the provided [settings].

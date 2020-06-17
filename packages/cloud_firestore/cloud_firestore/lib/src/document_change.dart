@@ -34,6 +34,9 @@ class DocumentChange {
   int get newIndex => _delegate.newIndex;
 
   /// Returns the [DocumentSnapshot] for this instance.
-  DocumentSnapshot get document =>
+  DocumentSnapshot get doc =>
       DocumentSnapshot._(_firestore, _delegate.document);
+
+  @Deprecated("Deprecated in favor of .doc")
+  DocumentSnapshot get document => doc;
 }

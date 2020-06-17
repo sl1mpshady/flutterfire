@@ -19,32 +19,32 @@ class MyApp extends StatelessWidget {
   );
 
   Future<void> initializeDefault() async {
-    FirebaseApp app = await FirebaseCore.instance.initializeApp();
+    FirebaseApp app = await Firebase.initializeApp();
     assert(app != null);
     print('Initialized default app $app');
   }
 
   Future<void> initializeSecondary() async {
-    FirebaseApp app = await FirebaseCore.instance
-        .initializeApp(name: name, options: firebaseOptions);
+    FirebaseApp app =
+        await Firebase.initializeApp(name: name, options: firebaseOptions);
 
     assert(app != null);
     print('Initialized $app');
   }
 
   void apps() {
-    final List<FirebaseApp> apps = FirebaseCore.instance.apps;
+    final List<FirebaseApp> apps = Firebase.apps;
     print('Currently initialized apps: $apps');
   }
 
   void options() {
-    final FirebaseApp app = FirebaseCore.instance.app(name);
+    final FirebaseApp app = Firebase.app(name);
     final FirebaseOptions options = app?.options;
     print('Current options for app $name: $options');
   }
 
   Future<void> delete() async {
-    final FirebaseApp app = FirebaseCore.instance.app(name);
+    final FirebaseApp app = Firebase.app(name);
     await app?.delete();
     print('App $name deleted');
   }

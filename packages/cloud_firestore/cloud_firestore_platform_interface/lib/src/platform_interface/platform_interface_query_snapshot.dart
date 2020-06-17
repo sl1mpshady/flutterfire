@@ -10,8 +10,8 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 class QuerySnapshotPlatform extends PlatformInterface {
   /// Create a [QuerySnapshotPlatform]
   QuerySnapshotPlatform(
-    this.documents,
-    this.documentChanges,
+    this.docs,
+    this.docChanges,
     this.metadata,
   ) : super(token: _token);
 
@@ -28,17 +28,15 @@ class QuerySnapshotPlatform extends PlatformInterface {
   }
 
   /// Gets a list of all the documents included in this snapshot
-  final List<DocumentSnapshotPlatform> documents;
+  final List<DocumentSnapshotPlatform> docs;
 
   /// An array of the documents that changed since the last snapshot. If this
   /// is the first snapshot, all documents will be in the list as Added changes.
-  final List<DocumentChangePlatform> documentChanges;
+  final List<DocumentChangePlatform> docChanges;
 
   /// Metadata for the document
   final SnapshotMetadataPlatform metadata;
 
   /// The number of documents in the [QuerySnapshotPlatform].
-  int get size {
-    return documents.length;
-  }
+  int get size => docs.length;
 }

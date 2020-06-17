@@ -15,12 +15,12 @@ import 'package:js/js_util.dart' as js_util;
 void main() {
   group('no default app', () {
     setUp(() async {
-      FirebaseCorePlatform.instance = FirebaseCoreWeb();
+      FirebasePlatform.instance = FirebaseCoreWeb();
     });
 
     test('should throw exception if no default app is available', () async {
       try {
-        await FirebaseCore.instance.initializeApp();
+        await Firebase.initializeApp();
       } on FirebaseException catch (e) {
         expect(e, coreNotInitialized());
         return;
@@ -32,13 +32,13 @@ void main() {
 
   group('.initializeApp()', () {
     setUp(() async {
-      FirebaseCorePlatform.instance = FirebaseCoreWeb();
+      FirebasePlatform.instance = FirebaseCoreWeb();
     });
 
     test('should throw exception if trying to initialize default app',
         () async {
       try {
-        await FirebaseCore.instance.initializeApp(name: defaultFirebaseAppName);
+        await Firebase.initializeApp(name: defaultFirebaseAppName);
       } on FirebaseException catch (e) {
         expect(e, noDefaultAppInitialization());
         return;
@@ -51,7 +51,7 @@ void main() {
       test('should throw exception if no options are provided with a named app',
           () async {
         try {
-          await FirebaseCore.instance.initializeApp(name: 'foo');
+          await Firebase.initializeApp(name: 'foo');
         } catch (e) {
           assert(
               e.toString().contains(
@@ -70,14 +70,14 @@ void main() {
         js_util.setProperty(error, 'code', 'app/no-app');
         throw error;
       }));
-      FirebaseCorePlatform.instance = FirebaseCoreWeb();
+      FirebasePlatform.instance = FirebaseCoreWeb();
     });
 
     test('should throw exception if no named app was found', () async {
       String name = 'foo';
 
       try {
-        FirebaseCore.instance.app(name);
+        Firebase.app(name);
       } on FirebaseException catch (e) {
         expect(e, noAppExists(name));
         return;

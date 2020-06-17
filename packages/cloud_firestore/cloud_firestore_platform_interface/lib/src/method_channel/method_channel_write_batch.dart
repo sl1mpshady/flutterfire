@@ -57,7 +57,7 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
   }
 
   @override
-  void setData(String documentPath, Map<String, dynamic> data,
+  void set(String documentPath, Map<String, dynamic> data,
       [SetOptions options]) {
     _assertNotCommitted();
     _writes.add(<String, dynamic>{
@@ -72,7 +72,7 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
   }
 
   @override
-  void updateData(
+  void update(
     String documentPath,
     Map<String, dynamic> data,
   ) {

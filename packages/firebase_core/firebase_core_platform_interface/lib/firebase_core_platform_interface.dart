@@ -22,11 +22,11 @@ part 'src/firebase_options.dart';
 
 part 'src/method_channel/method_channel_firebase_app.dart';
 
-part 'src/method_channel/method_channel_firebase_core.dart';
+part 'src/method_channel/method_channel_firebase.dart';
 
 part 'src/platform_interface/platform_interface_firebase_app.dart';
 
-part 'src/platform_interface/platform_interface_firebase_core.dart';
+part 'src/platform_interface/platform_interface_firebase.dart';
 
 part 'src/platform_interface/platform_interface_firebase_plugin.dart';
 

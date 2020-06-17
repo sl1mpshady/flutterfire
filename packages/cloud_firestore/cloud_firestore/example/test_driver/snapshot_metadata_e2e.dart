@@ -19,8 +19,7 @@ void runSnapshotMetadataTests() {
       CollectionReference collection =
           firestore.collection('flutter-tests/$id/query-tests');
       QuerySnapshot snapshot = await collection.get();
-      await Future.forEach(snapshot.documents,
-          (DocumentSnapshot documentSnapshot) {
+      await Future.forEach(snapshot.docs, (DocumentSnapshot documentSnapshot) {
         return documentSnapshot.reference.delete();
       });
       return collection;

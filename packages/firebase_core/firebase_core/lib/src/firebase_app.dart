@@ -6,7 +6,7 @@ part of firebase_core;
 
 /// Represents a single Firebase app instance.
 ///
-/// You can get an instance by calling [FirebaseCore.instance.app()].
+/// You can get an instance by calling [Firebase.app()].
 class FirebaseApp {
   FirebaseAppPlatform _delegate;
 
@@ -27,31 +27,31 @@ class FirebaseApp {
     await _delegate.delete();
   }
 
-  @Deprecated("Deprecated in favor of FirebaseCore.instance.app()")
+  @Deprecated("Deprecated in favor of Firebase.app()")
   // ignore: public_member_api_docs
   static FirebaseApp appNamed(String name) {
-    return FirebaseCore.instance.app(name);
+    return Firebase.app(name);
   }
 
-  @Deprecated("Deprecated in favor of FirebaseCore.instance.apps")
+  @Deprecated("Deprecated in favor of Firebase.apps")
   // ignore: public_member_api_docs
   static Future<List<FirebaseApp>> allApps() async {
-    return FirebaseCore.instance.apps;
+    return Firebase.apps;
   }
 
-  @Deprecated("Deprecated in favor of FirebaseCore.instance.initializeApp()")
+  @Deprecated("Deprecated in favor of Firebase.initializeApp()")
   // ignore: public_member_api_docs
   static Future<FirebaseApp> configure({
     @required String name,
     @required FirebaseOptions options,
   }) {
-    return FirebaseCore.instance.initializeApp(name: name, options: options);
+    return Firebase.initializeApp(name: name, options: options);
   }
 
-  @Deprecated("Deprecated in favor of FirebaseCore.instance.app()")
+  @Deprecated("Deprecated in favor of Firebase.app()")
   // ignore: public_member_api_docs
   static FirebaseApp get instance {
-    return FirebaseCore.instance.app();
+    return Firebase.app();
   }
 
   @Deprecated("Deprecated in favor of defaultFirebaseAppName")

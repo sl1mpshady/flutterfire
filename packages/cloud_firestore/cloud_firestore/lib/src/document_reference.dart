@@ -23,7 +23,7 @@ class DocumentReference {
   /// This document's given ID within the collection.
   String get id => _delegate.id;
 
-  @Deprecated("Deprecated in favor of 'id'")
+  @Deprecated("Deprecated in favor of `.id`")
   String get documentID => id;
 
   /// The parent [CollectionReference] of this document.
@@ -39,7 +39,7 @@ class DocumentReference {
   CollectionReference collection(String collectionPath) {
     assert(collectionPath != null, "a collection path cannot be null");
     assert(collectionPath.isNotEmpty,
-        "a collection path must be a non-empty string");
+        "a collectionPath path must be a non-empty string");
     assert(!collectionPath.contains("//"),
         "a collection path must not contain '//'");
     assert(isValidCollectionPath(collectionPath),
@@ -76,22 +76,29 @@ class DocumentReference {
   ///
   /// If [SetOptions] are provided, the data will be merged into an existing
   /// document instead of overwriting.
-  // TODO(ehesp): verify method name
-  Future<void> setData(Map<String, dynamic> data, [SetOptions options]) {
+  Future<void> set(Map<String, dynamic> data, [SetOptions options]) {
     assert(data != null);
-    return _delegate.setData(
+    return _delegate.set(
         _CodecUtility.replaceValueWithDelegatesInMap(data), options);
+  }
+
+  @Deprecated("Deprecated in favor of `.set()`")
+  Future<void> setData(Map<String, dynamic> data, [SetOptions options]) {
+    return set(data, options);
   }
 
   /// Updates data on the documnent. Data will be merged with any existing
   /// document data.
   ///
   /// If no document exists yet, the update will fail.
-  // TODO(ehesp): verify method name
-  Future<void> updateData(Map<String, dynamic> data) {
+  Future<void> update(Map<String, dynamic> data) {
     assert(data != null);
-    return _delegate
-        .updateData(_CodecUtility.replaceValueWithDelegatesInMap(data));
+    return _delegate.update(_CodecUtility.replaceValueWithDelegatesInMap(data));
+  }
+
+  @Deprecated("Deprecated in favor of `.update()`")
+  Future<void> updateData(Map<String, dynamic> data) {
+    return update(data);
   }
 
   @override

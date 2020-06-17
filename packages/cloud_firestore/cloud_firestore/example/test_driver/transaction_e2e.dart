@@ -18,8 +18,8 @@ void runTransactionTests() {
 
     Future<DocumentReference> initializeTest(String path) async {
       String prefixedPath = 'flutter-tests/$path';
-      await firestore.document(prefixedPath).delete();
-      return firestore.document(prefixedPath);
+      await firestore.doc(prefixedPath).delete();
+      return firestore.doc(prefixedPath);
     }
 
     // TODO(ehesp): always resolves - even web SDK has same behavior
@@ -49,7 +49,7 @@ void runTransactionTests() {
       DocumentReference documentReference =
           await initializeTest('transaction-abort');
 
-      await documentReference.setData({'foo': 'bar'});
+      await documentReference.set({'foo': 'bar'});
 
       try {
         await firestore.runTransaction((Transaction transaction) async {
@@ -94,7 +94,7 @@ void runTransactionTests() {
     test('should throw a native error, and convert to a [FirebaseException]',
         () async {
       DocumentReference documentReference =
-          firestore.document('not-allowed/document');
+          firestore.doc('not-allowed/document');
 
       try {
         await firestore.runTransaction((Transaction transaction) async {
@@ -112,7 +112,7 @@ void runTransactionTests() {
     group('Transaction.get()', () {
       test('should throw if get is not written', () async {
         DocumentReference documentReference =
-            firestore.document('flutter-tests/foo');
+            firestore.doc('flutter-tests/foo');
 
         expect(
             () => firestore.runTransaction((Transaction transaction) async {
@@ -123,7 +123,7 @@ void runTransactionTests() {
 
       test('should throw if get is called after a command', () async {
         DocumentReference documentReference =
-            firestore.document('flutter-tests/foo');
+            firestore.doc('flutter-tests/foo');
 
         expect(
             () => firestore.runTransaction((Transaction transaction) async {
@@ -156,7 +156,7 @@ void runTransactionTests() {
         DocumentReference documentReference =
             await initializeTest('transaction-delete');
 
-        await documentReference.setData({'foo': 'bar'});
+        await documentReference.set({'foo': 'bar'});
 
         await firestore.runTransaction((Transaction transaction) async {
           transaction.delete(documentReference);
@@ -172,7 +172,7 @@ void runTransactionTests() {
         DocumentReference documentReference =
             await initializeTest('transaction-update');
 
-        await documentReference.setData({'foo': 'bar', 'bar': 1});
+        await documentReference.set({'foo': 'bar', 'bar': 1});
 
         await firestore.runTransaction((Transaction transaction) async {
           DocumentSnapshot documentSnapshot =
@@ -194,7 +194,7 @@ void runTransactionTests() {
         DocumentReference documentReference =
             await initializeTest('transaction-set');
 
-        await documentReference.setData({'foo': 'bar', 'bar': 1});
+        await documentReference.set({'foo': 'bar', 'bar': 1});
 
         await firestore.runTransaction((Transaction transaction) async {
           DocumentSnapshot documentSnapshot =
@@ -217,7 +217,7 @@ void runTransactionTests() {
         DocumentReference documentReference =
             await initializeTest('transaction-set-merge');
 
-        await documentReference.setData({'foo': 'bar', 'bar': 1});
+        await documentReference.set({'foo': 'bar', 'bar': 1});
 
         await firestore.runTransaction((Transaction transaction) async {
           DocumentSnapshot documentSnapshot =
@@ -240,7 +240,7 @@ void runTransactionTests() {
         DocumentReference documentReference =
             await initializeTest('transaction-set-merge-fields');
 
-        await documentReference.setData({'foo': 'bar', 'bar': 1, 'baz': 1});
+        await documentReference.set({'foo': 'bar', 'bar': 1, 'baz': 1});
 
         await firestore.runTransaction((Transaction transaction) async {
           DocumentSnapshot documentSnapshot =
@@ -266,11 +266,10 @@ void runTransactionTests() {
           await initializeTest('transaction-all');
 
       DocumentReference documentReference2 =
-          firestore.document('flutter-tests/delete');
+          firestore.doc('flutter-tests/delete');
 
-      await documentReference2.setData({'foo': 'bar'});
-
-      await documentReference.setData({'foo': 1});
+      await documentReference2.set({'foo': 'bar'});
+      await documentReference.set({'foo': 1});
 
       String result = await firestore
           .runTransaction<String>((Transaction transaction) async {

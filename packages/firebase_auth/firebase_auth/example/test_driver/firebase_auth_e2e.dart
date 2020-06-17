@@ -13,7 +13,7 @@ void main() {
   E2EWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
-    await FirebaseCore.instance.initializeApp();
+    await Firebase.initializeApp();
   });
 
   group('$FirebaseAuth', () {

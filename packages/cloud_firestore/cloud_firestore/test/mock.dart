@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 
 typedef Callback(MethodCall call);
 
 setupCloudFirestoreMocks([Callback customHandlers]) {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  MethodChannelFirebaseCore.channel.setMockMethodCallHandler((call) async {
-    if (call.method == 'FirebaseCore#initializeCore') {
+  MethodChannelFirebase.channel.setMockMethodCallHandler((call) async {
+    if (call.method == 'Firebase#initializeCore') {
       return [
         {
           'name': defaultFirebaseAppName,
@@ -27,7 +27,7 @@ setupCloudFirestoreMocks([Callback customHandlers]) {
       ];
     }
 
-    if (call.method == 'FirebaseCore#initializeApp') {
+    if (call.method == 'Firebase#initializeApp') {
       return {
         'name': call.arguments['appName'],
         'options': call.arguments['options'],

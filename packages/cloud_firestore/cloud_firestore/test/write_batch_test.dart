@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,9 +11,35 @@ void main() {
   Firestore firestore;
   Firestore firestoreSecondary;
 
+  MethodChannelFirestore.channel.setMockMethodCallHandler((call) async {
+    String path = call.arguments['path'];
+
+    if (call.method == 'DocumentReference#get' && path == 'doc/exists') {
+      return {
+        'data': {
+          'foo': 'bar',
+        },
+        'metadata': {
+          'hasPendingWrites': true,
+          'isFromCache': true,
+        }
+      };
+    }
+
+    if (call.method == 'DocumentReference#set' && path == 'doc/exists') {
+      return {
+        'data': {
+          'foo': 'bar',
+        },
+      };
+    }
+
+    return null;
+  });
+
   setUpAll(() async {
-    await FirebaseCore.instance.initializeApp();
-    FirebaseApp secondaryApp = await FirebaseCore.instance.initializeApp(
+    await Firebase.initializeApp();
+    FirebaseApp secondaryApp = await Firebase.initializeApp(
         name: 'foo',
         options: FirebaseOptions(
           apiKey: '123',
@@ -26,44 +53,14 @@ void main() {
   });
 
   group("$WriteBatch", () {
-    group('validate', () {
-      // TODO(ehesp): Not sure how this works
-      // test('may contain indirectly nested arrays', () {
-      //   const data = {
-      //     'nested-array': [
-      //       1,
-      //       {
-      //         'foo': [2]
-      //       }
-      //     ]
-      //   };
-      //   DocumentReference ref = firestore.collection('foo').document();
+    test('requires document reference from same Firestore instance', () {
+      DocumentReference badRef = firestoreSecondary.doc('doc/exists');
 
-      //   ref
-      //       .setData(data)
-      //       .then((value) => ref.firestore.batch().setData(ref, data))
-      //       .then((value) => ref.updateData(data))
-      //       .then((value) => ref.firestore.batch().updateData(ref, data))
-      //       .then((value) => ref.firestore.runTransaction(
-      //           (transaction) async => transaction.update(ref, data)));
-      // });
-
-      test('document references can not be null', () {
-        WriteBatch batch = firestore.batch();
-        const data = {'foo': 1};
-        expect(() => batch.setData(null, data), throwsAssertionError);
-        expect(() => batch.updateData(null, data), throwsAssertionError);
-        expect(() => batch.delete(null), throwsAssertionError);
-      });
-
-      test('requires document references from the same Firebase instance', () {
-        DocumentReference badRef = firestoreSecondary.document('foo/bar');
-        const data = {'foo': 1};
-        WriteBatch batch = firestore.batch();
-        expect(() => batch.setData(badRef, data), throwsAssertionError);
-        expect(() => batch.updateData(badRef, data), throwsAssertionError);
-        expect(() => batch.delete(badRef), throwsAssertionError);
-      });
+      const data = {'foo': 1};
+      var batch = firestore.batch();
+      expect(() => batch.set(badRef, data), throwsAssertionError);
+      expect(() => batch.update(badRef, data), throwsAssertionError);
+      expect(() => batch.delete(badRef), throwsAssertionError);
     });
   });
 }

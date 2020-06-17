@@ -11,7 +11,7 @@ FirebaseException noAppExists(String appName) {
       plugin: 'core',
       code: 'no-app',
       message:
-          "No Firebase App '${appName}' has been created - call FirebaseCore.instance.initializeApp()");
+          "No Firebase App '${appName}' has been created - call Firebase.initializeApp()");
 }
 
 /// Throws a consistent cross-platform error message when an app is being created

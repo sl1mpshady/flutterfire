@@ -10,7 +10,7 @@ part of firebase_core_web;
 /// instance, for example:
 ///
 /// ```dart
-/// FirebaseCore.instance.app('SecondaryApp`);
+/// Firebase.app('SecondaryApp`);
 /// ```
 class FirebaseAppWeb extends FirebaseAppPlatform {
   FirebaseAppWeb._(String name, FirebaseOptions options) : super(name, options);

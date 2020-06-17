@@ -80,8 +80,8 @@ abstract class DocumentReferencePlatform extends PlatformInterface {
   ///
   /// If [merge] is true, the provided data will be merged into an
   /// existing document instead of overwriting.
-  Future<void> setData(Map<String, dynamic> data, [SetOptions options]) {
-    throw UnimplementedError("setData() is not implemented");
+  Future<void> set(Map<String, dynamic> data, [SetOptions options]) {
+    throw UnimplementedError("set() is not implemented");
   }
 
   /// Updates fields in the document referred to by this [DocumentReferencePlatform].
@@ -90,8 +90,8 @@ abstract class DocumentReferencePlatform extends PlatformInterface {
   /// special sentinel [FieldValuePlatform] type.
   ///
   /// If no document exists yet, the update will fail.
-  Future<void> updateData(Map<String, dynamic> data) {
-    throw UnimplementedError("updateData() is not implemented");
+  Future<void> update(Map<String, dynamic> data) {
+    throw UnimplementedError("update() is not implemented");
   }
 
   @override

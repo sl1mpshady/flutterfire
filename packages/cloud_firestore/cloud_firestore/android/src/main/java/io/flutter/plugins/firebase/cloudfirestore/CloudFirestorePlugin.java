@@ -129,8 +129,6 @@ public class CloudFirestorePlugin
   private final SparseArray<ListenerRegistration> listenerRegistrations = new SparseArray<>();
   private MethodChannel channel;
   private Activity activity;
-  // Handles are ints used as indexes into the sparse array of active observers
-  private int nextListenerHandle = 0;
 
   @SuppressWarnings("unused")
   public static void registerWith(PluginRegistry.Registrar registrar) {
@@ -288,7 +286,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          int handle = nextListenerHandle++;
+          int handle = (int) Objects.requireNonNull(arguments.get("handle"));
           FirebaseFirestore firebaseFirestore = getFirestore(arguments);
 
           Runnable snapshotsInSyncRunnable =
@@ -311,7 +309,7 @@ public class CloudFirestorePlugin
         cachedThreadPool,
         () -> {
           FirebaseFirestore firestore = getFirestore(arguments);
-          int transactionId = (int) arguments.get("transactionId");
+          int transactionId = (int) Objects.requireNonNull(arguments.get("transactionId"));
 
           Object value = arguments.get("timeout");
           Long timeout;
@@ -346,7 +344,7 @@ public class CloudFirestorePlugin
           DocumentReference documentReference = getDocumentReference(arguments);
           DocumentSnapshot documentSnapshot =
               CloudFirestoreTransactionHandler.getDocument(
-                  (int) arguments.get("transactionId"), documentReference);
+                  (int) Objects.requireNonNull(arguments.get("transactionId")), documentReference);
 
           return parseDocumentSnapshot(documentSnapshot);
         });
@@ -401,11 +399,11 @@ public class CloudFirestorePlugin
         });
   }
 
-  private Task<Integer> queryAddSnapshotListener(Map<String, Object> arguments) {
+  private Task<Void> queryAddSnapshotListener(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          int handle = nextListenerHandle++;
+          int handle = (int) Objects.requireNonNull(arguments.get("handle"));
           CloudFirestoreQuerySnapshotObserver observer =
               new CloudFirestoreQuerySnapshotObserver(channel, handle);
 
@@ -417,8 +415,7 @@ public class CloudFirestorePlugin
           Query query = getQuery(arguments);
 
           listenerRegistrations.put(handle, query.addSnapshotListener(metadataChanges, observer));
-
-          return handle;
+          return null;
         });
   }
 
@@ -434,11 +431,11 @@ public class CloudFirestorePlugin
         });
   }
 
-  private Task<Integer> documentReferenceAddSnapshotListener(Map<String, Object> arguments) {
+  private Task<Void> documentReferenceAddSnapshotListener(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          int handle = nextListenerHandle++;
+          int handle = (int) Objects.requireNonNull(arguments.get("handle"));
           CloudFirestoreDocumentSnapshotObserver observer =
               new CloudFirestoreDocumentSnapshotObserver(channel, handle);
 
@@ -452,7 +449,7 @@ public class CloudFirestorePlugin
           listenerRegistrations.put(
               handle, documentReference.addSnapshotListener(metadataChanges, observer));
 
-          return handle;
+          return null;
         });
   }
 

@@ -16,8 +16,8 @@ void main() {
 
   group('$Firestore', () {
     setUpAll(() async {
-      await FirebaseCore.instance.initializeApp();
-      secondaryApp = await FirebaseCore.instance.initializeApp(
+      await Firebase.initializeApp();
+      secondaryApp = await Firebase.initializeApp(
           name: 'foo',
           options: FirebaseOptions(
             apiKey: '123',
@@ -37,11 +37,11 @@ void main() {
     });
 
     test('returns the correct $FirebaseApp', () {
-      expect(firestore.app, equals(FirebaseCore.instance.app()));
-      expect(firestoreSecondary.app, equals(FirebaseCore.instance.app('foo')));
+      expect(firestore.app, equals(Firebase.app()));
+      expect(firestoreSecondary.app, equals(Firebase.app('foo')));
     });
 
-    group('.collection()', () {
+    group('.collection', () {
       test('returns a $CollectionReference', () {
         expect(firestore.collection('foo'), isA<CollectionReference>());
       });
@@ -60,7 +60,7 @@ void main() {
       });
     });
 
-    group('.collectionGroup()', () {
+    group('.collectionGroup', () {
       test('returns a $Query', () {
         expect(firestore.collectionGroup('foo'), isA<Query>());
       });
@@ -79,22 +79,22 @@ void main() {
       });
     });
 
-    group('.document()', () {
+    group('.document', () {
       test('returns a $DocumentReference', () {
-        expect(firestore.document('foo/bar'), isA<DocumentReference>());
+        expect(firestore.doc('foo/bar'), isA<DocumentReference>());
       });
 
       test('does not expect a null path', () {
-        expect(() => firestore.document(null), throwsAssertionError);
+        expect(() => firestore.doc(null), throwsAssertionError);
       });
 
       test('does not expect an empty path', () {
-        expect(() => firestore.document(''), throwsAssertionError);
+        expect(() => firestore.doc(''), throwsAssertionError);
       });
 
       test('does accept an invalid path', () {
         // 'foo' points to a collection
-        expect(() => firestore.document('bar'), throwsAssertionError);
+        expect(() => firestore.doc('bar'), throwsAssertionError);
       });
     });
   });

@@ -9,7 +9,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 
 import 'method_channel_firestore.dart';
-import 'utils/exception.dart';
 
 /// An implementation of [TransactionPlatform] which uses [MethodChannel] to
 /// communication with native plugin
@@ -23,8 +22,7 @@ class MethodChannelTransaction extends TransactionPlatform {
   MethodChannelTransaction(int transactionId, this.appName)
       : _transactionId = transactionId,
         super() {
-    _firestore =
-        FirestorePlatform.instanceFor(app: FirebaseCore.instance.app(appName));
+    _firestore = FirestorePlatform.instanceFor(app: Firebase.app(appName));
   }
 
   int _documentGetCount = 0;

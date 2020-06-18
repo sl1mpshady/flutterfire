@@ -1,4 +1,4 @@
-// Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
@@ -9,7 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_document_reference.dart';
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_field_value_factory.dart';
 
-import 'test_common.dart';
+import '../utils/test_common.dart';
 
 void main() {
   initializeMethodChannel();
@@ -54,7 +54,7 @@ void main() {
           expect(call.arguments["data"]["test"], equals(data["test"]));
         }
       });
-      await _documentReference.updateData(data);
+      await _documentReference.update(data);
       expect(isMethodCalled, isTrue,
           reason: "DocumentReference.updateData was not called");
     });
@@ -109,7 +109,7 @@ void _assertGetMethodCalled(DocumentReferencePlatform documentReference,
     };
   });
   if (source != null) {
-    await documentReference.get(source: source);
+    await documentReference.get(GetOptions(source: source));
   } else {
     await documentReference.get();
   }
@@ -128,13 +128,13 @@ void _assertSetDataMethodCalled(DocumentReferencePlatform documentReference,
     if (call.method == "DocumentReference#setData") {
       isMethodCalled = true;
       expect(call.arguments["data"]["test"], equals(data["test"]));
-      expect(call.arguments["options"]["merge"], expectedMergeValue ?? false);
+      expect(call.arguments["options"]["merge"], expectedMergeValue);
     }
   });
   if (expectedMergeValue == null) {
-    await documentReference.setData(data);
+    await documentReference.set(data);
   } else {
-    await documentReference.setData(data, merge: expectedMergeValue);
+    await documentReference.set(data, SetOptions(merge: expectedMergeValue));
   }
   expect(isMethodCalled, isTrue,
       reason: "DocumentReference.setData was not called");

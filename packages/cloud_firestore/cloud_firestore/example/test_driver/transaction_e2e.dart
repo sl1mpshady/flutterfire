@@ -135,7 +135,7 @@ void runTransactionTests() {
             throwsAssertionError);
       });
 
-      test('should return a document snapshot', () async {
+      test('returns a [DocumentSnapshot]', () async {
         DocumentReference documentReference =
             await initializeTest('transaction-get');
 

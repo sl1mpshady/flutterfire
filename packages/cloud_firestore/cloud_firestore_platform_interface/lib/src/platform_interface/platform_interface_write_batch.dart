@@ -31,12 +31,12 @@ abstract class WriteBatchPlatform extends PlatformInterface {
   ///
   /// Calling this method prevents any future operations from being added.
   Future<void> commit() async {
-    throw UnimplementedError("commit() not implemented");
+    throw UnimplementedError("commit() is not implemented");
   }
 
   /// Deletes the document referred to by a [documentPath].
   void delete(String documentPath) {
-    throw UnimplementedError("delete() not implemented");
+    throw UnimplementedError("delete() is not implemented");
   }
 
   /// Writes to the document referred to by [document].
@@ -47,7 +47,7 @@ abstract class WriteBatchPlatform extends PlatformInterface {
   /// document instead of overwriting.
   void set(String documentPath, Map<String, dynamic> data,
       [SetOptions options]) {
-    throw UnimplementedError("set() not implemented");
+    throw UnimplementedError("set() is not implemented");
   }
 
   /// Updates fields in the document referred to by [document].
@@ -57,6 +57,6 @@ abstract class WriteBatchPlatform extends PlatformInterface {
     String documentPath,
     Map<String, dynamic> data,
   ) {
-    throw UnimplementedError("update() not implemented");
+    throw UnimplementedError("update() is not implemented");
   }
 }

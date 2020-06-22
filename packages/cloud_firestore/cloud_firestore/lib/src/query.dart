@@ -166,13 +166,16 @@ class Query {
 
   /// Fetch the documents for this query.
   ///
-  /// To modify how the query is fecthed, the [options] parameter can be provided
+  /// To modify how the query is fetched, the [options] parameter can be provided
   /// with a [GetOptions] instance.
   Future<QuerySnapshot> get([GetOptions options]) async {
     QuerySnapshotPlatform snapshotDelegate =
         await _delegate.get(options ?? const GetOptions());
     return QuerySnapshot._(firestore, snapshotDelegate);
   }
+
+  @Deprecated("Deprecated in favor of `.get()`")
+  Future<QuerySnapshot> getDocuments([GetOptions options]) => get(options);
 
   /// Creates and returns a new Query that's additionally limited to only return up
   /// to the specified number of documents.

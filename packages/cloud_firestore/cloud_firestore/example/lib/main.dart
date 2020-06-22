@@ -170,19 +170,22 @@ class Movie extends StatelessWidget {
         ]));
   }
 
+  List<Widget> genreItems() {
+    List<Widget> items = <Widget>[];
+    movie['genre'].forEach((genre) {
+      items.add(Padding(
+        child: Chip(
+            label: Text(genre, style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.lightBlue),
+        padding: EdgeInsets.only(right: 2),
+      ));
+    });
+    return items;
+  }
+
   Widget get genres {
     return Padding(
-        padding: EdgeInsets.only(top: 8),
-        child: Wrap(children: <Widget>[
-          movie['genre'].forEach((genre) {
-            return Padding(
-              child: Chip(
-                  label: Text(genre, style: TextStyle(color: Colors.white)),
-                  backgroundColor: Colors.lightBlue),
-              padding: EdgeInsets.only(right: 2),
-            );
-          })
-        ]));
+        padding: EdgeInsets.only(top: 8), child: Wrap(children: genreItems()));
   }
 
   @override

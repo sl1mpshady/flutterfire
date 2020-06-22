@@ -125,7 +125,7 @@ void main() {
 
     group('validate', () {
       test('path must be non-empty strings', () {
-        DocumentReference docRef = firestore.document('foo/bar');
+        DocumentReference docRef = firestore.doc('foo/bar');
         expect(() => firestore.collection(null), throwsAssertionError);
         expect(() => firestore.collection(''), throwsAssertionError);
         expect(() => docRef.collection(null), throwsAssertionError);
@@ -133,7 +133,7 @@ void main() {
       });
 
       test('path must be odd length', () {
-        DocumentReference docRef = firestore.document('foo/bar');
+        DocumentReference docRef = firestore.doc('foo/bar');
         expect(() => firestore.collection('foo/bar'), throwsAssertionError);
         expect(() => firestore.collection('foo/bar/baz/quu'),
             throwsAssertionError);
@@ -150,12 +150,12 @@ void main() {
 
         final badPaths = ['foo//bar//baz', '//foo', 'foo//'];
         CollectionReference colRef = firestore.collection('test-collection');
-        DocumentReference docRef = colRef.document('test-document');
+        DocumentReference docRef = colRef.doc('test-document');
 
         for (String path in badPaths) {
           expect(() => firestore.collection(path), throwsAssertionError);
-          expect(() => firestore.document(path), throwsAssertionError);
-          expect(() => colRef.document(path), throwsAssertionError);
+          expect(() => firestore.doc(path), throwsAssertionError);
+          expect(() => colRef.doc(path), throwsAssertionError);
           expect(() => docRef.collection(path), throwsAssertionError);
         }
       });

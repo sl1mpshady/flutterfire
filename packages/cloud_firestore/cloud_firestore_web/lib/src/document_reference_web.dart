@@ -4,8 +4,6 @@
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:firebase/firestore.dart' as web;
-import 'package:firebase_core_web/firebase_core_web.dart'
-    show catchFirebaseJSError;
 
 import 'package:cloud_firestore_web/src/collection_reference_web.dart';
 import 'package:cloud_firestore_web/src/utils/web_utils.dart';

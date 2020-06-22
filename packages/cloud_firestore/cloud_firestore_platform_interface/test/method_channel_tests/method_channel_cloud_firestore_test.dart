@@ -23,9 +23,6 @@ void main() {
   int mockTransactionHandleId = 0;
   final List<MethodCall> log = <MethodCall>[];
 
-  // BinaryMessenger defaultBinaryMessenger =
-  //     ServicesBinding.instance.defaultBinaryMessenger;
-
   setUpAll(() async {
     secondaryApp = await Firebase.initializeApp(
       name: 'testApp',

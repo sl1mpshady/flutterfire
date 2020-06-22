@@ -39,13 +39,17 @@ void main() {
         ),
       );
       handleMethodCall((call) {
-        if (call.method == "Transaction#get") {
-          isMethodCalled = true;
-          return <String, dynamic>{
-            'path': 'foo/bar',
-            'data': <String, dynamic>{'key1': 'val1'},
-            'metadata': kMockSnapshotMetadata,
-          };
+        switch (call.method) {
+          case 'Transaction#get':
+            isMethodCalled = true;
+            return <String, dynamic>{
+              'path': 'foo/bar',
+              'data': <String, dynamic>{'key1': 'val1'},
+              'metadata': kMockSnapshotMetadata,
+            };
+            break;
+          default:
+            return null;
         }
       });
     });
@@ -56,6 +60,7 @@ void main() {
     setUp(() {
       transaction = MethodChannelTransaction(
           _kTransactionId, FirestorePlatform.instance.app.name);
+      isMethodCalled = false;
     });
 
     group('commands', () {

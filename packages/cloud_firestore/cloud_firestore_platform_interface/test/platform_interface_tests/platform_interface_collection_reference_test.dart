@@ -8,19 +8,19 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../utils/test_common.dart';
 
-const _kCollectionId = "test";
+const _kCollectionId = "collection";
 const _kDocumentId = "document";
-const _kChildCollectionId = "childTest";
+const _kSubcollectionId = "subcollection";
 
 class TestCollectionReference extends CollectionReferencePlatform {
   TestCollectionReference._()
       : super(FirestorePlatform.instance, '$_kCollectionId');
 }
 
-class TestChildCollectionReference extends CollectionReferencePlatform {
-  TestChildCollectionReference._()
+class TestSubcollectionReference extends CollectionReferencePlatform {
+  TestSubcollectionReference._()
       : super(FirestorePlatform.instance,
-            '$_kCollectionId/$_kDocumentId/$_kChildCollectionId');
+            '$_kCollectionId/$_kDocumentId/$_kSubcollectionId');
 }
 
 void main() {
@@ -43,7 +43,7 @@ void main() {
     });
 
     test("parent", () {
-      final collection = TestChildCollectionReference._();
+      final collection = TestSubcollectionReference._();
       final parent = collection.parent;
       final parentPath = parent.path;
       expect(parent, isInstanceOf<DocumentReferencePlatform>());

@@ -11,9 +11,8 @@ import 'method_channel_firestore.dart';
 import 'utils/source.dart';
 import 'utils/exception.dart';
 
-/// A [MethodChannelDocumentReference] is an implementation of
-/// [DocumentReferencePlatform] that uses [MethodChannel] to communicate with
-/// Firebase plugins.
+/// An implementation of [DocumentReferencePlatform] that uses [MethodChannel] to
+/// communicate with Firebase plugins.
 class MethodChannelDocumentReference extends DocumentReferencePlatform {
   Pointer _pointer;
 

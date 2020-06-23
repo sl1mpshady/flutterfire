@@ -1,13 +1,13 @@
-// Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
 part of cloud_firestore;
 
-/// The entry point for accessing a Firestore.
+/// The entry point for accessing a [Firestore].
 ///
 /// You can get an instance by calling [Firestore.instance]. The instance
-/// can also be created with a secondary Firebase app by calling
+/// can also be created with a secondary [Firebase] app by calling
 /// [Firestore.instanceFor], for example:
 ///
 /// ```dart
@@ -28,7 +28,7 @@ class Firestore extends FirebasePluginPlatform {
     return _delegatePackingProperty;
   }
 
-  /// The [FirebaseApp] for this current Firestore instance.
+  /// The [FirebaseApp] for this current [Firestore] instance.
   FirebaseApp app;
 
   Firestore._({this.app})
@@ -66,10 +66,10 @@ class Firestore extends FirebasePluginPlatform {
     return CollectionReference._(this, _delegate.collection(collectionPath));
   }
 
-  /// Creates a write batch, used for performing multiple writes as a single
+  /// Returns a [WriteBatch], used for performing multiple writes as a single
   /// atomic operation.
   ///
-  /// Unlike transactions, write batches are persisted offline and therefore are
+  /// Unlike [Transaction]s, [WriteBatch]es are persisted offline and therefore are
   /// preferable when you don’t need to condition your writes on read data.
   WriteBatch batch() {
     return WriteBatch._(this, _delegate.batch());
@@ -91,7 +91,7 @@ class Firestore extends FirebasePluginPlatform {
     return Query._(this, _delegate.collectionGroup(collectionPath));
   }
 
-  /// Instructs Firestore to disable the network for the instance.
+  /// Instructs [Firestore] to disable the network for the instance.
   ///
   /// Once disabled, any writes will only resolve once connection has been
   /// restored. However, the local database will still be updated and any
@@ -128,18 +128,18 @@ class Firestore extends FirebasePluginPlatform {
     return _delegate.snapshotsInSync();
   }
 
-  /// Executes the given TransactionHandler and then attempts to commit the
+  /// Executes the given [TransactionHandler] and then attempts to commit the
   /// changes applied within an atomic transaction.
   ///
-  /// In the TransactionHandler, a set of reads and writes can be performed
-  /// atomically using the Transaction object passed to the TransactionHandler.
-  /// After the TransactionHandler is run, Firestore will attempt to apply the
+  /// In the [TransactionHandler], a set of reads and writes can be performed
+  /// atomically using the [Transaction] object passed to the [TransactionHandler].
+  /// After the [TransactionHandler] is run, [Firestore] will attempt to apply the
   /// changes to the server. If any of the data read has been modified outside
-  /// of this transaction since being read, then the transaction will be
-  /// retried by executing the updateBlock again. If the transaction still
-  /// fails after 5 retries, then the transaction will fail.
+  /// of this [Transaction] since being read, then the transaction will be
+  /// retried by executing the `updateBlock` again. If the transaction still
+  /// fails after 5 retries, then the transaction will fail.s
   ///
-  /// The TransactionHandler may be executed multiple times, it should be able
+  /// The [TransactionHandler] may be executed multiple times, it should be able
   /// to handle multiple executions.
   ///
   /// Data accessed with the transaction will not reflect local changes that
@@ -157,7 +157,7 @@ class Firestore extends FirebasePluginPlatform {
     }, timeout: timeout);
   }
 
-  /// Instructs the current Firestore instance to use the provided [settings].
+  /// Instructs the current [Firestore] instance to use the provided [settings].
   ///
   /// If the instance has already been consumed, the settings will take effect
   /// the next time it is created.
@@ -165,9 +165,9 @@ class Firestore extends FirebasePluginPlatform {
     return _delegate.settings(settings);
   }
 
-  /// Terminates this Firestore instance.
+  /// Terminates this [Firestore] instance.
   ///
-  /// After calling terminate() only the clearPersistence() method may be used.
+  /// After calling [terminate()] only the [clearPersistence()] method may be used.
   /// Any other method will throw a [FirebaseException].
   ///
   /// Termination does not cancel any pending writes, and any promises that are
@@ -175,9 +175,9 @@ class Firestore extends FirebasePluginPlatform {
   /// persistence enabled, the next time you start this instance, it will resume
   ///  sending these writes to the server.
   ///
-  /// Note: Under normal circumstances, calling terminate() is not required.
+  /// Note: Under normal circumstances, calling [terminate()] is not required.
   /// This method is useful only when you want to force this instance to release
-  ///  all of its resources or in combination with clearPersistence() to ensure
+  ///  all of its resources or in combination with [clearPersistence()] to ensure
   ///  that all local state is destroyed between test runs.
   Future<void> terminate() {
     return _delegate.terminate();

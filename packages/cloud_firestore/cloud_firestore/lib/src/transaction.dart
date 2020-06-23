@@ -1,4 +1,4 @@
-// Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
@@ -8,7 +8,7 @@ part of cloud_firestore;
 /// to handle multiple executions.
 typedef Future<T> TransactionHandler<T>(Transaction transaction);
 
-/// Transaction class which is created from a call to [runTransaction].
+/// Transaction class which is created from a call to [runTransaction()].
 class Transaction {
   final Firestore _firestore;
   final TransactionPlatform _delegate;
@@ -17,7 +17,7 @@ class Transaction {
     TransactionPlatform.verifyExtends(_delegate);
   }
 
-  /// Reads the document referenced by the provided DocumentReference.
+  /// Reads the document referenced by the provided [DocumentReference].
   ///
   /// If the document changes whilst the transaction is in progress, it will
   /// be re-tried up to five times.

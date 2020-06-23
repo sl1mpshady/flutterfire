@@ -11,7 +11,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import '../method_channel/method_channel_firestore.dart';
 
-/// Defines an interface to work with [FirestorePlatform] on web and mobile
+/// Defines an interface to work with Cloud Firestore on web and mobile
 abstract class FirestorePlatform extends PlatformInterface {
   /// The [FirebaseApp] this instance was initialized with.
   @protected
@@ -87,8 +87,8 @@ abstract class FirestorePlatform extends PlatformInterface {
   }
 
   /// Disables network usage for this instance. It can be re-enabled via
-  /// enableNetwork(). While the network is disabled, any snapshot listeners or
-  /// get() calls will return results from cache, and any write operations will
+  /// [enableNetwork()]. While the network is disabled, any snapshot listeners or
+  /// [get()] calls will return results from cache, and any write operations will
   /// be queued until the network is restored.
   Future<void> disableNetwork() {
     throw UnimplementedError('disableNetwork() is not implemented');
@@ -100,7 +100,7 @@ abstract class FirestorePlatform extends PlatformInterface {
   }
 
   /// Re-enables use of the network for this Firestore instance after a prior
-  /// call to disableNetwork().
+  /// call to [disableNetwork()].
   Future<void> enableNetwork() {
     throw UnimplementedError('enableNetwork() is not implemented');
   }
@@ -146,9 +146,9 @@ abstract class FirestorePlatform extends PlatformInterface {
     throw UnimplementedError('settings() is not implemented');
   }
 
-  /// Terminates this Firestore instance.
+  /// Terminates this [FirestorePlatform] instance.
   ///
-  /// After calling terminate() only the clearPersistence() method may be used.
+  /// After calling [terminate()] only the [clearPersistence()] method may be used.
   /// Any other method will throw a [FirebaseException].
   ///
   /// Termination does not cancel any pending writes, and any promises that are
@@ -156,10 +156,10 @@ abstract class FirestorePlatform extends PlatformInterface {
   /// persistence enabled, the next time you start this instance, it will resume
   ///  sending these writes to the server.
   ///
-  /// Note: Under normal circumstances, calling terminate() is not required.
+  /// Note: Under normal circumstances, calling [terminate()] is not required.
   /// This method is useful only when you want to force this instance to release
-  ///  all of its resources or in combination with clearPersistence() to ensure
-  ///  that all local state is destroyed between test runs.
+  /// all of its resources or in combination with [clearPersistence()] to ensure
+  /// that all local state is destroyed between test runs.
   Future<void> terminate() {
     throw UnimplementedError('terminate() is not implemented');
   }
@@ -167,13 +167,13 @@ abstract class FirestorePlatform extends PlatformInterface {
   /// Waits until all currently pending writes for the active user have been
   /// acknowledged by the backend.
   ///
-  /// The returned Future resolves immediately if there are no outstanding writes.
-  /// Otherwise, the Promise waits for all previously issued writes (including
+  /// The returned [Future] resolves immediately if there are no outstanding writes.
+  /// Otherwise, the [Promise] waits for all previously issued writes (including
   /// those written in a previous app session), but it does not wait for writes
   /// that were added after the method is called. If you want to wait for
-  /// additional writes, call [waitForPendingWrites] again.
+  /// additional writes, call [waitForPendingWrites()] again.
   ///
-  /// Any outstanding [waitForPendingWrites] calls are rejected during user changes.
+  /// Any outstanding [waitForPendingWrites()] calls are rejected during user changes.
   Future<void> waitForPendingWrites() {
     throw UnimplementedError('waitForPendingWrites() is not implemented');
   }

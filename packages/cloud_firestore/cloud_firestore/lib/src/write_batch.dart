@@ -1,4 +1,4 @@
-// Copyright 2018, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
@@ -6,7 +6,7 @@ part of cloud_firestore;
 
 /// A [WriteBatch] is a series of write operations to be performed as one unit.
 ///
-/// Operations done on a [WriteBatch] do not take effect until you [commit].
+/// Operations done on a [WriteBatch] do not take effect until you [commit()].
 ///
 /// Once committed, no further operations can be performed on the [WriteBatch],
 /// nor can it be committed again.

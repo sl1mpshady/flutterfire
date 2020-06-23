@@ -5,7 +5,8 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 
 import 'method_channel_document_change.dart';
 
-/// Contains zero or more [DocumentSnapshotPlatform] objects.
+/// An implementation of [QuerySnapshotPlatform] that uses [MethodChannel] to
+/// communicate with Firebase plugins.
 class MethodChannelQuerySnapshot extends QuerySnapshotPlatform {
   /// Creates a [MethodChannelQuerySnapshot] from the given [data]
   MethodChannelQuerySnapshot(

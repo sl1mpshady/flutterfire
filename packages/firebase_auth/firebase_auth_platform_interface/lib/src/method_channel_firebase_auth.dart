@@ -38,6 +38,35 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       <int, _PhoneAuthCallbacks>{};
 
   @override
+  Future<void> applyActionCode(String code) async {
+    // thrown if expired ('auth/expired-action-code')
+    // thrown if action code is invalid, i.e. malformed or already used ('auth/invalid-action-code')
+    // thrown if user corresponding to the given action code has been disabled ('auth/user-disabled')
+    // thrown if there is no user corresponding to action code ('auth/user-not-found')
+  }
+
+  @override
+  Future<ActionCodeInfo> checkActionCode(String code) async {
+    // thrown if expired ('auth/expired-action-code')
+    // thrown if action code is invalid, i.e. malformed or already used ('auth/invalid-action-code')
+    // thrown if user corresponding to the given action code has been disabled ('auth/user-disabled')
+    // thrown if there is no user corresponding to action code ('auth/user-not-found')
+  }
+
+  @override
+  Future<void> confirmPasswordReset(
+    String app,
+    String oobCode,
+    String newPassword,
+  ) {
+    return channel.invokeMethod('confirmPasswordReset', <String, String>{
+      'app': app,
+      'oobCode': oobCode,
+      'newPassword': newPassword,
+    });
+  }
+
+  @override
   Future<PlatformUser> getCurrentUser(String app) async {
     final Map<String, dynamic> data = await channel
         .invokeMapMethod<String, dynamic>(
@@ -350,19 +379,6 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     };
 
     return channel.invokeMethod<void>('verifyPhoneNumber', params);
-  }
-
-  @override
-  Future<void> confirmPasswordReset(
-    String app,
-    String oobCode,
-    String newPassword,
-  ) {
-    return channel.invokeMethod('confirmPasswordReset', <String, String>{
-      'app': app,
-      'oobCode': oobCode,
-      'newPassword': newPassword,
-    });
   }
 
   Future<void> _callHandler(MethodCall call) async {

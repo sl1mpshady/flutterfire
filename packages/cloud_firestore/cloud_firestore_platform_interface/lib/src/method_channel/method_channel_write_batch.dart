@@ -9,7 +9,8 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 import 'method_channel_firestore.dart';
 import 'utils/exception.dart';
 
-/// A [MethodChannelWriteBatch] is a series of write operations to be performed as one unit.
+/// An implementation of [WriteBatchPlatform] that uses [MethodChannel] to
+/// communicate with Firebase plugins.
 ///
 /// Operations done on a [MethodChannelWriteBatch] do not take effect until you [commit].
 ///
@@ -19,13 +20,13 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
   /// Create an instance of [MethodChannelWriteBatch]
   MethodChannelWriteBatch(this._firestore) : super();
 
-  /// The Firestore instance of this batch.
+  /// The [FirestorePlatform] instance of this batch.
   final FirestorePlatform _firestore;
 
   /// Keeps track of all batch writes in order.
   List<Map<String, dynamic>> _writes = [];
 
-  /// The committed state of the WriteBatch.
+  /// The committed state of this batch.
   ///
   /// Once a batch has been committed, a [StateError] will
   /// be thrown if the batch is modified after.

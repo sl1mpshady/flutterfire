@@ -7,7 +7,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_field_value_factory.dart';
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 
-/// An interface for a factory that is used to build [FieldValuePlatform] according to
+/// An interface for a factory that is used to build a [FieldValuePlatform] according to
 /// Platform (web or mobile)
 ///
 /// This class would make sense as a generic, but is not doing so to avoid a breaking change.

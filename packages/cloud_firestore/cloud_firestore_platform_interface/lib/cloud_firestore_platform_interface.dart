@@ -6,6 +6,7 @@ library cloud_firestore_platform_interface;
 
 import 'src/internal/pointer.dart';
 
+export 'package:collection/collection.dart' show ListEquality;
 export 'src/blob.dart';
 export 'src/field_path.dart';
 export 'src/geo_point.dart';

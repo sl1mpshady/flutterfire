@@ -1,11 +1,11 @@
-// Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
 part of cloud_firestore;
 
-/// A CollectionReference object can be used for adding documents, getting
-/// document references, and querying for documents (using the methods
+/// A [CollectionReference] object can be used for adding documents, getting
+/// [DocumentReference]s, and querying for documents (using the methods
 /// inherited from [Query]).
 class CollectionReference extends Query {
   final CollectionReferencePlatform _delegate;

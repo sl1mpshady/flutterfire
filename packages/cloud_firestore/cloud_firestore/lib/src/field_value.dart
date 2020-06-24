@@ -1,4 +1,4 @@
-// Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
@@ -16,7 +16,7 @@ class FieldValue extends FieldValuePlatform {
 
   FieldValue._(this._delegate) : super(_delegate);
 
-  /// Returns a special value that tells the server to union the given elements
+  /// Returns a [FieldValue] that tells the server to union the given elements
   /// with any array value that already exists on the server.
   ///
   /// Each specified element that doesn't already exist in the array will be
@@ -26,7 +26,7 @@ class FieldValue extends FieldValuePlatform {
   static FieldValue arrayUnion(List<dynamic> elements) =>
       FieldValue._(_factory.arrayUnion(_CodecUtility.valueEncode(elements)));
 
-  /// Returns a special value that tells the server to remove the given
+  /// Returns a [FieldValue] that tells the server to remove the given
   /// elements from any array value that already exists on the server.
   ///
   /// All instances of each element specified will be removed from the array.

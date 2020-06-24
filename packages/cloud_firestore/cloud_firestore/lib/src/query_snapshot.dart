@@ -1,10 +1,11 @@
-// Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
 part of cloud_firestore;
 
-/// A QuerySnapshot contains zero or more DocumentSnapshot objects.
+/// Contains the results of a query.
+/// It can contain zero or more [DocumentSnapshot] objects.
 class QuerySnapshot {
   final Firestore _firestore;
   final QuerySnapshotPlatform _delegate;
@@ -34,6 +35,6 @@ class QuerySnapshot {
   /// Returns the [SnapshotMetadata] for this snapshot.
   SnapshotMetadata get metadata => SnapshotMetadata._(_delegate.metadata);
 
-  /// Returns the size (number of documents) of the QuerySnapshot.
+  /// Returns the size (number of documents) of this snapshot.
   int get size => _delegate.size;
 }

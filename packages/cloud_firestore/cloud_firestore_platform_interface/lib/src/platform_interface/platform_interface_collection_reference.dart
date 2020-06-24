@@ -5,14 +5,14 @@
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:cloud_firestore_platform_interface/src/internal/pointer.dart';
 
-/// A CollectionReference object can be used for adding documents, getting
+/// A [CollectionReferencePlatform] can be used for adding documents, getting
 /// document references, and querying for documents (using the methods
 /// inherited from [QueryPlatform]).
 /// Note: QueryPlatform extends PlatformInterface already.
 abstract class CollectionReferencePlatform extends QueryPlatform {
   final Pointer _pointer;
 
-  /// Create a [CollectionReferencePlatform] using [pathComponents]
+  /// Create a [CollectionReferencePlatform] from a [path]
   CollectionReferencePlatform(
     FirestorePlatform firestore,
     String path,
@@ -39,7 +39,7 @@ abstract class CollectionReferencePlatform extends QueryPlatform {
   /// (relative to the root of the database).
   String get path => _pointer.path;
 
-  /// Returns a `DocumentReference` with the provided path.
+  /// Returns a [DocumentReferencePlatform] with the provided [path].
   ///
   /// If no [path] is provided, an auto-generated ID is used.
   ///

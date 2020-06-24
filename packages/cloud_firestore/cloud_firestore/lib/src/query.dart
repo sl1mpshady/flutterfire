@@ -4,7 +4,9 @@
 
 part of cloud_firestore;
 
-/// Represents a query over the data at a particular location.
+/// Represents a [Query] over the data at a particular location.
+///
+/// Can construct refined [Query] objects by adding filters and ordering.
 class Query {
   final Firestore firestore;
   final QueryPlatform _delegate;
@@ -104,7 +106,7 @@ class Query {
     return fields;
   }
 
-  /// Asserts that the query field is either a String or a [FieldPath].
+  /// Asserts that the query [field] is either a String or a [FieldPath].
   void _assertValidFieldType(dynamic field) {
     assert(field is String || field is FieldPath,
         'Supported [field] types are [String] and [FieldPath].');
@@ -270,7 +272,7 @@ class Query {
 
   /// Creates and returns a new [Query] that starts after the provided document
   /// (exclusive). The starting position is relative to the order of the query.
-  /// The document must contain all of the fields provided in the orderBy of
+  /// The [documentSnapshot] must contain all of the fields provided in the orderBy of
   /// this query.
   ///
   /// Calling this method will replace any existing cursor "start" query modifiers.

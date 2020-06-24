@@ -1,4 +1,4 @@
-// Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
@@ -7,11 +7,11 @@ import 'dart:async';
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-/// The TransactionHandler may be executed multiple times, it should be able
+/// The [TransactionHandler] may be executed multiple times, it should be able
 /// to handle multiple executions.
 typedef Future<dynamic> TransactionHandler(TransactionPlatform transaction);
 
-/// a [TransactionPlatform] is a set of read and write operations on one or more documents.
+/// A [TransactionPlatform] is a set of read and write operations on one or more documents.
 abstract class TransactionPlatform extends PlatformInterface {
   /// Constructor.
   TransactionPlatform() : super(token: _token);
@@ -33,7 +33,7 @@ abstract class TransactionPlatform extends PlatformInterface {
     throw UnimplementedError("commands is not implemented");
   }
 
-  /// Reads the document referenced by the provided DocumentReference.
+  /// Reads the document referenced by the provided [documentPath].
   ///
   /// If the document changes whilst the transaction is in progress, it will
   /// be re-tried up to five times.
@@ -57,7 +57,7 @@ abstract class TransactionPlatform extends PlatformInterface {
 
   /// Writes to the document referred to by the provided [documentPath].
   /// If the document does not exist yet, it will be created. If you pass
-  /// [SetOptions], the provided data can be merged into the existing document.
+  /// [SetOptions], the provided [data] can be merged into the existing document.
   TransactionPlatform set(String documentPath, Map<String, dynamic> data,
       [SetOptions options]) {
     throw UnimplementedError("set() is not implemented");

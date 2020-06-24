@@ -5,7 +5,7 @@
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:cloud_firestore_platform_interface/src/internal/pointer.dart';
 
-/// A `CollectionReference` object can be used for adding documents, getting
+/// A [CollectionReferencePlatform] can be used for adding documents, getting
 /// document references, and querying for documents (using the methods
 /// inherited from [QueryPlatform]).
 /// Note: QueryPlatform extends PlatformInterface already.

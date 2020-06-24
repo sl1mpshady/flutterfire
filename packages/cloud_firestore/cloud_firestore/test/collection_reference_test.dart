@@ -75,7 +75,7 @@ void main() {
       expect(ref2.path, equals('foo/bar/baz'));
     });
 
-    test('.document() returns the correct $DocumentReference', () {
+    test('doc() returns the correct $DocumentReference', () {
       CollectionReference ref = firestore.collection('foo');
 
       expect(ref.doc('bar'), firestore.doc('foo/bar'));
@@ -116,7 +116,7 @@ void main() {
       }
     });
 
-    group('.add', () {
+    group('add()', () {
       test('data must not be null', () {
         CollectionReference ref = firestore.collection('foo');
         expect(() => ref.add(null), throwsAssertionError);
@@ -160,7 +160,7 @@ void main() {
         }
       });
 
-      test('.add() data must not be null', () {
+      test('add() data must not be null', () {
         CollectionReference ref = firestore.collection('foo');
         expect(() => ref.add(null), throwsAssertionError);
       });

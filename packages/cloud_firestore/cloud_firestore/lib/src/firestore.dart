@@ -122,7 +122,7 @@ class Firestore extends FirebasePluginPlatform {
     return _delegate.enableNetwork();
   }
 
-  /// Returns a [Steam] which is called each time all of the active listeners
+  /// Returns a [Stream] which is called each time all of the active listeners
   /// have been synchronised.
   Stream<void> snapshotsInSync() {
     return _delegate.snapshotsInSync();

@@ -9,7 +9,7 @@ import 'method_channel_document_reference.dart';
 import 'method_channel_query.dart';
 import 'utils/auto_id_generator.dart';
 
-/// A CollectionReference object can be used for adding documents, getting
+/// A `CollectionReference` object can be used for adding documents, getting
 /// document references, and querying for documents (using the methods
 /// inherited from [QueryPlatform]).
 ///
@@ -22,15 +22,18 @@ class MethodChannelCollectionReference extends MethodChannelQuery
     implements CollectionReferencePlatform {
   Pointer _pointer;
 
-  /// Create a [MethodChannelCollectionReference] from [pathComponents]
+  /// Create a [MethodChannelCollectionReference] instance.
   MethodChannelCollectionReference(FirestorePlatform firestore, String path)
       : super(firestore, path) {
     _pointer = Pointer(path);
   }
 
+  /// Returns the identifier of this referenced collection.
   @override
   String get id => _pointer.id;
 
+  /// A string containing the slash-separated path to this instance
+  /// (relative to the root of the database).
   @override
   DocumentReferencePlatform get parent {
     String parentPath = _pointer.parentPath();
@@ -39,6 +42,7 @@ class MethodChannelCollectionReference extends MethodChannelQuery
         : MethodChannelDocumentReference(firestore, parentPath);
   }
 
+  /// Returns the path of this referenced collection.
   @override
   String get path => _pointer.path;
 

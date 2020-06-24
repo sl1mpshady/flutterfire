@@ -50,16 +50,6 @@ abstract class QueryPlatform extends PlatformInterface {
     }
   }
 
-  // /// Returns a copy of this query, with additional [parameters].
-  // QueryPlatform copyWithParameters(Map<String, dynamic> parameters) {
-  //   throw UnimplementedError("copyWithParameters() is not implemented");
-  // }
-
-  // /// Builds a map of all the parameters used and appends the [QueryPlatform.path]
-  // Map<String, dynamic> buildArguments() {
-  //   throw UnimplementedError("buildArguments() is not imlpmented");
-  // }
-
   /// Creates and returns a new [QueryPlatform] that ends at the provided document
   /// (inclusive). The end position is relative to the order of the query.
   /// The document must contain all of the fields provided in the orderBy of

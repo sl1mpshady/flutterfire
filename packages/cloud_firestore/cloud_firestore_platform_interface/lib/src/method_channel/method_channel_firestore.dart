@@ -21,9 +21,7 @@ import 'utils/exception.dart';
 /// You can get an instance by calling [Firestore.instance].
 class MethodChannelFirestore extends FirestorePlatform {
   /// Create an instance of [MethodChannelFirestore] with optional [FirebaseApp]
-  MethodChannelFirestore({FirebaseApp app})
-      : assert(app != null),
-        super(appInstance: app) {
+  MethodChannelFirestore({FirebaseApp app}) : super(appInstance: app) {
     if (_initialized) return;
     channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {

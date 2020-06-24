@@ -4,7 +4,9 @@
 
 part of cloud_firestore;
 
-/// Represents a query over the data at a particular location.
+/// Represents a [Query] over the data at a particular location.
+///
+/// Can construct refined [Query] objects by adding filters and ordering.
 class Query {
   final Firestore firestore;
   final QueryPlatform _delegate;
@@ -104,7 +106,7 @@ class Query {
     return fields;
   }
 
-  /// Asserts that the query field is either a String or a [FieldPath].
+  /// Asserts that the query [field] is either a String or a [FieldPath].
   void _assertValidFieldType(dynamic field) {
     assert(field is String || field is FieldPath,
         'Supported [field] types are [String] and [FieldPath].');
@@ -166,13 +168,16 @@ class Query {
 
   /// Fetch the documents for this query.
   ///
-  /// To modify how the query is fecthed, the [options] parameter can be provided
+  /// To modify how the query is fetched, the [options] parameter can be provided
   /// with a [GetOptions] instance.
   Future<QuerySnapshot> get([GetOptions options]) async {
     QuerySnapshotPlatform snapshotDelegate =
         await _delegate.get(options ?? const GetOptions());
     return QuerySnapshot._(firestore, snapshotDelegate);
   }
+
+  @Deprecated("Deprecated in favor of `.get()`")
+  Future<QuerySnapshot> getDocuments([GetOptions options]) => get(options);
 
   /// Creates and returns a new Query that's additionally limited to only return up
   /// to the specified number of documents.
@@ -267,7 +272,7 @@ class Query {
 
   /// Creates and returns a new [Query] that starts after the provided document
   /// (exclusive). The starting position is relative to the order of the query.
-  /// The document must contain all of the fields provided in the orderBy of
+  /// The [documentSnapshot] must contain all of the fields provided in the orderBy of
   /// this query.
   ///
   /// Calling this method will replace any existing cursor "start" query modifiers.

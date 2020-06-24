@@ -1,10 +1,10 @@
-// Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
 part of cloud_firestore;
 
-/// A [DocumentReference] refers to a document location in a Firestore database
+/// A [DocumentReference] refers to a document location in a [Firestore] database
 /// and can be used to write, read, or listen to the location.
 ///
 /// The document at the referenced location may or may not exist.

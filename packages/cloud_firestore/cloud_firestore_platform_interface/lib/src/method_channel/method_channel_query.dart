@@ -12,12 +12,13 @@ import 'method_channel_query_snapshot.dart';
 import 'utils/source.dart';
 import 'utils/exception.dart';
 
-/// Represents a query over the data at a particular location.
+/// An implementation of [QueryPlatform] that uses [MethodChannel] to
+/// communicate with Firebase plugins.
 class MethodChannelQuery extends QueryPlatform {
   /// Flags whether the current query is for a collection group.
   final bool isCollectionGroupQuery;
 
-  /// Create a [MethodChannelQuery] from [pathComponents]
+  /// Create a [MethodChannelQuery] from a [path] and optional [parameters]
   MethodChannelQuery(
     FirestorePlatform _firestore,
     String path, {

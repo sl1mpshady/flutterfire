@@ -10,8 +10,8 @@ import 'package:flutter/services.dart';
 
 import 'method_channel_firestore.dart';
 
-/// An implementation of [TransactionPlatform] which uses [MethodChannel] to
-/// communication with native plugin
+/// An implementation of [TransactionPlatform] that uses [MethodChannel] to
+/// communicate with Firebase plugins.
 class MethodChannelTransaction extends TransactionPlatform {
   /// [FirebaseApp] name used for this [MethodChannelTransaction]
   final String appName;
@@ -29,6 +29,9 @@ class MethodChannelTransaction extends TransactionPlatform {
 
   List<Map<String, dynamic>> _commands = [];
 
+  /// Returns all transaction commands for the current instance.
+  ///
+  /// All get operations must be written, otherwise an [AssertionError] will be thrown
   @override
   List<Map<String, dynamic>> get commands {
     if (_documentGetCount > 0) {
@@ -39,6 +42,9 @@ class MethodChannelTransaction extends TransactionPlatform {
     return _commands;
   }
 
+  /// Reads the document referenced by the provided [documentPath].
+  ///
+  /// Requires all reads to be executed before all writes, otherwise an [AssertionError] will be thrown
   @override
   Future<DocumentSnapshotPlatform> get(documentPath) async {
     assert(_commands.isEmpty,

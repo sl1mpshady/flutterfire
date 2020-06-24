@@ -6,7 +6,7 @@
 /// and wraps an opaque value.
 ///
 /// The wrapped value is not in the app-facing interface, but concrete
-/// platform implementations can use `getDelegate` to look it up.
+/// platform implementations can use [getDelegate()] to look it up.
 class FieldValuePlatform {
   /// Constructor
   FieldValuePlatform(this._delegate);

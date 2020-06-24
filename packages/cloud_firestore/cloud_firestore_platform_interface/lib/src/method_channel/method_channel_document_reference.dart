@@ -11,9 +11,8 @@ import 'method_channel_firestore.dart';
 import 'utils/source.dart';
 import 'utils/exception.dart';
 
-/// A [MethodChannelDocumentReference] is an implementation of
-/// [DocumentReferencePlatform] that uses [MethodChannel] to communicate with
-/// Firebase plugins.
+/// An implementation of [DocumentReferencePlatform] that uses [MethodChannel] to
+/// communicate with Firebase plugins.
 class MethodChannelDocumentReference extends DocumentReferencePlatform {
   Pointer _pointer;
 
@@ -53,14 +52,15 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
   }
 
   @override
-  Future<DocumentSnapshotPlatform> get([GetOptions options]) async {
+  Future<DocumentSnapshotPlatform> get(
+      [GetOptions options = const GetOptions()]) async {
     final Map<String, dynamic> data =
         await MethodChannelFirestore.channel.invokeMapMethod<String, dynamic>(
       'DocumentReference#get',
       <String, dynamic>{
         'appName': firestore.app.name,
         'path': path,
-        'source': getSourceString(options?.source),
+        'source': getSourceString(options.source),
       },
     ).catchError(catchPlatformException);
 

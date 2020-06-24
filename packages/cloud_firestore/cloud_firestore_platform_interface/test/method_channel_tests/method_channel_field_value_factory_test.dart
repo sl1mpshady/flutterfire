@@ -1,4 +1,4 @@
-// Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_field_value_factory.dart';
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_field_value.dart';
 
-import 'test_common.dart';
+import '../utils/test_common.dart';
 
 const _kCollectionId = "test";
 
@@ -28,7 +28,7 @@ void main() {
         ),
       );
       MethodChannelCollectionReference(
-          FirestorePlatform.instance, [_kCollectionId]);
+          FirestorePlatform.instance, _kCollectionId);
     });
     final MethodChannelFieldValueFactory factory =
         MethodChannelFieldValueFactory();

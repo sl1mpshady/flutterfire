@@ -1,4 +1,4 @@
-// Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
@@ -7,7 +7,6 @@ library cloud_firestore;
 import 'dart:async';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
-import 'package:collection/collection.dart' show ListEquality;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart'
     show FirebasePluginPlatform;
@@ -15,6 +14,7 @@ import 'package:quiver/core.dart';
 
 export 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart'
     show
+        ListEquality,
         FieldPath,
         Blob,
         GeoPoint,

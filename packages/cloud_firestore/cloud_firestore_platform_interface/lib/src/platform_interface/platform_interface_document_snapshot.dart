@@ -9,8 +9,8 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 /// Contains data read from a document in your Firestore
 /// database.
 ///
-/// The data can be extracted with the [data] property or by using subscript
-/// syntax to access a specific field.
+/// The data can be extracted by calling [data()] or by calling [get()]
+/// to get a specific field.
 class DocumentSnapshotPlatform extends PlatformInterface {
   /// Constructs a [DocumentSnapshotPlatform] using the provided [FirestorePlatform].
   DocumentSnapshotPlatform(this._firestore, String path, this._data)

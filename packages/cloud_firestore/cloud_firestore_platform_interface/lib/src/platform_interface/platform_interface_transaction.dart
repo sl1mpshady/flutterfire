@@ -1,4 +1,4 @@
-// Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
+// Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
@@ -7,11 +7,11 @@ import 'dart:async';
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-/// The TransactionHandler may be executed multiple times, it should be able
+/// The [TransactionHandler] may be executed multiple times, it should be able
 /// to handle multiple executions.
 typedef Future<dynamic> TransactionHandler(TransactionPlatform transaction);
 
-/// a [TransactionPlatform] is a set of read and write operations on one or more documents.
+/// A [TransactionPlatform] is a set of read and write operations on one or more documents.
 abstract class TransactionPlatform extends PlatformInterface {
   /// Constructor.
   TransactionPlatform() : super(token: _token);
@@ -30,20 +30,20 @@ abstract class TransactionPlatform extends PlatformInterface {
 
   /// Returns all transaction commands for the current instance.
   List<Map<String, dynamic>> get commands {
-    throw UnimplementedError("commands not implemented");
+    throw UnimplementedError("commands is not implemented");
   }
 
-  /// Reads the document referenced by the provided DocumentReference.
+  /// Reads the document referenced by the provided [documentPath].
   ///
   /// If the document changes whilst the transaction is in progress, it will
   /// be re-tried up to five times.
   Future<DocumentSnapshotPlatform> get(String documentPath) {
-    throw UnimplementedError("get() not implemented");
+    throw UnimplementedError("get() is not implemented");
   }
 
   /// Deletes the document referred to by the provided [documentPath].
   TransactionPlatform delete(String documentPath) {
-    throw UnimplementedError("delete() not implemented");
+    throw UnimplementedError("delete() is not implemented");
   }
 
   /// Updates fields in the document referred to by [documentPath].
@@ -52,14 +52,14 @@ abstract class TransactionPlatform extends PlatformInterface {
     String documentPath,
     Map<String, dynamic> data,
   ) {
-    throw UnimplementedError("update() not implemented");
+    throw UnimplementedError("update() is not implemented");
   }
 
   /// Writes to the document referred to by the provided [documentPath].
   /// If the document does not exist yet, it will be created. If you pass
-  /// [SetOptions], the provided data can be merged into the existing document.
+  /// [SetOptions], the provided [data] can be merged into the existing document.
   TransactionPlatform set(String documentPath, Map<String, dynamic> data,
       [SetOptions options]) {
-    throw UnimplementedError("set() not implemented");
+    throw UnimplementedError("set() is not implemented");
   }
 }

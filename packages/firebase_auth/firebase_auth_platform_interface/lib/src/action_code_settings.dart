@@ -29,4 +29,21 @@ class ActionCodeSettings {
 
   /// Sets the link continue/state URL
   final String url;
+
+  /// Returns the current instance as a [Map].
+  Map<String, dynamic> asMap() {
+    return <String, dynamic>{
+      'url': this.url,
+      'dynamicLinkDomain': this.dynamicLinkDomain,
+      'handleCodeInApp': this.handleCodeInApp,
+      'android': <String, dynamic>{
+        'installApp': this.android['installApp'],
+        'minimumVersion': this.android['minimumVersion'],
+        'packageName': this.android['packageName'],
+      },
+      'iOS': <String, dynamic>{
+        'bundleId': this.iOS['bundleId'],
+      }
+    };
+  }
 }

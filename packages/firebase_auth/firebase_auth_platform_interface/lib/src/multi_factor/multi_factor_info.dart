@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 /// A structure containing the information of a second factor entity.
-abstract class MultiFactorInfo {
+class MultiFactorInfo {
   const MultiFactorInfo({
     this.displayName,
     this.enrollmentTime,

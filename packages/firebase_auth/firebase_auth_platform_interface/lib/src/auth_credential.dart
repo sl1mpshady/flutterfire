@@ -2,10 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:meta/meta.dart';
+
 /// Interface that represents the credentials returned by an auth provider.
 /// Implementations specify the details about each auth provider's credential
 /// requirements.
-abstract class AuthCredential {
+class AuthCredential {
+  @protected
   const AuthCredential({this.providerId, this.signInMethod});
 
   /// The authentication provider ID for the credential. For example,
@@ -17,6 +20,14 @@ abstract class AuthCredential {
   /// to the sign-in method identifier returned in
   /// [fetchSignInMethodsForEmail].
   final String signInMethod;
+
+  /// Returns the current instance as a serialized [Map].
+  Map<String, String> asMap() {
+    return <String, String>{
+      'providerId': providerId,
+      'signInMethod': signInMethod,
+    };
+  }
 
   /// Returns a JSON representation of this object.
   Object toJSON() {
@@ -31,9 +42,7 @@ abstract class AuthCredential {
     throw UnimplementedError("fromJSON() is not implemented");
   }
 
-  /// Returns the data for this credential serialized as a map.
-  Map<String, String> _asMap();
-
   @override
-  String toString() => _asMap().toString();
+  String toString() =>
+      'AuthCredential(providerId: $providerId, signInMethod: $signInMethod)';
 }

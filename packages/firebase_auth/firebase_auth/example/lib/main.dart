@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  FirebaseUser user;
+  User user;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +52,6 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
             child: RaisedButton(
               child: const Text('Test SignIn/SignOut'),
-              onPressed: () => _pushPage(context, SignInPage()),
             ),
             padding: const EdgeInsets.all(16),
             alignment: Alignment.center,

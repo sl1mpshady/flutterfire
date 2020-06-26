@@ -99,7 +99,7 @@ abstract class UserPlatform extends PlatformInterface {
     throw UnimplementedError("sendEmailVerification() is not implemented");
   }
 
-  Future<void> unlink(String providerId) async {
+  Future<UserPlatform> unlink(String providerId) async {
     throw UnimplementedError("unlink() is not implemented");
   }
 

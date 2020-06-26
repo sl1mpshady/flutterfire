@@ -20,7 +20,24 @@ export 'package:firebase_auth_platform_interface/firebase_auth_platform_interfac
         ActionCodeSettings,
         AdditionalUserInfo,
         ActionCodeInfoOperation,
-        MultiFactorInfo;
+        MultiFactorInfo,
+        Persistence,
+        AuthCredential,
+        EmailAuthProvider,
+        EmailAuthCredential,
+        FacebookAuthProvider,
+        FacebookAuthCredential,
+        GithubAuthProvider,
+        GithubAuthCredential,
+        GoogleAuthProvider,
+        GoogleAuthCredential,
+        OAuthProvider,
+        OAuthCredential,
+        TwitterAuthProvider,
+        TwitterAuthCredential;
+
+export 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart'
+    show FirebaseException;
 
 part 'src/firebase_auth.dart';
 part 'src/user_credential.dart';

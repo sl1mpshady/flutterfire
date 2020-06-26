@@ -2,19 +2,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// TODO: rename AuthError for consistency across SDKs?
-import 'package:firebase_auth_platform_interface/src/auth_credential/auth_credential.dart';
+import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart'
+    show FirebaseException;
+import 'package:meta/meta.dart';
+import 'auth_credential.dart';
 
 /// Generic exception related to Firebase Authentication.
 /// Check the error code and message for more details.
-abstract class AuthException implements Exception {
-  const AuthException(
-      {this.code,
-      this.message,
+class FirebaseAuthException extends FirebaseException
+    implements Exception {
+  FirebaseAuthException(
+      {@required this.message,
+      this.code,
       this.email,
       this.credential,
       this.phoneNumber,
-      this.tenantId});
+      this.tenantId})
+      : super(plugin: "firebase_auth", message: message, code: code);
 
   /// Unique error code
   final String code;
@@ -28,9 +32,9 @@ abstract class AuthException implements Exception {
   /// The [AuthCredential] that can be used to resolve the error.
   final AuthCredential credential;
 
-  /// The phone number of the user's account used for sign-in/linking.
+  /// The phone number of the user's account used for sign-in/linking. // TODO where from?
   final String phoneNumber;
 
-  /// The tenant ID being used for sign-in/linking.
+  /// The tenant ID being used for sign-in/linking. // TODO where from?
   final String tenantId;
 }

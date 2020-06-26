@@ -89,13 +89,13 @@ class User {
   }
 
   Future<void> sendEmailVerification(
-      {ActionCodeSettings actionCodeSettings}) async {
+      [ActionCodeSettings actionCodeSettings]) async {
     await _delegate.sendEmailVerification(actionCodeSettings);
   }
 
-  Future<void> unlink(String providerId) async {
+  Future<User> unlink(String providerId) async {
     assert(providerId != null);
-    await _delegate.unlink(providerId);
+    return User._(_auth, await _delegate.unlink(providerId));
   }
 
   Future<void> updateEmail(String newEmail) async {

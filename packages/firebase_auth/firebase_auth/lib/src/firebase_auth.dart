@@ -12,8 +12,10 @@ class FirebaseAuth extends FirebasePluginPlatform {
   FirebaseAuthPlatform _delegatePackingProperty;
 
   FirebaseAuthPlatform get _delegate {
+    print('pluginConstants $pluginConstants');
     if (_delegatePackingProperty == null) {
-      _delegatePackingProperty = FirebaseAuthPlatform.instanceFor(app: app);
+      _delegatePackingProperty = FirebaseAuthPlatform.instanceFor(
+          app: app, pluginConstants: pluginConstants);
     }
     return _delegatePackingProperty;
   }
@@ -42,16 +44,22 @@ class FirebaseAuth extends FirebasePluginPlatform {
     return FirebaseAuth.instanceFor(app: app);
   }
 
-  // TODO (also id token changed)
-  // /// Receive [FirebaseUser] each time the user signIn or signOut
-  // Stream<FirebaseUser> get onAuthStateChanged {
-  //   return FirebaseAuthPlatform.instance.onAuthStateChanged(app.name).map(
-  //       (PlatformUser user) => user == null ? null : FirebaseUser._(user, app));
-  // }
+  @Deprecated('Deprecated in favor of `authStateChanges`')
+  Stream<User> get onAuthStateChanged {
+    return authStateChanges();
+  }
 
-  // TODO getters
+  /// Returns the current [User] if they are currently signed-in, or `null` if not.
+  ///
+  /// You should not use this getter to determine the users current state, instead
+  /// use [authStateChanges] to subscribe to updates.
+  User get currentUser {
+    if (_delegate.currentUser != null) {
+      return User._(this, _delegate.currentUser);
+    }
 
-  // methods
+    return null;
+  }
 
   /// Applies a verification code sent to the user by email or other out-of-band mechanism.
   Future<void> applyActionCode(String code) async {
@@ -99,6 +107,16 @@ class FirebaseAuth extends FirebasePluginPlatform {
     return _delegate.fetchSignInMethodsForEmail(email);
   }
 
+  /// Returns a UserCredential from the redirect-based sign-in flow.
+  ///
+  /// If sign-in succeeded, returns the signed in user. If sign-in was unsuccessful,
+  ///  fails with an error. If no redirect operation was called, returns a [UserCredential] with a null User.
+  ///
+  /// This method is only support on web platforms.
+  Future<UserCredential> getRedirectResult() async {
+    return UserCredential._(this, await _delegate.getRedirectResult());
+  }
+
   /// Checks if an incoming link is a sign-in with email link.
   bool isSignInWithEmailLink(String emailLink) {
     assert(emailLink != null);
@@ -107,25 +125,45 @@ class FirebaseAuth extends FirebasePluginPlatform {
 
   /// Notifies about changes to the user's sign-in state (such as sign-in or sign-out).
   Stream<User> authStateChanges() {
-    return _delegate.authStateChanges().map((delegateUser) {
+    Stream<User> stream = _delegate.authStateChanges().map((delegateUser) {
       if (delegateUser == null) {
         return null;
       }
 
       return User._(this, delegateUser);
     });
+
+    StreamController<User> streamController;
+    streamController = StreamController<User>.broadcast(onListen: () {
+      // Fire an event straight away
+      streamController.add(currentUser);
+      // Pipe events of the broadcast stream into this stream
+      stream.pipe(streamController);
+    });
+
+    return streamController.stream;
   }
 
   /// Notifies about changes to the user's sign-in state (such as sign-in or sign-out)
   /// and also token refresh events.
   Stream<User> idTokenChanges() {
-    return _delegate.idTokenChanges().map((delegateUser) {
+    Stream<User> stream = _delegate.idTokenChanges().map((delegateUser) {
       if (delegateUser == null) {
         return null;
       }
 
       return User._(this, delegateUser);
     });
+
+    StreamController<User> streamController;
+    streamController = StreamController<User>.broadcast(onListen: () {
+      // Fire an event straight away
+      streamController.add(currentUser);
+      // Pipe events of the broadcast stream into this stream
+      stream.pipe(streamController);
+    });
+
+    return streamController.stream;
   }
 
   /// Triggers the Firebase Authentication backend to send a password-reset
@@ -147,6 +185,38 @@ class FirebaseAuth extends FirebasePluginPlatform {
     assert(email != null);
     assert(actionCodeSettings != null);
     await _delegate.sendSignInWithEmailLink(email, actionCodeSettings);
+  }
+
+  /// When set to null, the default Firebase Console language setting is applied.
+  ///
+  /// The language code will propagate to email action templates (password reset,
+  /// email verification and email change revocation), SMS templates for phone
+  /// authentication, reCAPTCHA verifier and OAuth popup/redirect operations
+  /// provided the specified providers support localization with the language
+  /// code specified.
+  ///
+  /// On web platforms, if `null` is provided as the [languageCode] the Firebase
+  /// project default language will be used. On native platforms, the app language will be used.
+  Future<void> setLanguageCode(String languageCode) {
+    return _delegate.setLanguageCode(languageCode);
+  }
+
+  /// Changes the current type of persistence on the current Auth instance for
+  /// the currently saved Auth session and applies this type of persistence for
+  /// future sign-in requests, including sign-in with redirect requests. This
+  /// will return a promise that will resolve once the state finishes copying
+  /// from one type of storage to the other. Calling a sign-in method after
+  /// changing persistence will wait for that persistence change to complete
+  /// before applying it on the new Auth state.
+  ///
+  /// This makes it easy for a user signing in to specify whether their session
+  /// should be remembered or not. It also makes it easier to never persist the
+  /// Auth state for applications that are shared by other users or have sensitive data.
+  ///
+  /// This is only supported on web based platforms.
+  Future<void> setPersistence(Persistence persistence) async {
+    assert(persistence != null);
+    return _delegate.setPersistence(persistence);
   }
 
   /// Asynchronously creates and becomes an anonymous user.
@@ -198,7 +268,7 @@ class FirebaseAuth extends FirebasePluginPlatform {
   /// Tries to sign in a user with the given email address and password.
   ///
   /// If successful, it also signs the user in into the app and updates
-  /// the [onAuthStateChanged] stream.
+  /// the [authStateChanges] stream.
   ///
   /// **Important**: You must enable Email & Password accounts in the Auth
   /// section of the Firebase console before being able to use them.
@@ -224,6 +294,14 @@ class FirebaseAuth extends FirebasePluginPlatform {
 
     return UserCredential._(
         this, await _delegate.signInWithEmailAndLink(email, emailLink));
+  }
+
+  Future<UserCredential> signInWithPopup() {
+    // TODO
+  }
+
+  Future<UserCredential> signInWithRedirect() {
+    // TODO
   }
 
   /// Signs out the current user.

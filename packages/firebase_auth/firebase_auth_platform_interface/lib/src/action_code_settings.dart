@@ -7,13 +7,20 @@ import 'package:flutter/foundation.dart';
 /// Interface that defines the required continue/state URL with optional
 /// Android and iOS bundle identifiers.
 class ActionCodeSettings {
-  const ActionCodeSettings({
+  ActionCodeSettings({
     this.android,
     this.dynamicLinkDomain,
     this.handleCodeInApp,
     this.iOS,
     @required this.url,
-  });
+  }) : assert(url != null) {
+    if (android != null) {
+      assert(android['packageName'] != null);
+    }
+    if (iOS != null) {
+      assert(iOS['bundleId'] != null);
+    }
+  }
 
   /// Sets the Android package name.
   final Map<String, dynamic> android;
@@ -33,17 +40,21 @@ class ActionCodeSettings {
   /// Returns the current instance as a [Map].
   Map<String, dynamic> asMap() {
     return <String, dynamic>{
-      'url': this.url,
-      'dynamicLinkDomain': this.dynamicLinkDomain,
-      'handleCodeInApp': this.handleCodeInApp,
-      'android': <String, dynamic>{
-        'installApp': this.android['installApp'],
-        'minimumVersion': this.android['minimumVersion'],
-        'packageName': this.android['packageName'],
-      },
-      'iOS': <String, dynamic>{
-        'bundleId': this.iOS['bundleId'],
-      }
+      'url': url,
+      'dynamicLinkDomain': dynamicLinkDomain,
+      'handleCodeInApp': handleCodeInApp,
+      'android': android == null
+          ? null
+          : <String, dynamic>{
+              'installApp': android['installApp'],
+              'minimumVersion': android['minimumVersion'],
+              'packageName': android['packageName'],
+            },
+      'iOS': iOS == null
+          ? null
+          : <String, dynamic>{
+              'bundleId': iOS['bundleId'],
+            }
     };
   }
 }

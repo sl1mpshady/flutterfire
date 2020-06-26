@@ -38,6 +38,7 @@ class MethodChannelFirebase extends FirebasePlatform {
   /// Creates and attaches a new [MethodChannelFirebaseApp] to the [MethodChannelFirebase]
   /// and adds any constants to the [FirebasePluginPlatform] class.
   void _initializeFirebaseAppFromMap(Map<dynamic, dynamic> map) {
+    print('!!! $map');
     MethodChannelFirebaseApp methodChannelFirebaseApp =
         MethodChannelFirebaseApp(
       map['name'],

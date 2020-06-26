@@ -9,7 +9,11 @@ import 'package:meta/meta.dart';
 /// requirements.
 class AuthCredential {
   @protected
-  const AuthCredential({this.providerId, this.signInMethod});
+  const AuthCredential({
+    @required this.providerId,
+    @required this.signInMethod,
+  })  : assert(providerId != null),
+        assert(signInMethod != null);
 
   /// The authentication provider ID for the credential. For example,
   /// 'facebook.com', or 'google.com'.
@@ -22,11 +26,8 @@ class AuthCredential {
   final String signInMethod;
 
   /// Returns the current instance as a serialized [Map].
-  Map<String, String> asMap() {
-    return <String, String>{
-      'providerId': providerId,
-      'signInMethod': signInMethod,
-    };
+  Map<String, dynamic> asMap() {
+    throw UnimplementedError("asMap() is not implemented");
   }
 
   /// Returns a JSON representation of this object.

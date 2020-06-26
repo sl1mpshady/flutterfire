@@ -21,7 +21,7 @@ class IdTokenResult {
   /// The authentication time formatted as UTC string. This is the time the user
   /// authenticated (signed in) and not the time the token was refreshed.
   DateTime get authTime =>
-      DateTime.fromMillisecondsSinceEpoch(_data['authTimestamp'] * 1000);
+      DateTime.fromMillisecondsSinceEpoch(_data['authTimestamp']);
 
   Map<String, dynamic> get claims => _data['claims'] == null
       ? null
@@ -29,11 +29,11 @@ class IdTokenResult {
 
   /// The time when the ID token expires.
   DateTime get expirationTime =>
-      DateTime.fromMillisecondsSinceEpoch(_data['expirationTimestamp'] * 1000);
+      DateTime.fromMillisecondsSinceEpoch(_data['expirationTimestamp']);
 
   /// The time when ID token was issued.
   DateTime get issuedAtTime =>
-      DateTime.fromMillisecondsSinceEpoch(_data['issuedAtTimestamp'] * 1000);
+      DateTime.fromMillisecondsSinceEpoch(_data['issuedAtTimestamp']);
 
   /// The sign-in provider through which the ID token was obtained (anonymous,
   /// custom, phone, password, etc). Note, this does not map to provider IDs.

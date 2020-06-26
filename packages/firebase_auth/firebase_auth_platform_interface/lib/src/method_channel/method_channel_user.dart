@@ -22,11 +22,22 @@ class MethodChannelUser extends UserPlatform {
   }
 
   @override
-  Future<IdTokenResult> getIdTokenResult(bool forceRefresh) async {
-    Map<String, dynamic> data = await MethodChannelFirebaseAuth.channel
-        .invokeMapMethod('User#getIdTokenResult', <String, dynamic>{
+  Future<String> getIdToken(bool forceRefresh) async {
+    return MethodChannelFirebaseAuth.channel
+        .invokeMethod<String>('User#getIdToken', <String, dynamic>{
       'appName': auth.app.name,
       'forceRefresh': forceRefresh,
+      'tokenOnly': true,
+    });
+  }
+
+  @override
+  Future<IdTokenResult> getIdTokenResult(bool forceRefresh) async {
+    Map<String, dynamic> data = await MethodChannelFirebaseAuth.channel
+        .invokeMapMethod('User#getIdToken', <String, dynamic>{
+      'appName': auth.app.name,
+      'forceRefresh': forceRefresh,
+      'tokenOnly': false,
     });
 
     return IdTokenResult(data);
@@ -70,17 +81,19 @@ class MethodChannelUser extends UserPlatform {
     return MethodChannelFirebaseAuth.channel.invokeMethod<void>(
         'User#sendEmailVerification', <String, dynamic>{
       'appName': auth.app.name,
-      'actionCodeSettings': actionCodeSettings.asMap()
+      'actionCodeSettings': actionCodeSettings?.asMap()
     });
   }
 
   @override
-  Future<void> unlink(String providerId) async {
-    return MethodChannelFirebaseAuth.channel
-        .invokeMethod<void>('User#unlink', <String, dynamic>{
+  Future<UserPlatform> unlink(String providerId) async {
+    Map<String, dynamic> data = await MethodChannelFirebaseAuth.channel
+        .invokeMapMethod<String, dynamic>('User#unlink', <String, dynamic>{
       'appName': auth.app.name,
       'providerId': providerId,
     });
+
+    return MethodChannelUser(auth, data);
   }
 
   @override

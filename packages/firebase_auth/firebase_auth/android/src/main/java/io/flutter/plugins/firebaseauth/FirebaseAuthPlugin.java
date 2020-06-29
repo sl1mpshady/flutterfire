@@ -68,6 +68,8 @@ public class FirebaseAuthPlugin
       new HashMap<>();
   private static final HashMap<Integer, PhoneAuthProvider.ForceResendingToken>
       mForceResendingTokens = new HashMap<>();
+  private static final HashMap<Integer, PhoneAuthCredential> mPhoneAuthCredentials =
+      new HashMap<>();
   private PluginRegistry.Registrar registrar;
   private MethodChannel channel;
   private Activity activity;
@@ -196,6 +198,17 @@ public class FirebaseAuthPlugin
         return TwitterAuthProvider.getCredential(accessToken, secret);
       case "github.com":
         return GithubAuthProvider.getCredential(accessToken);
+      case "phone":
+        {
+          if (arguments.get("handle") != null) {
+            int handle = (int) arguments.get("handle");
+            return mPhoneAuthCredentials.get(handle);
+          }
+
+          String verificationId = (String) Objects.requireNonNull(arguments.get("verificationId"));
+          String smsCode = (String) Objects.requireNonNull(arguments.get("smsCode"));
+          return PhoneAuthProvider.getCredential(verificationId, smsCode);
+        }
       case "oauth":
         {
           OAuthProvider.CredentialBuilder builder = OAuthProvider.newCredentialBuilder(providerId);
@@ -288,7 +301,6 @@ public class FirebaseAuthPlugin
     output.put("email", firebaseUser.getEmail());
     output.put("emailVerified", firebaseUser.isEmailVerified());
     output.put("isAnonymous", firebaseUser.isAnonymous());
-    output.put("metadata", firebaseUser.isAnonymous()); // todo
 
     metadata.put("creationTime", firebaseUser.getMetadata().getCreationTimestamp());
     metadata.put("lastSignInTime", firebaseUser.getMetadata().getLastSignInTimestamp());
@@ -627,11 +639,20 @@ public class FirebaseAuthPlugin
               new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                 @Override
                 public void onVerificationCompleted(
-                    @NonNull PhoneAuthCredential phoneAuthCredential) {}
+                    @NonNull PhoneAuthCredential phoneAuthCredential) {
+                  mPhoneAuthCredentials.put(handle, phoneAuthCredential);
+
+                  channel.invokeMethod("Auth#phoneVerificationCompleted", event);
+                }
 
                 @Override
                 public void onVerificationFailed(@NonNull FirebaseException e) {
-                  // TODO handle error
+                  Map<String, Object> error = new HashMap<>();
+                  error.put("message", e.getLocalizedMessage());
+                  error.put("details", getExceptionDetails(e));
+                  event.put("error", error);
+
+                  channel.invokeMethod("Auth#phoneVerificationFailed", event);
                 }
 
                 @Override
@@ -640,17 +661,17 @@ public class FirebaseAuthPlugin
                     @NonNull PhoneAuthProvider.ForceResendingToken token) {
                   int forceResendingTokenHashCode = token.hashCode();
                   mForceResendingTokens.put(forceResendingTokenHashCode, token);
-                  arguments.put("verificationId", verificationId);
-                  arguments.put("forceResendingToken", forceResendingTokenHashCode);
+                  event.put("verificationId", verificationId);
+                  event.put("forceResendingToken", forceResendingTokenHashCode);
 
-                  channel.invokeMethod("Auth#phoneCodeSent", arguments);
+                  channel.invokeMethod("Auth#phoneCodeSent", event);
                 }
 
                 @Override
                 public void onCodeAutoRetrievalTimeOut(@NonNull String verificationId) {
-                  arguments.put("verificationId", verificationId);
+                  event.put("verificationId", verificationId);
 
-                  channel.invokeMethod("Auth#phoneCodeAutoRetrievalTimeout", arguments);
+                  channel.invokeMethod("Auth#phoneCodeAutoRetrievalTimeout", event);
                 }
               };
 

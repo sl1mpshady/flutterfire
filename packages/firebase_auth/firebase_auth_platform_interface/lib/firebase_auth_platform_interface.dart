@@ -25,5 +25,5 @@ export 'src/providers/github_auth.dart';
 export 'src/providers/google_auth.dart';
 export 'src/providers/oauth.dart';
 export 'src/providers/saml_auth_provider.dart';
-// todo import phone/saml
+export 'src/providers/phone_auth_provider.dart';
 export 'src/providers/twitter_auth.dart';

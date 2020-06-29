@@ -2,44 +2,73 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-part of firebase_auth;
+import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
+import 'package:meta/meta.dart';
+
+const _kProviderId = 'phone';
 
 /// Phone number auth provider.
-class PhoneAuthProvider implements AuthProvider {
-  PhoneAuthProvider({FirebaseAuthPlatform auth}) {
-    // todo
+class PhoneAuthProvider extends AuthProvider {
+  PhoneAuthProvider() : super(_kProviderId);
+
+  static String get PHONE_SIGN_IN_METHOD {
+    return _kProviderId;
   }
 
-  final String providerId = 'phone';
-
-  // todo: are these props actually needed, see:
-  // https://firebase.google.com/docs/reference/js/firebase.auth.FacebookAuthProvider
-
-  /// This corresponds to the sign-in method identifier.
-  static String PHONE_SIGN_IN_METHOD;
-  static String PROVIDER_ID;
-
-  /// Starts a phone number authentication flow by sending a verification code to the
-  /// given phone number.
-  /// Returns an ID that can be passed to [PhoneAuthProvider.credential] to identify
-  /// this flow.
-  Future<String> verifyPhoneNumber(
-      dynamic phoneInfoOptions, ApplicationVerifier applicationVerifier) {
-    // todo: implement
-    // phoneInfoOptions may be a string or PhoneInfoOptions
+  static String get PROVIDER_ID {
+    return _kProviderId;
   }
 
-  // todo: rename getCredential w/o 'get' prefix?
-  // (String verificationId, String verificationCode)
+  /// Create a new [PhoneAuthCredential] from a provided [verificationId] and
+  /// [smsCode].
+  static AuthCredential credential(String verificationId, String smsCode) {
+    assert(verificationId != null);
+    assert(smsCode != null);
+    return PhoneAuthCredential._credential(verificationId, smsCode);
+  }
 
-  /// The auth provider credential.
+  static AuthCredential credentialFromHandle(int handle) {
+    assert(handle != null);
+    return PhoneAuthCredential._credentialFromHandle(handle);
+  }
+
+  @Deprecated('Deprecated in favor of `PhoneAuthProvider.credential()`')
   static AuthCredential getCredential({
     @required String verificationId,
     @required String smsCode,
   }) {
-    return PhoneAuthCredential(
-      verificationId: verificationId,
-      smsCode: smsCode,
-    );
+    return PhoneAuthProvider.credential(verificationId, smsCode);
+  }
+}
+
+class PhoneAuthCredential extends AuthCredential {
+  PhoneAuthCredential._({this.verificationId, this.smsCode, this.handle})
+      : super(
+          providerId: _kProviderId,
+          signInMethod: _kProviderId,
+        );
+
+  factory PhoneAuthCredential._credential(
+      String verificationId, String smsCode) {
+    return PhoneAuthCredential._(
+        verificationId: verificationId, smsCode: smsCode);
+  }
+
+  factory PhoneAuthCredential._credentialFromHandle(int handle) {
+    return PhoneAuthCredential._(handle: handle);
+  }
+
+  final String verificationId;
+  final String smsCode;
+  final int handle;
+
+  @override
+  Map<String, dynamic> asMap() {
+    return <String, dynamic>{
+      'providerId': providerId,
+      'verificationId': verificationId,
+      'smsCode': smsCode,
+      'handle': handle,
+    };
   }
 }

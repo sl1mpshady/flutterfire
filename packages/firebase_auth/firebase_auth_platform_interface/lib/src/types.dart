@@ -2,10 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'auth_credential.dart';
+import 'package:firebase_auth_platform_interface/src/providers/phone_auth_provider.dart';
+
 import 'firebase_auth_exception.dart';
 
-typedef void PhoneVerificationCompleted(AuthCredential phoneAuthCredential);
+typedef void PhoneVerificationCompleted(
+    PhoneAuthCredential phoneAuthCredential);
 typedef void PhoneVerificationFailed(FirebaseAuthException error);
 typedef void PhoneCodeSent(String verificationId, int forceResendingToken);
 typedef void PhoneCodeAutoRetrievalTimeout(String verificationId);

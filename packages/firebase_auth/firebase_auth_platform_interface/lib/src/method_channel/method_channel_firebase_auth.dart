@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
+import 'package:firebase_auth_platform_interface/src/firebase_auth_exception.dart';
 import 'package:firebase_auth_platform_interface/src/method_channel/method_channel_user.dart';
 import 'package:firebase_auth_platform_interface/src/platform_interface/platform_interface_user_credential.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -56,6 +57,10 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
         case 'Auth#idTokenChanges':
           return _handleChangeListener(
               _idTokenChangesListeners[arguments['appName']], arguments);
+        case 'Auth#phoneVerificationCompleted':
+          return _handlePhoneVerificationCompleted(arguments);
+        case 'Auth#phoneVerificationFailed':
+          return _handlePhoneVerificationFailed(arguments);
         case 'Auth#phoneCodeSent':
           return _handlePhoneCodeSent(arguments);
         case 'Auth#phoneCodeAutoRetrievalTimeout':
@@ -91,6 +96,32 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     }
   }
 
+  Future<void> _handlePhoneVerificationCompleted(
+      Map<dynamic, dynamic> arguments) async {
+    final int handle = arguments['handle'];
+
+    PhoneAuthCredential phoneAuthCredential =
+        PhoneAuthProvider.credentialFromHandle(handle);
+    PhoneAuthCallbacks callbacks = _phoneAuthCallbacks[handle];
+    callbacks.verificationCompleted(phoneAuthCredential);
+  }
+
+  Future<void> _handlePhoneVerificationFailed(
+      Map<dynamic, dynamic> arguments) async {
+    final int handle = arguments['handle'];
+    final Map<dynamic, dynamic> error = arguments['error'];
+    final Map<dynamic, dynamic> details = error['details'];
+
+    PhoneAuthCallbacks callbacks = _phoneAuthCallbacks[handle];
+
+    FirebaseAuthException exception = FirebaseAuthException(
+      message: details != null ? details['message'] : error['message'],
+      code: details != null ? details['code'] : 'unknown',
+    );
+
+    callbacks.verificationFailed(exception);
+  }
+
   Future<void> _handlePhoneCodeSent(Map<dynamic, dynamic> arguments) async {
     final int handle = arguments['handle'];
     final String verificationId = arguments['verificationId'];
@@ -101,7 +132,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   }
 
   Future<void> _handlePhoneCodeAutoRetrievalTimeout(
-      Map<dynamic, dynamic> arguments) {
+      Map<dynamic, dynamic> arguments) async {
     final int handle = arguments['handle'];
     final String verificationId = arguments['verificationId'];
 

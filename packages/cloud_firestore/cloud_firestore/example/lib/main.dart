@@ -10,6 +10,9 @@ void main() {
   runApp(App());
 }
 
+// Requires that an emulator is running locally
+bool USE_EMULATOR = false;
+
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -21,7 +24,16 @@ class App extends StatelessWidget {
           return FirestoreExampleApp.error(snapshot.error.toString());
         }
         if (snapshot.connectionState == ConnectionState.done) {
-          return FirestoreExampleApp.ready(Firestore.instance);
+          Firestore instance = Firestore.instance;
+
+          if (USE_EMULATOR) {
+            instance.settings = Settings(
+                host: 'localhost:8080',
+                sslEnabled: false,
+                persistenceEnabled: false);
+          }
+
+          return FirestoreExampleApp.ready(instance);
         }
 
         return FirestoreExampleApp.loading();

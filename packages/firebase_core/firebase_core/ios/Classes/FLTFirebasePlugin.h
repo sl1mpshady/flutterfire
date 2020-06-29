@@ -30,6 +30,16 @@ typedef void (^FLTFirebaseMethodCallErrorBlock)(NSString *_Nonnull code, NSStrin
  */
 @protocol FLTFirebasePlugin <NSObject>
 /**
+ * FlutterFire plugins implementing FLTFirebasePlugin should provide this method to be notified when
+ * FirebaseCore#initializeCore was called again (first time is ignored).
+ *
+ * This can be used by plugins to know when they might need to cleanup previous
+ * resources between Hot Restarts as `initializeCore` can only be called once in Dart.
+ */
+@required
+- (void)didReinitializeFirebaseCore:(void (^_Nonnull)(void))completion;
+
+/**
  * FlutterFire plugins implementing FLTFirebasePlugin must provide this method to provide it's
  * constants that are initialized during FirebaseCore.initializeApp in Dart.
  *

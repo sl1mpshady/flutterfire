@@ -86,7 +86,7 @@ class FirestoreWeb extends FirestorePlatform {
   }
 
   @override
-  Future<void> settings(Settings settings) async {
+  set settings(Settings settings) {
     int cacheSizeBytes;
 
     if (settings.cacheSizeBytes == null) {
@@ -107,9 +107,11 @@ class FirestoreWeb extends FirestorePlatform {
       _webFirestore.settings(web.Settings(cacheSizeBytes: cacheSizeBytes));
     }
 
-    if (settings.persistenceEnabled) {
-      await _webFirestore.enablePersistence();
-    }
+    // TODO(salakar): this should be a seperate method on web rather than in settings,
+    // but firebase-dart currently does not support [PersistenceSettings]: https://firebase.google.com/docs/reference/js/firebase.firestore.PersistenceSettings
+    // if (settings.persistenceEnabled) {
+    //   await _webFirestore.enablePersistence();
+    // }
   }
 
   // @override

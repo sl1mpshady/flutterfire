@@ -33,4 +33,13 @@
  * @return NSDictionary Dictionary of plugins and their constants.
  */
 - (NSDictionary *)pluginConstantsForFIRApp:(FIRApp *)firebaseApp;
+
+/**
+ * Each FlutterFire plugin implementing this method are notified that FirebaseCore#initializeCore
+ * was called again.
+ *
+ * This is used by plugins to know if they need to cleanup previous
+ * resources between Hot Restarts as `initializeCore` can only be called once in Dart.
+ */
+- (void)didReinitializeFirebaseCore:(void (^_Nonnull)(void))completion;
 @end

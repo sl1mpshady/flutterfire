@@ -1,4 +1,4 @@
-// Copyright 2017 The Chromium Authors. All rights reserved.
+// Copyright 2020 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -38,6 +38,14 @@
     [self writeByte:FirestoreDataTypeDocumentReference];
     [self writeUTF8:appName];
     [self writeUTF8:documentPath];
+  } else if ([value isKindOfClass:[FIRDocumentSnapshot class]]) {
+    [super writeValue:[self FIRDocumentSnapshot:value]];
+  } else if ([value isKindOfClass:[FIRQuerySnapshot class]]) {
+    [super writeValue:[self FIRQuerySnapshot:value]];
+  } else if ([value isKindOfClass:[FIRDocumentChange class]]) {
+    [super writeValue:[self FIRDocumentChange:value]];
+  } else if ([value isKindOfClass:[FIRSnapshotMetadata class]]) {
+    [super writeValue:[self FIRSnapshotMetadata:value]];
   } else if ([value isKindOfClass:[NSData class]]) {
     NSData *blob = value;
     [self writeByte:FirestoreDataTypeBlob];
@@ -46,5 +54,86 @@
   } else {
     [super writeValue:value];
   }
+}
+
+- (NSDictionary *)FIRSnapshotMetadata:(FIRSnapshotMetadata *)snapshotMetadata {
+  return @{
+    @"hasPendingWrites" : @(snapshotMetadata.hasPendingWrites),
+    @"isFromCache" : @(snapshotMetadata.isFromCache),
+  };
+}
+
+- (NSDictionary *)FIRDocumentChange:(FIRDocumentChange *)documentChange {
+  NSString *type;
+
+  switch (documentChange.type) {
+    case FIRDocumentChangeTypeAdded:
+      type = @"DocumentChangeType.added";
+      break;
+    case FIRDocumentChangeTypeModified:
+      type = @"DocumentChangeType.modified";
+      break;
+    case FIRDocumentChangeTypeRemoved:
+      type = @"DocumentChangeType.removed";
+      break;
+  }
+
+  NSNumber *oldIndex;
+  NSNumber *newIndex;
+
+  // Note the Firestore C++ SDK here returns a maxed UInt that is != NSUIntegerMax, so we make one
+  // ourselves so we can convert to -1 for Dart.
+  NSUInteger MAX_VAL = (NSUInteger)[@(-1) integerValue];
+
+  if (documentChange.newIndex == NSNotFound || documentChange.newIndex == 4294967295 ||
+      documentChange.newIndex == MAX_VAL) {
+    newIndex = @([@(-1) intValue]);
+  } else {
+    newIndex = @([@(documentChange.newIndex) intValue]);
+  }
+
+  if (documentChange.oldIndex == NSNotFound || documentChange.oldIndex == 4294967295 ||
+      documentChange.oldIndex == MAX_VAL) {
+    oldIndex = @([@(-1) intValue]);
+  } else {
+    oldIndex = @([@(documentChange.oldIndex) intValue]);
+  }
+
+  return @{
+    @"type" : type,
+    @"data" : documentChange.document.data,
+    @"path" : documentChange.document.reference.path,
+    @"oldIndex" : oldIndex,
+    @"newIndex" : newIndex,
+    @"metadata" : documentChange.document.metadata,
+  };
+}
+
+- (NSDictionary *)FIRDocumentSnapshot:(FIRDocumentSnapshot *)documentSnapshot {
+  return @{
+    @"path" : documentSnapshot.reference.path,
+    @"data" : documentSnapshot.exists ? (id)documentSnapshot.data : [NSNull null],
+    @"metadata" : documentSnapshot.metadata,
+  };
+}
+
+- (NSDictionary *)FIRQuerySnapshot:(FIRQuerySnapshot *)querySnapshot {
+  NSMutableArray *paths = [NSMutableArray array];
+  NSMutableArray *documents = [NSMutableArray array];
+  NSMutableArray *metadatas = [NSMutableArray array];
+
+  for (FIRDocumentSnapshot *document in querySnapshot.documents) {
+    [paths addObject:document.reference.path];
+    [documents addObject:document.data];
+    [metadatas addObject:document.metadata];
+  }
+
+  return @{
+    @"paths" : paths,
+    @"documentChanges" : querySnapshot.documentChanges,
+    @"documents" : documents,
+    @"metadatas" : metadatas,
+    @"metadata" : querySnapshot.metadata,
+  };
 }
 @end

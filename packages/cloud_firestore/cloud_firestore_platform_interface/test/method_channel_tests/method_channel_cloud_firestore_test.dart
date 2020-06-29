@@ -340,30 +340,12 @@ void main() {
       });
     });
 
-    group('settings()', () {
+    group('settings', () {
       Settings settings = Settings();
 
-      test('invoke Firestore#settings with correct args', () {
-        expect(firestore.settings(settings), isInstanceOf<Future<void>>());
-
-        expect(
-          log,
-          equals(<Matcher>[
-            isMethodCall(
-              'Firestore#settings',
-              arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
-                'settings': settings.asMap,
-              },
-            ),
-          ]),
-        );
-      });
-      test('catch [PlatformException] error', () {
-        mockPlatformExceptionThrown = true;
-
-        expect(() => firestore.settings(settings),
-            throwsA(isInstanceOf<FirebaseException>()));
+      test('stores the settings on the Firestore instance', () {
+        firestore.settings = settings;
+        expect(firestore.settings, settings);
       });
     });
 

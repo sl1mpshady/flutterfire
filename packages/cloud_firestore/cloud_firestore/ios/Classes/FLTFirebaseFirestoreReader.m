@@ -1,4 +1,4 @@
-// Copyright 2017 The Chromium Authors. All rights reserved.
+// Copyright 2020 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -9,6 +9,7 @@
 #import "Private/FLTFirebaseFirestoreUtils.h"
 
 @implementation FLTFirebaseFirestoreReader
+
 - (id)readValueOfType:(UInt8)type {
   switch (type) {
     case FirestoreDataTypeDateTime: {
@@ -32,10 +33,8 @@
       return [[FIRGeoPoint alloc] initWithLatitude:latitude longitude:longitude];
     }
     case FirestoreDataTypeDocumentReference: {
-      NSString *appNameDart = [self readUTF8];
-      NSString *appNameIos = [FLTFirebasePlugin firebaseAppNameFromDartName:appNameDart];
-      FIRFirestore *firestore = [FIRFirestore firestoreForApp:[FIRApp appNamed:appNameIos]];
-      NSString *documentPath = [self readUTF8];
+      FIRFirestore *firestore = [self readValue];
+      NSString *documentPath = [self readValue];
       return [firestore documentWithPath:documentPath];
     }
     case FirestoreDataTypeFieldPath: {
@@ -64,8 +63,154 @@
       return [FIRFieldValue fieldValueForIntegerIncrement:((NSNumber *)[self readValue]).intValue];
     case FirestoreDataTypeDocumentId:
       return [FIRFieldPath documentID];
+    case FirestoreDataTypeFirestoreInstance:
+      return [self FIRFirestore];
+    case FirestoreDataTypeFirestoreQuery:
+      return [self FIRQuery];
+    case FirestoreDataTypeFirestoreSettings:
+      return [self FIRFirestoreSettings];
     default:
       return [super readValueOfType:type];
   }
 }
+
++ (dispatch_queue_t)getFirestoreQueue {
+  static dispatch_queue_t firestoreQueue;
+  static dispatch_once_t once;
+  dispatch_once(&once, ^{
+    firestoreQueue =
+        dispatch_queue_create("dev.flutter.firebase.firestore", DISPATCH_QUEUE_CONCURRENT);
+  });
+  return firestoreQueue;
+}
+
+- (FIRFirestoreSettings *)FIRFirestoreSettings {
+  NSDictionary *values = [self readValue];
+  FIRFirestoreSettings *settings = [[FIRFirestoreSettings alloc] init];
+
+  if (![values[@"persistenceEnabled"] isEqual:[NSNull null]]) {
+    settings.persistenceEnabled = [((NSNumber *)values[@"persistenceEnabled"]) boolValue];
+  }
+
+  if (![values[@"host"] isEqual:[NSNull null]]) {
+    settings.host = (NSString *)values[@"host"];
+  }
+
+  if (![values[@"sslEnabled"] isEqual:[NSNull null]]) {
+    settings.sslEnabled = [((NSNumber *)values[@"sslEnabled"]) boolValue];
+  }
+
+  if (![values[@"cacheSizeBytes"] isEqual:[NSNull null]]) {
+    settings.cacheSizeBytes = [((NSNumber *)values[@"cacheSizeBytes"]) intValue];
+  }
+
+  settings.dispatchQueue = [FLTFirebaseFirestoreReader getFirestoreQueue];
+
+  return settings;
+}
+
+- (FIRQuery *)FIRQuery {
+  FIRQuery *query;
+  NSDictionary *values = [self readValue];
+  FIRFirestore *firestore = values[@"firestore"];
+
+  NSDictionary *parameters = values[@"parameters"];
+  NSArray *whereConditions = parameters[@"where"];
+  BOOL isCollectionGroup = ((NSNumber *)values[@"isCollectionGroup"]).boolValue;
+
+  if (isCollectionGroup) {
+    query = [firestore collectionGroupWithID:values[@"path"]];
+  } else {
+    query = [firestore collectionWithPath:values[@"path"]];
+  }
+
+  // Filters
+  for (id item in whereConditions) {
+    NSArray *condition = item;
+    FIRFieldPath *fieldPath = (FIRFieldPath *)condition[0];
+    NSString *operator= condition[1];
+    id value = condition[2];
+    if ([operator isEqualToString:@"=="]) {
+      query = [query queryWhereFieldPath:fieldPath isEqualTo:value];
+    } else if ([operator isEqualToString:@"<"]) {
+      query = [query queryWhereFieldPath:fieldPath isLessThan:value];
+    } else if ([operator isEqualToString:@"<="]) {
+      query = [query queryWhereFieldPath:fieldPath isLessThanOrEqualTo:value];
+    } else if ([operator isEqualToString:@">"]) {
+      query = [query queryWhereFieldPath:fieldPath isGreaterThan:value];
+    } else if ([operator isEqualToString:@">="]) {
+      query = [query queryWhereFieldPath:fieldPath isGreaterThanOrEqualTo:value];
+    } else if ([operator isEqualToString:@"array-contains"]) {
+      query = [query queryWhereFieldPath:fieldPath arrayContains:value];
+    } else if ([operator isEqualToString:@"array-contains-any"]) {
+      query = [query queryWhereFieldPath:fieldPath arrayContainsAny:value];
+    } else if ([operator isEqualToString:@"in"]) {
+      query = [query queryWhereFieldPath:fieldPath in:value];
+    } else {
+      NSLog(@"FLTFirebaseFirestore: An invalid query operator %@ was received but not handled.",
+            operator);
+    }
+  }
+
+  // Limit
+  id limit = parameters[@"limit"];
+  if (![limit isEqual:[NSNull null]]) {
+    query = [query queryLimitedTo:((NSNumber *)limit).intValue];
+  }
+
+  // Limit To Last
+  id limitToLast = parameters[@"limitToLast"];
+  if (![limitToLast isEqual:[NSNull null]]) {
+    query = [query queryLimitedToLast:((NSNumber *)limitToLast).intValue];
+  }
+
+  // Ordering
+  NSArray *orderBy = parameters[@"orderBy"];
+  if ([orderBy isEqual:[NSNull null]]) {
+    // We return early if no ordering set as cursor queries below require at least one orderBy set
+    return query;
+  }
+
+  for (NSArray *orderByParameters in orderBy) {
+    FIRFieldPath *fieldPath = (FIRFieldPath *)orderByParameters[0];
+    NSNumber *descending = orderByParameters[1];
+    query = [query queryOrderedByFieldPath:fieldPath descending:[descending boolValue]];
+  }
+
+  // Start At
+  id startAt = parameters[@"startAt"];
+  if (![startAt isEqual:[NSNull null]]) query = [query queryStartingAtValues:(NSArray *)startAt];
+  // Start After
+  id startAfter = parameters[@"startAfter"];
+  if (![startAfter isEqual:[NSNull null]])
+    query = [query queryStartingAfterValues:(NSArray *)startAfter];
+  // End At
+  id endAt = parameters[@"endAt"];
+  if (![endAt isEqual:[NSNull null]]) query = [query queryEndingAtValues:(NSArray *)endAt];
+  // End Before
+  id endBefore = parameters[@"endBefore"];
+  if (![endBefore isEqual:[NSNull null]])
+    query = [query queryEndingBeforeValues:(NSArray *)endBefore];
+
+  return query;
+}
+
+- (FIRFirestore *)FIRFirestore {
+  @synchronized(self) {
+    NSString *appNameDart = [self readValue];
+    FIRFirestoreSettings *settings = [self readValue];
+    FIRApp *app = [FLTFirebasePlugin firebaseAppNamed:appNameDart];
+
+    if ([FLTFirebaseFirestoreUtils getCachedFIRFirestoreInstanceForKey:app.name] != nil) {
+      return [FLTFirebaseFirestoreUtils getCachedFIRFirestoreInstanceForKey:app.name];
+    }
+
+    FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+    firestore.settings = settings;
+
+    [FLTFirebaseFirestoreUtils setCachedFIRFirestoreInstance:firestore forKey:app.name];
+    return firestore;
+  }
+}
+
 @end

@@ -26,10 +26,10 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
   @override
   Future<void> set(Map<String, dynamic> data, [SetOptions options]) {
     return MethodChannelFirestore.channel.invokeMethod<void>(
-      'DocumentReference#setData',
+      'DocumentReference#set',
       <String, dynamic>{
-        'appName': firestore.app.name,
-        'path': path,
+        'firestore': firestore,
+        'reference': this,
         'data': data,
         'options': <String, dynamic>{
           'merge': options?.merge,
@@ -42,10 +42,10 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
   @override
   Future<void> update(Map<String, dynamic> data) {
     return MethodChannelFirestore.channel.invokeMethod<void>(
-      'DocumentReference#updateData',
+      'DocumentReference#update',
       <String, dynamic>{
-        'appName': firestore.app.name,
-        'path': path,
+        'firestore': firestore,
+        'reference': this,
         'data': data,
       },
     ).catchError(catchPlatformException);
@@ -58,8 +58,8 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
         await MethodChannelFirestore.channel.invokeMapMethod<String, dynamic>(
       'DocumentReference#get',
       <String, dynamic>{
-        'appName': firestore.app.name,
-        'path': path,
+        'firestore': firestore,
+        'reference': this,
         'source': getSourceString(options.source),
       },
     ).catchError(catchPlatformException);
@@ -71,7 +71,7 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
   Future<void> delete() {
     return MethodChannelFirestore.channel.invokeMethod<void>(
       'DocumentReference#delete',
-      <String, dynamic>{'appName': firestore.app.name, 'path': path},
+      <String, dynamic>{'firestore': firestore, 'reference': this},
     ).catchError(catchPlatformException);
   }
 
@@ -92,8 +92,8 @@ class MethodChannelDocumentReference extends DocumentReferencePlatform {
           'DocumentReference#addSnapshotListener',
           <String, dynamic>{
             'handle': handle,
-            'appName': firestore.app.name,
-            'path': path,
+            'firestore': firestore,
+            'reference': this,
             'includeMetadataChanges': includeMetadataChanges,
           },
         );

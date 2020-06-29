@@ -30,6 +30,11 @@ class MethodChannelQuery extends QueryPlatform {
 
   Pointer _pointer;
 
+  /// Returns the Document path that that this query relates to.
+  String get path {
+    return _pointer.path;
+  }
+
   /// Creates a new instance of [MethodChannelQuery], however overrides
   /// any existing [parameters].
   ///
@@ -85,12 +90,10 @@ class MethodChannelQuery extends QueryPlatform {
   Future<QuerySnapshotPlatform> get([GetOptions options]) async {
     final Map<String, dynamic> data =
         await MethodChannelFirestore.channel.invokeMapMethod<String, dynamic>(
-      'Query#getDocuments',
+      'Query#get',
       <String, dynamic>{
-        'appName': firestore.app.name,
-        'path': _pointer.path,
-        'isCollectionGroup': isCollectionGroupQuery,
-        'parameters': parameters,
+        'query': this,
+        'firestore': firestore,
         'source': getSourceString(options.source),
       },
     ).catchError(catchPlatformException);
@@ -130,11 +133,9 @@ class MethodChannelQuery extends QueryPlatform {
         MethodChannelFirestore.channel.invokeMethod<void>(
           'Query#addSnapshotListener',
           <String, dynamic>{
+            'query': this,
             'handle': handle,
-            'appName': firestore.app.name,
-            'path': _pointer.path,
-            'isCollectionGroup': isCollectionGroupQuery,
-            'parameters': parameters,
+            'firestore': firestore,
             'includeMetadataChanges': includeMetadataChanges,
           },
         );

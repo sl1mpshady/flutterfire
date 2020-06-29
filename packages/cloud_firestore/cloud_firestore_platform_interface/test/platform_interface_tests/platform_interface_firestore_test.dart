@@ -130,12 +130,23 @@ void main() {
       fail('Should have thrown an [UnimplementedError]');
     });
 
-    test("throws if .settings", () async {
+    test("throws if getting .settings", () async {
       final firestore = TestFirestore._();
       try {
-        await firestore.settings(Settings());
+        firestore.settings;
       } on UnimplementedError catch (e) {
-        expect(e.message, equals("settings() is not implemented"));
+        expect(e.message, equals("settings getter is not implemented"));
+        return;
+      }
+      fail('Should have thrown an [UnimplementedError]');
+    });
+
+    test("throws if setting .settings", () async {
+      final firestore = TestFirestore._();
+      try {
+        firestore.settings = Settings();
+      } on UnimplementedError catch (e) {
+        expect(e.message, equals("settings setter is not implemented"));
         return;
       }
       fail('Should have thrown an [UnimplementedError]');

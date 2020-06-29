@@ -1,4 +1,4 @@
-// Copyright 2017 The Chromium Authors. All rights reserved.
+// Copyright 2020 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -10,197 +10,16 @@
 
 NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_firestore";
 
-static FlutterError *getFlutterError(NSError *error) {
-  if (error == nil) return nil;
-
-  return [FlutterError errorWithCode:[NSString stringWithFormat:@"Error %ld", (long) error.code]
-                             message:error.domain
-                             details:error.localizedDescription];
-}
-
-static FIRFirestore *getFirestore(NSDictionary *arguments) {
-  FIRApp *app = [FLTFirebasePlugin firebaseAppNamed:arguments[@"appName"]];
-  // TODO settings lock
-  return [FIRFirestore firestoreForApp:app];
-}
-
-static FIRDocumentReference *getDocumentReference(NSDictionary *arguments) {
-  return [getFirestore(arguments) documentWithPath:arguments[@"path"]];
-}
-
-static FIRQuery *getQuery(NSDictionary *arguments) {
-  FIRQuery *query;
-  NSDictionary *parameters = arguments[@"parameters"];
-  NSArray *whereConditions = parameters[@"where"];
-  BOOL isCollectionGroup = ((NSNumber *) arguments[@"isCollectionGroup"]).boolValue;
-
-  if (isCollectionGroup) {
-    query = [getFirestore(arguments) collectionGroupWithID:arguments[@"path"]];
-  } else {
-    query = [getFirestore(arguments) collectionWithPath:arguments[@"path"]];
-  }
-
-  // Filters
-  for (id item in whereConditions) {
-    NSArray *condition = item;
-    FIRFieldPath *fieldPath = (FIRFieldPath *) condition[0];
-    NSString *operator = condition[1];
-    id value = condition[2];
-    if ([operator isEqualToString:@"=="]) {
-      query = [query queryWhereFieldPath:fieldPath isEqualTo:value];
-    } else if ([operator isEqualToString:@"<"]) {
-      query = [query queryWhereFieldPath:fieldPath isLessThan:value];
-    } else if ([operator isEqualToString:@"<="]) {
-      query = [query queryWhereFieldPath:fieldPath isLessThanOrEqualTo:value];
-    } else if ([operator isEqualToString:@">"]) {
-      query = [query queryWhereFieldPath:fieldPath isGreaterThan:value];
-    } else if ([operator isEqualToString:@">="]) {
-      query = [query queryWhereFieldPath:fieldPath isGreaterThanOrEqualTo:value];
-    } else if ([operator isEqualToString:@"array-contains"]) {
-      query = [query queryWhereFieldPath:fieldPath arrayContains:value];
-    } else if ([operator isEqualToString:@"array-contains-any"]) {
-      query = [query queryWhereFieldPath:fieldPath arrayContainsAny:value];
-    } else if ([operator isEqualToString:@"in"]) {
-      query = [query queryWhereFieldPath:fieldPath in:value];
-    } else {
-      NSLog(@"FLTFirebaseFirestore: An invalid query operator %@ was received but not handled.", operator);
-    }
-  }
-
-  // Limit
-  id limit = parameters[@"limit"];
-  if (![limit isEqual:[NSNull null]]) {
-    query = [query queryLimitedTo:((NSNumber *) limit).intValue];
-  }
-
-  // Limit To Last
-  id limitToLast = parameters[@"limitToLast"];
-  if (![limitToLast isEqual:[NSNull null]]) {
-    query = [query queryLimitedTo:((NSNumber *) limitToLast).intValue];
-  }
-
-  // Ordering
-  NSArray *orderBy = parameters[@"orderBy"];
-  if ([orderBy isEqual:[NSNull null]]) {
-    // We return early if no ordering set as cursor queries below require at least one orderBy set
-    return query;
-  }
-
-  for (NSArray *orderByParameters in orderBy) {
-    FIRFieldPath *fieldPath = (FIRFieldPath *) orderByParameters[0];
-    NSNumber *descending = orderByParameters[1];
-    query = [query queryOrderedByFieldPath:fieldPath descending:[descending boolValue]];
-  }
-
-  // Start At
-  id startAt = parameters[@"startAt"];
-  if (![startAt isEqual:[NSNull null]]) query = [query queryStartingAtValues:(NSArray *) startAt];
-  // Start After
-  id startAfter = parameters[@"startAfter"];
-  if (![startAfter isEqual:[NSNull null]]) query = [query queryStartingAfterValues:(NSArray *) startAfter];
-  // End At
-  id endAt = parameters[@"endAt"];
-  if (![endAt isEqual:[NSNull null]]) query = [query queryEndingAtValues:(NSArray *) endAt];
-  // End Before
-  id endBefore = parameters[@"endBefore"];
-  if (![endBefore isEqual:[NSNull null]]) query = [query queryEndingBeforeValues:(NSArray *) endBefore];
-
-  return query;
-}
-
-static FIRFirestoreSource getSource(NSDictionary *arguments) {
-  NSString *source = arguments[@"source"];
-  if ([@"server" isEqualToString:source]) {
-    return FIRFirestoreSourceServer;
-  }
-  if ([@"cache" isEqualToString:source]) {
-    return FIRFirestoreSourceCache;
-  }
-  return FIRFirestoreSourceDefault;
-}
-
-static NSDictionary *parseQuerySnapshot(FIRQuerySnapshot *snapshot) {
-  NSMutableArray *paths = [NSMutableArray array];
-  NSMutableArray *documents = [NSMutableArray array];
-  NSMutableArray *metadatas = [NSMutableArray array];
-  for (FIRDocumentSnapshot *document in snapshot.documents) {
-    [paths addObject:document.reference.path];
-    [documents addObject:document.data];
-    [metadatas addObject:@{
-        @"hasPendingWrites": @(document.metadata.hasPendingWrites),
-        @"isFromCache": @(document.metadata.isFromCache),
-    }];
-  }
-  NSMutableArray *documentChanges = [NSMutableArray array];
-  for (FIRDocumentChange *documentChange in snapshot.documentChanges) {
-    NSString *type;
-    switch (documentChange.type) {
-      case FIRDocumentChangeTypeAdded:type = @"DocumentChangeType.added";
-        break;
-      case FIRDocumentChangeTypeModified:type = @"DocumentChangeType.modified";
-        break;
-      case FIRDocumentChangeTypeRemoved:type = @"DocumentChangeType.removed";
-        break;
-    }
-
-    NSNumber *oldIndex;
-    NSNumber *newIndex;
-
-    // Note the Firestore C++ SDK here returns a maxed UInt that is != NSUIntegerMax, so we make one ourselves so we can
-    // convert to -1 for Dart.
-    NSUInteger MAX_VAL = (NSUInteger) [@(-1) integerValue];
-    if (documentChange.newIndex == NSNotFound || documentChange.newIndex == 4294967295
-        || documentChange.newIndex == MAX_VAL) {
-      newIndex = @([@(-1) intValue]);
-    } else {
-      newIndex = @([@(documentChange.newIndex) doubleValue]);
-    }
-    if (documentChange.oldIndex == NSNotFound || documentChange.oldIndex == 4294967295
-        || documentChange.oldIndex == MAX_VAL) {
-      oldIndex = @([@(-1) intValue]);
-    } else {
-      oldIndex = @([@(documentChange.oldIndex) doubleValue]);
-    }
-
-    [documentChanges addObject:@{
-        @"type": type,
-        @"document": documentChange.document.data,
-        @"path": documentChange.document.reference.path,
-        @"oldIndex": oldIndex,
-        @"newIndex": newIndex,
-        @"metadata": @{
-            @"hasPendingWrites": @(documentChange.document.metadata.hasPendingWrites),
-            @"isFromCache": @(documentChange.document.metadata.isFromCache),
-        },
-    }];
-  }
-
-  return @{
-      @"paths": paths,
-      @"documentChanges": documentChanges,
-      @"documents": documents,
-      @"metadatas": metadatas,
-      @"metadata": @{
-          @"hasPendingWrites": @(snapshot.metadata.hasPendingWrites),
-          @"isFromCache": @(snapshot.metadata.isFromCache),
-      }
-  };
-}
-
 @interface FLTFirebaseFirestorePlugin ()
 @property(nonatomic, retain) FlutterMethodChannel *channel;
 @end
 
 @implementation FLTFirebaseFirestorePlugin {
   NSMutableDictionary<NSNumber *, id<FIRListenerRegistration>> *_listeners;
-  int _nextListenerHandle;
-  NSMutableDictionary *transactions;
-  // TODO remove
-  NSMutableDictionary *transactionResults;
-  // TODO remove
-  NSMutableDictionary<NSNumber *, FIRWriteBatch *> *_batches;
-  int _nextBatchHandle;
+  NSMutableDictionary *_transactions;
 }
+
+#pragma mark - FlutterPlugin
 
 // Returns a singleton instance of the Firebase Firestore plugin.
 + (instancetype)sharedInstance {
@@ -216,334 +35,412 @@ static NSDictionary *parseQuerySnapshot(FIRQuerySnapshot *snapshot) {
   return instance;
 }
 
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _listeners = [NSMutableDictionary<NSNumber *, id<FIRListenerRegistration>> dictionary];
+    _transactions = [NSMutableDictionary<NSNumber *, FIRTransaction *> dictionary];
+  }
+  return self;
+}
+
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar> *)registrar {
   FLTFirebaseFirestoreReaderWriter *firestoreReaderWriter = [FLTFirebaseFirestoreReaderWriter new];
   FlutterMethodChannel *channel =
       [FlutterMethodChannel methodChannelWithName:kFLTFirebaseFirestoreChannelName
                                   binaryMessenger:[registrar messenger]
                                             codec:[FlutterStandardMethodCodec
-                                                codecWithReaderWriter:firestoreReaderWriter]];
+                                                      codecWithReaderWriter:firestoreReaderWriter]];
+
   FLTFirebaseFirestorePlugin *instance = [FLTFirebaseFirestorePlugin sharedInstance];
   instance.channel = channel;
   [registrar addMethodCallDelegate:instance channel:channel];
+  [registrar publish:instance];
+}
+
+- (void)cleanupWithCompletion:(void (^)(void))completion {
+  for (NSNumber *key in [self->_listeners allKeys]) {
+    id<FIRListenerRegistration> listener = self->_listeners[key];
+    [listener remove];
+  }
+
+  [self->_listeners removeAllObjects];
+
+  __block int instancesTerminated = 0;
+  __block NSUInteger numberOfApps = [[FIRApp allApps] count];
+  __block void (^firestoreTerminateInstanceCompletion)(NSError *) = ^void(NSError *error) {
+    instancesTerminated++;
+    if (instancesTerminated == numberOfApps && completion != nil) {
+      completion();
+    }
+  };
+
+  if (numberOfApps > 0) {
+    for (__block NSString *appName in [FIRApp allApps]) {
+      FIRApp *app = [FIRApp appNamed:appName];
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        [[FIRFirestore firestoreForApp:app] terminateWithCompletion:^(NSError *error) {
+          [FLTFirebaseFirestoreUtils destroyCachedFIRFirestoreInstanceForKey:appName];
+          firestoreTerminateInstanceCompletion(error);
+        }];
+      });
+    }
+  } else {
+    if (completion != nil) completion();
+  }
 }
 
 - (void)detachFromEngineForRegistrar:(NSObject<FlutterPluginRegistrar> *)registrar {
-  // TODO remove listeners
+  [self cleanupWithCompletion:nil];
   self.channel = nil;
 }
 
-- (instancetype)init {
-  self = [super init];
-  if (self) {
-    _listeners = [NSMutableDictionary<NSNumber *, id<FIRListenerRegistration>> dictionary];
-    // TODO Batches now client side
-    _batches = [NSMutableDictionary<NSNumber *, FIRWriteBatch *> dictionary];
-    _nextListenerHandle = 0;
-    _nextBatchHandle = 0;
-    transactions = [NSMutableDictionary<NSNumber *, FIRTransaction *> dictionary];
-    transactionResults = [NSMutableDictionary<NSNumber *, id> dictionary];
-  }
-
-  return self;
-}
-
-- (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResult)result {
-  __weak __typeof__(self) weakSelf = self;
-  void (^defaultCompletionBlock)(NSError *) = ^(NSError *error) {
-    result(getFlutterError(error));
+- (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResult)flutterResult {
+  FLTFirebaseMethodCallErrorBlock errorBlock = ^(
+      NSString *_Nullable code, NSString *_Nullable message, NSDictionary *_Nullable details,
+      NSError *_Nullable error) {
+    if (code == nil) {
+      NSArray *codeAndMessage = [FLTFirebaseFirestoreUtils ErrorCodeAndMessageFromNSError:error];
+      code = codeAndMessage[0];
+      message = codeAndMessage[1];
+      details = @{
+        @"code" : code,
+        @"message" : message,
+      };
+    }
+    flutterResult([FLTFirebasePlugin createFlutterErrorFromCode:code
+                                                        message:message
+                                                optionalDetails:details
+                                             andOptionalNSError:error]);
   };
-  if ([@"Firestore#runTransaction" isEqualToString:call.method]) {
-    [getFirestore(call.arguments)
-        runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
-          NSNumber *transactionId = call.arguments[@"transactionId"];
-          NSNumber *transactionTimeout = call.arguments[@"transactionTimeout"];
 
-          self->transactions[transactionId] = transaction;
+  FLTFirebaseMethodCallResult *methodCallResult =
+      [FLTFirebaseMethodCallResult createWithSuccess:flutterResult andErrorBlock:errorBlock];
 
-          dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-
-          [weakSelf.channel invokeMethod:@"DoTransaction"
-                               arguments:call.arguments
-                                  result:^(id doTransactionResult) {
-                                    FLTFirebaseFirestorePlugin *currentSelf = weakSelf;
-                                    currentSelf->transactionResults[transactionId] =
-                                        doTransactionResult;
-                                    dispatch_semaphore_signal(semaphore);
-                                  }];
-
-          dispatch_semaphore_wait(
-              semaphore,
-              dispatch_time(DISPATCH_TIME_NOW, [transactionTimeout integerValue] * 1000000));
-
-          return self->transactionResults[transactionId];
-        }
-                     completion:^(id transactionResult, NSError *error) {
-                       if (error != nil) {
-                         result([FlutterError errorWithCode:[NSString stringWithFormat:@"%ld", (long) error.code]
-                                                    message:error.localizedDescription
-                                                    details:nil]);
-                       }
-                       result(transactionResult);
-                     }];
+  if ([@"Transaction#create" isEqualToString:call.method]) {
+    [self transactionCreate:call.arguments withMethodCallResult:methodCallResult];
   } else if ([@"Transaction#get" isEqualToString:call.method]) {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      NSNumber *transactionId = call.arguments[@"transactionId"];
-      FIRDocumentReference *document = getDocumentReference(call.arguments);
-      FIRTransaction *transaction = self->transactions[transactionId];
-      NSError *error = [[NSError alloc] init];
-
-      FIRDocumentSnapshot *snapshot = [transaction getDocument:document error:&error];
-
-      if (error != nil) {
-        result([FlutterError errorWithCode:[NSString stringWithFormat:@"%tu", [error code]]
-                                   message:[error localizedDescription]
-                                   details:nil]);
-      } else if (snapshot != nil) {
-        result(@{
-                   @"path": snapshot.reference.path,
-                   @"data": snapshot.exists ? snapshot.data : [NSNull null],
-                   @"metadata": @{
-                @"hasPendingWrites": @(snapshot.metadata.hasPendingWrites),
-                @"isFromCache": @(snapshot.metadata.isFromCache),
-            },
-               });
-      } else {
-        result(nil);
-      }
-    });
-  } else if ([@"Transaction#update" isEqualToString:call.method]) {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      NSNumber *transactionId = call.arguments[@"transactionId"];
-      FIRDocumentReference *document = getDocumentReference(call.arguments);
-      FIRTransaction *transaction = self->transactions[transactionId];
-
-      [transaction updateData:call.arguments[@"data"] forDocument:document];
-      result(nil);
-    });
-  } else if ([@"Transaction#set" isEqualToString:call.method]) {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      NSNumber *transactionId = call.arguments[@"transactionId"];
-      FIRDocumentReference *document = getDocumentReference(call.arguments);
-      FIRTransaction *transaction = self->transactions[transactionId];
-
-      [transaction setData:call.arguments[@"data"] forDocument:document];
-      result(nil);
-    });
-  } else if ([@"Transaction#delete" isEqualToString:call.method]) {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      NSNumber *transactionId = call.arguments[@"transactionId"];
-      FIRDocumentReference *document = getDocumentReference(call.arguments);
-      FIRTransaction *transaction = self->transactions[transactionId];
-
-      [transaction deleteDocument:document];
-      result(nil);
-    });
-  } else if ([@"DocumentReference#setData" isEqualToString:call.method]) {
-    NSDictionary *options = call.arguments[@"options"];
-    FIRDocumentReference *document = getDocumentReference(call.arguments);
-    // TODO options is now always defined
-    if (![options isEqual:[NSNull null]] &&
-        [options[@"merge"] isEqual:[NSNumber numberWithBool:YES]]) {
-      [document setData:call.arguments[@"data"] merge:YES completion:defaultCompletionBlock];
-    } else if (![options isEqual:[NSNull null]] &&
-        ![options[@"mergeFields"] isEqual:[NSNull null]]) {
-      [document setData:call.arguments[@"data"]
-            mergeFields:options[@"mergeFields"]
-             completion:defaultCompletionBlock];
-    } else {
-      [document setData:call.arguments[@"data"] completion:defaultCompletionBlock];
-    }
-  } else if ([@"DocumentReference#updateData" isEqualToString:call.method]) {
-    FIRDocumentReference *document = getDocumentReference(call.arguments);
-    [document updateData:call.arguments[@"data"] completion:defaultCompletionBlock];
+    [self transactionGet:call.arguments withMethodCallResult:methodCallResult];
+  } else if ([@"DocumentReference#set" isEqualToString:call.method]) {
+    [self documentSet:call.arguments withMethodCallResult:methodCallResult];
+  } else if ([@"DocumentReference#update" isEqualToString:call.method]) {
+    [self documentUpdate:call.arguments withMethodCallResult:methodCallResult];
   } else if ([@"DocumentReference#delete" isEqualToString:call.method]) {
-    FIRDocumentReference *document = getDocumentReference(call.arguments);
-    [document deleteDocumentWithCompletion:defaultCompletionBlock];
+    [self documentDelete:call.arguments withMethodCallResult:methodCallResult];
   } else if ([@"DocumentReference#get" isEqualToString:call.method]) {
-    FIRDocumentReference *document = getDocumentReference(call.arguments);
-    FIRFirestoreSource source = getSource(call.arguments);
-    [document
-        getDocumentWithSource:source
-                   completion:^(FIRDocumentSnapshot *_Nullable snapshot, NSError *_Nullable error) {
-                     if (snapshot == nil) {
-                       result(getFlutterError(error));
-                     } else {
-                       result(@{
-                                  @"path": snapshot.reference.path,
-                                  @"data": snapshot.exists ? snapshot.data : [NSNull null],
-                                  @"metadata": @{
-                               @"hasPendingWrites": @(snapshot.metadata.hasPendingWrites),
-                               @"isFromCache": @(snapshot.metadata.isFromCache),
-                           },
-                              });
-                     }
-                   }];
+    [self documentGet:call.arguments withMethodCallResult:methodCallResult];
   } else if ([@"Query#addSnapshotListener" isEqualToString:call.method]) {
-    __block NSNumber *handle = @(_nextListenerHandle++);
-    FIRQuery *query;
-    @try {
-      query = getQuery(call.arguments);
-    } @catch (NSException *exception) {
-      result([FlutterError errorWithCode:@"invalid_query"
-                                 message:[exception name]
-                                 details:[exception reason]]);
-    }
-    NSNumber *includeMetadataChanges = call.arguments[@"includeMetadataChanges"];
-    id<FIRListenerRegistration> listener = [query
-        addSnapshotListenerWithIncludeMetadataChanges:includeMetadataChanges.boolValue
-                                             listener:^(FIRQuerySnapshot *_Nullable snapshot,
-                                                        NSError *_Nullable error) {
-                                               if (snapshot == nil) {
-                                                 // TODO should invokeMethod
-                                                 result(getFlutterError(error));
-                                                 return;
-                                               }
-                                               NSMutableDictionary *arguments = [NSMutableDictionary dictionary];
-                                               arguments[@"snapshot"] =
-                                                   [parseQuerySnapshot(snapshot) mutableCopy];
-                                               arguments[@"handle"] = handle;
-                                               [weakSelf.channel invokeMethod:@"QuerySnapshot#event"
-                                                                    arguments:arguments];
-                                             }];
-    _listeners[handle] = listener;
-    result(handle);
+    [self queryAddSnapshotListener:call.arguments withMethodCallResult:methodCallResult];
   } else if ([@"DocumentReference#addSnapshotListener" isEqualToString:call.method]) {
-    __block NSNumber *handle = @(_nextListenerHandle++);
-    FIRDocumentReference *document = getDocumentReference(call.arguments);
-    NSNumber *includeMetadataChanges = call.arguments[@"includeMetadataChanges"];
-    id<FIRListenerRegistration> listener = [document
-        addSnapshotListenerWithIncludeMetadataChanges:includeMetadataChanges.boolValue
-                                             listener:^(FIRDocumentSnapshot *snapshot,
-                                                        NSError *_Nullable error) {
-                                               if (snapshot == nil) {
-                                                 // TODO should invokeMethod
-                                                 result(getFlutterError(error));
-                                                 return;
-                                               }
-
-                                               NSMutableDictionary *arguments = [NSMutableDictionary dictionary];
-                                               arguments[@"handle"] = handle;
-                                               arguments[@"snapshot"] = @{
-                                                   @"path": snapshot.reference.path,
-                                                   @"data": snapshot.data,
-                                                   @"metadata": @{
-                                                       @"hasPendingWrites":
-                                                       @(snapshot.metadata.hasPendingWrites),
-                                                       @"isFromCache":
-                                                       @(snapshot.metadata.isFromCache),
-                                                   },
-                                               };
-
-                                               [weakSelf.channel
-                                                   invokeMethod:@"DocumentSnapshot#event"
-                                                      arguments:arguments];
-                                             }];
-    _listeners[handle] = listener;
-    result(handle);
-  } else if ([@"Query#getDocuments" isEqualToString:call.method]) {
-    FIRQuery *query;
-    FIRFirestoreSource source = getSource(call.arguments);
-    @try {
-      query = getQuery(call.arguments);
-    } @catch (NSException *exception) {
-      result([FlutterError errorWithCode:@"invalid_query"
-                                 message:[exception name]
-                                 details:[exception reason]]);
-    }
-
-    [query
-        getDocumentsWithSource:source
-                    completion:^(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error) {
-                      if (snapshot == nil) {
-                        result(getFlutterError(error));
-                        return;
-                      }
-                      result(parseQuerySnapshot(snapshot));
-                    }];
+    [self documentAddSnapshotListener:call.arguments withMethodCallResult:methodCallResult];
+  } else if ([@"Query#get" isEqualToString:call.method]) {
+    [self queryGet:call.arguments withMethodCallResult:methodCallResult];
   } else if ([@"Firestore#removeListener" isEqualToString:call.method]) {
-    NSNumber *handle = call.arguments[@"handle"];
-    [[_listeners objectForKey:handle] remove];
-    [_listeners removeObjectForKey:handle];
-    result(nil);
-    // TODO gone!
-  } else if ([@"WriteBatch#create" isEqualToString:call.method]) {
-    __block NSNumber *handle = [NSNumber numberWithInt:_nextBatchHandle++];
-    FIRWriteBatch *batch = [getFirestore(call.arguments) batch];
-    _batches[handle] = batch;
-    result(handle);
-    // TODO gone!
-  } else if ([@"WriteBatch#setData" isEqualToString:call.method]) {
-    NSNumber *handle = call.arguments[@"handle"];
-    NSDictionary *options = call.arguments[@"options"];
-    FIRDocumentReference *document = getDocumentReference(call.arguments);
-    FIRWriteBatch *batch = [_batches objectForKey:handle];
-    // TODO options always defined
-    if (![options isEqual:[NSNull null]] &&
-        [options[@"merge"] isEqual:[NSNumber numberWithBool:YES]]) {
-      [batch setData:call.arguments[@"data"] forDocument:document merge:YES];
-    } else {
-      [batch setData:call.arguments[@"data"] forDocument:document];
-    }
-    result(nil);
-    // TODO gone!
-  } else if ([@"WriteBatch#updateData" isEqualToString:call.method]) {
-    NSNumber *handle = call.arguments[@"handle"];
-    FIRDocumentReference *document = getDocumentReference(call.arguments);
-    FIRWriteBatch *batch = [_batches objectForKey:handle];
-    [batch updateData:call.arguments[@"data"] forDocument:document];
-    result(nil);
-    // TODO gone!
-  } else if ([@"WriteBatch#delete" isEqualToString:call.method]) {
-    NSNumber *handle = call.arguments[@"handle"];
-    FIRDocumentReference *document = getDocumentReference(call.arguments);
-    FIRWriteBatch *batch = [_batches objectForKey:handle];
-    [batch deleteDocument:document];
-    result(nil);
+    [self removeListener:call.arguments withMethodCallResult:methodCallResult];
   } else if ([@"WriteBatch#commit" isEqualToString:call.method]) {
-    NSNumber *handle = call.arguments[@"handle"];
-    FIRWriteBatch *batch = [_batches objectForKey:handle];
-    [batch commitWithCompletion:defaultCompletionBlock];
-    [_batches removeObjectForKey:handle];
-  } else if ([@"Firestore#enablePersistence" isEqualToString:call.method]) {
-    bool enable = ((NSNumber *) call.arguments[@"enable"]).boolValue;
-    FIRFirestoreSettings *settings = [[FIRFirestoreSettings alloc] init];
-    settings.persistenceEnabled = enable;
-    FIRFirestore *db = getFirestore(call.arguments);
-    db.settings = settings;
-    result(nil);
-  } else if ([@"Firestore#settings" isEqualToString:call.method]) {
-    FIRFirestoreSettings *settings = [[FIRFirestoreSettings alloc] init];
-    if (![call.arguments[@"persistenceEnabled"] isEqual:[NSNull null]]) {
-      settings.persistenceEnabled = ((NSNumber *) call.arguments[@"persistenceEnabled"]).boolValue;
-    }
-    if (![call.arguments[@"host"] isEqual:[NSNull null]]) {
-      settings.host = (NSString *) call.arguments[@"host"];
-    }
-    if (![call.arguments[@"sslEnabled"] isEqual:[NSNull null]]) {
-      settings.sslEnabled = ((NSNumber *) call.arguments[@"sslEnabled"]).boolValue;
-    }
-    if (![call.arguments[@"cacheSizeBytes"] isEqual:[NSNull null]]) {
-      settings.cacheSizeBytes = ((NSNumber *) call.arguments[@"cacheSizeBytes"]).intValue;
-    }
-    FIRFirestore *db = getFirestore(call.arguments);
-    db.settings = settings;
-    result(nil);
+    [self batchCommit:call.arguments withMethodCallResult:methodCallResult];
+  } else if ([@"Firestore#terminate" isEqualToString:call.method]) {
+    [self terminate:call.arguments withMethodCallResult:methodCallResult];
+  } else if ([@"Firestore#enableNetwork" isEqualToString:call.method]) {
+    [self enableNetwork:call.arguments withMethodCallResult:methodCallResult];
+  } else if ([@"Firestore#disableNetwork" isEqualToString:call.method]) {
+    [self disableNetwork:call.arguments withMethodCallResult:methodCallResult];
+  } else if ([@"Firestore#clearPersistence" isEqualToString:call.method]) {
+    [self clearPersistence:call.arguments withMethodCallResult:methodCallResult];
+  } else if ([@"Firestore#waitForPendingWrites" isEqualToString:call.method]) {
+    [self waitForPendingWrites:call.arguments withMethodCallResult:methodCallResult];
+  } else if ([@"Firestore#addSnapshotsInSyncListener" isEqualToString:call.method]) {
+    [self addSnapshotsInSyncListener:call.arguments withMethodCallResult:methodCallResult];
   } else {
-    result(FlutterMethodNotImplemented);
+    methodCallResult.success(FlutterMethodNotImplemented);
   }
 }
+
+#pragma mark - FLTFirebasePlugin
+
+- (void)didReinitializeFirebaseCore:(void (^)(void))completion {
+  [self cleanupWithCompletion:completion];
+}
+
 - (NSDictionary *_Nonnull)pluginConstantsForFIRApp:(FIRApp *)firebase_app {
   return @{};
 }
+
 - (NSString *_Nonnull)firebaseLibraryName {
   return LIBRARY_NAME;
 }
+
 - (NSString *_Nonnull)firebaseLibraryVersion {
   return LIBRARY_VERSION;
 }
+
 - (NSString *_Nonnull)flutterChannelName {
   return kFLTFirebaseFirestoreChannelName;
+}
+
+#pragma mark - Firestore API
+
+- (void)addSnapshotsInSyncListener:(id)arguments
+              withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  __weak __typeof__(self) weakSelf = self;
+  __block NSNumber *handle = arguments[@"handle"];
+  FIRFirestore *firestore = arguments[@"firestore"];
+
+  id listener = ^() {
+    [weakSelf.channel invokeMethod:@"Firestore#snapshotsInSync"
+                         arguments:@{
+                           @"handle" : handle,
+                         }];
+  };
+
+  id<FIRListenerRegistration> listenerRegistration =
+      [firestore addSnapshotsInSyncListener:listener];
+  _listeners[handle] = listenerRegistration;
+  result.success(nil);
+}
+
+- (void)waitForPendingWrites:(id)arguments
+        withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  FIRFirestore *firestore = arguments[@"firestore"];
+  [firestore waitForPendingWritesWithCompletion:^(NSError *error) {
+    if (error != nil) {
+      result.error(nil, nil, nil, error);
+    } else {
+      result.success(nil);
+    }
+  }];
+}
+
+- (void)clearPersistence:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  FIRFirestore *firestore = arguments[@"firestore"];
+  [firestore clearPersistenceWithCompletion:^(NSError *error) {
+    if (error != nil) {
+      result.error(nil, nil, nil, error);
+    } else {
+      result.success(nil);
+    }
+  }];
+}
+
+- (void)terminate:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  FIRFirestore *firestore = arguments[@"firestore"];
+  [firestore terminateWithCompletion:^(NSError *error) {
+    if (error != nil) {
+      result.error(nil, nil, nil, error);
+    } else {
+      [FLTFirebaseFirestoreUtils destroyCachedFIRFirestoreInstanceForKey:firestore.app.name];
+      result.success(nil);
+    }
+  }];
+}
+
+- (void)enableNetwork:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  FIRFirestore *firestore = arguments[@"firestore"];
+  [firestore enableNetworkWithCompletion:^(NSError *error) {
+    if (error != nil) {
+      result.error(nil, nil, nil, error);
+    } else {
+      result.success(nil);
+    }
+  }];
+}
+
+- (void)disableNetwork:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  FIRFirestore *firestore = arguments[@"firestore"];
+  [firestore disableNetworkWithCompletion:^(NSError *error) {
+    if (error != nil) {
+      result.error(nil, nil, nil, error);
+    } else {
+      result.success(nil);
+    }
+  }];
+}
+
+- (void)transactionCreate:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  // TODO implement me
+}
+
+- (void)transactionGet:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  // TODO update me
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    FIRFirestore *firestore = arguments[@"firestore"];
+    NSNumber *transactionId = arguments[@"transactionId"];
+    FIRTransaction *transaction = self->_transactions[transactionId];
+    FIRDocumentReference *document = [firestore documentWithPath:arguments[@"reference"]];
+
+    NSError *error = [[NSError alloc] init];
+    FIRDocumentSnapshot *snapshot = [transaction getDocument:document error:&error];
+
+    if (error != nil) {
+      result.error(nil, nil, nil, error);
+    } else if (snapshot != nil) {
+      result.success(snapshot);
+    } else {
+      result.success(nil);
+    }
+  });
+}
+
+- (void)documentSet:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  id data = arguments[@"data"];
+  FIRDocumentReference *document = arguments[@"reference"];
+
+  NSDictionary *options = arguments[@"options"];
+  void (^completionBlock)(NSError *) = ^(NSError *error) {
+    if (error != nil) {
+      result.error(nil, nil, nil, error);
+    } else {
+      result.success(nil);
+    }
+  };
+
+  if ([options[@"merge"] isEqual:@YES]) {
+    [document setData:data merge:YES completion:completionBlock];
+  } else if (![options[@"mergeFields"] isEqual:[NSNull null]]) {
+    [document setData:data mergeFields:options[@"mergeFields"] completion:completionBlock];
+  } else {
+    [document setData:data completion:completionBlock];
+  }
+}
+
+- (void)documentUpdate:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  id data = arguments[@"data"];
+  FIRDocumentReference *document = arguments[@"reference"];
+
+  [document updateData:data
+            completion:^(NSError *error) {
+              if (error != nil) {
+                result.error(nil, nil, nil, error);
+              } else {
+                result.success(nil);
+              }
+            }];
+}
+
+- (void)documentDelete:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  FIRDocumentReference *document = arguments[@"reference"];
+
+  [document deleteDocumentWithCompletion:^(NSError *error) {
+    if (error != nil) {
+      result.error(nil, nil, nil, error);
+    } else {
+      result.success(nil);
+    }
+  }];
+}
+
+- (void)documentGet:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  FIRDocumentReference *document = arguments[@"reference"];
+  FIRFirestoreSource source = [FLTFirebaseFirestoreUtils FIRFirestoreSourceFromArguments:arguments];
+  id completion = ^(FIRDocumentSnapshot *_Nullable snapshot, NSError *_Nullable error) {
+    if (error != nil) {
+      result.error(nil, nil, nil, error);
+    } else {
+      result.success(snapshot);
+    }
+  };
+
+  [document getDocumentWithSource:source completion:completion];
+}
+
+- (void)queryAddSnapshotListener:(id)arguments
+            withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  __weak __typeof__(self) weakSelf = self;
+  FIRQuery *query = arguments[@"query"];
+
+  // TODO if query nil
+
+  __block NSNumber *handle = arguments[@"handle"];
+  NSNumber *includeMetadataChanges = arguments[@"includeMetadataChanges"];
+
+  id listener = ^(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error) {
+    if (error != nil) {
+      NSArray *codeAndMessage = [FLTFirebaseFirestoreUtils ErrorCodeAndMessageFromNSError:error];
+      [weakSelf.channel
+          invokeMethod:@"QuerySnapshot#error"
+             arguments:@{
+               @"handle" : handle,
+               @"error" : @{@"code" : codeAndMessage[0], @"message" : codeAndMessage[1]},
+             }];
+    } else if (snapshot != nil) {
+      [weakSelf.channel invokeMethod:@"QuerySnapshot#event"
+                           arguments:@{
+                             @"handle" : handle,
+                             @"snapshot" : snapshot,
+                           }];
+    }
+  };
+
+  id<FIRListenerRegistration> listenerRegistration =
+      [query addSnapshotListenerWithIncludeMetadataChanges:includeMetadataChanges.boolValue
+                                                  listener:listener];
+
+  _listeners[handle] = listenerRegistration;
+  result.success(nil);
+}
+
+- (void)documentAddSnapshotListener:(id)arguments
+               withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  __weak __typeof__(self) weakSelf = self;
+
+  __block NSNumber *handle = arguments[@"handle"];
+  NSNumber *includeMetadataChanges = arguments[@"includeMetadataChanges"];
+
+  FIRDocumentReference *document = arguments[@"reference"];
+
+  id listener = ^(FIRDocumentSnapshot *snapshot, NSError *_Nullable error) {
+    if (error != nil) {
+      NSArray *codeAndMessage = [FLTFirebaseFirestoreUtils ErrorCodeAndMessageFromNSError:error];
+      [weakSelf.channel
+          invokeMethod:@"DocumentSnapshot#error"
+             arguments:@{
+               @"handle" : handle,
+               @"error" : @{@"code" : codeAndMessage[0], @"message" : codeAndMessage[1]},
+             }];
+    } else if (snapshot != nil) {
+      [weakSelf.channel invokeMethod:@"DocumentSnapshot#event"
+                           arguments:@{
+                             @"handle" : handle,
+                             @"snapshot" : snapshot,
+                           }];
+    }
+  };
+
+  id<FIRListenerRegistration> listenerRegistration =
+      [document addSnapshotListenerWithIncludeMetadataChanges:includeMetadataChanges.boolValue
+                                                     listener:listener];
+
+  _listeners[handle] = listenerRegistration;
+  result.success(nil);
+}
+
+- (void)queryGet:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  FIRQuery *query = arguments[@"query"];
+  // TODO if query nil
+
+  FIRFirestoreSource source = [FLTFirebaseFirestoreUtils FIRFirestoreSourceFromArguments:arguments];
+  [query getDocumentsWithSource:source
+                     completion:^(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error) {
+                       if (error != nil) {
+                         result.error(nil, nil, nil, error);
+                       } else {
+                         result.success(snapshot);
+                       }
+                     }];
+}
+
+- (void)removeListener:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  NSNumber *handle = arguments[@"handle"];
+  if (_listeners[handle] != nil) {
+    [_listeners[handle] remove];
+    [_listeners removeObjectForKey:handle];
+  }
+  result.success(nil);
+}
+
+- (void)batchCommit:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
+  // TODO implement
+  result.success(nil);
 }
 
 @end

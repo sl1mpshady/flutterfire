@@ -194,7 +194,7 @@ public class CloudFirestorePlugin
       change.put("type", type);
       change.put("oldIndex", documentChange.getOldIndex());
       change.put("newIndex", documentChange.getNewIndex());
-      change.put("document", documentChange.getDocument().getData());
+      change.put("data", documentChange.getDocument().getData());
       change.put("path", documentChange.getDocument().getReference().getPath());
       Map<String, Object> metadata = new HashMap<>();
       metadata.put(
@@ -628,7 +628,7 @@ public class CloudFirestorePlugin
       case "Query#addSnapshotListener":
         methodCallTask = queryAddSnapshotListener(call.arguments());
         break;
-      case "Query#getDocuments":
+      case "Query#get":
         methodCallTask = queryGetDocuments(call.arguments());
         break;
       case "DocumentReference#addSnapshotListener":
@@ -637,10 +637,10 @@ public class CloudFirestorePlugin
       case "DocumentReference#get":
         methodCallTask = documentReferenceGetData(call.arguments());
         break;
-      case "DocumentReference#setData":
+      case "DocumentReference#set":
         methodCallTask = documentReferenceSetData(call.arguments());
         break;
-      case "DocumentReference#updateData":
+      case "DocumentReference#update":
         methodCallTask = documentReferenceUpdateData(call.arguments());
         break;
       case "DocumentReference#delete":
@@ -802,10 +802,6 @@ public class CloudFirestorePlugin
   private Source getSource(Map<String, Object> arguments) {
     String source = (String) arguments.get("source");
 
-    if (source == null) {
-      return Source.DEFAULT;
-    }
-
     switch (source) {
       case "server":
         return Source.SERVER;
@@ -855,11 +851,9 @@ public class CloudFirestorePlugin
     }
 
     // "limit" filters
-    @SuppressWarnings("unchecked")
     Number limit = (Number) parameters.get("limit");
     if (limit != null) query = query.limit(limit.longValue());
 
-    @SuppressWarnings("unchecked")
     Number limitToLast = (Number) parameters.get("limitToLast");
     if (limitToLast != null) query = query.limitToLast(limitToLast.longValue());
 

@@ -7,9 +7,11 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-
 import 'package:cloud_firestore_platform_interface/src/internal/field_path_type.dart';
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_field_value.dart';
+
+import '../method_channel_query.dart';
+import '../method_channel_firestore.dart';
 
 /// The codec utilized to encode data back and forth between
 /// the Dart application and the native platform.
@@ -30,6 +32,13 @@ class FirestoreMessageCodec extends StandardMessageCodec {
   static const int _kIncrementInteger = 138;
   static const int _kDocumentId = 139;
   static const int _kFieldPath = 140;
+
+  static const int _kNaN = 141;
+  static const int _kInfinity = 142;
+  static const int _kNegativeInfinity = 143;
+  static const int _kFirestoreInstance = 144;
+  static const int _kFirestoreQuery = 145;
+  static const int _kFirestoreSettings = 146;
 
   static const Map<FieldValueType, int> _kFieldValueCodes =
       <FieldValueType, int>{
@@ -60,12 +69,8 @@ class FirestoreMessageCodec extends StandardMessageCodec {
       buffer.putFloat64(value.longitude);
     } else if (value is DocumentReferencePlatform) {
       buffer.putUint8(_kDocumentReference);
-      final List<int> appName = utf8.encoder.convert(value.firestore.app.name);
-      writeSize(buffer, appName.length);
-      buffer.putUint8List(appName);
-      final List<int> bytes = utf8.encoder.convert(value.path);
-      writeSize(buffer, bytes.length);
-      buffer.putUint8List(bytes);
+      writeValue(buffer, value.firestore);
+      writeValue(buffer, value.path);
     } else if (value is Blob) {
       buffer.putUint8(_kBlob);
       writeSize(buffer, value.bytes.length);
@@ -86,6 +91,21 @@ class FirestoreMessageCodec extends StandardMessageCodec {
       for (final String item in value.components) {
         writeValue(buffer, item);
       }
+    } else if (value is MethodChannelFirestore) {
+      buffer.putUint8(_kFirestoreInstance);
+      writeValue(buffer, value.app.name);
+      writeValue(buffer, value.settings);
+    } else if (value is MethodChannelQuery) {
+      buffer.putUint8(_kFirestoreQuery);
+      writeValue(buffer, <String, dynamic>{
+        'firestore': value.firestore,
+        'path': value.path,
+        'isCollectionGroup': value.isCollectionGroupQuery,
+        'parameters': value.parameters,
+      });
+    } else if (value is Settings) {
+      buffer.putUint8(_kFirestoreSettings);
+      writeValue(buffer, value.asMap);
     } else {
       super.writeValue(buffer, value);
     }

@@ -72,12 +72,10 @@ class CloudFirestoreMessageCodec extends StandardMessageCodec {
         readAlignment(buffer, 8);
         return new GeoPoint(buffer.getDouble(), buffer.getDouble());
       case DOCUMENT_REFERENCE:
-        final byte[] appNameBytes = readBytes(buffer);
-        String appName = new String(appNameBytes, UTF8);
+        String appName = (String) readValue(buffer);
         final FirebaseFirestore firestore =
             FirebaseFirestore.getInstance(FirebaseApp.getInstance(appName));
-        final byte[] pathBytes = readBytes(buffer);
-        final String path = new String(pathBytes, UTF8);
+        final String path = (String) readValue(buffer);
         return firestore.document(path);
       case BLOB:
         final byte[] bytes = readBytes(buffer);
@@ -112,7 +110,7 @@ class CloudFirestoreMessageCodec extends StandardMessageCodec {
 
   private Object[] toArray(Object source) {
     if (source instanceof List) {
-      return ((List) source).toArray();
+      return ((List<?>) source).toArray();
     }
 
     if (source == null) {

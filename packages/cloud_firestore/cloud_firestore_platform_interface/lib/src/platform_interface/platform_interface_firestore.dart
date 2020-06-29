@@ -137,13 +137,16 @@ abstract class FirestorePlatform extends PlatformInterface {
     throw UnimplementedError('runTransaction() is not implemented');
   }
 
-  /// Setup [FirestorePlatform] with settings.
+  /// Get the current [Settings] for this [FirestorePlatform] instance.
+  Settings get settings {
+    throw UnimplementedError('settings getter is not implemented');
+  }
+
+  /// Specifies custom settings to be used to configure this [FirestorePlatform] instance.
   ///
-  /// If [sslEnabled] has a non-null value, the [host] must have non-null value as well.
-  ///
-  /// If [cacheSizeBytes] is `null`, then default values are used.
-  Future<void> settings(Settings settings) {
-    throw UnimplementedError('settings() is not implemented');
+  /// You must set these before invoking any other methods on this [FirestorePlatform] instance.
+  set settings(Settings settings) {
+    throw UnimplementedError('settings setter is not implemented');
   }
 
   /// Terminates this [FirestorePlatform] instance.

@@ -90,9 +90,12 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
         Map<String, dynamic>.from(arguments['user']);
 
     if (user == null) {
+      currentUser = null;
       streamController.add(null);
     } else {
-      streamController.add(MethodChannelUser(this, user));
+      MethodChannelUser methodChannelUser = MethodChannelUser(this, user);
+      currentUser = methodChannelUser;
+      streamController.add(methodChannelUser);
     }
   }
 
@@ -175,7 +178,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
             'Auth#checkActionCode', <String, dynamic>{
       'appName': app.name,
       'code': code,
-    });
+    }).catchError(catchPlatformException);
 
     return ActionCodeInfo(
       operation: result['operation'],
@@ -190,7 +193,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       'appName': app.name,
       'code': code,
       'newPassword': newPassword,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -212,7 +215,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
         'Auth#fetchSignInMethodsForEmail', <String, dynamic>{
       'appName': app.name,
       'email': email,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -230,7 +233,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
         .invokeMethod<void>('Auth#sendPasswordResetEmail', <String, dynamic>{
       'appName': app.name,
       'actionCodeSettings': actionCodeSettings?.asMap(),
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -241,7 +244,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       'appName': app.name,
       'email': email,
       'actionCodeSettings': actionCodeSettings.asMap(),
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -264,7 +267,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     Map<String, dynamic> data = await channel.invokeMapMethod<String, dynamic>(
         'Auth#signInAnonymously', <String, dynamic>{
       'appName': app.name,
-    });
+    }).catchError(catchPlatformException);
 
     return MethodChannelUserCredential(this, data);
   }
@@ -276,7 +279,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
         'Auth#signInWithCredential', <String, dynamic>{
       'appName': app.name,
       'credential': credential.asMap(),
-    });
+    }).catchError(catchPlatformException);
 
     return MethodChannelUserCredential(this, data);
   }
@@ -287,7 +290,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
         'Auth#signInWithCustomToken', <String, dynamic>{
       'appName': app.name,
       'token': token,
-    });
+    }).catchError(catchPlatformException);
 
     return MethodChannelUserCredential(this, data);
   }
@@ -300,7 +303,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       'appName': app.name,
       'email': email,
       'password': password,
-    });
+    }).catchError(catchPlatformException);
 
     return MethodChannelUserCredential(this, data);
   }
@@ -313,7 +316,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       'appName': app.name,
       'email': email,
       'emailLink': emailLink,
-    });
+    }).catchError(catchPlatformException);
 
     return MethodChannelUserCredential(this, data);
   }
@@ -334,7 +337,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     await channel
         .invokeMapMethod<String, dynamic>('Auth#signOut', <String, dynamic>{
       'appName': app.name,
-    });
+    }).catchError(catchPlatformException);
   }
 
   Future<String> verifyPasswordResetCode(String code) {
@@ -342,7 +345,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
         .invokeMethod<String>('Auth#verifyPasswordResetCode', <String, dynamic>{
       'appName': app.name,
       'code': code,
-    });
+    }).catchError(catchPlatformException);
   }
 
   Future<void> verifyPhoneNumber({
@@ -366,6 +369,6 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       'phoneNumber': phoneNumber,
       'timeout': timeout.inMilliseconds,
       'forceResendingToken': forceResendingToken,
-    });
+    }).catchError(catchPlatformException);
   }
 }

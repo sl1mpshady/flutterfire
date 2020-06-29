@@ -9,6 +9,8 @@ import 'package:firebase_auth_platform_interface/src/method_channel/method_chann
 import 'package:firebase_auth_platform_interface/src/method_channel/method_channel_user_credential.dart';
 import 'package:firebase_auth_platform_interface/src/platform_interface/platform_interface_user.dart';
 
+import 'utils/exception.dart';
+
 class MethodChannelUser extends UserPlatform {
   MethodChannelUser(FirebaseAuthPlatform auth, Map<String, dynamic> data)
       : super(auth, data);
@@ -18,7 +20,7 @@ class MethodChannelUser extends UserPlatform {
     return MethodChannelFirebaseAuth.channel
         .invokeMethod<void>('User#delete', <String, dynamic>{
       'appName': auth.app.name,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -28,7 +30,7 @@ class MethodChannelUser extends UserPlatform {
       'appName': auth.app.name,
       'forceRefresh': forceRefresh,
       'tokenOnly': true,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -38,7 +40,7 @@ class MethodChannelUser extends UserPlatform {
       'appName': auth.app.name,
       'forceRefresh': forceRefresh,
       'tokenOnly': false,
-    });
+    }).catchError(catchPlatformException);
 
     return IdTokenResult(data);
   }
@@ -50,7 +52,7 @@ class MethodChannelUser extends UserPlatform {
         .invokeMapMethod('User#linkWithCredential', <String, dynamic>{
       'appName': auth.app.name,
       'credential': credential.asMap(),
-    });
+    }).catchError(catchPlatformException);
 
     return MethodChannelUserCredential(auth, data);
   }
@@ -62,7 +64,7 @@ class MethodChannelUser extends UserPlatform {
         .invokeMapMethod('User#reauthenticateWithCredential', <String, dynamic>{
       'appName': auth.app.name,
       'credential': credential.asMap(),
-    });
+    }).catchError(catchPlatformException);
 
     return MethodChannelUserCredential(auth, data);
   }
@@ -72,7 +74,7 @@ class MethodChannelUser extends UserPlatform {
     return MethodChannelFirebaseAuth.channel
         .invokeMethod<void>('User#reload', <String, dynamic>{
       'appName': auth.app.name,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -82,7 +84,7 @@ class MethodChannelUser extends UserPlatform {
         'User#sendEmailVerification', <String, dynamic>{
       'appName': auth.app.name,
       'actionCodeSettings': actionCodeSettings?.asMap()
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -91,7 +93,7 @@ class MethodChannelUser extends UserPlatform {
         .invokeMapMethod<String, dynamic>('User#unlink', <String, dynamic>{
       'appName': auth.app.name,
       'providerId': providerId,
-    });
+    }).catchError(catchPlatformException);
 
     return MethodChannelUser(auth, data);
   }
@@ -102,7 +104,7 @@ class MethodChannelUser extends UserPlatform {
         .invokeMethod<void>('User#updateEmail', <String, dynamic>{
       'appName': auth.app.name,
       'newEmail': newEmail,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -111,7 +113,7 @@ class MethodChannelUser extends UserPlatform {
         .invokeMethod<void>('User#updateProfile', <String, dynamic>{
       'appName': auth.app.name,
       'profile': profile,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -122,6 +124,6 @@ class MethodChannelUser extends UserPlatform {
       'appName': auth.app.name,
       'newEmail': newEmail,
       'actionCodeSettings': actionCodeSettings?.asMap(),
-    });
+    }).catchError(catchPlatformException);
   }
 }

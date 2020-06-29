@@ -607,6 +607,20 @@ public class FirebaseAuthPlugin
         });
   }
 
+  private Task<Map<String, Object>> signInWithEmailAndPassword(Map<String, Object> arguments) {
+    return Tasks.call(
+        cachedThreadPool,
+        () -> {
+          FirebaseAuth firebaseAuth = getAuth(arguments);
+          String email = (String) Objects.requireNonNull(arguments.get("email"));
+          String password = (String) Objects.requireNonNull(arguments.get("password"));
+
+          AuthResult authResult =
+              Tasks.await(firebaseAuth.signInWithEmailAndPassword(email, password));
+          return parseAuthResult(authResult);
+        });
+  }
+
   private Task<Map<String, Object>> signInWithEmailAndLink(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
@@ -876,6 +890,9 @@ public class FirebaseAuthPlugin
         break;
       case "Auth#signInWithCustomToken":
         methodCallTask = signInWithCustomToken(call.arguments());
+        break;
+      case "Auth#signInWithEmailAndPassword":
+        methodCallTask = signInWithEmailAndPassword(call.arguments());
         break;
       case "Auth#signInWithEmailAndLink":
         methodCallTask = signInWithEmailAndLink(call.arguments());

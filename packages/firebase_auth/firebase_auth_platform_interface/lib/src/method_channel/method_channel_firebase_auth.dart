@@ -216,7 +216,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   Future<UserCredentialPlatform> signInWithCredential(
       AuthCredential credential) async {
     Map<String, dynamic> data = await channel.invokeMapMethod<String, dynamic>(
-        'Auth#signInWithCustomToken', <String, dynamic>{
+        'Auth#signInWithCredential', <String, dynamic>{
       'appName': app.name,
       'credential': credential.asMap(),
     });
@@ -236,6 +236,19 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   }
 
   @override
+  Future<UserCredentialPlatform> signInWithEmailAndPassword(
+      String email, String password) async {
+    Map<String, dynamic> data = await channel.invokeMapMethod<String, dynamic>(
+        'Auth#signInWithEmailAndPassword', <String, dynamic>{
+      'appName': app.name,
+      'email': email,
+      'password': password,
+    });
+
+    return MethodChannelUserCredential(this, data);
+  }
+
+  @override
   Future<UserCredentialPlatform> signInWithEmailAndLink(
       String email, String emailLink) async {
     Map<String, dynamic> data = await channel.invokeMapMethod<String, dynamic>(
@@ -249,13 +262,13 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   }
 
   @override
-  Future<UserCredentialPlatform> signInWithPopup() {
+  Future<UserCredentialPlatform> signInWithPopup(AuthProvider provider) {
     throw UnimplementedError(
         'signInWithPopup() is only supported on web based platforms');
   }
 
   @override
-  Future<UserCredentialPlatform> signInWithRedirect() {
+  Future<UserCredentialPlatform> signInWithRedirect(AuthProvider provider) {
     throw UnimplementedError(
         'signInWithRedirect() is only supported on web based platforms');
   }

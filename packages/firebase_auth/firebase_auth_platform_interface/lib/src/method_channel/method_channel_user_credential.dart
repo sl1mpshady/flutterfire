@@ -21,7 +21,6 @@ class MethodChannelUserCredential extends UserCredentialPlatform {
             providerId: data['authCredential']['providerId'],
             signInMethod: data['authCredential']['signInMethod'],
           ),
-          operationType: data['operationType'],
           user: MethodChannelUser(auth, data['user']),
         );
 }

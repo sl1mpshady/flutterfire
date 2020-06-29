@@ -275,15 +275,12 @@ class FirebaseAuth extends FirebasePluginPlatform {
   Future<UserCredential> signInWithEmailAndPassword({
     @required String email,
     @required String password,
-  }) {
+  }) async {
     assert(email != null);
     assert(password != null);
 
-    // TODO
-    // return signInWithCredential(EmailAuthProvider.getCredential(
-    //   email: email,
-    //   password: password,
-    // ));
+    return UserCredential._(
+        this, await _delegate.signInWithEmailAndPassword(email, password));
   }
 
   /// Signs in using an email address and email sign-in link.
@@ -296,12 +293,12 @@ class FirebaseAuth extends FirebasePluginPlatform {
         this, await _delegate.signInWithEmailAndLink(email, emailLink));
   }
 
-  Future<UserCredential> signInWithPopup() {
-    // TODO
+  Future<UserCredential> signInWithPopup(AuthProvider provider) async {
+    return UserCredential._(this, await _delegate.signInWithPopup(provider));
   }
 
-  Future<UserCredential> signInWithRedirect() {
-    // TODO
+  Future<UserCredential> signInWithRedirect(AuthProvider provider) async {
+    return UserCredential._(this, await _delegate.signInWithRedirect(provider));
   }
 
   /// Signs out the current user.

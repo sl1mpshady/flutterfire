@@ -229,17 +229,22 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
     throw UnimplementedError('signInWithCustomToken() is not implemented');
   }
 
+  Future<UserCredentialPlatform> signInWithEmailAndPassword(
+      String email, String password) async {
+    throw UnimplementedError('signInWithEmailAndPassword() is not implemented');
+  }
+
   /// Signs in using an email address and email sign-in link.
   Future<UserCredentialPlatform> signInWithEmailAndLink(
       String email, String emailLink) async {
     throw UnimplementedError('signInWithEmailAndLink() is not implemented');
   }
 
-  Future<UserCredentialPlatform> signInWithPopup() {
+  Future<UserCredentialPlatform> signInWithPopup(AuthProvider provider) {
     throw UnimplementedError('signInWithPopup() is not implemented');
   }
 
-  Future<UserCredentialPlatform> signInWithRedirect() {
+  Future<UserCredentialPlatform> signInWithRedirect(AuthProvider provider) {
     throw UnimplementedError('signInWithRedirect() is not implemented');
   }
 
@@ -247,7 +252,7 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
   Future<void> signOut() async {
     throw UnimplementedError('signOut() is not implemented');
   }
-  
+
   /// Checks a password reset code sent to the user by email or other out-of-band mechanism.
   ///
   /// Returns the user's email address if valid.

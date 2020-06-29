@@ -12,7 +12,6 @@ class FirebaseAuth extends FirebasePluginPlatform {
   FirebaseAuthPlatform _delegatePackingProperty;
 
   FirebaseAuthPlatform get _delegate {
-    print('pluginConstants $pluginConstants');
     if (_delegatePackingProperty == null) {
       _delegatePackingProperty = FirebaseAuthPlatform.instanceFor(
           app: app, pluginConstants: pluginConstants);

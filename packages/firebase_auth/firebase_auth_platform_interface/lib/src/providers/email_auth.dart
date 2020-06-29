@@ -3,14 +3,14 @@
 // found in the LICENSE file.
 
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
+import 'package:firebase_auth_platform_interface/src/auth_provider.dart';
 import 'package:meta/meta.dart';
 
 const _kLinkProviderId = 'emailLink';
 const _kProviderId = 'password';
 
-// TODO code docs
-abstract class EmailAuthProvider {
-  final String providerId = 'password';
+abstract class EmailAuthProvider extends AuthProvider {
+  EmailAuthProvider() : super(_kProviderId);
 
   static String get EMAIL_LINK_SIGN_IN_METHOD {
     return _kLinkProviderId;

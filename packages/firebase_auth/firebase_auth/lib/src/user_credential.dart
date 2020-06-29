@@ -21,10 +21,6 @@ class UserCredential {
     return _delegate.credential;
   }
 
-  String get operationType {
-    return _delegate.operationType;
-  }
-
   User get user {
     return User._(_auth, _delegate.user);
   }

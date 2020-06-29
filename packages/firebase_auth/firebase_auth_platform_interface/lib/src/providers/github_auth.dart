@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
+import 'package:firebase_auth_platform_interface/src/auth_provider.dart';
 import 'package:flutter/material.dart';
 
 const _kProviderId = 'github.com';
@@ -34,8 +35,8 @@ const _kProviderId = 'github.com';
 /// FirebaseAuth.instance.signInWithCredential(githubAuthCredential)
 ///   .then(...);
 /// ```
-class GithubAuthProvider {
-  final String providerId = _kProviderId;
+class GithubAuthProvider extends AuthProvider {
+  GithubAuthProvider() : super(_kProviderId);
 
   /// This corresponds to the sign-in method identifier.
   static String get GITHUB_SIGN_IN_METHOD {

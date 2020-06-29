@@ -11,29 +11,48 @@ enum ActionCodeInfoOperation {
   revertSecondFactorAddition,
   verifyAndChangeEmail,
   verifyEmail,
-  error,
 }
 
 class ActionCodeInfo {
   ActionCodeInfo({
-    this.operation,
+    int operation,
     Map<String, dynamic> data,
-  }) : _data = data;
+  })  : _operation = operation,
+        _data = data;
+
+  int _operation;
 
   Map<String, dynamic> _data;
 
-  final ActionCodeInfoOperation operation;
+  ActionCodeInfoOperation get operation {
+    switch (_operation) {
+      case 4:
+        return ActionCodeInfoOperation.emailSignIn;
+      case 0:
+        return ActionCodeInfoOperation.passwordReset;
+      case 2:
+        return ActionCodeInfoOperation.recoverEmail;
+      case 6:
+        return ActionCodeInfoOperation.revertSecondFactorAddition;
+      case 5:
+        return ActionCodeInfoOperation.verifyAndChangeEmail;
+      case 1:
+        return ActionCodeInfoOperation.verifyEmail;
+      default:
+        throw FallThroughError();
+    }
+  }
 
   Map<String, dynamic> get data {
     return <String, dynamic>{
       'email': _data['email'],
-      'fromEmail': _data['fromEmail'],
       'previousEmail': _data['previousEmail'],
       'multiFactorInfo': _data['multiFactorInfo'] == null
           ? null
           : MultiFactorInfo(
               displayName: _data['multiFactorInfo']['displayName'],
-              enrollmentTime: _data['multiFactorInfo']['enrollmentTime'],
+              enrollmentTimestamp: _data['multiFactorInfo']
+                  ['enrollmentTimestamp'],
               factorId: _data['multiFactorInfo']['factorId'],
               uid: _data['multiFactorInfo']['uid'],
             ),

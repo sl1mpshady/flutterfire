@@ -3,10 +3,13 @@
 // found in the LICENSE file.
 
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
+import 'package:firebase_auth_platform_interface/src/auth_provider.dart';
 import 'package:meta/meta.dart';
 
-class OAuthProvider {
-  OAuthProvider(this.providerId) : assert(providerId != null);
+class OAuthProvider extends AuthProvider {
+  OAuthProvider(this.providerId)
+      : assert(providerId != null),
+        super(providerId);
 
   final String providerId;
 
@@ -37,13 +40,15 @@ class OAuthProvider {
     return this;
   }
 
-  /// Create a new [FacebookAuthCredential] from a provided [accessToken];
-  OAuthCredential credential({String accessToken, String idToken}) {
+  /// Create a new [OAuthCredential] from a provided [accessToken];
+  OAuthCredential credential(
+      {String accessToken, String idToken, String rawNonce}) {
     return OAuthCredential(
       providerId: providerId,
       signInMethod: 'custom',
       accessToken: accessToken,
       idToken: idToken,
+      rawNonce: rawNonce,
     );
   }
 
@@ -55,13 +60,14 @@ class OAuthProvider {
 
 class OAuthCredential extends AuthCredential {
   @protected
-  const OAuthCredential(
-      {@required String providerId,
-      @required String signInMethod,
-      this.accessToken,
-      this.idToken,
-      this.secret})
-      : assert(providerId != null),
+  const OAuthCredential({
+    @required String providerId,
+    @required String signInMethod,
+    this.accessToken,
+    this.idToken,
+    this.secret,
+    this.rawNonce,
+  })  : assert(providerId != null),
         assert(signInMethod != null),
         super(providerId: providerId, signInMethod: signInMethod);
 
@@ -77,6 +83,11 @@ class OAuthCredential extends AuthCredential {
   /// to an OAuth 1.0 provider, such as `twitter.com`.
   final String secret;
 
+  /// The raw nonce associated with the ID token. It is required when an ID token
+  /// with a nonce field is provided. The SHA-256 hash of the raw nonce must
+  /// match the nonce field in the ID token.
+  final String rawNonce;
+
   @override
   Map<String, dynamic> asMap() {
     return <String, dynamic>{
@@ -84,6 +95,7 @@ class OAuthCredential extends AuthCredential {
       'idToken': idToken,
       'accessToken': accessToken,
       'secret': secret,
+      'rawNonce': rawNonce,
     };
   }
 }

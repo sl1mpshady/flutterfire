@@ -6,16 +6,19 @@
 class MultiFactorInfo {
   const MultiFactorInfo({
     this.displayName,
-    this.enrollmentTime,
+    int enrollmentTimestamp,
     this.factorId,
     this.uid,
-  });
+  }) : _enrollmentTimestamp = enrollmentTimestamp;
+
+  final int _enrollmentTimestamp;
 
   /// The user friendly name of the current second factor.
   final String displayName;
 
-  /// The enrollment date of the second factor formatted as a UTC string.
-  final String enrollmentTime;
+  /// The enrollment date of the second factor.
+  DateTime get enrollmentTime =>
+      DateTime.fromMillisecondsSinceEpoch(_enrollmentTimestamp);
 
   /// The identifier of the second factor.
   final String factorId;

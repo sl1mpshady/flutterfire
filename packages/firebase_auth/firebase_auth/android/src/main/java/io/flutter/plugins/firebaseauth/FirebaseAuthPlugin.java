@@ -12,7 +12,9 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.ActionCodeEmailInfo;
 import com.google.firebase.auth.ActionCodeInfo;
+import com.google.firebase.auth.ActionCodeMultiFactorInfo;
 import com.google.firebase.auth.ActionCodeResult;
 import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.AdditionalUserInfo;
@@ -26,6 +28,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.GithubAuthProvider;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.MultiFactorInfo;
 import com.google.firebase.auth.OAuthProvider;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.auth.TwitterAuthProvider;
@@ -63,6 +66,7 @@ public class FirebaseAuthPlugin
   private MethodChannel channel;
   private Activity activity;
 
+  @SuppressWarnings("unused")
   public static void registerWith(PluginRegistry.Registrar registrar) {
     FirebaseAuthPlugin instance = new FirebaseAuthPlugin();
     instance.registrar = registrar;
@@ -120,10 +124,10 @@ public class FirebaseAuthPlugin
   // Ensure any listeners are removed when the app
   // is detached from the FlutterEngine
   private void removeEventListeners() {
-    Iterator authListenerIterator = mAuthListeners.entrySet().iterator();
+    Iterator<?> authListenerIterator = mAuthListeners.entrySet().iterator();
 
     while (authListenerIterator.hasNext()) {
-      Map.Entry pair = (Map.Entry) authListenerIterator.next();
+      Map.Entry<?, ?> pair = (Map.Entry<?, ?>) authListenerIterator.next();
       String appName = (String) pair.getKey();
       FirebaseApp firebaseApp = FirebaseApp.getInstance(appName);
       FirebaseAuth firebaseAuth = FirebaseAuth.getInstance(firebaseApp);
@@ -133,10 +137,10 @@ public class FirebaseAuthPlugin
       authListenerIterator.remove();
     }
 
-    Iterator idTokenListenerIterator = mIdTokenListeners.entrySet().iterator();
+    Iterator<?> idTokenListenerIterator = mIdTokenListeners.entrySet().iterator();
 
     while (idTokenListenerIterator.hasNext()) {
-      Map.Entry pair = (Map.Entry) idTokenListenerIterator.next();
+      Map.Entry<?, ?> pair = (Map.Entry<?, ?>) idTokenListenerIterator.next();
       String appName = (String) pair.getKey();
       FirebaseApp firebaseApp = FirebaseApp.getInstance(appName);
       FirebaseAuth firebaseAuth = FirebaseAuth.getInstance(firebaseApp);
@@ -165,6 +169,7 @@ public class FirebaseAuthPlugin
     String secret = credentialMap.get("secret");
     String idToken = credentialMap.get("idToken");
     String accessToken = credentialMap.get("accessToken");
+    String rawNonce = credentialMap.get("rawNonce");
 
     switch (providerId) {
       case "password":
@@ -184,7 +189,13 @@ public class FirebaseAuthPlugin
         {
           OAuthProvider.CredentialBuilder builder = OAuthProvider.newCredentialBuilder(providerId);
           builder.setAccessToken(accessToken);
-          // TODO where does secret go?
+
+          if (rawNonce == null) {
+            builder.setIdToken(idToken);
+          } else {
+            builder.setIdTokenWithRawNonce(idToken, rawNonce);
+          }
+
           return builder.build();
         }
       default:
@@ -196,13 +207,42 @@ public class FirebaseAuthPlugin
     Map<String, Object> output = new HashMap<>();
     Map<String, Object> data = new HashMap<>();
 
-    output.put("operation", actionCodeResult.getOperation());
+    int operation = actionCodeResult.getOperation();
+    output.put("operation", operation);
 
-    // TODO not sure how this works yet
-    ActionCodeInfo info = actionCodeResult.getInfo();
-    data.put("email", info.getEmail());
+    if (operation == ActionCodeResult.VERIFY_EMAIL
+        || operation == ActionCodeResult.PASSWORD_RESET) {
+      ActionCodeInfo actionCodeInfo = actionCodeResult.getInfo();
+      data.put("email", actionCodeInfo.getEmail());
+      data.put("previousEmail", null);
+      data.put("multiFactorInfo", null);
+    } else if (operation == ActionCodeResult.REVERT_SECOND_FACTOR_ADDITION) {
+      ActionCodeMultiFactorInfo actionCodeMultiFactorInfo =
+          (ActionCodeMultiFactorInfo) actionCodeResult.getInfo();
+      data.put("email", null);
+      data.put("previousEmail", null);
+      data.put(
+          "multiFactorInfo", parseMultiFactorInfo(actionCodeMultiFactorInfo.getMultiFactorInfo()));
+    } else if (operation == ActionCodeResult.RECOVER_EMAIL
+        || operation == ActionCodeResult.VERIFY_BEFORE_CHANGE_EMAIL) {
+      ActionCodeEmailInfo actionCodeEmailInfo = (ActionCodeEmailInfo) actionCodeResult.getInfo();
+      data.put("email", actionCodeEmailInfo.getEmail());
+      data.put("previousEmail", actionCodeEmailInfo.getPreviousEmail());
+      data.put("multiFactorInfo", null);
+    }
 
     output.put("data", data);
+    return output;
+  }
+
+  private Map<String, Object> parseMultiFactorInfo(@NonNull MultiFactorInfo multiFactorInfo) {
+    Map<String, Object> output = new HashMap<>();
+
+    output.put("displayName", multiFactorInfo.getDisplayName());
+    output.put("enrollmentTimestamp", multiFactorInfo.getEnrollmentTimestamp() * 1000);
+    output.put("factorId", multiFactorInfo.getFactorId());
+    output.put("uid", multiFactorInfo.getUid());
+
     return output;
   }
 
@@ -211,7 +251,6 @@ public class FirebaseAuthPlugin
 
     output.put("additionalUserInfo", parseAdditionalUserInfo(authResult.getAdditionalUserInfo()));
     output.put("authCredential", parseAuthCredential(authResult.getCredential()));
-    output.put("operationType", ""); // TODO?
     output.put("user", parseFirebaseUser(authResult.getUser()));
 
     return output;
@@ -244,7 +283,6 @@ public class FirebaseAuthPlugin
     metadata.put("lastSignInTime", firebaseUser.getMetadata().getLastSignInTimestamp());
     output.put("metadata", metadata);
 
-    // todo multifactor
     output.put("phoneNumber", firebaseUser.getPhoneNumber());
 
     List<? extends UserInfo> userInfoList = firebaseUser.getProviderData();

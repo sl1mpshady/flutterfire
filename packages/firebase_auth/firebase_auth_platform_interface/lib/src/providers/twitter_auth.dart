@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
+import 'package:firebase_auth_platform_interface/src/auth_provider.dart';
 import 'package:meta/meta.dart';
 
 const _kProviderId = 'twitter.com';
@@ -34,8 +35,8 @@ const _kProviderId = 'twitter.com';
 /// FirebaseAuth.instance.signInWithCredential(twitterAuthCredential)
 ///   .then(...);
 /// ```
-class TwitterAuthProvider {
-  final String providerId = _kProviderId;
+class TwitterAuthProvider extends AuthProvider {
+  TwitterAuthProvider() : super(_kProviderId);
 
   /// This corresponds to the sign-in method identifier.
   static String get TWITTER_SIGN_IN_METHOD {

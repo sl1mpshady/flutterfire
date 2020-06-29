@@ -18,10 +18,12 @@ export 'src/additional_user_info.dart';
 export 'src/multi_factor/multi_factor_info.dart';
 export 'src/types.dart';
 
-export 'src/auth_provider/email_auth.dart';
-export 'src/auth_provider/facebook_auth.dart';
-export 'src/auth_provider/github_auth.dart';
-export 'src/auth_provider/google_auth.dart';
-export 'src/auth_provider/oauth.dart';
+export 'src/auth_provider.dart';
+export 'src/providers/email_auth.dart';
+export 'src/providers/facebook_auth.dart';
+export 'src/providers/github_auth.dart';
+export 'src/providers/google_auth.dart';
+export 'src/providers/oauth.dart';
+export 'src/providers/saml_auth_provider.dart';
 // todo import phone/saml
-export 'src/auth_provider/twitter_auth.dart';
+export 'src/providers/twitter_auth.dart';

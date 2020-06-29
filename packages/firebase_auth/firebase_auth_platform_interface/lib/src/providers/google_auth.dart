@@ -33,8 +33,8 @@ const _kProviderId = 'google.com';
 /// FirebaseAuth.instance.signInWithCredential(googleAuthCredential)
 ///   .then(...);
 /// ```
-class GoogleAuthProvider {
-  final String providerId = _kProviderId;
+class GoogleAuthProvider extends AuthProvider {
+  GoogleAuthProvider() : super(_kProviderId);
 
   /// This corresponds to the sign-in method identifier.
   static String get GOOGLE_SIGN_IN_METHOD {

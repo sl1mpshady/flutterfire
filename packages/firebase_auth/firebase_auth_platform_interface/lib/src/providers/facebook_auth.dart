@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
+import 'package:firebase_auth_platform_interface/src/auth_provider.dart';
 import 'package:flutter/material.dart';
 
 const _kProviderId = 'facebook.com';
@@ -34,8 +35,8 @@ const _kProviderId = 'facebook.com';
 /// FirebaseAuth.instance.signInWithCredential(facebookAuthCredential)
 ///   .then(...);
 /// ```
-class FacebookAuthProvider {
-  final String providerId = _kProviderId;
+class FacebookAuthProvider extends AuthProvider {
+  FacebookAuthProvider() : super(_kProviderId);
 
   /// This corresponds to the sign-in method identifier.
   static String get FACEBOOK_SIGN_IN_METHOD {

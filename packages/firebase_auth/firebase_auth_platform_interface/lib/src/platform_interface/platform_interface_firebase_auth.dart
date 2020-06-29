@@ -259,4 +259,16 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
   Future<String> verifyPasswordResetCode(String code) {
     throw UnimplementedError('verifyPasswordResetCode() is not implemented');
   }
+
+  Future<void> verifyPhoneNumber({
+    @required String phoneNumber,
+    Duration timeout = const Duration(seconds: 30),
+    int forceResendingToken,
+    @required PhoneVerificationCompleted verificationCompleted,
+    @required PhoneVerificationFailed verificationFailed,
+    @required PhoneCodeSent codeSent,
+    @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
+  }) {
+    throw UnimplementedError('verifyPhoneNumber() is not implemented');
+  }
 }

@@ -2,9 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// typedef void PhoneVerificationCompleted(AuthCredential phoneAuthCredential);
-// typedef void PhoneVerificationFailed(AuthException error);
-typedef void PhoneCodeSent(String verificationId, [int forceResendingToken]);
+import 'auth_credential.dart';
+import 'firebase_auth_exception.dart';
+
+typedef void PhoneVerificationCompleted(AuthCredential phoneAuthCredential);
+typedef void PhoneVerificationFailed(FirebaseAuthException error);
+typedef void PhoneCodeSent(String verificationId, int forceResendingToken);
 typedef void PhoneCodeAutoRetrievalTimeout(String verificationId);
 
 /// An enumeration of the possible persistence mechanism types.

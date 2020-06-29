@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.ActionCodeEmailInfo;
 import com.google.firebase.auth.ActionCodeInfo;
 import com.google.firebase.auth.ActionCodeMultiFactorInfo;
@@ -30,6 +31,8 @@ import com.google.firebase.auth.GithubAuthProvider;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.MultiFactorInfo;
 import com.google.firebase.auth.OAuthProvider;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.auth.TwitterAuthProvider;
 import com.google.firebase.auth.UserInfo;
@@ -41,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
@@ -62,6 +66,8 @@ public class FirebaseAuthPlugin
       new HashMap<>();
   private static final HashMap<String, FirebaseAuth.IdTokenListener> mIdTokenListeners =
       new HashMap<>();
+  private static final HashMap<Integer, PhoneAuthProvider.ForceResendingToken>
+      mForceResendingTokens = new HashMap<>();
   private PluginRegistry.Registrar registrar;
   private MethodChannel channel;
   private Activity activity;
@@ -148,6 +154,11 @@ public class FirebaseAuthPlugin
       firebaseAuth.removeIdTokenListener(mAuthListener);
       idTokenListenerIterator.remove();
     }
+  }
+
+  // Only access activity with this method.
+  private Activity getActivity() {
+    return registrar != null ? registrar.activity() : activity;
   }
 
   private FirebaseAuth getAuth(Map<String, Object> arguments) {
@@ -498,60 +509,6 @@ public class FirebaseAuthPlugin
         });
   }
 
-  //    private Task<Integer> authStateChanges(Map<String, Object> arguments) {
-  //        return Tasks.call(
-  //                cachedThreadPool,
-  //                () -> {
-  //                    int handle = (int) Objects.requireNonNull(arguments.get("handle"));
-  //                    FirebaseAuth firebaseAuth = getAuth(arguments);
-  //
-  //                    AuthStateListener listener = auth -> {
-  //                        FirebaseUser firebaseUser = auth.getCurrentUser();
-  //                        Map<String, Object> output = new HashMap<>();
-  //
-  //                        if (firebaseUser == null) {
-  //                            output.put("user", null);
-  //                        } else {
-  //                            output.put("user", parseFirebaseUser(firebaseUser));
-  //                        }
-  //
-  //                        channel.invokeMethod("Auth#authStateChanges", output);
-  //                    };
-  //
-  //                    authListenerRegistrations.put(handle, listener);
-  //                    firebaseAuth.addAuthStateListener(listener);
-  //
-  //                    return handle;
-  //                });
-  //    }
-  //
-  //    private Task<Integer> idTokenChanges(Map<String, Object> arguments) {
-  //        return Tasks.call(
-  //                cachedThreadPool,
-  //                () -> {
-  //                    int handle = (int) Objects.requireNonNull(arguments.get("handle"));
-  //                    FirebaseAuth firebaseAuth = getAuth(arguments);
-  //
-  //                    IdTokenListener listener = auth -> {
-  //                        FirebaseUser firebaseUser = auth.getCurrentUser();
-  //                        Map<String, Object> output = new HashMap<>();
-  //
-  //                        if (firebaseUser == null) {
-  //                            output.put("user", null);
-  //                        } else {
-  //                            output.put("user", parseFirebaseUser(firebaseUser));
-  //                        }
-  //
-  //                        channel.invokeMethod("Auth#authStateChanges", output);
-  //                    };
-  //
-  //                    authListenerRegistrations.put(handle, listener);
-  //                    firebaseAuth.addIdTokenListener(listener);
-  //
-  //                    return handle;
-  //                });
-  //    }
-
   private Task<String> setLanguageCode(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
@@ -651,6 +608,74 @@ public class FirebaseAuthPlugin
           FirebaseAuth firebaseAuth = getAuth(arguments);
           String code = (String) Objects.requireNonNull(arguments.get("code"));
           return Tasks.await(firebaseAuth.verifyPasswordResetCode(code));
+        });
+  }
+
+  private Task<Void> verifyPhoneNumber(Map<String, Object> arguments) {
+    return Tasks.call(
+        cachedThreadPool,
+        () -> {
+          FirebaseAuth firebaseAuth = getAuth(arguments);
+          String phoneNumber = (String) Objects.requireNonNull(arguments.get("phoneNumber"));
+          int handle = (int) Objects.requireNonNull(arguments.get("handle"));
+          int timeout = (int) Objects.requireNonNull(arguments.get("timeout"));
+
+          Map<String, Object> event = new HashMap<>();
+          event.put("handle", handle);
+
+          PhoneAuthProvider.OnVerificationStateChangedCallbacks callbacks =
+              new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                @Override
+                public void onVerificationCompleted(
+                    @NonNull PhoneAuthCredential phoneAuthCredential) {}
+
+                @Override
+                public void onVerificationFailed(@NonNull FirebaseException e) {
+                  // TODO handle error
+                }
+
+                @Override
+                public void onCodeSent(
+                    @NonNull String verificationId,
+                    @NonNull PhoneAuthProvider.ForceResendingToken token) {
+                  int forceResendingTokenHashCode = token.hashCode();
+                  mForceResendingTokens.put(forceResendingTokenHashCode, token);
+                  arguments.put("verificationId", verificationId);
+                  arguments.put("forceResendingToken", forceResendingTokenHashCode);
+
+                  channel.invokeMethod("Auth#phoneCodeSent", arguments);
+                }
+
+                @Override
+                public void onCodeAutoRetrievalTimeOut(@NonNull String verificationId) {
+                  arguments.put("verificationId", verificationId);
+
+                  channel.invokeMethod("Auth#phoneCodeAutoRetrievalTimeout", arguments);
+                }
+              };
+
+          if (arguments.get("forceResendingToken") == null) {
+            PhoneAuthProvider.getInstance(firebaseAuth)
+                .verifyPhoneNumber(
+                    phoneNumber, timeout, TimeUnit.MILLISECONDS, getActivity(), callbacks);
+          } else {
+            int forceResendingTokenHashCode =
+                (int) Objects.requireNonNull(arguments.get("forceResendingToken"));
+
+            PhoneAuthProvider.ForceResendingToken forceResendingToken =
+                mForceResendingTokens.get(forceResendingTokenHashCode);
+
+            PhoneAuthProvider.getInstance(firebaseAuth)
+                .verifyPhoneNumber(
+                    phoneNumber,
+                    timeout,
+                    TimeUnit.MILLISECONDS,
+                    getActivity(),
+                    callbacks,
+                    forceResendingToken);
+          }
+
+          return null;
         });
   }
 
@@ -902,6 +927,9 @@ public class FirebaseAuthPlugin
         break;
       case "Auth#verifyPasswordResetCode":
         methodCallTask = verifyPasswordResetCode(call.arguments());
+        break;
+      case "Auth#verifyPhoneNumber":
+        methodCallTask = verifyPhoneNumber(call.arguments());
         break;
       case "User#delete":
         methodCallTask = deleteUser(call.arguments());

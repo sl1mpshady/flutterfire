@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 
 import 'method_channel_user_credential.dart';
 import 'utils/exception.dart';
+import 'utils/phone_auth_callbacks.dart';
 
 class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   /// Keeps an internal handle ID for the channel.
@@ -30,8 +31,11 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
 
   static Map<String, StreamController<UserPlatform>>
       _authStateChangesListeners = {};
+
   static Map<String, StreamController<UserPlatform>> _idTokenChangesListeners =
       {};
+
+  static Map<int, PhoneAuthCallbacks> _phoneAuthCallbacks = {};
 
   StreamController<T> createBroadcastStream<T>() {
     return StreamController<T>.broadcast();
@@ -52,6 +56,10 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
         case 'Auth#idTokenChanges':
           return _handleChangeListener(
               _idTokenChangesListeners[arguments['appName']], arguments);
+        case 'Auth#phoneCodeSent':
+          return _handlePhoneCodeSent(arguments);
+        case 'Auth#phoneCodeAutoRetrievalTimeout':
+          return _handlePhoneCodeAutoRetrievalTimeout(arguments);
         default:
           throw UnimplementedError("${call.method} has not been implemented");
       }
@@ -81,6 +89,24 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     } else {
       streamController.add(MethodChannelUser(this, user));
     }
+  }
+
+  Future<void> _handlePhoneCodeSent(Map<dynamic, dynamic> arguments) async {
+    final int handle = arguments['handle'];
+    final String verificationId = arguments['verificationId'];
+    final int forceResendingToken = arguments['forceResendingToken'];
+
+    PhoneAuthCallbacks callbacks = _phoneAuthCallbacks[handle];
+    callbacks.codeSent(verificationId, forceResendingToken);
+  }
+
+  Future<void> _handlePhoneCodeAutoRetrievalTimeout(
+      Map<dynamic, dynamic> arguments) {
+    final int handle = arguments['handle'];
+    final String verificationId = arguments['verificationId'];
+
+    PhoneAuthCallbacks callbacks = _phoneAuthCallbacks[handle];
+    callbacks.codeAutoRetrievalTimeout(verificationId);
   }
 
   /// Gets a [FirebaseAuthPlatform] with specific arguments such as a different
@@ -285,6 +311,30 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
         .invokeMethod<String>('Auth#verifyPasswordResetCode', <String, dynamic>{
       'appName': app.name,
       'code': code,
+    });
+  }
+
+  Future<void> verifyPhoneNumber({
+    String phoneNumber,
+    Duration timeout = const Duration(seconds: 30),
+    int forceResendingToken,
+    PhoneVerificationCompleted verificationCompleted,
+    PhoneVerificationFailed verificationFailed,
+    PhoneCodeSent codeSent,
+    PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
+  }) {
+    int handle = MethodChannelFirebaseAuth.nextMethodChannelHandleId;
+
+    _phoneAuthCallbacks[handle] = PhoneAuthCallbacks(verificationCompleted,
+        verificationFailed, codeSent, codeAutoRetrievalTimeout);
+
+    return channel
+        .invokeMethod<String>('Auth#verifyPhoneNumber', <String, dynamic>{
+      'appName': app.name,
+      'handle': handle,
+      'phoneNumber': phoneNumber,
+      'timeout': timeout.inMilliseconds,
+      'forceResendingToken': forceResendingToken,
     });
   }
 }

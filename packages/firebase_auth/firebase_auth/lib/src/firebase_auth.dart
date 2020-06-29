@@ -313,4 +313,75 @@ class FirebaseAuth extends FirebasePluginPlatform {
     assert(code != null);
     return _delegate.verifyPasswordResetCode(code);
   }
+
+  /// Starts the phone number verification process for the given phone number.
+  ///
+  /// Either sends an SMS with a 6 digit code to the phone number specified,
+  /// or sign's the user in and [verificationCompleted] is called.
+  ///
+  /// No duplicated SMS will be sent out upon re-entry (before timeout).
+  ///
+  /// Make sure to test all scenarios below:
+  ///
+  ///  * You directly get logged in if Google Play Services verified the phone
+  ///     number instantly or helped you auto-retrieve the verification code.
+  ///  * Auto-retrieve verification code timed out.
+  ///  * Error cases when you receive [verificationFailed] callback.
+  ///
+  /// [phoneNumber] The phone number for the account the user is signing up
+  ///   for or signing into. Make sure to pass in a phone number with country
+  ///   code prefixed with plus sign ('+').
+  ///
+  /// [timeout] The maximum amount of time you are willing to wait for SMS
+  ///   auto-retrieval to be completed by the library. Maximum allowed value
+  ///   is 2 minutes. Use 0 to disable SMS-auto-retrieval. Setting this to 0
+  ///   will also cause [codeAutoRetrievalTimeout] to be called immediately.
+  ///   If you specified a positive value less than 30 seconds, library will
+  ///   default to 30 seconds.
+  ///
+  /// [forceResendingToken] The [forceResendingToken] obtained from [codeSent]
+  ///   callback to force re-sending another verification SMS before the
+  ///   auto-retrieval timeout.
+  ///
+  /// [verificationCompleted] This callback must be implemented.
+  ///   It will trigger when an SMS is auto-retrieved or the phone number has
+  ///   been instantly verified. The callback will receive an [AuthCredential]
+  ///   that can be passed to [signInWithCredential] or [linkWithCredential].
+  ///
+  /// [verificationFailed] This callback must be implemented.
+  ///   Triggered when an error occurred during phone number verification.
+  ///
+  /// [codeSent] Optional callback.
+  ///   It will trigger when an SMS has been sent to the users phone,
+  ///   and will include a [verificationId] and [forceResendingToken].
+  ///
+  /// [codeAutoRetrievalTimeout] Optional callback.
+  ///   It will trigger when SMS auto-retrieval times out and provide a
+  ///   [verificationId].
+  Future<void> verifyPhoneNumber({
+    @required String phoneNumber,
+    Duration timeout = const Duration(seconds: 30),
+    int forceResendingToken,
+    @required PhoneVerificationCompleted verificationCompleted,
+    @required PhoneVerificationFailed verificationFailed,
+    @required PhoneCodeSent codeSent,
+    @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
+  }) {
+    assert(phoneNumber != null);
+    assert(timeout != null);
+    assert(verificationCompleted != null);
+    assert(verificationFailed != null);
+    assert(codeSent != null);
+    assert(codeAutoRetrievalTimeout != null);
+
+    return _delegate.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      timeout: timeout,
+      forceResendingToken: forceResendingToken,
+      verificationCompleted: verificationCompleted,
+      verificationFailed: verificationFailed,
+      codeSent: codeSent,
+      codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
+    );
+  }
 }

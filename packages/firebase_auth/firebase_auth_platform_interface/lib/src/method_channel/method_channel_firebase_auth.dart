@@ -48,7 +48,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     _idTokenChangesListeners[app.name] = createBroadcastStream<UserPlatform>();
 
     channel.setMethodCallHandler((MethodCall call) async {
-      Map<dynamic, dynamic> arguments = call.arguments();
+      Map<dynamic, dynamic> arguments = call.arguments;
 
       switch (call.method) {
         case 'Auth#authStateChanges':
@@ -199,7 +199,6 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   @override
   Future<UserCredentialPlatform> createUserWithEmailAndPassword(
       String email, String password) async {
-
     Map<String, dynamic> data = await channel.invokeMapMethod<String, dynamic>(
         'Auth#createUserWithEmailAndPassword', <String, dynamic>{
       'appName': app.name,

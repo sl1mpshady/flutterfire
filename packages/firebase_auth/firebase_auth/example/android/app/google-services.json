@@ -32,46 +32,10 @@
               "client_type": 3
             },
             {
-              "client_id": "448618578101-hiu8r28mao4nmvpu5277iieu7srvt5lo.apps.googleusercontent.com",
+              "client_id": "448618578101-0gmrkbkbiq32cm5nvraanejfij0dvn4u.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "io.flutter.plugins.firebasecoreexample"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:448618578101:android:b62a3a6cdc947715ac3efc",
-        "android_client_info": {
-          "package_name": "com.invertase.rnfirebasestarter"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "448618578101-sg12d2qin42cpr00f8b0gehs5s7inm0v.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCuu4tbv9CwwTudNOweMNstzZHIDBhgJxA"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "448618578101-sg12d2qin42cpr00f8b0gehs5s7inm0v.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "448618578101-hiu8r28mao4nmvpu5277iieu7srvt5lo.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "io.flutter.plugins.firebasecoreexample"
+                "bundle_id": "org.reactjs.native.example.testInstanceId"
               }
             }
           ]
@@ -136,10 +100,10 @@
               "client_type": 3
             },
             {
-              "client_id": "448618578101-hiu8r28mao4nmvpu5277iieu7srvt5lo.apps.googleusercontent.com",
+              "client_id": "448618578101-0gmrkbkbiq32cm5nvraanejfij0dvn4u.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "io.flutter.plugins.firebasecoreexample"
+                "bundle_id": "org.reactjs.native.example.testInstanceId"
               }
             }
           ]
@@ -180,10 +144,10 @@
               "client_type": 3
             },
             {
-              "client_id": "448618578101-hiu8r28mao4nmvpu5277iieu7srvt5lo.apps.googleusercontent.com",
+              "client_id": "448618578101-0gmrkbkbiq32cm5nvraanejfij0dvn4u.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "io.flutter.plugins.firebasecoreexample"
+                "bundle_id": "org.reactjs.native.example.testInstanceId"
               }
             }
           ]
@@ -192,12 +156,20 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:448618578101:android:4fde85d1eb4043acac3efc",
+        "mobilesdk_app_id": "1:448618578101:android:6aa085e64d694703ac3efc",
         "android_client_info": {
-          "package_name": "com.testFirestorePerf"
+          "package_name": "com.rnfbdemo"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "448618578101-a8tk83htomfvrelhu71j93safubvipdj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rnfbdemo",
+            "certificate_hash": "909ca1482ef022bbae45a2db6b6d05d807a4c4aa"
+          }
+        },
         {
           "client_id": "448618578101-sg12d2qin42cpr00f8b0gehs5s7inm0v.apps.googleusercontent.com",
           "client_type": 3
@@ -216,10 +188,10 @@
               "client_type": 3
             },
             {
-              "client_id": "448618578101-hiu8r28mao4nmvpu5277iieu7srvt5lo.apps.googleusercontent.com",
+              "client_id": "448618578101-0gmrkbkbiq32cm5nvraanejfij0dvn4u.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "io.flutter.plugins.firebasecoreexample"
+                "bundle_id": "org.reactjs.native.example.testInstanceId"
               }
             }
           ]
@@ -260,10 +232,10 @@
               "client_type": 3
             },
             {
-              "client_id": "448618578101-hiu8r28mao4nmvpu5277iieu7srvt5lo.apps.googleusercontent.com",
+              "client_id": "448618578101-0gmrkbkbiq32cm5nvraanejfij0dvn4u.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "io.flutter.plugins.firebasecoreexample"
+                "bundle_id": "org.reactjs.native.example.testInstanceId"
               }
             }
           ]
@@ -296,10 +268,46 @@
               "client_type": 3
             },
             {
-              "client_id": "448618578101-hiu8r28mao4nmvpu5277iieu7srvt5lo.apps.googleusercontent.com",
+              "client_id": "448618578101-0gmrkbkbiq32cm5nvraanejfij0dvn4u.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "io.flutter.plugins.firebasecoreexample"
+                "bundle_id": "org.reactjs.native.example.testInstanceId"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:448618578101:android:9d44a7b85d1ab0baac3efc",
+        "android_client_info": {
+          "package_name": "io.flutter.plugins.firebaseauthexample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "448618578101-sg12d2qin42cpr00f8b0gehs5s7inm0v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuu4tbv9CwwTudNOweMNstzZHIDBhgJxA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "448618578101-sg12d2qin42cpr00f8b0gehs5s7inm0v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "448618578101-0gmrkbkbiq32cm5nvraanejfij0dvn4u.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.testInstanceId"
               }
             }
           ]
@@ -340,10 +348,10 @@
               "client_type": 3
             },
             {
-              "client_id": "448618578101-hiu8r28mao4nmvpu5277iieu7srvt5lo.apps.googleusercontent.com",
+              "client_id": "448618578101-0gmrkbkbiq32cm5nvraanejfij0dvn4u.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "io.flutter.plugins.firebasecoreexample"
+                "bundle_id": "org.reactjs.native.example.testInstanceId"
               }
             }
           ]

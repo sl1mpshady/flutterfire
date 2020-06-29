@@ -11,16 +11,21 @@ class MethodChannelUserCredential extends UserCredentialPlatform {
       FirebaseAuthPlatform auth, Map<String, dynamic> data)
       : super(
           auth: auth,
-          additionalUserInfo: AdditionalUserInfo(
-            isNewUser: data['additionalUserInfo']['isNewUser'],
-            profile: data['additionalUserInfo']['profile'],
-            providerId: data['additionalUserInfo']['providerId'],
-            username: data['additionalUserInfo']['username'],
-          ),
-          credential: AuthCredential(
-            providerId: data['authCredential']['providerId'],
-            signInMethod: data['authCredential']['signInMethod'],
-          ),
-          user: MethodChannelUser(auth, data['user']),
+          additionalUserInfo: data['additionalUserInfo'] == null
+              ? null
+              : AdditionalUserInfo(
+                  isNewUser: data['additionalUserInfo']['isNewUser'],
+                  profile: data['additionalUserInfo']['profile'],
+                  providerId: data['additionalUserInfo']['providerId'],
+                  username: data['additionalUserInfo']['username'],
+                ),
+          credential: data['authCredential'] == null
+              ? null
+              : AuthCredential(
+                  providerId: data['authCredential']['providerId'],
+                  signInMethod: data['authCredential']['signInMethod'],
+                ),
+          user:
+              MethodChannelUser(auth, Map<String, dynamic>.from(data['user'])),
         );
 }

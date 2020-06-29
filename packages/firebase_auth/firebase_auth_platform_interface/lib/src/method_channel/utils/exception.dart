@@ -29,7 +29,7 @@ FutureOr<Map<String, dynamic>> catchPlatformException(Object exception) async {
 FirebaseException platformExceptionToFirebaseAuthException(
     PlatformException platformException) {
   Map<String, dynamic> details = platformException.details != null
-      ? Map<String, String>.from(platformException.details)
+      ? Map<String, dynamic>.from(platformException.details)
       : null;
 
   String code = 'unknown';
@@ -40,10 +40,12 @@ FirebaseException platformExceptionToFirebaseAuthException(
     code = details['code'] ?? code;
     message = details['message'] ?? message;
 
-    credential = AuthCredential(
-      providerId: details['authCredential']['providerId'],
-      signInMethod: details['authCredential']['signInMethod'],
-    );
+    if (details['authCredential'] != null) {
+      credential = AuthCredential(
+        providerId: details['authCredential']['providerId'],
+        signInMethod: details['authCredential']['signInMethod'],
+      );
+    }
   }
 
   return FirebaseAuthException(

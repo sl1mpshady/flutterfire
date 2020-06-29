@@ -199,6 +199,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   @override
   Future<UserCredentialPlatform> createUserWithEmailAndPassword(
       String email, String password) async {
+
     Map<String, dynamic> data = await channel.invokeMapMethod<String, dynamic>(
         'Auth#createUserWithEmailAndPassword', <String, dynamic>{
       'appName': app.name,

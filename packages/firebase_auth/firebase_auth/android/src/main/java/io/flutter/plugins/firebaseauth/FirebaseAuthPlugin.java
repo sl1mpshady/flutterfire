@@ -81,7 +81,11 @@ public class FirebaseAuthPlugin
     instance.initInstance(registrar.messenger());
   }
 
-  static Map<String, Object> parseAuthCredential(@NonNull AuthCredential authCredential) {
+  static Map<String, Object> parseAuthCredential(AuthCredential authCredential) {
+    if (authCredential == null) {
+      return null;
+    }
+
     Map<String, Object> output = new HashMap<>();
 
     output.put("providerId", authCredential.getProvider());
@@ -280,8 +284,11 @@ public class FirebaseAuthPlugin
     return output;
   }
 
-  private Map<String, Object> parseAdditionalUserInfo(
-      @NonNull AdditionalUserInfo additionalUserInfo) {
+  private Map<String, Object> parseAdditionalUserInfo(AdditionalUserInfo additionalUserInfo) {
+    if (additionalUserInfo == null) {
+      return null;
+    }
+
     Map<String, Object> output = new HashMap<>();
 
     output.put("isNewUser", additionalUserInfo.isNewUser());
@@ -292,7 +299,11 @@ public class FirebaseAuthPlugin
     return output;
   }
 
-  private Map<String, Object> parseFirebaseUser(@NonNull FirebaseUser firebaseUser) {
+  private Map<String, Object> parseFirebaseUser(FirebaseUser firebaseUser) {
+    if (firebaseUser == null) {
+      return null;
+    }
+
     Map<String, Object> output = new HashMap<>();
     Map<String, Object> metadata = new HashMap<>();
     List<Map<String, Object>> providerData = new ArrayList<>();

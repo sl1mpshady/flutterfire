@@ -204,7 +204,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       'appName': app.name,
       'email': email,
       'password': password,
-    });
+    }).catchError(catchPlatformException);
 
     return MethodChannelUserCredential(this, data);
   }
@@ -253,7 +253,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
         .invokeMethod<String>('Auth#setLanguageCode', <String, dynamic>{
       'appName': app.name,
       'languageCode': languageCode,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override

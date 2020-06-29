@@ -86,7 +86,7 @@ class RegisterPageState extends State<RegisterPage> {
 
   // Example code for registration.
   void _register() async {
-    final User user = (await _auth.createUserWithEmailAndPassword(
+    final FirebaseUser user = (await _auth.createUserWithEmailAndPassword(
       email: _emailController.text,
       password: _passwordController.text,
     ))

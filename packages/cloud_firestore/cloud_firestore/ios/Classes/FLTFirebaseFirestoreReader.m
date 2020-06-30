@@ -99,14 +99,19 @@
 
   if (![values[@"host"] isEqual:[NSNull null]]) {
     settings.host = (NSString *)values[@"host"];
-  }
-
-  if (![values[@"sslEnabled"] isEqual:[NSNull null]]) {
-    settings.sslEnabled = [((NSNumber *)values[@"sslEnabled"]) boolValue];
+    // Only allow changing ssl if host is also specified.
+    if (![values[@"sslEnabled"] isEqual:[NSNull null]]) {
+      settings.sslEnabled = [((NSNumber *)values[@"sslEnabled"]) boolValue];
+    }
   }
 
   if (![values[@"cacheSizeBytes"] isEqual:[NSNull null]]) {
-    settings.cacheSizeBytes = [((NSNumber *)values[@"cacheSizeBytes"]) intValue];
+    int size = [((NSNumber *)values[@"cacheSizeBytes"]) intValue];
+    if (size == -1) {
+      settings.cacheSizeBytes = kFIRFirestoreCacheSizeUnlimited;
+    } else {
+      settings.cacheSizeBytes = (int64_t) size;
+    }
   }
 
   settings.dispatchQueue = [FLTFirebaseFirestoreReader getFirestoreQueue];
@@ -126,7 +131,7 @@
   if (isCollectionGroup) {
     query = [firestore collectionGroupWithID:values[@"path"]];
   } else {
-    query = [firestore collectionWithPath:values[@"path"]];
+    query = (FIRQuery *) [firestore collectionWithPath:values[@"path"]];
   }
 
   // Filters

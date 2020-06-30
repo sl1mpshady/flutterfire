@@ -373,7 +373,10 @@ public class CloudFirestorePlugin
 
           Query query = (Query) arguments.get("query");
 
-          // TODO if query null
+          if (query == null) {
+            throw new IllegalArgumentException(
+                "An error occurred while parsing query arguments, see native logs for more information. Please report this issue.");
+          }
 
           listenerRegistrations.put(handle, query.addSnapshotListener(metadataChanges, observer));
           return null;
@@ -387,7 +390,10 @@ public class CloudFirestorePlugin
           Source source = getSource(arguments);
           Query query = (Query) arguments.get("query");
 
-          // TODO if query null
+          if (query == null) {
+            throw new IllegalArgumentException(
+                "An error occurred while parsing query arguments, see native logs for more information. Please report this issue.");
+          }
 
           QuerySnapshot snapshot = Tasks.await(query.get(source));
           return parseQuerySnapshot(snapshot);

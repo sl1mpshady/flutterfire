@@ -196,101 +196,110 @@ class CloudFirestoreMessageCodec extends StandardMessageCodec {
   }
 
   private Query readFirestoreQuery(ByteBuffer buffer) {
-    @SuppressWarnings("unchecked")
-    Map<String, Object> values = (Map<String, Object>) readValue(buffer);
-    FirebaseFirestore firestore =
-        (FirebaseFirestore) Objects.requireNonNull(values.get("firestore"));
+    try {
+      @SuppressWarnings("unchecked")
+      Map<String, Object> values = (Map<String, Object>) readValue(buffer);
+      FirebaseFirestore firestore =
+          (FirebaseFirestore) Objects.requireNonNull(values.get("firestore"));
 
-    String path = (String) Objects.requireNonNull(values.get("path"));
-    boolean isCollectionGroup = (boolean) values.get("isCollectionGroup");
-    @SuppressWarnings("unchecked")
-    Map<String, Object> parameters = (Map<String, Object>) values.get("parameters");
+      String path = (String) Objects.requireNonNull(values.get("path"));
+      boolean isCollectionGroup = (boolean) values.get("isCollectionGroup");
+      @SuppressWarnings("unchecked")
+      Map<String, Object> parameters = (Map<String, Object>) values.get("parameters");
 
-    Query query;
-    if (isCollectionGroup) {
-      query = firestore.collectionGroup(path);
-    } else {
-      query = firestore.collection(path);
-    }
-
-    if (parameters == null) return query;
-
-    // "where" filters
-    @SuppressWarnings("unchecked")
-    List<List<Object>> filters =
-        (List<List<Object>>) Objects.requireNonNull(parameters.get("where"));
-    for (List<Object> condition : filters) {
-      FieldPath fieldPath = (FieldPath) condition.get(0);
-      String operator = (String) condition.get(1);
-      Object value = condition.get(2);
-
-      if ("==".equals(operator)) {
-        query = query.whereEqualTo(fieldPath, value);
-      } else if ("<".equals(operator)) {
-        query = query.whereLessThan(fieldPath, value);
-      } else if ("<=".equals(operator)) {
-        query = query.whereLessThanOrEqualTo(fieldPath, value);
-      } else if (">".equals(operator)) {
-        query = query.whereGreaterThan(fieldPath, value);
-      } else if (">=".equals(operator)) {
-        query = query.whereGreaterThanOrEqualTo(fieldPath, value);
-      } else if ("array-contains".equals(operator)) {
-        query = query.whereArrayContains(fieldPath, value);
-      } else if ("array-contains-any".equals(operator)) {
-        @SuppressWarnings("unchecked")
-        List<Object> listValues = (List<Object>) value;
-        query = query.whereArrayContainsAny(fieldPath, listValues);
-      } else if ("in".equals(operator)) {
-        @SuppressWarnings("unchecked")
-        List<Object> listValues = (List<Object>) value;
-        query = query.whereIn(fieldPath, listValues);
+      Query query;
+      if (isCollectionGroup) {
+        query = firestore.collectionGroup(path);
       } else {
-        Log.w(
-            "FLTFirestoreMsgCodec",
-            "An invalid query operator " + operator + " was received but not handled.");
+        query = firestore.collection(path);
       }
+
+      if (parameters == null) return query;
+
+      // "where" filters
+      @SuppressWarnings("unchecked")
+      List<List<Object>> filters =
+          (List<List<Object>>) Objects.requireNonNull(parameters.get("where"));
+      for (List<Object> condition : filters) {
+        FieldPath fieldPath = (FieldPath) condition.get(0);
+        String operator = (String) condition.get(1);
+        Object value = condition.get(2);
+
+        if ("==".equals(operator)) {
+          query = query.whereEqualTo(fieldPath, value);
+        } else if ("<".equals(operator)) {
+          query = query.whereLessThan(fieldPath, value);
+        } else if ("<=".equals(operator)) {
+          query = query.whereLessThanOrEqualTo(fieldPath, value);
+        } else if (">".equals(operator)) {
+          query = query.whereGreaterThan(fieldPath, value);
+        } else if (">=".equals(operator)) {
+          query = query.whereGreaterThanOrEqualTo(fieldPath, value);
+        } else if ("array-contains".equals(operator)) {
+          query = query.whereArrayContains(fieldPath, value);
+        } else if ("array-contains-any".equals(operator)) {
+          @SuppressWarnings("unchecked")
+          List<Object> listValues = (List<Object>) value;
+          query = query.whereArrayContainsAny(fieldPath, listValues);
+        } else if ("in".equals(operator)) {
+          @SuppressWarnings("unchecked")
+          List<Object> listValues = (List<Object>) value;
+          query = query.whereIn(fieldPath, listValues);
+        } else {
+          Log.w(
+              "FLTFirestoreMsgCodec",
+              "An invalid query operator " + operator + " was received but not handled.");
+        }
+      }
+
+      // "limit" filters
+      Number limit = (Number) parameters.get("limit");
+      if (limit != null) query = query.limit(limit.longValue());
+
+      Number limitToLast = (Number) parameters.get("limitToLast");
+      if (limitToLast != null) query = query.limitToLast(limitToLast.longValue());
+
+      // "orderBy" filters
+      @SuppressWarnings("unchecked")
+      List<List<Object>> orderBy = (List<List<Object>>) parameters.get("orderBy");
+      if (orderBy == null) return query;
+
+      for (List<Object> order : orderBy) {
+        FieldPath fieldPath = (FieldPath) order.get(0);
+        boolean descending = (boolean) order.get(1);
+
+        Query.Direction direction =
+            descending ? Query.Direction.DESCENDING : Query.Direction.ASCENDING;
+
+        query = query.orderBy(fieldPath, direction);
+      }
+
+      // cursor queries
+      @SuppressWarnings("unchecked")
+      List<Object> startAt = (List<Object>) parameters.get("startAt");
+      if (startAt != null) query = query.startAt(Objects.requireNonNull(startAt.toArray()));
+
+      @SuppressWarnings("unchecked")
+      List<Object> startAfter = (List<Object>) parameters.get("startAfter");
+      if (startAfter != null)
+        query = query.startAfter(Objects.requireNonNull(startAfter.toArray()));
+
+      @SuppressWarnings("unchecked")
+      List<Object> endAt = (List<Object>) parameters.get("endAt");
+      if (endAt != null) query = query.endAt(Objects.requireNonNull(endAt.toArray()));
+
+      @SuppressWarnings("unchecked")
+      List<Object> endBefore = (List<Object>) parameters.get("endBefore");
+      if (endBefore != null) query = query.endBefore(Objects.requireNonNull(endBefore.toArray()));
+
+      return query;
+    } catch (Exception exception) {
+      Log.e(
+          "FLTFirestoreMsgCodec",
+          "An error occurred while parsing query arguments, this is most likely an error with this SDK.",
+          exception);
+      return null;
     }
-
-    // "limit" filters
-    Number limit = (Number) parameters.get("limit");
-    if (limit != null) query = query.limit(limit.longValue());
-
-    Number limitToLast = (Number) parameters.get("limitToLast");
-    if (limitToLast != null) query = query.limitToLast(limitToLast.longValue());
-
-    // "orderBy" filters
-    @SuppressWarnings("unchecked")
-    List<List<Object>> orderBy = (List<List<Object>>) parameters.get("orderBy");
-    if (orderBy == null) return query;
-
-    for (List<Object> order : orderBy) {
-      FieldPath fieldPath = (FieldPath) order.get(0);
-      boolean descending = (boolean) order.get(1);
-
-      Query.Direction direction =
-          descending ? Query.Direction.DESCENDING : Query.Direction.ASCENDING;
-
-      query = query.orderBy(fieldPath, direction);
-    }
-
-    // cursor queries
-    @SuppressWarnings("unchecked")
-    List<Object> startAt = (List<Object>) parameters.get("startAt");
-    if (startAt != null) query = query.startAt(Objects.requireNonNull(startAt.toArray()));
-
-    @SuppressWarnings("unchecked")
-    List<Object> startAfter = (List<Object>) parameters.get("startAfter");
-    if (startAfter != null) query = query.startAfter(Objects.requireNonNull(startAfter.toArray()));
-
-    @SuppressWarnings("unchecked")
-    List<Object> endAt = (List<Object>) parameters.get("endAt");
-    if (endAt != null) query = query.endAt(Objects.requireNonNull(endAt.toArray()));
-
-    @SuppressWarnings("unchecked")
-    List<Object> endBefore = (List<Object>) parameters.get("endBefore");
-    if (endBefore != null) query = query.endBefore(Objects.requireNonNull(endBefore.toArray()));
-
-    return query;
   }
 
   private Object[] toArray(Object source) {

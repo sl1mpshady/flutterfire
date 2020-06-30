@@ -35,26 +35,55 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.StandardMethodCodec;
 import io.flutter.plugins.firebase.core.FlutterFirebasePlugin;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.WeakHashMap;
 
 public class CloudFirestorePlugin
     implements FlutterFirebasePlugin, MethodCallHandler, FlutterPlugin, ActivityAware {
   private static final String TAG = "CloudFirestorePlugin";
-  private static final HashMap<String, FirebaseFirestore> instanceCache = new HashMap<>();
+  private static final WeakHashMap<String, WeakReference<FirebaseFirestore>>
+      firestoreInstanceCache = new WeakHashMap<>();
+  private static final SparseArray<ListenerRegistration> listenerRegistrations =
+      new SparseArray<>();
 
-  private static final String SETTINGS_CLEAR_PERSISTENCE = "firebase_firestore_clear_persistence_";
-  private static final String SETTINGS_CACHE_SIZE = "firebase_firestore_cache_size_";
-  private static final String SETTINGS_HOST = "firebase_firestore_host_";
-  private static final String SETTINGS_PERSISTENCE = "firebase_firestore_persistence_";
-  private static final String SETTINGS_SSL = "firebase_firestore_ssl_";
-
-  private final SparseArray<ListenerRegistration> listenerRegistrations = new SparseArray<>();
   private MethodChannel channel;
   private Activity activity;
+
+  public static FirebaseFirestore getCachedFirebaseFirestoreInstanceForKey(String key) {
+    synchronized (firestoreInstanceCache) {
+      WeakReference<FirebaseFirestore> existingInstance = firestoreInstanceCache.get(key);
+      if (existingInstance != null) {
+        return existingInstance.get();
+      }
+
+      return null;
+    }
+  }
+
+  private static void setCachedFirebaseFirestoreInstanceForKey(
+      FirebaseFirestore firestore, String key) {
+    synchronized (firestoreInstanceCache) {
+      WeakReference<FirebaseFirestore> existingInstance = firestoreInstanceCache.get(key);
+      if (existingInstance == null) {
+        firestoreInstanceCache.put(key, new WeakReference<>(firestore));
+      }
+    }
+  }
+
+  private static void destroyCachedFirebaseFirestoreInstanceForKey(String key) {
+    synchronized (firestoreInstanceCache) {
+      WeakReference<FirebaseFirestore> existingInstance = firestoreInstanceCache.get(key);
+      if (existingInstance != null) {
+        existingInstance.clear();
+        firestoreInstanceCache.remove(key);
+      }
+    }
+  }
 
   @SuppressWarnings("unused")
   public static void registerWith(PluginRegistry.Registrar registrar) {
@@ -505,7 +534,7 @@ public class CloudFirestorePlugin
         () -> {
           String appName = (String) arguments.get("appName");
           FirebaseFirestore firebaseFirestore = getFirestore(arguments);
-          instanceCache.remove(appName);
+          destroyCachedFirebaseFirestoreInstanceForKey(appName);
           return Tasks.await(firebaseFirestore.terminate());
         });
   }
@@ -642,16 +671,16 @@ public class CloudFirestorePlugin
 
   private FirebaseFirestore getFirestore(Map<String, Object> arguments) {
     String appName = (String) Objects.requireNonNull(arguments.get("appName"));
-    FirebaseFirestore cachedInstance = instanceCache.get(appName);
 
-    if (cachedInstance != null) {
-      return cachedInstance;
+    FirebaseFirestore existingInstance = getCachedFirebaseFirestoreInstanceForKey(appName);
+    if (existingInstance != null) {
+      return existingInstance;
     }
 
     FirebaseFirestore instance = FirebaseFirestore.getInstance(FirebaseApp.getInstance(appName));
     setFirestoreSettings(instance, appName);
 
-    instanceCache.put(appName, instance);
+    setCachedFirebaseFirestoreInstanceForKey(instance, appName);
     return instance;
   }
 

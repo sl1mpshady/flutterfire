@@ -46,6 +46,7 @@ public class FlutterFirebaseCorePlugin implements FlutterPlugin, MethodChannel.M
 
   private MethodChannel channel;
   private Context applicationContext;
+  private boolean coreInitialized = false;
 
   /**
    * Default Constructor.
@@ -161,6 +162,12 @@ public class FlutterFirebaseCorePlugin implements FlutterPlugin, MethodChannel.M
     return Tasks.call(
         cachedThreadPool,
         () -> {
+          if (!coreInitialized) {
+            coreInitialized = true;
+          } else {
+            Tasks.await(FlutterFirebasePluginRegistry.didReinitializeFirebaseCore());
+          }
+
           List<FirebaseApp> firebaseApps = FirebaseApp.getApps(applicationContext);
           List<Map<String, Object>> firebaseAppsList = new ArrayList<>(firebaseApps.size());
 

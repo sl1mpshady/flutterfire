@@ -23,4 +23,13 @@ public interface FlutterFirebasePlugin {
    * @return A task returning the discovered constants for the plugin for the provided Firebase App.
    */
   Task<Map<String, Object>> getPluginConstantsForFirebaseApp(FirebaseApp firebaseApp);
+
+  /**
+   * FlutterFire plugins implementing FlutterFirebasePlugin should provide this method to be
+   * notified when FirebaseCore#initializeCore was called again (first time is ignored).
+   *
+   * <p>This can be used by plugins to know when they might need to cleanup previous resources
+   * between Hot Restarts as `initializeCore` can only be called once in Dart.
+   */
+  Task<Void> didReinitializeFirebaseCore();
 }

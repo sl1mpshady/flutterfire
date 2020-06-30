@@ -7,16 +7,21 @@ import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_inte
 import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/services.dart';
 
 import './mock.dart';
+import './test_firestore_message_codec.dart';
 
 void main() {
   setupCloudFirestoreMocks();
+  MethodChannelFirestore.channel = MethodChannel(
+    'plugins.flutter.io/cloud_firestore',
+    StandardMethodCodec(TestFirestoreMessageCodec()),
+  );
 
   MethodChannelFirestore.channel.setMockMethodCallHandler((call) async {
-    String path = call.arguments['path'];
-
-    if (call.method == 'DocumentReference#get' && path == 'doc/exists') {
+    DocumentReferencePlatform ref = call.arguments['reference'];
+    if (call.method == 'DocumentReference#get' && ref.path == 'doc/exists') {
       return {
         'data': {
           'foo': 'bar',
@@ -28,7 +33,8 @@ void main() {
       };
     }
 
-    if (call.method == 'DocumentReference#get' && path == 'doc/not-exists') {
+    if (call.method == 'DocumentReference#get' &&
+        ref.path == 'doc/not-exists') {
       return {
         'data': null,
         'metadata': {
@@ -38,7 +44,7 @@ void main() {
       };
     }
 
-    if (call.method == 'DocumentReference#get' && path == 'doc/get-test') {
+    if (call.method == 'DocumentReference#get' && ref.path == 'doc/get-test') {
       return {
         'data': {
           'foo': {

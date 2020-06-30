@@ -35,28 +35,28 @@ void main() {
           FieldValuePlatform(MethodChannelFieldValueFactory().increment(2.0));
     });
 
-    test("setData", () async {
+    test("set", () async {
       _assertSetDataMethodCalled(_documentReference, null, null);
       _assertSetDataMethodCalled(_documentReference, true, null);
       _assertSetDataMethodCalled(_documentReference, false, null);
       _assertSetDataMethodCalled(_documentReference, false, mockFieldValue);
     });
 
-    test("updateData", () async {
+    test("update", () async {
       bool isMethodCalled = false;
       final Map<String, dynamic> data = {
         "test": "test",
         "fieldValue": mockFieldValue
       };
       handleMethodCall((call) {
-        if (call.method == "DocumentReference#updateData") {
+        if (call.method == "DocumentReference#update") {
           isMethodCalled = true;
           expect(call.arguments["data"]["test"], equals(data["test"]));
         }
       });
       await _documentReference.update(data);
       expect(isMethodCalled, isTrue,
-          reason: "DocumentReference.updateData was not called");
+          reason: "DocumentReference.update was not called");
     });
 
     test("get", () async {
@@ -125,7 +125,7 @@ void _assertSetDataMethodCalled(DocumentReferencePlatform documentReference,
     data.addAll({"fieldValue": fieldValue});
   }
   handleMethodCall((call) {
-    if (call.method == "DocumentReference#setData") {
+    if (call.method == "DocumentReference#set") {
       isMethodCalled = true;
       expect(call.arguments["data"]["test"], equals(data["test"]));
       expect(call.arguments["options"]["merge"], expectedMergeValue);
@@ -137,5 +137,5 @@ void _assertSetDataMethodCalled(DocumentReferencePlatform documentReference,
     await documentReference.set(data, SetOptions(merge: expectedMergeValue));
   }
   expect(isMethodCalled, isTrue,
-      reason: "DocumentReference.setData was not called");
+      reason: "DocumentReference.set was not called");
 }

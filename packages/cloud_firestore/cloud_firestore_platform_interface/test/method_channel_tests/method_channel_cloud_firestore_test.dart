@@ -155,7 +155,7 @@ void main() {
             isMethodCall(
               'Firestore#clearPersistence',
               arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
+                'firestore': firestore,
               },
             ),
           ]),
@@ -195,7 +195,7 @@ void main() {
             isMethodCall(
               'Firestore#disableNetwork',
               arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
+                'firestore': firestore,
               },
             ),
           ]),
@@ -228,7 +228,7 @@ void main() {
             isMethodCall(
               'Firestore#enableNetwork',
               arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
+                'firestore': firestore,
               },
             ),
           ]),
@@ -270,7 +270,7 @@ void main() {
               'Firestore#addSnapshotsInSyncListener',
               arguments: <String, dynamic>{
                 'handle': handle,
-                'appName': '[DEFAULT]',
+                'firestore': firestore,
               },
             ),
             isMethodCall(
@@ -307,7 +307,7 @@ void main() {
 
         expect(log, <Matcher>[
           isMethodCall('Transaction#create', arguments: <String, dynamic>{
-            'appName': firestore.app.name,
+            'firestore': firestore,
             'transactionId': handleId,
             'timeout': 3000
           }),
@@ -359,7 +359,7 @@ void main() {
             isMethodCall(
               'Firestore#terminate',
               arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
+                'firestore': firestore,
               },
             ),
           ]),
@@ -384,7 +384,7 @@ void main() {
             isMethodCall(
               'Firestore#waitForPendingWrites',
               arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
+                'firestore': firestore,
               },
             ),
           ]),

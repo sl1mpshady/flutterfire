@@ -121,15 +121,8 @@ class FirestoreMessageCodec extends StandardMessageCodec {
       case _kGeoPoint:
         return GeoPoint(buffer.getFloat64(), buffer.getFloat64());
       case _kDocumentReference:
-        final int appNameLength = readSize(buffer);
-        final String appName =
-            utf8.decoder.convert(buffer.getUint8List(appNameLength));
-        final FirebaseApp app = Firebase.app(appName);
-        final FirestorePlatform firestore =
-            FirestorePlatform.instanceFor(app: app);
-        final int pathLength = readSize(buffer);
-        final String path =
-            utf8.decoder.convert(buffer.getUint8List(pathLength));
+        FirestorePlatform firestore = readValue(buffer);
+        String path = readValue(buffer);
         return firestore.doc(path);
       case _kBlob:
         final int length = readSize(buffer);
@@ -137,14 +130,17 @@ class FirestoreMessageCodec extends StandardMessageCodec {
         return Blob(bytes);
       case _kDocumentId:
         return FieldPath.documentId;
+      // These cases are only needed on tests, and therefore handled
+      // by [TestFirestoreMessageCodec], a subclass of this codec.
+      case _kFirestoreInstance:
+      case _kFirestoreQuery:
+      case _kFirestoreSettings:
       case _kArrayUnion:
       case _kArrayRemove:
       case _kDelete:
       case _kServerTimestamp:
       case _kIncrementDouble:
       case _kIncrementInteger:
-      // These cases are only needed on tests, and therefore handled
-      // by [TestFirestoreMessageCodec], a subclass of this codec.
       default:
         return super.readValueOfType(type, buffer);
     }

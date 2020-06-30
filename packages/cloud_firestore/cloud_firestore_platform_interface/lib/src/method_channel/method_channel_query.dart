@@ -97,7 +97,6 @@ class MethodChannelQuery extends QueryPlatform {
         'source': getSourceString(options.source),
       },
     ).catchError(catchPlatformException);
-
     return MethodChannelQuerySnapshot(firestore, data);
   }
 

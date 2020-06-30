@@ -4,13 +4,16 @@ import androidx.annotation.NonNull;
 
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseAuthMultiFactorException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
+import com.google.firebase.auth.MultiFactorResolver;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static io.flutter.plugins.firebaseauth.FirebaseAuthPlugin.parseAuthCredential;
+import static io.flutter.plugins.firebaseauth.FirebaseAuthPlugin.parseMultiFactorInfoList;
 
 public class FirebaseAuthPluginException extends Exception {
 
@@ -43,6 +46,20 @@ public class FirebaseAuthPluginException extends Exception {
       AuthCredential authCredential =
           ((FirebaseAuthUserCollisionException) nativeException).getUpdatedCredential();
       additionalData.put("authCredential", parseAuthCredential(authCredential));
+    }
+
+    if (nativeException instanceof FirebaseAuthMultiFactorException) {
+      Map<String, Object> resolverMap = new HashMap<>();
+      MultiFactorResolver multiFactorResolver =
+          ((FirebaseAuthMultiFactorException) nativeException).getResolver();
+      int resolverToken = multiFactorResolver.hashCode();
+
+      resolverMap.put("token", resolverToken);
+      resolverMap.put("hints", parseMultiFactorInfoList(multiFactorResolver.getHints()));
+
+      // TODO Store resolver with token
+
+      additionalData.put("resolver", resolverMap);
     }
 
     this.code = code;

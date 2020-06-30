@@ -37,7 +37,9 @@ export 'package:firebase_auth_platform_interface/firebase_auth_platform_interfac
         PhoneAuthCredential,
         SAMLAuthProvider,
         TwitterAuthProvider,
-        TwitterAuthCredential;
+        TwitterAuthCredential,
+        MultiFactorAssertion,
+        PhoneMultiFactorGenerator;
 
 export 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart'
     show FirebaseException;
@@ -45,3 +47,4 @@ export 'package:firebase_core_platform_interface/firebase_core_platform_interfac
 part 'src/firebase_auth.dart';
 part 'src/user_credential.dart';
 part 'src/user.dart';
+part 'src/multi_factor_user.dart';

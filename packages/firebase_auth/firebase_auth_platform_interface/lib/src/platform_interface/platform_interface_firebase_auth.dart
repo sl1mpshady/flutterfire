@@ -267,6 +267,7 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
       @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
       Duration timeout = const Duration(seconds: 30),
       int forceResendingToken,
+      bool multiFactorAuth,
       bool requireSmsValidation}) {
     throw UnimplementedError('verifyPhoneNumber() is not implemented');
   }

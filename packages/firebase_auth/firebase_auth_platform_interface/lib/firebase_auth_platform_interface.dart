@@ -7,6 +7,7 @@ library firebase_auth_platform_interface;
 export 'src/platform_interface/platform_interface_firebase_auth.dart';
 export 'src/platform_interface/platform_interface_user.dart';
 export 'src/platform_interface/platform_interface_user_credential.dart';
+export 'src/platform_interface/platform_interface_multi_factor_user.dart';
 
 export 'src/auth_credential.dart';
 export 'src/action_code_info.dart';
@@ -15,7 +16,10 @@ export 'src/user_metadata.dart';
 export 'src/id_token_result.dart';
 export 'src/user_info.dart';
 export 'src/additional_user_info.dart';
-export 'src/multi_factor/multi_factor_info.dart';
+export 'src/multi_factor_info.dart';
+export 'src/multi_factor_assertion.dart';
+export 'src/multi_factor_resolver.dart';
+export 'src/multi_factor_session.dart';
 export 'src/types.dart';
 
 export 'src/auth_provider.dart';

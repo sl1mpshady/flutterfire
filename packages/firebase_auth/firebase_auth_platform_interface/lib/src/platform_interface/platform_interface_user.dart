@@ -45,7 +45,9 @@ abstract class UserPlatform extends PlatformInterface {
         _user['metadata']['creationTime'], _user['metadata']['lastSignInTime']);
   }
 
-  // todo multifactor user
+  MultiFactorUserPlatform get multiFactor {
+    throw UnimplementedError("multiFactor is not implemented");
+  }
 
   String get phoneNumber {
     return _user['phoneNumber'];

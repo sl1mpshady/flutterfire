@@ -29,11 +29,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.GithubAuthProvider;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.MultiFactor;
+import com.google.firebase.auth.MultiFactorAssertion;
 import com.google.firebase.auth.MultiFactorInfo;
+import com.google.firebase.auth.MultiFactorSession;
 import com.google.firebase.auth.OAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.auth.PhoneMultiFactorGenerator;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.auth.TwitterAuthProvider;
 import com.google.firebase.auth.UserInfo;
@@ -91,6 +95,28 @@ public class FirebaseAuthPlugin
 
     output.put("providerId", authCredential.getProvider());
     output.put("signInMethod", authCredential.getSignInMethod());
+
+    return output;
+  }
+
+  static List<Map<String, Object>> parseMultiFactorInfoList(
+      @NonNull List<MultiFactorInfo> multiFactorInfoList) {
+    List<Map<String, Object>> output = new ArrayList<>(multiFactorInfoList.size());
+
+    for (MultiFactorInfo multiFactorInfo : multiFactorInfoList) {
+      output.add(parseMultiFactorInfo(multiFactorInfo));
+    }
+
+    return output;
+  }
+
+  static Map<String, Object> parseMultiFactorInfo(@NonNull MultiFactorInfo multiFactorInfo) {
+    Map<String, Object> output = new HashMap<>();
+
+    output.put("displayName", multiFactorInfo.getDisplayName());
+    output.put("enrollmentTimestamp", multiFactorInfo.getEnrollmentTimestamp() * 1000);
+    output.put("factorId", multiFactorInfo.getFactorId());
+    output.put("uid", multiFactorInfo.getUid());
 
     return output;
   }
@@ -264,17 +290,6 @@ public class FirebaseAuthPlugin
     return output;
   }
 
-  private Map<String, Object> parseMultiFactorInfo(@NonNull MultiFactorInfo multiFactorInfo) {
-    Map<String, Object> output = new HashMap<>();
-
-    output.put("displayName", multiFactorInfo.getDisplayName());
-    output.put("enrollmentTimestamp", multiFactorInfo.getEnrollmentTimestamp() * 1000);
-    output.put("factorId", multiFactorInfo.getFactorId());
-    output.put("uid", multiFactorInfo.getUid());
-
-    return output;
-  }
-
   private Map<String, Object> parseAuthResult(@NonNull AuthResult authResult) {
     Map<String, Object> output = new HashMap<>();
 
@@ -319,6 +334,7 @@ public class FirebaseAuthPlugin
     output.put("metadata", metadata);
 
     output.put("phoneNumber", firebaseUser.getPhoneNumber());
+    output.put("multiFactor", parseMultiFactor(firebaseUser.getMultiFactor()));
 
     List<? extends UserInfo> userInfoList = firebaseUser.getProviderData();
     for (UserInfo userInfo : userInfoList) {
@@ -380,6 +396,14 @@ public class FirebaseAuthPlugin
     }
 
     return builder.build();
+  }
+
+  private Map<String, Object> parseMultiFactor(MultiFactor multiFactor) {
+    Map<String, Object> output = new HashMap<>();
+
+    List<MultiFactorInfo> multiFactorInfoList = multiFactor.getEnrolledFactors();
+    output.put("enrolledFactors", parseMultiFactorInfoList(multiFactorInfoList));
+    return output;
   }
 
   private Map<String, Object> parseTokenResult(@NonNull GetTokenResult tokenResult) {
@@ -643,6 +667,8 @@ public class FirebaseAuthPlugin
           String phoneNumber = (String) Objects.requireNonNull(arguments.get("phoneNumber"));
           int handle = (int) Objects.requireNonNull(arguments.get("handle"));
           int timeout = (int) Objects.requireNonNull(arguments.get("timeout"));
+          boolean multiFactorAuth =
+              (boolean) Objects.requireNonNull(arguments.get("multiFactorAuth"));
           boolean requireSmsValidation =
               (boolean) Objects.requireNonNull(arguments.get("requireSmsValidation"));
 
@@ -707,6 +733,19 @@ public class FirebaseAuthPlugin
             if (forceResendingToken != null) {
               phoneAuthOptionsBuilder.setForceResendingToken(forceResendingToken);
             }
+          }
+
+          // User requested that the generated credential can be used for multi-factor
+          // authentication
+          if (multiFactorAuth) {
+            FirebaseUser user = getCurrentUser(arguments);
+
+            if (user == null) {
+              throw FirebaseAuthPluginException.noUser();
+            }
+
+            MultiFactorSession multiFactorSession = Tasks.await(user.getMultiFactor().getSession());
+            phoneAuthOptionsBuilder.setMultiFactorSession(multiFactorSession);
           }
 
           PhoneAuthProvider.verifyPhoneNumber(phoneAuthOptionsBuilder.build());
@@ -913,6 +952,47 @@ public class FirebaseAuthPlugin
         });
   }
 
+  private Task<Void> enrollMultiFactor(Map<String, Object> arguments) {
+    return Tasks.call(
+        cachedThreadPool,
+        () -> {
+          FirebaseUser firebaseUser = getCurrentUser(arguments);
+
+          if (firebaseUser == null) {
+            throw FirebaseAuthPluginException.noUser();
+          }
+
+          @SuppressWarnings("unchecked")
+          Map<String, Object> multiFactorAssertionMap =
+              (Map<String, Object>) Objects.requireNonNull(arguments.get("multiFactorAssertion"));
+
+          int token = (int) Objects.requireNonNull(multiFactorAssertionMap.get("token"));
+          PhoneAuthCredential phoneAuthCredential = mPhoneAuthCredentials.get(token);
+          MultiFactorAssertion multiFactorAssertion =
+              PhoneMultiFactorGenerator.getAssertion(phoneAuthCredential);
+
+          String displayName = (String) arguments.get("displayName");
+
+          return Tasks.await(
+              firebaseUser.getMultiFactor().enroll(multiFactorAssertion, displayName));
+        });
+  }
+
+  private Task<Void> unenrollMultiFactor(Map<String, Object> arguments) {
+    return Tasks.call(
+        cachedThreadPool,
+        () -> {
+          FirebaseUser firebaseUser = getCurrentUser(arguments);
+
+          if (firebaseUser == null) {
+            throw FirebaseAuthPluginException.noUser();
+          }
+
+          String factorUid = (String) Objects.requireNonNull(arguments.get("factorUid"));
+          return Tasks.await(firebaseUser.getMultiFactor().unenroll(factorUid));
+        });
+  }
+
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     Task<?> methodCallTask;
@@ -995,6 +1075,12 @@ public class FirebaseAuthPlugin
         break;
       case "User#verifyBeforeUpdateEmail":
         methodCallTask = verifyBeforeUpdateEmail(call.arguments());
+        break;
+      case "MultiFactor#enroll":
+        methodCallTask = enrollMultiFactor(call.arguments());
+        break;
+      case "MultiFactor#unenroll":
+        methodCallTask = unenrollMultiFactor(call.arguments());
         break;
       default:
         result.notImplemented();

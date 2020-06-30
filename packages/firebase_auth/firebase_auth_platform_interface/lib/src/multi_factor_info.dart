@@ -2,27 +2,31 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:meta/meta.dart';
+
 /// A structure containing the information of a second factor entity.
 class MultiFactorInfo {
-  const MultiFactorInfo({
-    this.displayName,
-    int enrollmentTimestamp,
-    this.factorId,
-    this.uid,
-  }) : _enrollmentTimestamp = enrollmentTimestamp;
+  @protected
+  MultiFactorInfo(Map<String, dynamic> data) : _data = data;
 
-  final int _enrollmentTimestamp;
+  Map<String, dynamic> _data;
 
   /// The user friendly name of the current second factor.
-  final String displayName;
+  String get displayName {
+    return _data['displayName'];
+  }
 
   /// The enrollment date of the second factor.
   DateTime get enrollmentTime =>
-      DateTime.fromMillisecondsSinceEpoch(_enrollmentTimestamp);
+      DateTime.fromMillisecondsSinceEpoch(_data['enrollmentTimestamp']);
 
   /// The identifier of the second factor.
-  final String factorId;
+  String get factorId {
+    return _data['factorId'];
+  }
 
   /// The multi-factor enrollment ID.
-  final String uid;
+  String get uid {
+    return _data['uid'];
+  }
 }

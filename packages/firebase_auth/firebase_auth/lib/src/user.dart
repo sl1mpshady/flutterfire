@@ -33,7 +33,6 @@ class User {
     return _delegate.metadata;
   }
 
-  // todo multifactor user
 
   String get phoneNumber {
     return _delegate.phoneNumber;

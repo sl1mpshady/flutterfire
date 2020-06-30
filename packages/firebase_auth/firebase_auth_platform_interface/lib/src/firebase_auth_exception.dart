@@ -6,19 +6,18 @@ import 'package:firebase_core_platform_interface/firebase_core_platform_interfac
     show FirebaseException;
 import 'package:meta/meta.dart';
 import 'auth_credential.dart';
+import 'multi_factor_resolver.dart';
 
 /// Generic exception related to Firebase Authentication.
 /// Check the error code and message for more details.
-class FirebaseAuthException extends FirebaseException
-    implements Exception {
-  FirebaseAuthException(
-      {@required this.message,
-      this.code,
-      this.email,
-      this.credential,
-      this.phoneNumber,
-      this.tenantId})
-      : super(plugin: "firebase_auth", message: message, code: code);
+class FirebaseAuthException extends FirebaseException implements Exception {
+  FirebaseAuthException({
+    @required this.message,
+    this.code,
+    this.email,
+    this.credential,
+    this.resolver,
+  }) : super(plugin: "firebase_auth", message: message, code: code);
 
   /// Unique error code
   final String code;
@@ -32,9 +31,5 @@ class FirebaseAuthException extends FirebaseException
   /// The [AuthCredential] that can be used to resolve the error.
   final AuthCredential credential;
 
-  /// The phone number of the user's account used for sign-in/linking. // TODO where from?
-  final String phoneNumber;
-
-  /// The tenant ID being used for sign-in/linking. // TODO where from?
-  final String tenantId;
+  final MultiFactorResolver resolver;
 }

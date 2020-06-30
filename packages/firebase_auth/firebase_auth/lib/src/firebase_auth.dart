@@ -365,6 +365,7 @@ class FirebaseAuth extends FirebasePluginPlatform {
     @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
     Duration timeout = const Duration(seconds: 30),
     int forceResendingToken,
+    bool multiFactorAuth = false,
     bool requireSmsValidation = false,
   }) {
     assert(phoneNumber != null);
@@ -373,6 +374,7 @@ class FirebaseAuth extends FirebasePluginPlatform {
     assert(verificationFailed != null);
     assert(codeSent != null);
     assert(codeAutoRetrievalTimeout != null);
+    assert(multiFactorAuth != null);
     assert(requireSmsValidation != null);
 
     return _delegate.verifyPhoneNumber(
@@ -383,6 +385,7 @@ class FirebaseAuth extends FirebasePluginPlatform {
       verificationFailed: verificationFailed,
       codeSent: codeSent,
       codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
+      multiFactorAuth: multiFactorAuth,
       requireSmsValidation: requireSmsValidation,
     );
   }

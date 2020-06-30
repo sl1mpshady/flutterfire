@@ -35,6 +35,7 @@ FirebaseException platformExceptionToFirebaseAuthException(
   String code = 'unknown';
   String message = platformException.message;
   AuthCredential credential;
+  MultiFactorResolver resolver;
 
   if (details != null) {
     code = details['code'] ?? code;
@@ -46,11 +47,17 @@ FirebaseException platformExceptionToFirebaseAuthException(
         signInMethod: details['authCredential']['signInMethod'],
       );
     }
+
+    if (details['resolver'] != null) {
+      resolver =
+          MultiFactorResolver(Map<String, dynamic>.from(details['resolver']));
+    }
   }
 
   return FirebaseAuthException(
       code: code,
       message: message,
       email: details['email'],
-      credential: credential);
+      credential: credential,
+      resolver: resolver);
 }

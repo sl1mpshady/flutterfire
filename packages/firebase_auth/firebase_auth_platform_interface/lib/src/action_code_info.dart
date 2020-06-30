@@ -49,13 +49,7 @@ class ActionCodeInfo {
       'previousEmail': _data['previousEmail'],
       'multiFactorInfo': _data['multiFactorInfo'] == null
           ? null
-          : MultiFactorInfo(
-              displayName: _data['multiFactorInfo']['displayName'],
-              enrollmentTimestamp: _data['multiFactorInfo']
-                  ['enrollmentTimestamp'],
-              factorId: _data['multiFactorInfo']['factorId'],
-              uid: _data['multiFactorInfo']['uid'],
-            ),
+          : MultiFactorInfo(_data['multiFactorInfo']),
     };
   }
 }

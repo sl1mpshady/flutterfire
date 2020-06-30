@@ -334,8 +334,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   }
 
   Future<void> signOut() async {
-    await channel
-        .invokeMethod<void>('Auth#signOut', <String, dynamic>{
+    await channel.invokeMethod<void>('Auth#signOut', <String, dynamic>{
       'appName': app.name,
     }).catchError(catchPlatformException);
   }
@@ -356,6 +355,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
     Duration timeout = const Duration(seconds: 30),
     int forceResendingToken,
+    bool multiFactorAuth,
     bool requireSmsValidation,
   }) {
     int handle = MethodChannelFirebaseAuth.nextMethodChannelHandleId;
@@ -370,6 +370,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       'phoneNumber': phoneNumber,
       'timeout': timeout.inMilliseconds,
       'forceResendingToken': forceResendingToken,
+      'multiFactorAuth': multiFactorAuth,
       'requireSmsValidation': requireSmsValidation,
     }).catchError(catchPlatformException);
   }

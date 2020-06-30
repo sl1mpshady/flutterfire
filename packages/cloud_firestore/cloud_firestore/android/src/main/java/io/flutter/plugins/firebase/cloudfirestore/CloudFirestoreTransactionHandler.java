@@ -5,6 +5,7 @@
 package io.flutter.plugins.firebase.cloudfirestore;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.gms.tasks.Task;
@@ -18,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Transaction;
 import io.flutter.plugin.common.MethodChannel;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +30,12 @@ import java.util.concurrent.TimeoutException;
 class CloudFirestoreTransactionHandler {
   static final SparseArray<Transaction> transactions = new SparseArray<>();
   private MethodChannel channel;
-  private Activity activity;
+  private WeakReference<Activity> activityRef;
   private int transactionId;
 
   CloudFirestoreTransactionHandler(MethodChannel channel, Activity activity, int transactionId) {
     this.channel = channel;
-    this.activity = activity;
+    this.activityRef = new WeakReference<>(activity);
     this.transactionId = transactionId;
   }
 
@@ -68,37 +70,44 @@ class CloudFirestoreTransactionHandler {
               new TaskCompletionSource<>();
           final Task<Map<String, Object>> sourceTask = completionSource.getTask();
 
-          activity.runOnUiThread(
-              () ->
-                  channel.invokeMethod(
-                      "Transaction#attempt",
-                      arguments,
-                      new MethodChannel.Result() {
-                        @Override
-                        public void success(@Nullable Object result) {
-                          // noinspection unchecked
-                          completionSource.trySetResult((Map<String, Object>) result);
-                        }
+          if (activityRef.get() == null) {
+            return TransactionResult.fromException(
+                new ActivityNotFoundException("Activity context no longer exists."));
+          }
 
-                        @Override
-                        public void error(
-                            String errorCode,
-                            @Nullable String errorMessage,
-                            @Nullable Object errorDetails) {
-                          completionSource.trySetException(
-                              new FirebaseFirestoreException(
-                                  "Transaction#attempt error: " + errorMessage,
-                                  FirebaseFirestoreException.Code.ABORTED));
-                        }
+          activityRef
+              .get()
+              .runOnUiThread(
+                  () ->
+                      channel.invokeMethod(
+                          "Transaction#attempt",
+                          arguments,
+                          new MethodChannel.Result() {
+                            @Override
+                            public void success(@Nullable Object result) {
+                              // noinspection unchecked
+                              completionSource.trySetResult((Map<String, Object>) result);
+                            }
 
-                        @Override
-                        public void notImplemented() {
-                          completionSource.trySetException(
-                              new FirebaseFirestoreException(
-                                  "Transaction#attempt: Not implemented",
-                                  FirebaseFirestoreException.Code.ABORTED));
-                        }
-                      }));
+                            @Override
+                            public void error(
+                                String errorCode,
+                                @Nullable String errorMessage,
+                                @Nullable Object errorDetails) {
+                              completionSource.trySetException(
+                                  new FirebaseFirestoreException(
+                                      "Transaction#attempt error: " + errorMessage,
+                                      FirebaseFirestoreException.Code.ABORTED));
+                            }
+
+                            @Override
+                            public void notImplemented() {
+                              completionSource.trySetException(
+                                  new FirebaseFirestoreException(
+                                      "Transaction#attempt: Not implemented",
+                                      FirebaseFirestoreException.Code.ABORTED));
+                            }
+                          }));
 
           Map<String, Object> response;
 

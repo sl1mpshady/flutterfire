@@ -658,4 +658,21 @@ public class CloudFirestorePlugin
   public Task<Map<String, Object>> getPluginConstantsForFirebaseApp(FirebaseApp firebaseApp) {
     return null;
   }
+
+  @Override
+  public Task<Void> didReinitializeFirebaseCore() {
+    return Tasks.call(
+        cachedThreadPool,
+        () -> {
+          removeEventListeners();
+          // Context is ignored by API so we don't send it over even though annotated non-null.
+          // noinspection ConstantConditions
+          for (FirebaseApp app : FirebaseApp.getApps(null)) {
+            FirebaseFirestore firestore = FirebaseFirestore.getInstance(app);
+            Tasks.await(firestore.terminate());
+            CloudFirestorePlugin.destroyCachedFirebaseFirestoreInstanceForKey(app.getName());
+          }
+          return null;
+        });
+  }
 }

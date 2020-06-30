@@ -149,6 +149,7 @@ public class CloudFirestorePlugin
     snapshotMap.put("path", documentSnapshot.getReference().getPath());
 
     if (documentSnapshot.getData() == null) {
+      // noinspection ConstantConditions
       snapshotMap.put("data", null);
     } else {
       snapshotMap.put("data", documentSnapshot.getData());
@@ -167,7 +168,7 @@ public class CloudFirestorePlugin
     for (DocumentSnapshot document : querySnapshot.getDocuments()) {
       paths.add(document.getReference().getPath());
       documents.add(document.getData());
-      Map<String, Object> metadata = new HashMap<String, Object>();
+      Map<String, Object> metadata = new HashMap<>();
       metadata.put("hasPendingWrites", document.getMetadata().hasPendingWrites());
       metadata.put("isFromCache", document.getMetadata().isFromCache());
       metadatas.add(metadata);
@@ -364,7 +365,8 @@ public class CloudFirestorePlugin
             String type = (String) Objects.requireNonNull(write.get("type"));
             String path = (String) Objects.requireNonNull(write.get("path"));
             // noinspection unchecked
-            Map<String, Object> data = (Map<String, Object>) write.get("data");
+            Map<String, Object> data =
+                (Map<String, Object>) Objects.requireNonNull(write.get("data"));
 
             DocumentReference documentReference = getDocumentReference(firestore, path);
 
@@ -732,7 +734,7 @@ public class CloudFirestorePlugin
     return instance;
   }
 
-  private Void setFirestoreSettings(FirebaseFirestore firebaseFirestore, String appName) {
+  private void setFirestoreSettings(FirebaseFirestore firebaseFirestore, String appName) {
     FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
     preferences.setApplicationContext(activity.getApplicationContext());
     FirebaseFirestoreSettings.Builder firestoreSettings = new FirebaseFirestoreSettings.Builder();
@@ -771,8 +773,6 @@ public class CloudFirestorePlugin
     preferences.remove(SETTINGS_HOST + appName);
     preferences.remove(SETTINGS_PERSISTENCE + appName);
     preferences.remove(SETTINGS_SSL + appName);
-
-    return null;
   }
 
   private Query getReference(Map<String, Object> arguments) {
@@ -800,7 +800,7 @@ public class CloudFirestorePlugin
   }
 
   private Source getSource(Map<String, Object> arguments) {
-    String source = (String) arguments.get("source");
+    String source = (String) Objects.requireNonNull(arguments.get("source"));
 
     switch (source) {
       case "server":
@@ -840,9 +840,11 @@ public class CloudFirestorePlugin
       } else if ("array-contains".equals(operator)) {
         query = query.whereArrayContains(fieldPath, value);
       } else if ("array-contains-any".equals(operator)) {
+        @SuppressWarnings("unchecked")
         List<Object> values = (List<Object>) value;
         query = query.whereArrayContainsAny(fieldPath, values);
       } else if ("in".equals(operator)) {
+        @SuppressWarnings("unchecked")
         List<Object> values = (List<Object>) value;
         query = query.whereIn(fieldPath, values);
       } else {
@@ -875,19 +877,19 @@ public class CloudFirestorePlugin
     // cursor queries
     @SuppressWarnings("unchecked")
     List<Object> startAt = (List<Object>) parameters.get("startAt");
-    if (startAt != null) query = query.startAt(startAt.toArray());
+    if (startAt != null) query = query.startAt(Objects.requireNonNull(startAt.toArray()));
 
     @SuppressWarnings("unchecked")
     List<Object> startAfter = (List<Object>) parameters.get("startAfter");
-    if (startAfter != null) query = query.startAfter(startAfter.toArray());
+    if (startAfter != null) query = query.startAfter(Objects.requireNonNull(startAfter.toArray()));
 
     @SuppressWarnings("unchecked")
     List<Object> endAt = (List<Object>) parameters.get("endAt");
-    if (endAt != null) query = query.endAt(endAt.toArray());
+    if (endAt != null) query = query.endAt(Objects.requireNonNull(endAt.toArray()));
 
     @SuppressWarnings("unchecked")
     List<Object> endBefore = (List<Object>) parameters.get("endBefore");
-    if (endBefore != null) query = query.endBefore(endBefore.toArray());
+    if (endBefore != null) query = query.endBefore(Objects.requireNonNull(endBefore.toArray()));
 
     return query;
   }

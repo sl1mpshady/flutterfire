@@ -23,9 +23,6 @@ import java.util.concurrent.TimeoutException;
 
 class CloudFirestoreTransactionHandler {
   static final SparseArray<Transaction> transactions = new SparseArray<>();
-  static final SparseArray<TaskCompletionSource<Map<String, Object>>> completionTasks =
-      new SparseArray<>();
-  private static final String TAG = "TransactionHandler";
   private MethodChannel channel;
   private Activity activity;
   private int transactionId;
@@ -127,7 +124,8 @@ class CloudFirestoreTransactionHandler {
             DocumentReference documentReference = firestore.document(path);
 
             // noinspection unchecked
-            Map<String, Object> data = (Map<String, Object>) command.get("data");
+            Map<String, Object> data =
+                (Map<String, Object>) Objects.requireNonNull(command.get("data"));
 
             switch (type) {
               case "DELETE":

@@ -114,7 +114,7 @@ class CloudFirestoreMessageCodec extends StandardMessageCodec {
     }
 
     if (source == null) {
-      return new Object[0];
+      return new ArrayList<>().toArray();
     }
 
     String sourceType = source.getClass().getCanonicalName();

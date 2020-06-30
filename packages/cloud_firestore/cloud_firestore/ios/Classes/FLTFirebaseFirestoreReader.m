@@ -110,7 +110,7 @@
     if (size == -1) {
       settings.cacheSizeBytes = kFIRFirestoreCacheSizeUnlimited;
     } else {
-      settings.cacheSizeBytes = (int64_t) size;
+      settings.cacheSizeBytes = (int64_t)size;
     }
   }
 
@@ -120,89 +120,94 @@
 }
 
 - (FIRQuery *)FIRQuery {
-  FIRQuery *query;
-  NSDictionary *values = [self readValue];
-  FIRFirestore *firestore = values[@"firestore"];
+  @try {
+    FIRQuery *query;
+    NSDictionary *values = [self readValue];
+    FIRFirestore *firestore = values[@"firestore"];
 
-  NSDictionary *parameters = values[@"parameters"];
-  NSArray *whereConditions = parameters[@"where"];
-  BOOL isCollectionGroup = ((NSNumber *)values[@"isCollectionGroup"]).boolValue;
+    NSDictionary *parameters = values[@"parameters"];
+    NSArray *whereConditions = parameters[@"where"];
+    BOOL isCollectionGroup = ((NSNumber *) values[@"isCollectionGroup"]).boolValue;
 
-  if (isCollectionGroup) {
-    query = [firestore collectionGroupWithID:values[@"path"]];
-  } else {
-    query = (FIRQuery *) [firestore collectionWithPath:values[@"path"]];
-  }
-
-  // Filters
-  for (id item in whereConditions) {
-    NSArray *condition = item;
-    FIRFieldPath *fieldPath = (FIRFieldPath *)condition[0];
-    NSString *operator= condition[1];
-    id value = condition[2];
-    if ([operator isEqualToString:@"=="]) {
-      query = [query queryWhereFieldPath:fieldPath isEqualTo:value];
-    } else if ([operator isEqualToString:@"<"]) {
-      query = [query queryWhereFieldPath:fieldPath isLessThan:value];
-    } else if ([operator isEqualToString:@"<="]) {
-      query = [query queryWhereFieldPath:fieldPath isLessThanOrEqualTo:value];
-    } else if ([operator isEqualToString:@">"]) {
-      query = [query queryWhereFieldPath:fieldPath isGreaterThan:value];
-    } else if ([operator isEqualToString:@">="]) {
-      query = [query queryWhereFieldPath:fieldPath isGreaterThanOrEqualTo:value];
-    } else if ([operator isEqualToString:@"array-contains"]) {
-      query = [query queryWhereFieldPath:fieldPath arrayContains:value];
-    } else if ([operator isEqualToString:@"array-contains-any"]) {
-      query = [query queryWhereFieldPath:fieldPath arrayContainsAny:value];
-    } else if ([operator isEqualToString:@"in"]) {
-      query = [query queryWhereFieldPath:fieldPath in:value];
+    if (isCollectionGroup) {
+      query = [firestore collectionGroupWithID:values[@"path"]];
     } else {
-      NSLog(@"FLTFirebaseFirestore: An invalid query operator %@ was received but not handled.",
-            operator);
+      query = (FIRQuery *) [firestore collectionWithPath:values[@"path"]];
     }
-  }
 
-  // Limit
-  id limit = parameters[@"limit"];
-  if (![limit isEqual:[NSNull null]]) {
-    query = [query queryLimitedTo:((NSNumber *)limit).intValue];
-  }
+    // Filters
+    for (id item in whereConditions) {
+      NSArray *condition = item;
+      FIRFieldPath *fieldPath = (FIRFieldPath *) condition[0];
+      NSString *operator = condition[1];
+      id value = condition[2];
+      if ([operator isEqualToString:@"=="]) {
+        query = [query queryWhereFieldPath:fieldPath isEqualTo:value];
+      } else if ([operator isEqualToString:@"<"]) {
+        query = [query queryWhereFieldPath:fieldPath isLessThan:value];
+      } else if ([operator isEqualToString:@"<="]) {
+        query = [query queryWhereFieldPath:fieldPath isLessThanOrEqualTo:value];
+      } else if ([operator isEqualToString:@">"]) {
+        query = [query queryWhereFieldPath:fieldPath isGreaterThan:value];
+      } else if ([operator isEqualToString:@">="]) {
+        query = [query queryWhereFieldPath:fieldPath isGreaterThanOrEqualTo:value];
+      } else if ([operator isEqualToString:@"array-contains"]) {
+        query = [query queryWhereFieldPath:fieldPath arrayContains:value];
+      } else if ([operator isEqualToString:@"array-contains-any"]) {
+        query = [query queryWhereFieldPath:fieldPath arrayContainsAny:value];
+      } else if ([operator isEqualToString:@"in"]) {
+        query = [query queryWhereFieldPath:fieldPath in:value];
+      } else {
+        NSLog(@"FLTFirebaseFirestore: An invalid query operator %@ was received but not handled.",
+              operator);
+      }
+    }
 
-  // Limit To Last
-  id limitToLast = parameters[@"limitToLast"];
-  if (![limitToLast isEqual:[NSNull null]]) {
-    query = [query queryLimitedToLast:((NSNumber *)limitToLast).intValue];
-  }
+    // Limit
+    id limit = parameters[@"limit"];
+    if (![limit isEqual:[NSNull null]]) {
+      query = [query queryLimitedTo:((NSNumber *) limit).intValue];
+    }
 
-  // Ordering
-  NSArray *orderBy = parameters[@"orderBy"];
-  if ([orderBy isEqual:[NSNull null]]) {
-    // We return early if no ordering set as cursor queries below require at least one orderBy set
+    // Limit To Last
+    id limitToLast = parameters[@"limitToLast"];
+    if (![limitToLast isEqual:[NSNull null]]) {
+      query = [query queryLimitedToLast:((NSNumber *) limitToLast).intValue];
+    }
+
+    // Ordering
+    NSArray *orderBy = parameters[@"orderBy"];
+    if ([orderBy isEqual:[NSNull null]]) {
+      // We return early if no ordering set as cursor queries below require at least one orderBy set
+      return query;
+    }
+
+    for (NSArray *orderByParameters in orderBy) {
+      FIRFieldPath *fieldPath = (FIRFieldPath *) orderByParameters[0];
+      NSNumber *descending = orderByParameters[1];
+      query = [query queryOrderedByFieldPath:fieldPath descending:[descending boolValue]];
+    }
+
+    // Start At
+    id startAt = parameters[@"startAt"];
+    if (![startAt isEqual:[NSNull null]]) query = [query queryStartingAtValues:(NSArray *) startAt];
+    // Start After
+    id startAfter = parameters[@"startAfter"];
+    if (![startAfter isEqual:[NSNull null]])
+      query = [query queryStartingAfterValues:(NSArray *) startAfter];
+    // End At
+    id endAt = parameters[@"endAt"];
+    if (![endAt isEqual:[NSNull null]]) query = [query queryEndingAtValues:(NSArray *) endAt];
+    // End Before
+    id endBefore = parameters[@"endBefore"];
+    if (![endBefore isEqual:[NSNull null]])
+      query = [query queryEndingBeforeValues:(NSArray *) endBefore];
+
     return query;
+  } @catch (NSException * exception) {
+    NSLog(@"An error occurred while parsing query arguments, this is most likely an error with this SDK. %@", [exception callStackSymbols]);
+    return nil;
   }
-
-  for (NSArray *orderByParameters in orderBy) {
-    FIRFieldPath *fieldPath = (FIRFieldPath *)orderByParameters[0];
-    NSNumber *descending = orderByParameters[1];
-    query = [query queryOrderedByFieldPath:fieldPath descending:[descending boolValue]];
-  }
-
-  // Start At
-  id startAt = parameters[@"startAt"];
-  if (![startAt isEqual:[NSNull null]]) query = [query queryStartingAtValues:(NSArray *)startAt];
-  // Start After
-  id startAfter = parameters[@"startAfter"];
-  if (![startAfter isEqual:[NSNull null]])
-    query = [query queryStartingAfterValues:(NSArray *)startAfter];
-  // End At
-  id endAt = parameters[@"endAt"];
-  if (![endAt isEqual:[NSNull null]]) query = [query queryEndingAtValues:(NSArray *)endAt];
-  // End Before
-  id endBefore = parameters[@"endBefore"];
-  if (![endBefore isEqual:[NSNull null]])
-    query = [query queryEndingBeforeValues:(NSArray *)endBefore];
-
-  return query;
 }
 
 - (FIRFirestore *)FIRFirestore {

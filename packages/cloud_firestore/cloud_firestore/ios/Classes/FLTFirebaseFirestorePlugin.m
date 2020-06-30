@@ -348,7 +348,10 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
   __weak __typeof__(self) weakSelf = self;
   FIRQuery *query = arguments[@"query"];
 
-  // TODO if query nil
+  if (query == nil) {
+    result.error(@"sdk-error", @"An error occurred while parsing query arguments, see native logs for more information. Please report this issue.", nil, nil);
+    return;
+  }
 
   __block NSNumber *handle = arguments[@"handle"];
   NSNumber *includeMetadataChanges = arguments[@"includeMetadataChanges"];
@@ -416,7 +419,12 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
 
 - (void)queryGet:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
   FIRQuery *query = arguments[@"query"];
-  // TODO if query nil
+
+  if (query == nil) {
+    result.error(@"sdk-error", @"An error occurred while parsing query arguments, see native logs for more information. Please report this issue.", nil, nil);
+    return;
+  }
+
 
   FIRFirestoreSource source = [FLTFirebaseFirestoreUtils FIRFirestoreSourceFromArguments:arguments];
   [query getDocumentsWithSource:source

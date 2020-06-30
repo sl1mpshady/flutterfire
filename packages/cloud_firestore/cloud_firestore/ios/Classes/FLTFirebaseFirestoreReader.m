@@ -127,19 +127,19 @@
 
     NSDictionary *parameters = values[@"parameters"];
     NSArray *whereConditions = parameters[@"where"];
-    BOOL isCollectionGroup = ((NSNumber *) values[@"isCollectionGroup"]).boolValue;
+    BOOL isCollectionGroup = ((NSNumber *)values[@"isCollectionGroup"]).boolValue;
 
     if (isCollectionGroup) {
       query = [firestore collectionGroupWithID:values[@"path"]];
     } else {
-      query = (FIRQuery *) [firestore collectionWithPath:values[@"path"]];
+      query = (FIRQuery *)[firestore collectionWithPath:values[@"path"]];
     }
 
     // Filters
     for (id item in whereConditions) {
       NSArray *condition = item;
-      FIRFieldPath *fieldPath = (FIRFieldPath *) condition[0];
-      NSString *operator = condition[1];
+      FIRFieldPath *fieldPath = (FIRFieldPath *)condition[0];
+      NSString *operator= condition[1];
       id value = condition[2];
       if ([operator isEqualToString:@"=="]) {
         query = [query queryWhereFieldPath:fieldPath isEqualTo:value];
@@ -166,13 +166,13 @@
     // Limit
     id limit = parameters[@"limit"];
     if (![limit isEqual:[NSNull null]]) {
-      query = [query queryLimitedTo:((NSNumber *) limit).intValue];
+      query = [query queryLimitedTo:((NSNumber *)limit).intValue];
     }
 
     // Limit To Last
     id limitToLast = parameters[@"limitToLast"];
     if (![limitToLast isEqual:[NSNull null]]) {
-      query = [query queryLimitedToLast:((NSNumber *) limitToLast).intValue];
+      query = [query queryLimitedToLast:((NSNumber *)limitToLast).intValue];
     }
 
     // Ordering
@@ -183,29 +183,31 @@
     }
 
     for (NSArray *orderByParameters in orderBy) {
-      FIRFieldPath *fieldPath = (FIRFieldPath *) orderByParameters[0];
+      FIRFieldPath *fieldPath = (FIRFieldPath *)orderByParameters[0];
       NSNumber *descending = orderByParameters[1];
       query = [query queryOrderedByFieldPath:fieldPath descending:[descending boolValue]];
     }
 
     // Start At
     id startAt = parameters[@"startAt"];
-    if (![startAt isEqual:[NSNull null]]) query = [query queryStartingAtValues:(NSArray *) startAt];
+    if (![startAt isEqual:[NSNull null]]) query = [query queryStartingAtValues:(NSArray *)startAt];
     // Start After
     id startAfter = parameters[@"startAfter"];
     if (![startAfter isEqual:[NSNull null]])
-      query = [query queryStartingAfterValues:(NSArray *) startAfter];
+      query = [query queryStartingAfterValues:(NSArray *)startAfter];
     // End At
     id endAt = parameters[@"endAt"];
-    if (![endAt isEqual:[NSNull null]]) query = [query queryEndingAtValues:(NSArray *) endAt];
+    if (![endAt isEqual:[NSNull null]]) query = [query queryEndingAtValues:(NSArray *)endAt];
     // End Before
     id endBefore = parameters[@"endBefore"];
     if (![endBefore isEqual:[NSNull null]])
-      query = [query queryEndingBeforeValues:(NSArray *) endBefore];
+      query = [query queryEndingBeforeValues:(NSArray *)endBefore];
 
     return query;
-  } @catch (NSException * exception) {
-    NSLog(@"An error occurred while parsing query arguments, this is most likely an error with this SDK. %@", [exception callStackSymbols]);
+  } @catch (NSException *exception) {
+    NSLog(@"An error occurred while parsing query arguments, this is most likely an error with "
+          @"this SDK. %@",
+          [exception callStackSymbols]);
     return nil;
   }
 }

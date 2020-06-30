@@ -241,24 +241,6 @@ void main() {
           'includeMetadataChanges': false,
         });
         expect(log[1].arguments, <String, dynamic>{'handle': handleId});
-        // expect(
-        //   log,
-        //   equals(<Matcher>[
-        //     isMethodCall(
-        //       'Query#addSnapshotListener',
-        //       arguments: <String, dynamic>{
-        //         'query': isInstanceOf<MethodChannelQuery>(),
-        //         'handle': handleId,
-        //         'firestore': isInstanceOf<FirestorePlatform>(),
-        //         'includeMetadataChanges': false,
-        //       },
-        //     ),
-        //     isMethodCall(
-        //       'Firestore#removeListener',
-        //       arguments: <String, dynamic>{'handle': handleId},
-        //     ),
-        //   ]),
-        // );
       });
     });
 

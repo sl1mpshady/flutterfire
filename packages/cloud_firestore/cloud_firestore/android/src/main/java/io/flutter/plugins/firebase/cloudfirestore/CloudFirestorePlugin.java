@@ -5,13 +5,11 @@
 package io.flutter.plugins.firebase.cloudfirestore;
 
 import android.app.Activity;
-import android.util.Log;
 import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -45,7 +43,6 @@ import java.util.WeakHashMap;
 
 public class CloudFirestorePlugin
     implements FlutterFirebasePlugin, MethodCallHandler, FlutterPlugin, ActivityAware {
-  private static final String TAG = "CloudFirestorePlugin";
   private static final WeakHashMap<String, WeakReference<FirebaseFirestore>>
       firestoreInstanceCache = new WeakHashMap<>();
   private static final SparseArray<ListenerRegistration> listenerRegistrations =
@@ -54,7 +51,7 @@ public class CloudFirestorePlugin
   private MethodChannel channel;
   private Activity activity;
 
-  public static FirebaseFirestore getCachedFirebaseFirestoreInstanceForKey(String key) {
+  protected static FirebaseFirestore getCachedFirebaseFirestoreInstanceForKey(String key) {
     synchronized (firestoreInstanceCache) {
       WeakReference<FirebaseFirestore> existingInstance = firestoreInstanceCache.get(key);
       if (existingInstance != null) {
@@ -65,7 +62,7 @@ public class CloudFirestorePlugin
     }
   }
 
-  private static void setCachedFirebaseFirestoreInstanceForKey(
+  protected static void setCachedFirebaseFirestoreInstanceForKey(
       FirebaseFirestore firestore, String key) {
     synchronized (firestoreInstanceCache) {
       WeakReference<FirebaseFirestore> existingInstance = firestoreInstanceCache.get(key);
@@ -224,8 +221,9 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          FirebaseFirestore firebaseFirestore = getFirestore(arguments);
-          return Tasks.await(firebaseFirestore.disableNetwork());
+          FirebaseFirestore firestore =
+              (FirebaseFirestore) Objects.requireNonNull(arguments.get("firestore"));
+          return Tasks.await(firestore.disableNetwork());
         });
   }
 
@@ -233,8 +231,9 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          FirebaseFirestore firebaseFirestore = getFirestore(arguments);
-          return Tasks.await(firebaseFirestore.enableNetwork());
+          FirebaseFirestore firestore =
+              (FirebaseFirestore) Objects.requireNonNull(arguments.get("firestore"));
+          return Tasks.await(firestore.enableNetwork());
         });
   }
 
@@ -243,7 +242,8 @@ public class CloudFirestorePlugin
         cachedThreadPool,
         () -> {
           int handle = (int) Objects.requireNonNull(arguments.get("handle"));
-          FirebaseFirestore firebaseFirestore = getFirestore(arguments);
+          FirebaseFirestore firestore =
+              (FirebaseFirestore) Objects.requireNonNull(arguments.get("firestore"));
 
           Runnable snapshotsInSyncRunnable =
               () -> {
@@ -254,7 +254,7 @@ public class CloudFirestorePlugin
               };
 
           listenerRegistrations.put(
-              handle, firebaseFirestore.addSnapshotsInSyncListener(snapshotsInSyncRunnable));
+              handle, firestore.addSnapshotsInSyncListener(snapshotsInSyncRunnable));
 
           return handle;
         });
@@ -264,7 +264,8 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          FirebaseFirestore firestore = getFirestore(arguments);
+          FirebaseFirestore firestore =
+              (FirebaseFirestore) Objects.requireNonNull(arguments.get("firestore"));
           int transactionId = (int) Objects.requireNonNull(arguments.get("transactionId"));
 
           Object value = arguments.get("timeout");
@@ -297,7 +298,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          DocumentReference documentReference = getDocumentReference(arguments);
+          DocumentReference documentReference = (DocumentReference) arguments.get("reference");
           DocumentSnapshot documentSnapshot =
               CloudFirestoreTransactionHandler.getDocument(
                   (int) Objects.requireNonNull(arguments.get("transactionId")), documentReference);
@@ -313,7 +314,8 @@ public class CloudFirestorePlugin
           // noinspection unchecked
           List<Map<String, Object>> writes =
               (List<Map<String, Object>>) Objects.requireNonNull(arguments.get("writes"));
-          FirebaseFirestore firestore = getFirestore(arguments);
+          FirebaseFirestore firestore =
+              (FirebaseFirestore) Objects.requireNonNull(arguments.get("firestore"));
           WriteBatch batch = firestore.batch();
 
           for (Map<String, Object> write : writes) {
@@ -323,7 +325,7 @@ public class CloudFirestorePlugin
             Map<String, Object> data =
                 (Map<String, Object>) Objects.requireNonNull(write.get("data"));
 
-            DocumentReference documentReference = getDocumentReference(firestore, path);
+            DocumentReference documentReference = firestore.document(path);
 
             switch (type) {
               case "DELETE":
@@ -369,7 +371,9 @@ public class CloudFirestorePlugin
                   ? MetadataChanges.INCLUDE
                   : MetadataChanges.EXCLUDE;
 
-          Query query = getQuery(arguments);
+          Query query = (Query) arguments.get("query");
+
+          // TODO if query null
 
           listenerRegistrations.put(handle, query.addSnapshotListener(metadataChanges, observer));
           return null;
@@ -380,8 +384,10 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          Query query = getQuery(arguments);
           Source source = getSource(arguments);
+          Query query = (Query) arguments.get("query");
+
+          // TODO if query null
 
           QuerySnapshot snapshot = Tasks.await(query.get(source));
           return parseQuerySnapshot(snapshot);
@@ -401,7 +407,8 @@ public class CloudFirestorePlugin
                   ? MetadataChanges.INCLUDE
                   : MetadataChanges.EXCLUDE;
 
-          DocumentReference documentReference = getDocumentReference(arguments);
+          DocumentReference documentReference =
+              (DocumentReference) Objects.requireNonNull(arguments.get("reference"));
 
           listenerRegistrations.put(
               handle, documentReference.addSnapshotListener(metadataChanges, observer));
@@ -414,8 +421,9 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          DocumentReference documentReference = getDocumentReference(arguments);
           Source source = getSource(arguments);
+          DocumentReference documentReference =
+              (DocumentReference) Objects.requireNonNull(arguments.get("reference"));
 
           DocumentSnapshot snapshot = Tasks.await(documentReference.get(source));
           return parseDocumentSnapshot(snapshot);
@@ -423,11 +431,11 @@ public class CloudFirestorePlugin
   }
 
   private Task<Void> documentReferenceSetData(Map<String, Object> arguments) {
-
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          final DocumentReference documentReference = getDocumentReference(arguments);
+          DocumentReference documentReference =
+              (DocumentReference) Objects.requireNonNull(arguments.get("reference"));
 
           // noinspection unchecked
           Map<String, Object> data =
@@ -457,7 +465,8 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          DocumentReference documentReference = getDocumentReference(arguments);
+          DocumentReference documentReference =
+              (DocumentReference) Objects.requireNonNull(arguments.get("reference"));
           // noinspection unchecked
           Map<String, Object> data =
               (Map<String, Object>) Objects.requireNonNull(arguments.get("data"));
@@ -470,52 +479,9 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          DocumentReference documentReference = getDocumentReference(arguments);
+          DocumentReference documentReference =
+              (DocumentReference) Objects.requireNonNull(arguments.get("reference"));
           return Tasks.await(documentReference.delete());
-        });
-  }
-
-  // Settings are required to be set before any other usage of Firestore. Rather than
-  // directly setting them here (in-case the user has already performed an action), the
-  // settings are set within shared-preferences & read when an instance of FirebaseFirestore
-  // is read.
-  private Task<Void> firestorePersistSettings(Map<String, Object> arguments) {
-    return Tasks.call(
-        cachedThreadPool,
-        () -> {
-          String appName = (String) arguments.get("appName");
-          // noinspection unchecked
-          Map<String, Object> settings =
-              (Map<String, Object>) Objects.requireNonNull(arguments.get("settings"));
-
-          if (settings.get("persistenceEnabled") != null) {
-            // TODO
-          }
-
-          if (settings.get("host") != null) {
-            // TODO
-          }
-
-          if (settings.get("sslEnabled") != null) {
-            // TODO
-          }
-
-          if (settings.get("cacheSizeBytes") != null) {
-            Object value = settings.get("cacheSizeBytes");
-            Long cacheSizeBytes = null;
-
-            if (value instanceof Long) {
-              cacheSizeBytes = (Long) value;
-            } else if (value instanceof Integer) {
-              cacheSizeBytes = Long.valueOf((Integer) value);
-            }
-
-            if (cacheSizeBytes != null) {
-              // TODO
-            }
-          }
-
-          return null;
         });
   }
 
@@ -523,8 +489,9 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          FirebaseFirestore firebaseFirestore = getFirestore(arguments);
-          return Tasks.await(firebaseFirestore.clearPersistence());
+          FirebaseFirestore firestore =
+              (FirebaseFirestore) Objects.requireNonNull(arguments.get("firestore"));
+          return Tasks.await(firestore.clearPersistence());
         });
   }
 
@@ -533,9 +500,10 @@ public class CloudFirestorePlugin
         cachedThreadPool,
         () -> {
           String appName = (String) arguments.get("appName");
-          FirebaseFirestore firebaseFirestore = getFirestore(arguments);
+          FirebaseFirestore firestore =
+              (FirebaseFirestore) Objects.requireNonNull(arguments.get("firestore"));
           destroyCachedFirebaseFirestoreInstanceForKey(appName);
-          return Tasks.await(firebaseFirestore.terminate());
+          return Tasks.await(firestore.terminate());
         });
   }
 
@@ -543,8 +511,9 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          FirebaseFirestore firebaseFirestore = getFirestore(arguments);
-          return Tasks.await(firebaseFirestore.waitForPendingWrites());
+          FirebaseFirestore firestore =
+              (FirebaseFirestore) Objects.requireNonNull(arguments.get("firestore"));
+          return Tasks.await(firestore.waitForPendingWrites());
         });
   }
 
@@ -600,9 +569,6 @@ public class CloudFirestorePlugin
         break;
       case "Firestore#clearPersistence":
         methodCallTask = clearPersistence(call.arguments());
-        break;
-      case "Firestore#settings":
-        methodCallTask = firestorePersistSettings(call.arguments());
         break;
       case "Firestore#terminate":
         methodCallTask = terminate(call.arguments());
@@ -669,87 +635,6 @@ public class CloudFirestorePlugin
     return details;
   }
 
-  private FirebaseFirestore getFirestore(Map<String, Object> arguments) {
-    String appName = (String) Objects.requireNonNull(arguments.get("appName"));
-
-    FirebaseFirestore existingInstance = getCachedFirebaseFirestoreInstanceForKey(appName);
-    if (existingInstance != null) {
-      return existingInstance;
-    }
-
-    FirebaseFirestore instance = FirebaseFirestore.getInstance(FirebaseApp.getInstance(appName));
-    setFirestoreSettings(instance, appName);
-
-    setCachedFirebaseFirestoreInstanceForKey(instance, appName);
-    return instance;
-  }
-
-  private void setFirestoreSettings(FirebaseFirestore firebaseFirestore, String appName) {
-    // TODO
-    //    FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
-    //    preferences.setApplicationContext(activity.getApplicationContext());
-    //    FirebaseFirestoreSettings.Builder firestoreSettings = new FirebaseFirestoreSettings.Builder();
-    //
-    //    long cacheSizeBytes =
-    //        preferences.getLongValue(
-    //            SETTINGS_CACHE_SIZE + appName,
-    //            firebaseFirestore.getFirestoreSettings().getCacheSizeBytes());
-    //
-    //    String host =
-    //        preferences.getStringValue(
-    //            SETTINGS_HOST + appName, firebaseFirestore.getFirestoreSettings().getHost());
-    //
-    //    boolean persistence =
-    //        preferences.getBooleanValue(
-    //            SETTINGS_PERSISTENCE + appName,
-    //            firebaseFirestore.getFirestoreSettings().isPersistenceEnabled());
-    //
-    //    boolean ssl =
-    //        preferences.getBooleanValue(
-    //            SETTINGS_SSL + appName, firebaseFirestore.getFirestoreSettings().isSslEnabled());
-    //
-    //    if (cacheSizeBytes == -1) {
-    //      firestoreSettings.setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED);
-    //    } else {
-    //      firestoreSettings.setCacheSizeBytes(cacheSizeBytes);
-    //    }
-    //
-    //    firestoreSettings.setHost(host);
-    //    firestoreSettings.setPersistenceEnabled(persistence);
-    //    firestoreSettings.setSslEnabled(ssl);
-    //    firebaseFirestore.setFirestoreSettings(firestoreSettings.build());
-    //
-    //    // Remove the users app setting preferences from cache
-    //    preferences.remove(SETTINGS_CACHE_SIZE + appName);
-    //    preferences.remove(SETTINGS_HOST + appName);
-    //    preferences.remove(SETTINGS_PERSISTENCE + appName);
-    //    preferences.remove(SETTINGS_SSL + appName);
-  }
-
-  private Query getReference(Map<String, Object> arguments) {
-    if ((boolean) arguments.get("isCollectionGroup")) return getCollectionGroupReference(arguments);
-    else return getCollectionReference(arguments);
-  }
-
-  private Query getCollectionGroupReference(Map<String, Object> arguments) {
-    String path = (String) Objects.requireNonNull(arguments.get("path"));
-    return getFirestore(arguments).collectionGroup(path);
-  }
-
-  private CollectionReference getCollectionReference(Map<String, Object> arguments) {
-    String path = (String) Objects.requireNonNull(arguments.get("path"));
-    return getFirestore(arguments).collection(path);
-  }
-
-  private DocumentReference getDocumentReference(Map<String, Object> arguments) {
-    String path = (String) Objects.requireNonNull(arguments.get("path"));
-    return getFirestore(arguments).document(path);
-  }
-
-  private DocumentReference getDocumentReference(FirebaseFirestore firestore, String path) {
-    return firestore.document(path);
-  }
-
   private Source getSource(Map<String, Object> arguments) {
     String source = (String) Objects.requireNonNull(arguments.get("source"));
 
@@ -761,88 +646,6 @@ public class CloudFirestorePlugin
       default:
         return Source.DEFAULT;
     }
-  }
-
-  private Query getQuery(Map<String, Object> arguments) {
-    Query query = getReference(arguments);
-    @SuppressWarnings("unchecked")
-    Map<String, Object> parameters = (Map<String, Object>) arguments.get("parameters");
-    if (parameters == null) return query;
-
-    // "where" filters
-    @SuppressWarnings("unchecked")
-    List<List<Object>> filters =
-        (List<List<Object>>) Objects.requireNonNull(parameters.get("where"));
-    for (List<Object> condition : filters) {
-      FieldPath fieldPath = (FieldPath) condition.get(0);
-      String operator = (String) condition.get(1);
-      Object value = condition.get(2);
-
-      if ("==".equals(operator)) {
-        query = query.whereEqualTo(fieldPath, value);
-      } else if ("<".equals(operator)) {
-        query = query.whereLessThan(fieldPath, value);
-      } else if ("<=".equals(operator)) {
-        query = query.whereLessThanOrEqualTo(fieldPath, value);
-      } else if (">".equals(operator)) {
-        query = query.whereGreaterThan(fieldPath, value);
-      } else if (">=".equals(operator)) {
-        query = query.whereGreaterThanOrEqualTo(fieldPath, value);
-      } else if ("array-contains".equals(operator)) {
-        query = query.whereArrayContains(fieldPath, value);
-      } else if ("array-contains-any".equals(operator)) {
-        @SuppressWarnings("unchecked")
-        List<Object> values = (List<Object>) value;
-        query = query.whereArrayContainsAny(fieldPath, values);
-      } else if ("in".equals(operator)) {
-        @SuppressWarnings("unchecked")
-        List<Object> values = (List<Object>) value;
-        query = query.whereIn(fieldPath, values);
-      } else {
-        Log.w(TAG, "An invalid query operator " + operator + " was received but not handled.");
-      }
-    }
-
-    // "limit" filters
-    Number limit = (Number) parameters.get("limit");
-    if (limit != null) query = query.limit(limit.longValue());
-
-    Number limitToLast = (Number) parameters.get("limitToLast");
-    if (limitToLast != null) query = query.limitToLast(limitToLast.longValue());
-
-    // "orderBy" filters
-    @SuppressWarnings("unchecked")
-    List<List<Object>> orderBy = (List<List<Object>>) parameters.get("orderBy");
-    if (orderBy == null) return query;
-
-    for (List<Object> order : orderBy) {
-      FieldPath fieldPath = (FieldPath) order.get(0);
-      boolean descending = (boolean) order.get(1);
-
-      Query.Direction direction =
-          descending ? Query.Direction.DESCENDING : Query.Direction.ASCENDING;
-
-      query = query.orderBy(fieldPath, direction);
-    }
-
-    // cursor queries
-    @SuppressWarnings("unchecked")
-    List<Object> startAt = (List<Object>) parameters.get("startAt");
-    if (startAt != null) query = query.startAt(Objects.requireNonNull(startAt.toArray()));
-
-    @SuppressWarnings("unchecked")
-    List<Object> startAfter = (List<Object>) parameters.get("startAfter");
-    if (startAfter != null) query = query.startAfter(Objects.requireNonNull(startAfter.toArray()));
-
-    @SuppressWarnings("unchecked")
-    List<Object> endAt = (List<Object>) parameters.get("endAt");
-    if (endAt != null) query = query.endAt(Objects.requireNonNull(endAt.toArray()));
-
-    @SuppressWarnings("unchecked")
-    List<Object> endBefore = (List<Object>) parameters.get("endBefore");
-    if (endBefore != null) query = query.endBefore(Objects.requireNonNull(endBefore.toArray()));
-
-    return query;
   }
 
   @Override

@@ -1,5 +1,6 @@
 package io.flutter.plugins.firebase.cloudfirestore;
 
+import android.util.Log;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Blob;
@@ -16,10 +17,11 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 class CloudFirestoreMessageCodec extends StandardMessageCodec {
   public static final CloudFirestoreMessageCodec INSTANCE = new CloudFirestoreMessageCodec();
-
   private static final byte DATA_TYPE_DATE_TIME = (byte) 128;
   private static final byte DATA_TYPE_GEO_POINT = (byte) 129;
   private static final byte DATA_TYPE_DOCUMENT_REFERENCE = (byte) 130;
@@ -33,12 +35,9 @@ class CloudFirestoreMessageCodec extends StandardMessageCodec {
   private static final byte DATA_TYPE_INCREMENT_INTEGER = (byte) 138;
   private static final byte DATA_TYPE_DOCUMENT_ID = (byte) 139;
   private static final byte DATA_TYPE_FIELD_PATH = (byte) 140;
-
-  // TODO
   private static final byte DATA_TYPE_NAN = (byte) 141;
   private static final byte DATA_TYPE_INFINITY = (byte) 142;
   private static final byte DATA_TYPE_NEGATIVE_INFINITY = (byte) 143;
-
   private static final byte DATA_TYPE_FIRESTORE_INSTANCE = (byte) 144;
   private static final byte DATA_TYPE_FIRESTORE_QUERY = (byte) 145;
   private static final byte DATA_TYPE_FIRESTORE_SETTINGS = (byte) 146;
@@ -140,18 +139,158 @@ class CloudFirestoreMessageCodec extends StandardMessageCodec {
   }
 
   private FirebaseFirestore readFirestoreInstance(ByteBuffer buffer) {
-    // TODO
-    return null;
+    String appName = (String) readValue(buffer);
+    FirebaseFirestoreSettings settings = (FirebaseFirestoreSettings) readValue(buffer);
+
+    if (CloudFirestorePlugin.getCachedFirebaseFirestoreInstanceForKey(appName) != null) {
+      return CloudFirestorePlugin.getCachedFirebaseFirestoreInstanceForKey(appName);
+    }
+
+    FirebaseApp app = FirebaseApp.getInstance(appName);
+    FirebaseFirestore firestore = FirebaseFirestore.getInstance(app);
+
+    firestore.setFirestoreSettings(settings);
+
+    CloudFirestorePlugin.setCachedFirebaseFirestoreInstanceForKey(firestore, appName);
+    return firestore;
   }
 
   private FirebaseFirestoreSettings readFirestoreSettings(ByteBuffer buffer) {
-    // TODO
-    return null;
+    @SuppressWarnings("unchecked")
+    Map<String, Object> settingsMap = (Map<String, Object>) readValue(buffer);
+
+    FirebaseFirestoreSettings.Builder settingsBuilder = new FirebaseFirestoreSettings.Builder();
+
+    if (settingsMap.get("persistenceEnabled") != null) {
+      settingsBuilder.setPersistenceEnabled(
+          (Boolean) Objects.requireNonNull(settingsMap.get("persistenceEnabled")));
+    }
+
+    if (settingsMap.get("host") != null) {
+      settingsBuilder.setHost((String) Objects.requireNonNull(settingsMap.get("host")));
+      // Only allow changing ssl if host is also specified.
+      if (settingsMap.get("sslEnabled") != null) {
+        settingsBuilder.setSslEnabled(
+            (Boolean) Objects.requireNonNull(settingsMap.get("sslEnabled")));
+      }
+    }
+
+    if (settingsMap.get("cacheSizeBytes") != null) {
+      Long cacheSizeBytes = 104857600L;
+      Object value = settingsMap.get("cacheSizeBytes");
+
+      if (value instanceof Long) {
+        cacheSizeBytes = (Long) value;
+      } else if (value instanceof Integer) {
+        cacheSizeBytes = Long.valueOf((Integer) value);
+      }
+
+      if (cacheSizeBytes == -1) {
+        settingsBuilder.setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED);
+      } else {
+        settingsBuilder.setCacheSizeBytes(cacheSizeBytes);
+      }
+    }
+
+    return settingsBuilder.build();
   }
 
   private Query readFirestoreQuery(ByteBuffer buffer) {
-    // TODO
-    return null;
+    @SuppressWarnings("unchecked")
+    Map<String, Object> values = (Map<String, Object>) readValue(buffer);
+    FirebaseFirestore firestore =
+        (FirebaseFirestore) Objects.requireNonNull(values.get("firestore"));
+
+    String path = (String) Objects.requireNonNull(values.get("path"));
+    boolean isCollectionGroup = (boolean) values.get("isCollectionGroup");
+    @SuppressWarnings("unchecked")
+    Map<String, Object> parameters = (Map<String, Object>) values.get("parameters");
+
+    Query query;
+    if (isCollectionGroup) {
+      query = firestore.collectionGroup(path);
+    } else {
+      query = firestore.collection(path);
+    }
+
+    if (parameters == null) return query;
+
+    // "where" filters
+    @SuppressWarnings("unchecked")
+    List<List<Object>> filters =
+        (List<List<Object>>) Objects.requireNonNull(parameters.get("where"));
+    for (List<Object> condition : filters) {
+      FieldPath fieldPath = (FieldPath) condition.get(0);
+      String operator = (String) condition.get(1);
+      Object value = condition.get(2);
+
+      if ("==".equals(operator)) {
+        query = query.whereEqualTo(fieldPath, value);
+      } else if ("<".equals(operator)) {
+        query = query.whereLessThan(fieldPath, value);
+      } else if ("<=".equals(operator)) {
+        query = query.whereLessThanOrEqualTo(fieldPath, value);
+      } else if (">".equals(operator)) {
+        query = query.whereGreaterThan(fieldPath, value);
+      } else if (">=".equals(operator)) {
+        query = query.whereGreaterThanOrEqualTo(fieldPath, value);
+      } else if ("array-contains".equals(operator)) {
+        query = query.whereArrayContains(fieldPath, value);
+      } else if ("array-contains-any".equals(operator)) {
+        @SuppressWarnings("unchecked")
+        List<Object> listValues = (List<Object>) value;
+        query = query.whereArrayContainsAny(fieldPath, listValues);
+      } else if ("in".equals(operator)) {
+        @SuppressWarnings("unchecked")
+        List<Object> listValues = (List<Object>) value;
+        query = query.whereIn(fieldPath, listValues);
+      } else {
+        Log.w(
+            "FLTFirestoreMsgCodec",
+            "An invalid query operator " + operator + " was received but not handled.");
+      }
+    }
+
+    // "limit" filters
+    Number limit = (Number) parameters.get("limit");
+    if (limit != null) query = query.limit(limit.longValue());
+
+    Number limitToLast = (Number) parameters.get("limitToLast");
+    if (limitToLast != null) query = query.limitToLast(limitToLast.longValue());
+
+    // "orderBy" filters
+    @SuppressWarnings("unchecked")
+    List<List<Object>> orderBy = (List<List<Object>>) parameters.get("orderBy");
+    if (orderBy == null) return query;
+
+    for (List<Object> order : orderBy) {
+      FieldPath fieldPath = (FieldPath) order.get(0);
+      boolean descending = (boolean) order.get(1);
+
+      Query.Direction direction =
+          descending ? Query.Direction.DESCENDING : Query.Direction.ASCENDING;
+
+      query = query.orderBy(fieldPath, direction);
+    }
+
+    // cursor queries
+    @SuppressWarnings("unchecked")
+    List<Object> startAt = (List<Object>) parameters.get("startAt");
+    if (startAt != null) query = query.startAt(Objects.requireNonNull(startAt.toArray()));
+
+    @SuppressWarnings("unchecked")
+    List<Object> startAfter = (List<Object>) parameters.get("startAfter");
+    if (startAfter != null) query = query.startAfter(Objects.requireNonNull(startAfter.toArray()));
+
+    @SuppressWarnings("unchecked")
+    List<Object> endAt = (List<Object>) parameters.get("endAt");
+    if (endAt != null) query = query.endAt(Objects.requireNonNull(endAt.toArray()));
+
+    @SuppressWarnings("unchecked")
+    List<Object> endBefore = (List<Object>) parameters.get("endBefore");
+    if (endBefore != null) query = query.endBefore(Objects.requireNonNull(endBefore.toArray()));
+
+    return query;
   }
 
   private Object[] toArray(Object source) {

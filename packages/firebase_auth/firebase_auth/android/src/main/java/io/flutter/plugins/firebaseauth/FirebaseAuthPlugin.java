@@ -32,6 +32,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.MultiFactorInfo;
 import com.google.firebase.auth.OAuthProvider;
 import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.auth.TwitterAuthProvider;
@@ -642,6 +643,8 @@ public class FirebaseAuthPlugin
           String phoneNumber = (String) Objects.requireNonNull(arguments.get("phoneNumber"));
           int handle = (int) Objects.requireNonNull(arguments.get("handle"));
           int timeout = (int) Objects.requireNonNull(arguments.get("timeout"));
+          boolean requireSmsValidation =
+              (boolean) Objects.requireNonNull(arguments.get("requireSmsValidation"));
 
           Map<String, Object> event = new HashMap<>();
           event.put("handle", handle);
@@ -686,27 +689,27 @@ public class FirebaseAuthPlugin
                 }
               };
 
-          if (arguments.get("forceResendingToken") == null) {
-            PhoneAuthProvider.getInstance(firebaseAuth)
-                .verifyPhoneNumber(
-                    phoneNumber, timeout, TimeUnit.MILLISECONDS, getActivity(), callbacks);
-          } else {
+          PhoneAuthOptions.Builder phoneAuthOptionsBuilder =
+              new PhoneAuthOptions.Builder(firebaseAuth);
+          phoneAuthOptionsBuilder.setActivity(getActivity());
+          phoneAuthOptionsBuilder.setPhoneNumber(phoneNumber);
+          phoneAuthOptionsBuilder.setCallbacks(callbacks);
+          phoneAuthOptionsBuilder.setTimeout((long) timeout, TimeUnit.MILLISECONDS);
+          phoneAuthOptionsBuilder.requireSmsValidation(requireSmsValidation);
+
+          if (arguments.get("forceResendingToken") != null) {
             int forceResendingTokenHashCode =
                 (int) Objects.requireNonNull(arguments.get("forceResendingToken"));
 
             PhoneAuthProvider.ForceResendingToken forceResendingToken =
                 mForceResendingTokens.get(forceResendingTokenHashCode);
 
-            PhoneAuthProvider.getInstance(firebaseAuth)
-                .verifyPhoneNumber(
-                    phoneNumber,
-                    timeout,
-                    TimeUnit.MILLISECONDS,
-                    getActivity(),
-                    callbacks,
-                    forceResendingToken);
+            if (forceResendingToken != null) {
+              phoneAuthOptionsBuilder.setForceResendingToken(forceResendingToken);
+            }
           }
 
+          PhoneAuthProvider.verifyPhoneNumber(phoneAuthOptionsBuilder.build());
           return null;
         });
   }

@@ -40,7 +40,6 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
   /// Create an instance using [app] using the existing implementation
   factory FirebaseAuthPlatform.instanceFor(
       {FirebaseApp app, Map<dynamic, dynamic> pluginConstants}) {
-    
     return FirebaseAuthPlatform.instance.delegateFor(app: app).setInitialValues(
         languageCode: pluginConstants['APP_LANGUAGE_CODE'],
         currentUser: pluginConstants['APP_CURRENT_USER'] == null
@@ -260,15 +259,15 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
     throw UnimplementedError('verifyPasswordResetCode() is not implemented');
   }
 
-  Future<void> verifyPhoneNumber({
-    @required String phoneNumber,
-    Duration timeout = const Duration(seconds: 30),
-    int forceResendingToken,
-    @required PhoneVerificationCompleted verificationCompleted,
-    @required PhoneVerificationFailed verificationFailed,
-    @required PhoneCodeSent codeSent,
-    @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
-  }) {
+  Future<void> verifyPhoneNumber(
+      {@required String phoneNumber,
+      @required PhoneVerificationCompleted verificationCompleted,
+      @required PhoneVerificationFailed verificationFailed,
+      @required PhoneCodeSent codeSent,
+      @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
+      Duration timeout = const Duration(seconds: 30),
+      int forceResendingToken,
+      bool requireSmsValidation}) {
     throw UnimplementedError('verifyPhoneNumber() is not implemented');
   }
 }

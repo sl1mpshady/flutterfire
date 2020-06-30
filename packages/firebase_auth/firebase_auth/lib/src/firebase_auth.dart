@@ -359,12 +359,13 @@ class FirebaseAuth extends FirebasePluginPlatform {
   ///   [verificationId].
   Future<void> verifyPhoneNumber({
     @required String phoneNumber,
-    Duration timeout = const Duration(seconds: 30),
-    int forceResendingToken,
     @required PhoneVerificationCompleted verificationCompleted,
     @required PhoneVerificationFailed verificationFailed,
     @required PhoneCodeSent codeSent,
     @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
+    Duration timeout = const Duration(seconds: 30),
+    int forceResendingToken,
+    bool requireSmsValidation = false,
   }) {
     assert(phoneNumber != null);
     assert(timeout != null);
@@ -372,6 +373,7 @@ class FirebaseAuth extends FirebasePluginPlatform {
     assert(verificationFailed != null);
     assert(codeSent != null);
     assert(codeAutoRetrievalTimeout != null);
+    assert(requireSmsValidation != null);
 
     return _delegate.verifyPhoneNumber(
       phoneNumber: phoneNumber,
@@ -381,6 +383,7 @@ class FirebaseAuth extends FirebasePluginPlatform {
       verificationFailed: verificationFailed,
       codeSent: codeSent,
       codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
+      requireSmsValidation: requireSmsValidation,
     );
   }
 }

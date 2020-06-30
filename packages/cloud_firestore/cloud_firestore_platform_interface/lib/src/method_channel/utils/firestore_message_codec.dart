@@ -1,7 +1,6 @@
 // Copyright 2017, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
-import 'dart:convert';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -32,7 +31,6 @@ class FirestoreMessageCodec extends StandardMessageCodec {
   static const int _kIncrementInteger = 138;
   static const int _kDocumentId = 139;
   static const int _kFieldPath = 140;
-
   static const int _kNaN = 141;
   static const int _kInfinity = 142;
   static const int _kNegativeInfinity = 143;
@@ -106,6 +104,12 @@ class FirestoreMessageCodec extends StandardMessageCodec {
     } else if (value is Settings) {
       buffer.putUint8(_kFirestoreSettings);
       writeValue(buffer, value.asMap);
+    } else if (value == double.nan) {
+      buffer.putUint8(_kNaN);
+    } else if (value == double.infinity) {
+      buffer.putUint8(_kInfinity);
+    } else if (value == double.negativeInfinity) {
+      buffer.putUint8(_kNegativeInfinity);
     } else {
       super.writeValue(buffer, value);
     }
@@ -121,8 +125,11 @@ class FirestoreMessageCodec extends StandardMessageCodec {
       case _kGeoPoint:
         return GeoPoint(buffer.getFloat64(), buffer.getFloat64());
       case _kDocumentReference:
-        FirestorePlatform firestore = readValue(buffer);
-        String path = readValue(buffer);
+        final String appName = readValue(buffer);
+        final String path = readValue(buffer);
+        final FirebaseApp app = Firebase.app(appName);
+        final FirestorePlatform firestore =
+            FirestorePlatform.instanceFor(app: app);
         return firestore.doc(path);
       case _kBlob:
         final int length = readSize(buffer);
@@ -130,6 +137,12 @@ class FirestoreMessageCodec extends StandardMessageCodec {
         return Blob(bytes);
       case _kDocumentId:
         return FieldPath.documentId;
+      case _kNaN:
+        return double.nan;
+      case _kInfinity:
+        return double.infinity;
+      case _kNegativeInfinity:
+        return double.negativeInfinity;
       // These cases are only needed on tests, and therefore handled
       // by [TestFirestoreMessageCodec], a subclass of this codec.
       case _kFirestoreInstance:

@@ -5,8 +5,6 @@
 package io.flutter.plugins.firebase.cloudfirestore;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.util.SparseArray;
 import androidx.annotation.NonNull;
@@ -20,7 +18,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.Query;
@@ -43,77 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-// TODO move to core
-class FirebaseSharedPreferences {
-  private static final String PREFERENCES_FILE = "io.flutter.plugins.firebase";
-  private static FirebaseSharedPreferences sharedInstance = new FirebaseSharedPreferences();
-  private SharedPreferences preferences;
-  private Context applicationContext;
-
-  public static FirebaseSharedPreferences getSharedInstance() {
-    return sharedInstance;
-  }
-
-  public void setApplicationContext(Context context) {
-    applicationContext = context;
-  }
-
-  public boolean contains(String key) {
-    return getPreferences().contains(key);
-  }
-
-  // Boolean
-  public void setBooleanValue(String key, boolean value) {
-    getPreferences().edit().putBoolean(key, value).apply();
-  }
-
-  public boolean getBooleanValue(String key, boolean defaultValue) {
-    return getPreferences().getBoolean(key, defaultValue);
-  }
-
-  // Int
-  public void setIntValue(String key, int value) {
-    getPreferences().edit().putInt(key, value).apply();
-  }
-
-  public int getIntValue(String key, int defaultValue) {
-    return getPreferences().getInt(key, defaultValue);
-  }
-
-  // Long
-  public void setLongValue(String key, long value) {
-    getPreferences().edit().putLong(key, value).apply();
-  }
-
-  public long getLongValue(String key, long defaultValue) {
-    return getPreferences().getLong(key, defaultValue);
-  }
-
-  // String
-  public void setStringValue(String key, String value) {
-    getPreferences().edit().putString(key, value).apply();
-  }
-
-  public String getStringValue(String key, String defaultValue) {
-    return getPreferences().getString(key, defaultValue);
-  }
-
-  public void remove(String key) {
-    getPreferences().edit().remove(key).apply();
-  }
-
-  public void clearAll() {
-    getPreferences().edit().clear().apply();
-  }
-
-  private SharedPreferences getPreferences() {
-    if (preferences == null) {
-      preferences = applicationContext.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
-    }
-    return preferences;
-  }
-}
 
 public class CloudFirestorePlugin
     implements FlutterFirebasePlugin, MethodCallHandler, FlutterPlugin, ActivityAware {
@@ -533,21 +459,16 @@ public class CloudFirestorePlugin
           Map<String, Object> settings =
               (Map<String, Object>) Objects.requireNonNull(arguments.get("settings"));
 
-          FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
-          preferences.setApplicationContext(activity.getApplicationContext());
-
           if (settings.get("persistenceEnabled") != null) {
-            preferences.setBooleanValue(
-                SETTINGS_CLEAR_PERSISTENCE + appName, (boolean) settings.get("persistenceEnabled"));
+            // TODO
           }
 
           if (settings.get("host") != null) {
-            preferences.setStringValue(SETTINGS_HOST + appName, (String) settings.get("host"));
+            // TODO
           }
 
           if (settings.get("sslEnabled") != null) {
-            preferences.setBooleanValue(
-                SETTINGS_SSL + appName, (boolean) settings.get("sslEnabled"));
+            // TODO
           }
 
           if (settings.get("cacheSizeBytes") != null) {
@@ -561,7 +482,7 @@ public class CloudFirestorePlugin
             }
 
             if (cacheSizeBytes != null) {
-              preferences.setLongValue(SETTINGS_CACHE_SIZE + appName, cacheSizeBytes);
+              // TODO
             }
           }
 
@@ -735,44 +656,45 @@ public class CloudFirestorePlugin
   }
 
   private void setFirestoreSettings(FirebaseFirestore firebaseFirestore, String appName) {
-    FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
-    preferences.setApplicationContext(activity.getApplicationContext());
-    FirebaseFirestoreSettings.Builder firestoreSettings = new FirebaseFirestoreSettings.Builder();
-
-    long cacheSizeBytes =
-        preferences.getLongValue(
-            SETTINGS_CACHE_SIZE + appName,
-            firebaseFirestore.getFirestoreSettings().getCacheSizeBytes());
-
-    String host =
-        preferences.getStringValue(
-            SETTINGS_HOST + appName, firebaseFirestore.getFirestoreSettings().getHost());
-
-    boolean persistence =
-        preferences.getBooleanValue(
-            SETTINGS_PERSISTENCE + appName,
-            firebaseFirestore.getFirestoreSettings().isPersistenceEnabled());
-
-    boolean ssl =
-        preferences.getBooleanValue(
-            SETTINGS_SSL + appName, firebaseFirestore.getFirestoreSettings().isSslEnabled());
-
-    if (cacheSizeBytes == -1) {
-      firestoreSettings.setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED);
-    } else {
-      firestoreSettings.setCacheSizeBytes(cacheSizeBytes);
-    }
-
-    firestoreSettings.setHost(host);
-    firestoreSettings.setPersistenceEnabled(persistence);
-    firestoreSettings.setSslEnabled(ssl);
-    firebaseFirestore.setFirestoreSettings(firestoreSettings.build());
-
-    // Remove the users app setting preferences from cache
-    preferences.remove(SETTINGS_CACHE_SIZE + appName);
-    preferences.remove(SETTINGS_HOST + appName);
-    preferences.remove(SETTINGS_PERSISTENCE + appName);
-    preferences.remove(SETTINGS_SSL + appName);
+    // TODO
+    //    FirebaseSharedPreferences preferences = FirebaseSharedPreferences.getSharedInstance();
+    //    preferences.setApplicationContext(activity.getApplicationContext());
+    //    FirebaseFirestoreSettings.Builder firestoreSettings = new FirebaseFirestoreSettings.Builder();
+    //
+    //    long cacheSizeBytes =
+    //        preferences.getLongValue(
+    //            SETTINGS_CACHE_SIZE + appName,
+    //            firebaseFirestore.getFirestoreSettings().getCacheSizeBytes());
+    //
+    //    String host =
+    //        preferences.getStringValue(
+    //            SETTINGS_HOST + appName, firebaseFirestore.getFirestoreSettings().getHost());
+    //
+    //    boolean persistence =
+    //        preferences.getBooleanValue(
+    //            SETTINGS_PERSISTENCE + appName,
+    //            firebaseFirestore.getFirestoreSettings().isPersistenceEnabled());
+    //
+    //    boolean ssl =
+    //        preferences.getBooleanValue(
+    //            SETTINGS_SSL + appName, firebaseFirestore.getFirestoreSettings().isSslEnabled());
+    //
+    //    if (cacheSizeBytes == -1) {
+    //      firestoreSettings.setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED);
+    //    } else {
+    //      firestoreSettings.setCacheSizeBytes(cacheSizeBytes);
+    //    }
+    //
+    //    firestoreSettings.setHost(host);
+    //    firestoreSettings.setPersistenceEnabled(persistence);
+    //    firestoreSettings.setSslEnabled(ssl);
+    //    firebaseFirestore.setFirestoreSettings(firestoreSettings.build());
+    //
+    //    // Remove the users app setting preferences from cache
+    //    preferences.remove(SETTINGS_CACHE_SIZE + appName);
+    //    preferences.remove(SETTINGS_HOST + appName);
+    //    preferences.remove(SETTINGS_PERSISTENCE + appName);
+    //    preferences.remove(SETTINGS_SSL + appName);
   }
 
   private Query getReference(Map<String, Object> arguments) {

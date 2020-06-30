@@ -36,8 +36,8 @@
     NSString *documentPath = [document path];
     NSString *appName = [FLTFirebasePlugin firebaseAppNameFromIosName:document.firestore.app.name];
     [self writeByte:FirestoreDataTypeDocumentReference];
-    [self writeUTF8:appName];
-    [self writeUTF8:documentPath];
+    [self writeValue:appName];
+    [self writeValue:documentPath];
   } else if ([value isKindOfClass:[FIRDocumentSnapshot class]]) {
     [super writeValue:[self FIRDocumentSnapshot:value]];
   } else if ([value isKindOfClass:[FIRQuerySnapshot class]]) {
@@ -46,6 +46,28 @@
     [super writeValue:[self FIRDocumentChange:value]];
   } else if ([value isKindOfClass:[FIRSnapshotMetadata class]]) {
     [super writeValue:[self FIRSnapshotMetadata:value]];
+  } else if ([value isKindOfClass:[NSNumber class]]) {
+    NSNumber *number = (NSNumber *)value;
+
+    // Infinity
+    if ([number isEqual:@(INFINITY)]) {
+      [self writeByte:FirestoreDataTypeInfinity];
+      return;
+    }
+
+    // -Infinity
+    if ([number isEqual:@(-INFINITY)]) {
+      [self writeByte:FirestoreDataTypeNegativeInfinity];
+      return;
+    }
+
+    // NaN
+    if ([[value description].lowercaseString isEqual:@"nan"]) {
+      [self writeByte:FirestoreDataTypeNaN];
+      return;
+    }
+
+    [super writeValue:value];
   } else if ([value isKindOfClass:[NSData class]]) {
     NSData *blob = value;
     [self writeByte:FirestoreDataTypeBlob];

@@ -25,12 +25,9 @@ typedef NS_ENUM(UInt8, FirestoreDataType) {
   FirestoreDataTypeIncrementInteger = 138,
   FirestoreDataTypeDocumentId = 139,
   FirestoreDataTypeFieldPath = 140,
-
-  // TODO
   FirestoreDataTypeNaN = 141,
   FirestoreDataTypeInfinity = 142,
   FirestoreDataTypeNegativeInfinity = 143,
-
   FirestoreDataTypeFirestoreInstance = 144,
   FirestoreDataTypeFirestoreQuery = 145,
   FirestoreDataTypeFirestoreSettings = 146,

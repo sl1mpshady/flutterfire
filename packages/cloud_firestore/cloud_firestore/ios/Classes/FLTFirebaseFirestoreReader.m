@@ -69,6 +69,12 @@
       return [self FIRQuery];
     case FirestoreDataTypeFirestoreSettings:
       return [self FIRFirestoreSettings];
+    case FirestoreDataTypeNaN:
+      return @(NAN);
+    case FirestoreDataTypeInfinity:
+      return @(INFINITY);
+    case FirestoreDataTypeNegativeInfinity:
+      return @(-INFINITY);
     default:
       return [super readValueOfType:type];
   }
@@ -78,8 +84,7 @@
   static dispatch_queue_t firestoreQueue;
   static dispatch_once_t once;
   dispatch_once(&once, ^{
-    firestoreQueue =
-        dispatch_queue_create("dev.flutter.firebase.firestore", DISPATCH_QUEUE_CONCURRENT);
+    firestoreQueue = dispatch_queue_create("dev.flutter.firebase.firestore", DISPATCH_QUEUE_SERIAL);
   });
   return firestoreQueue;
 }

@@ -32,16 +32,16 @@ void testsMain() {
     }
   });
 
-  runInstanceTests();
+  // runInstanceTests();
 
-  runCollectionReferenceTests();
-  runDocumentChangeTests();
+  // runCollectionReferenceTests();
+  // runDocumentChangeTests();
   runDocumentReferenceTests();
-  runFieldValueTests();
-  runGeoPointTests();
-  runQueryTests();
-  runSnapshotMetadataTests();
-  runTimestampTests();
+  // runFieldValueTests();
+  // runGeoPointTests();
+  // runQueryTests();
+  // runSnapshotMetadataTests();
+  // runTimestampTests();
   // runTransactionTests(); // ignored on web
   // runWriteBatchTests();
 }

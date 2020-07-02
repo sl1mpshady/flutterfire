@@ -16,8 +16,6 @@ import '../utils/test_common.dart';
 void main() {
   initializeMethodChannel();
   MethodChannelQuery query;
-  final List<MethodCall> log = <MethodCall>[];
-
   const Map<String, dynamic> kMockSnapshotMetadata = <String, dynamic>{
     "hasPendingWrites": false,
     "isFromCache": false,
@@ -122,16 +120,16 @@ void main() {
       setUp(() async {
         MethodChannelFirestore.channel
             .setMockMethodCallHandler((MethodCall methodCall) async {
-          log.add(methodCall);
           switch (methodCall.method) {
-            case 'Query#getDocuments':
-              if (methodCall.arguments['path'] == 'foo/unknown') {
+            case 'Query#get':
+              MethodChannelQuery query = methodCall.arguments['query'];
+              if (query.path == 'foo/unknown') {
                 throw PlatformException(
                     code: 'ERROR', details: {'code': 'UNKNOWN_PATH'});
               }
 
               return <String, dynamic>{
-                'paths': <String>["${methodCall.arguments['path']}/0"],
+                'paths': <String>["${query.path}/0"],
                 'documents': <dynamic>[kMockDocumentSnapshotDocument],
                 'metadatas': <Map<String, dynamic>>[kMockSnapshotMetadata],
                 'metadata': kMockSnapshotMetadata,
@@ -142,7 +140,7 @@ void main() {
                     'path': 'foo/bar',
                     'metadata': kMockSnapshotMetadata,
                     'type': 'DocumentChangeType.added',
-                    'document': kMockDocumentSnapshotDocument['data'],
+                    'data': kMockDocumentSnapshotDocument['data'],
                   },
                 ]
               };
@@ -151,36 +149,11 @@ void main() {
           }
         });
       });
-      test("returns a [QuerySnapshotPlatform]", () async {
+      test("returns a [QuerySnapshotPlatform] instance", () async {
         final GetOptions getOptions = const GetOptions(source: Source.cache);
         QuerySnapshotPlatform snapshot = await query.get(getOptions);
         expect(snapshot, isA<QuerySnapshotPlatform>());
         expect(snapshot.docs.length, 1);
-
-        expect(
-          log,
-          equals(<Matcher>[
-            isMethodCall(
-              'Query#getDocuments',
-              arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
-                'path': 'foo/bar',
-                'source': 'cache',
-                'parameters': <String, dynamic>{
-                  'where': [],
-                  'orderBy': ['foo'],
-                  'startAt': null,
-                  'startAfter': null,
-                  'endAt': ['0'],
-                  'endBefore': null,
-                  'limit': null,
-                  'limitToLast': null
-                },
-                'isCollectionGroup': false,
-              },
-            ),
-          ]),
-        );
       });
 
       test("throws a [FirebaseException]", () async {
@@ -236,10 +209,10 @@ void main() {
         log.clear();
         handleId = nextMockHandleId;
 
-        handleMethodCall((MethodCall call) {
+        handleMethodCall((MethodCall call) async {
           log.add(call);
           if (call.method == "Query#addSnapshotListener") {
-            Future<void>.delayed(Duration.zero);
+            await Future<void>.delayed(Duration.zero);
           }
         });
       });
@@ -257,35 +230,15 @@ void main() {
 
         await subscription.cancel();
         await Future<void>.delayed(Duration.zero);
-        expect(
-          log,
-          equals(<Matcher>[
-            isMethodCall(
-              'Query#addSnapshotListener',
-              arguments: <String, dynamic>{
-                'handle': handleId,
-                'appName': '[DEFAULT]',
-                'path': 'foo/bar',
-                'isCollectionGroup': false,
-                'parameters': <String, dynamic>{
-                  "where": <List<dynamic>>[],
-                  "orderBy": ["foo"],
-                  "startAt": null,
-                  "startAfter": null,
-                  "endAt": ['0'],
-                  "endBefore": null,
-                  "limit": null,
-                  "limitToLast": null
-                },
-                'includeMetadataChanges': false,
-              },
-            ),
-            isMethodCall(
-              'Firestore#removeListener',
-              arguments: <String, dynamic>{'handle': handleId},
-            ),
-          ]),
-        );
+        expect(log[0].method, 'Query#addSnapshotListener');
+        expect(log[1].method, 'Firestore#removeListener');
+        expect(log[0].arguments, <String, dynamic>{
+          'query': isInstanceOf<MethodChannelQuery>(),
+          'handle': handleId,
+          'firestore': isInstanceOf<FirestorePlatform>(),
+          'includeMetadataChanges': false,
+        });
+        expect(log[1].arguments, <String, dynamic>{'handle': handleId});
       });
     });
 

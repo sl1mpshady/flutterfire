@@ -43,7 +43,7 @@ class MethodChannelWriteBatch extends WriteBatchPlatform {
 
     await MethodChannelFirestore.channel
         .invokeMethod<void>('WriteBatch#commit', <String, dynamic>{
-      'appName': _firestore.app.name,
+      'firestore': _firestore,
       'writes': _writes,
     }).catchError(catchPlatformException);
   }

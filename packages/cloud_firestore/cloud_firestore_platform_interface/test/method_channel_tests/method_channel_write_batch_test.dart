@@ -82,7 +82,7 @@ void main() {
           log,
           <Matcher>[
             isMethodCall('WriteBatch#commit', arguments: <String, dynamic>{
-              'appName': '[DEFAULT]',
+              'firestore': firestore,
               'writes': [
                 {
                   'path': 'foo/bar',
@@ -141,7 +141,7 @@ void main() {
           log,
           <Matcher>[
             isMethodCall('WriteBatch#commit', arguments: <String, dynamic>{
-              'appName': '[DEFAULT]',
+              'firestore': firestore,
               'writes': [
                 {
                   'path': 'foo/bar',
@@ -164,7 +164,7 @@ void main() {
           log,
           <Matcher>[
             isMethodCall('WriteBatch#commit', arguments: <String, dynamic>{
-              'appName': '[DEFAULT]',
+              'firestore': firestore,
               'writes': [
                 {
                   'path': 'foo/bar',
@@ -192,7 +192,7 @@ void main() {
           isMethodCall(
             'WriteBatch#commit',
             arguments: <String, dynamic>{
-              'appName': '[DEFAULT]',
+              'firestore': firestore,
               'writes': [
                 <String, dynamic>{
                   'path': 'foo/bar',
@@ -216,7 +216,7 @@ void main() {
           isMethodCall(
             'WriteBatch#commit',
             arguments: <String, dynamic>{
-              'appName': '[DEFAULT]',
+              'firestore': firestore,
               'writes': [
                 <String, dynamic>{'path': 'foo/bar', 'type': 'DELETE'}
               ]

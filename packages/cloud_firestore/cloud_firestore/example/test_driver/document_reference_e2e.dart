@@ -171,7 +171,7 @@ void runDocumentReferenceTests() {
       });
     });
 
-    group('DocumentReference.setData()', () {
+    group('DocumentReference.set()', () {
       test('sets data', () async {
         DocumentReference document = await initializeTest('document-set');
         await document.set({'foo': 'bar'});
@@ -242,11 +242,11 @@ void runDocumentReferenceTests() {
 
         await document.set({
           'string': 'foo bar',
-          'number-32': 123,
+          'number_32': 123,
           // Equivalent of `Number.MAX_SAFE_INTEGER` in JS, can't go higher than this.
-          'number-64': 9007199254740991,
-          'bool-true': true,
-          'bool-false': false,
+          'number_64': 9007199254740991,
+          'bool_true': true,
+          'bool_false': false,
           'map': {
             'foo': 'bar',
             'bar': {'baz': 'ben'}
@@ -262,16 +262,19 @@ void runDocumentReferenceTests() {
           'timestamp': Timestamp.now(),
           'geopoint': GeoPoint(1, 2),
           'reference': firestore.doc('foo/bar'),
+          'nan': double.nan,
+          'infinity': double.infinity,
+          'negative_infinity': double.negativeInfinity,
         });
 
         DocumentSnapshot snapshot = await document.get();
         Map<String, dynamic> data = snapshot.data();
 
         expect(data['string'], equals('foo bar'));
-        expect(data['number-32'], equals(123));
-        expect(data['number-64'], equals(9007199254740991));
-        expect(data['bool-true'], isTrue);
-        expect(data['bool-false'], isFalse);
+        expect(data['number_32'], equals(123));
+        expect(data['number_64'], equals(9007199254740991));
+        expect(data['bool_true'], isTrue);
+        expect(data['bool_false'], isFalse);
         expect(
             data['map'],
             equals(<String, dynamic>{
@@ -294,6 +297,9 @@ void runDocumentReferenceTests() {
         expect((data['geopoint'] as GeoPoint).longitude, equals(2));
         expect(data['reference'], isA<DocumentReference>());
         expect((data['reference'] as DocumentReference).id, equals('bar'));
+        expect(data['nan'].isNaN, equals(true));
+        expect(data['infinity'], equals(double.infinity));
+        expect(data['negative_infinity'], equals(double.negativeInfinity));
       });
     });
 

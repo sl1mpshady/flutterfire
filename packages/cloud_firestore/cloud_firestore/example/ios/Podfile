@@ -72,8 +72,7 @@ target 'Runner' do
     File.symlink(path, symlink)
     pod name, :path => File.join(symlink, 'ios')
   end
-  require_relative '.symlinks/plugins/firebase_core/ios/use_firebase_frameworks'
-  use_firebase_frameworks!
+  pod 'FirebaseFirestore', :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git', :tag => '6.26.0'
 end
 
 

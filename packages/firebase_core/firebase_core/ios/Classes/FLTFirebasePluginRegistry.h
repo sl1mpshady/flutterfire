@@ -11,7 +11,7 @@
  *
  * @return FLTFirebasePluginRegistry
  */
-+ (instancetype)sharedInstance;
++ (instancetype _Nonnull)sharedInstance;
 
 /**
  * Register a FlutterFire plugin with the plugin registry.
@@ -20,7 +20,7 @@
  *
  * @param firebasePlugin id<FLTFirebasePlugin>
  */
-- (void)registerFirebasePlugin:(id<FLTFirebasePlugin>)firebasePlugin;
+- (void)registerFirebasePlugin:(id<FLTFirebasePlugin> _Nonnull)firebasePlugin;
 
 /**
  * Each FlutterFire plugin implementing FLTFirebasePlugin provides this method, allowing
@@ -32,5 +32,14 @@
  * @param firebaseApp FIRApp Firebase App instance these constants relate to.
  * @return NSDictionary Dictionary of plugins and their constants.
  */
-- (NSDictionary *)pluginConstantsForFIRApp:(FIRApp *)firebaseApp;
+- (NSDictionary *_Nonnull)pluginConstantsForFIRApp:(FIRApp *_Nonnull)firebaseApp;
+
+/**
+ * Each FlutterFire plugin implementing this method are notified that FirebaseCore#initializeCore
+ * was called again.
+ *
+ * This is used by plugins to know if they need to cleanup previous
+ * resources between Hot Restarts as `initializeCore` can only be called once in Dart.
+ */
+- (void)didReinitializeFirebaseCore:(void (^_Nonnull)(void))completion;
 @end

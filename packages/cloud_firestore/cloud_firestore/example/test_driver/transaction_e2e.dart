@@ -23,20 +23,6 @@ void runTransactionTests() {
       return firestore.doc(prefixedPath);
     }
 
-    // TODO(ehesp): always resolves - even web SDK has same behavior
-    // test('should fail when offline', () async {
-    //   await firestore.disableNetwork();
-    //   DocumentReference reference = firestore.document('flutter-tests/foo');
-    //   int count = 0;
-    //   await firestore.runTransaction<String>((Transaction transaction) async {
-    //     count++;
-    //     await transaction.get(reference);
-    //     transaction.set(reference, {'foo': 'bar'});
-    //   });
-    //   expect(count, equals(5));
-    //   await firestore.enableNetwork();
-    // }, skip: true);
-
     test('should resolve with user value', () async {
       int randomValue = Random().nextInt(9999);
       int response =
@@ -69,12 +55,12 @@ void runTransactionTests() {
     test('should abort if timeout is exceeded', () async {
       try {
         await firestore.runTransaction((Transaction transaction) async {
-          await Future.delayed(Duration(seconds: 4));
+          await Future.delayed(Duration(seconds: 2));
         }, timeout: Duration(seconds: 1));
         fail("Should have thrown");
       } catch (e) {
         expect(e, isA<FirebaseException>());
-        expect(e.code, equals('aborted'));
+        expect(e.code, equals('deadline-exceeded'));
       }
     });
 
@@ -111,17 +97,6 @@ void runTransactionTests() {
     });
 
     group('Transaction.get()', () {
-      test('should throw if get is not written', () async {
-        DocumentReference documentReference =
-            firestore.doc('flutter-tests/foo');
-
-        expect(
-            () => firestore.runTransaction((Transaction transaction) async {
-                  await transaction.get(documentReference);
-                }),
-            throwsAssertionError);
-      });
-
       test('should throw if get is called after a command', () async {
         DocumentReference documentReference =
             firestore.doc('flutter-tests/foo');
@@ -135,7 +110,7 @@ void runTransactionTests() {
             throwsAssertionError);
       });
 
-      test('returns a [DocumentSnapshot]', () async {
+      test('support returning any value, e.g. a [DocumentSnapshot]', () async {
         DocumentReference documentReference =
             await initializeTest('transaction-get');
 

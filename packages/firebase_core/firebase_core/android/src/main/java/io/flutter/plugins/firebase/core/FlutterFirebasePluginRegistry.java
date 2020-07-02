@@ -55,4 +55,23 @@ public class FlutterFirebasePluginRegistry {
           return pluginConstants;
         });
   }
+
+  /**
+   * Each FlutterFire plugin implementing this method are notified that FirebaseCore#initializeCore
+   * was called again.
+   *
+   * <p>This is used by plugins to know if they need to cleanup previous resources between Hot
+   * Restarts as `initializeCore` can only be called once in Dart.
+   */
+  static Task<Void> didReinitializeFirebaseCore() {
+    return Tasks.call(
+        cachedThreadPool,
+        () -> {
+          for (Map.Entry<String, FlutterFirebasePlugin> entry : registeredPlugins.entrySet()) {
+            FlutterFirebasePlugin plugin = entry.getValue();
+            Tasks.await(plugin.didReinitializeFirebaseCore());
+          }
+          return null;
+        });
+  }
 }

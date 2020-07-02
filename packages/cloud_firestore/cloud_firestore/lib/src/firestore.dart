@@ -32,11 +32,13 @@ class Firestore extends FirebasePluginPlatform {
   FirebaseApp app;
 
   Firestore._({this.app})
-      : super(app.name, 'plugins.flutter.io/cloud_firestore');
+      : super(app.name, 'plugins.flutter.io/firebase_firestore');
+
+  static final Map<String, Firestore> _cachedInstances = {};
 
   /// Returns an instance using the default [FirebaseApp].
   static Firestore get instance {
-    return Firestore._(
+    return Firestore.instanceFor(
       app: Firebase.app(),
     );
   }
@@ -44,7 +46,14 @@ class Firestore extends FirebasePluginPlatform {
   /// Returns an instance using a specified [FirebaseApp].
   static Firestore instanceFor({FirebaseApp app}) {
     assert(app != null);
-    return Firestore._(app: app);
+    if (_cachedInstances.containsKey(app.name)) {
+      return _cachedInstances[app.name];
+    }
+
+    Firestore newInstance = Firestore._(app: app);
+    _cachedInstances[app.name] = newInstance;
+
+    return newInstance;
   }
 
   @Deprecated(
@@ -157,12 +166,16 @@ class Firestore extends FirebasePluginPlatform {
     }, timeout: timeout);
   }
 
-  /// Instructs the current [Firestore] instance to use the provided [settings].
+  /// Specifies custom settings to be used to configure this [Firestore] instance.
   ///
-  /// If the instance has already been consumed, the settings will take effect
-  /// the next time it is created.
-  Future<void> settings(Settings settings) {
-    return _delegate.settings(settings);
+  /// You must set these before invoking any other methods on this [Firestore] instance.
+  set settings(Settings settings) {
+    _delegate.settings = settings;
+  }
+
+  /// The current [Settings] for this [Firestore] instance.
+  Settings get settings {
+    return _delegate.settings;
   }
 
   /// Terminates this [Firestore] instance.

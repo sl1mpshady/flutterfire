@@ -155,7 +155,7 @@ void main() {
             isMethodCall(
               'Firestore#clearPersistence',
               arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
+                'firestore': firestore,
               },
             ),
           ]),
@@ -195,7 +195,7 @@ void main() {
             isMethodCall(
               'Firestore#disableNetwork',
               arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
+                'firestore': firestore,
               },
             ),
           ]),
@@ -228,7 +228,7 @@ void main() {
             isMethodCall(
               'Firestore#enableNetwork',
               arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
+                'firestore': firestore,
               },
             ),
           ]),
@@ -270,7 +270,7 @@ void main() {
               'Firestore#addSnapshotsInSyncListener',
               arguments: <String, dynamic>{
                 'handle': handle,
-                'appName': '[DEFAULT]',
+                'firestore': firestore,
               },
             ),
             isMethodCall(
@@ -307,7 +307,7 @@ void main() {
 
         expect(log, <Matcher>[
           isMethodCall('Transaction#create', arguments: <String, dynamic>{
-            'appName': firestore.app.name,
+            'firestore': firestore,
             'transactionId': handleId,
             'timeout': 3000
           }),
@@ -340,30 +340,12 @@ void main() {
       });
     });
 
-    group('settings()', () {
+    group('settings', () {
       Settings settings = Settings();
 
-      test('invoke Firestore#settings with correct args', () {
-        expect(firestore.settings(settings), isInstanceOf<Future<void>>());
-
-        expect(
-          log,
-          equals(<Matcher>[
-            isMethodCall(
-              'Firestore#settings',
-              arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
-                'settings': settings.asMap,
-              },
-            ),
-          ]),
-        );
-      });
-      test('catch [PlatformException] error', () {
-        mockPlatformExceptionThrown = true;
-
-        expect(() => firestore.settings(settings),
-            throwsA(isInstanceOf<FirebaseException>()));
+      test('stores the settings on the Firestore instance', () {
+        firestore.settings = settings;
+        expect(firestore.settings, settings);
       });
     });
 
@@ -377,7 +359,7 @@ void main() {
             isMethodCall(
               'Firestore#terminate',
               arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
+                'firestore': firestore,
               },
             ),
           ]),
@@ -402,7 +384,7 @@ void main() {
             isMethodCall(
               'Firestore#waitForPendingWrites',
               arguments: <String, dynamic>{
-                'appName': '[DEFAULT]',
+                'firestore': firestore,
               },
             ),
           ]),

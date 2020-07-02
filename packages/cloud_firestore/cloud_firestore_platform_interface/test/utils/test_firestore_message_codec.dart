@@ -1,6 +1,9 @@
 // Copyright 2020, the Chromium project authors.  Please see the AUTHORS file
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
+import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_firestore.dart';
+import 'package:cloud_firestore_platform_interface/src/method_channel/method_channel_query.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:cloud_firestore_platform_interface/cloud_firestore_platform_interface.dart';
@@ -13,10 +16,14 @@ class TestFirestoreMessageCodec extends FirestoreMessageCodec {
   /// Constructor.
   const TestFirestoreMessageCodec();
 
+  static const int _kDocumentReference = 130;
   static const int _kArrayUnion = 132;
   static const int _kArrayRemove = 133;
   static const int _kDelete = 134;
   static const int _kServerTimestamp = 135;
+  static const int _kFirestoreInstance = 144;
+  static const int _kFirestoreQuery = 145;
+  static const int _kFirestoreSettings = 146;
 
   static const int _kIncrementDouble = 137;
   static const int _kIncrementInteger = 138;
@@ -47,6 +54,22 @@ class TestFirestoreMessageCodec extends FirestoreMessageCodec {
         final int value = readValue(buffer);
         return FieldValuePlatform(
             FieldValueFactoryPlatform.instance.increment(value));
+      case _kFirestoreInstance:
+        String appName = readValue(buffer);
+        readValue(buffer);
+        final FirebaseApp app = Firebase.app(appName);
+        return MethodChannelFirestore(app: app);
+      case _kFirestoreQuery:
+        Map<dynamic, dynamic> values = readValue(buffer);
+        return MethodChannelQuery(
+            MethodChannelFirestore(app: null), values['path']);
+      case _kFirestoreSettings:
+        readValue(buffer);
+        return Settings();
+      case _kDocumentReference:
+        MethodChannelFirestore firestore = readValue(buffer);
+        String path = readValue(buffer);
+        return firestore.doc(path);
       default:
         return super.readValueOfType(type, buffer);
     }

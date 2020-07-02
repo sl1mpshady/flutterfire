@@ -29,7 +29,7 @@ int get nextMockHandleId => mockHandleId++;
 void initializeMethodChannel() {
   // Install the Codec that is able to decode FieldValues.
   MethodChannelFirestore.channel = MethodChannel(
-    'plugins.flutter.io/cloud_firestore',
+    'plugins.flutter.io/firebase_firestore',
     StandardMethodCodec(TestFirestoreMessageCodec()),
   );
 
@@ -56,58 +56,6 @@ void initializeMethodChannel() {
         'pluginConstants': {},
       };
     }
-    return null;
-  });
-  MethodChannelFirestore.channel
-      .setMockMethodCallHandler((MethodCall call) async {
-    switch (call.method) {
-      case 'DocumentReference#setData':
-        return true;
-
-      case 'DocumentReference#get':
-        if (call.arguments['path'] == 'foo/bar') {
-          return <String, dynamic>{
-            'path': 'foo/bar',
-            'data': <String, dynamic>{'key1': 'val1'},
-            'metadata': kMockSnapshotMetadata,
-          };
-        } else if (call.arguments['path'] == 'foo/notExists') {
-          return <String, dynamic>{
-            'path': 'foo/notExists',
-            'data': null,
-            'metadata': kMockSnapshotMetadata,
-          };
-        }
-        throw PlatformException(code: 'UNKNOWN_PATH');
-      case 'Firestore#runTransaction':
-        return <String, dynamic>{'1': 3};
-      case 'Transaction#get':
-        if (call.arguments['path'] == 'foo/bar') {
-          return <String, dynamic>{
-            'path': 'foo/bar',
-            'data': <String, dynamic>{'key1': 'val1'},
-            'metadata': kMockSnapshotMetadata,
-          };
-        } else if (call.arguments['path'] == 'foo/notExists') {
-          return <String, dynamic>{
-            'path': 'foo/notExists',
-            'data': null,
-            'metadata': kMockSnapshotMetadata,
-          };
-        }
-        throw PlatformException(code: 'UNKNOWN_PATH');
-      case 'Transaction#set':
-        return null;
-      case 'Transaction#update':
-        return null;
-      case 'Transaction#create':
-        return null;
-      case 'Transaction#delete':
-        return null;
-      case 'WriteBatch#create':
-        return 1;
-    }
-
     return null;
   });
 }

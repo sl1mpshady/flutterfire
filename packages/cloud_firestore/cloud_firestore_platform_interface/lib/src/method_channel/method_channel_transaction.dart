@@ -52,9 +52,9 @@ class MethodChannelTransaction extends TransactionPlatform {
 
     final Map<String, dynamic> result = await MethodChannelFirestore.channel
         .invokeMapMethod<String, dynamic>('Transaction#get', <String, dynamic>{
-      'appName': appName,
+      'firestore': _firestore,
       'transactionId': _transactionId,
-      'path': documentPath,
+      'reference': _firestore.doc(documentPath),
     });
     _documentGetCount++;
 

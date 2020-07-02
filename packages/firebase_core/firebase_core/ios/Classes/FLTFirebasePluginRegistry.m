@@ -49,4 +49,19 @@
   return pluginConstants;
 }
 
+- (void)didReinitializeFirebaseCore:(void (^_Nonnull)(void))completion {
+  __block int pluginsCompleted = 0;
+  NSUInteger pluginsCount = [self->registeredPlugins allKeys].count;
+  void (^allPluginsCompletion)(void) = ^void() {
+    pluginsCompleted++;
+    if (pluginsCompleted == pluginsCount) {
+      completion();
+    }
+  };
+
+  for (NSString *pluginFlutterChannelName in registeredPlugins) {
+    [registeredPlugins[pluginFlutterChannelName] didReinitializeFirebaseCore:allPluginsCompletion];
+  }
+}
+
 @end

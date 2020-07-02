@@ -27,8 +27,8 @@ void testsMain() {
     await Firebase.initializeApp();
 
     if (USE_EMULATOR) {
-      await Firestore.instance
-          .settings(Settings(host: '10.0.2.2:8080', sslEnabled: false));
+      Firestore.instance.settings = Settings(
+          host: '10.0.2.2:8080', sslEnabled: false, persistenceEnabled: false);
     }
   });
 
@@ -42,7 +42,7 @@ void testsMain() {
   runQueryTests();
   runSnapshotMetadataTests();
   runTimestampTests();
-  runTransactionTests(); // ignored on web
+  runTransactionTests();
   runWriteBatchTests();
 }
 

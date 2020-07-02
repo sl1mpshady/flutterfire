@@ -39,7 +39,9 @@ NSString *const kFirebaseOptionsIosBundleId = @"iosBundleId";
 NSString *const kFirebaseOptionsIosClientId = @"iosClientId";
 NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 
-@implementation FLTFirebaseCorePlugin
+@implementation FLTFirebaseCorePlugin {
+  BOOL _coreInitialized;
+}
 
 #pragma mark - FlutterPlugin
 
@@ -58,7 +60,6 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 
   dispatch_once(&onceToken, ^{
     instance = [[FLTFirebaseCorePlugin alloc] init];
-
     // Register with the Flutter Firebase plugin registry.
     [[FLTFirebasePluginRegistry sharedInstance] registerFirebasePlugin:instance];
 
@@ -68,7 +69,7 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
     //  without
     //    providing helpful context about the crash to the user.
     //
-    // Default app exists check is for backwards compatability of legacy FlutterFire plugins that
+    // Default app exists check is for backwards compatibility of legacy FlutterFire plugins that
     // call [FIRApp configure]; themselves internally.
     FIROptions *options = [FIROptions defaultOptions];
     if (options != nil && [FIRApp allApps][@"__FIRAPP_DEFAULT"] == nil) {
@@ -180,15 +181,24 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 }
 
 - (void)initializeCoreWithMethodCallResult:(FLTFirebaseMethodCallResult *)result {
-  NSDictionary<NSString *, FIRApp *> *firebaseApps = [FIRApp allApps];
-  NSMutableArray *firebaseAppsArray = [NSMutableArray arrayWithCapacity:firebaseApps.count];
+  void (^initializeCoreBlock)(void) = ^void() {
+    NSDictionary<NSString *, FIRApp *> *firebaseApps = [FIRApp allApps];
+    NSMutableArray *firebaseAppsArray = [NSMutableArray arrayWithCapacity:firebaseApps.count];
 
-  for (NSString *appName in firebaseApps) {
-    FIRApp *firebaseApp = firebaseApps[appName];
-    [firebaseAppsArray addObject:[self dictionaryFromFIRApp:firebaseApp]];
+    for (NSString *appName in firebaseApps) {
+      FIRApp *firebaseApp = firebaseApps[appName];
+      [firebaseAppsArray addObject:[self dictionaryFromFIRApp:firebaseApp]];
+    }
+
+    result.success(firebaseAppsArray);
+  };
+
+  if (!_coreInitialized) {
+    _coreInitialized = YES;
+    initializeCoreBlock();
+  } else {
+    [[FLTFirebasePluginRegistry sharedInstance] didReinitializeFirebaseCore:initializeCoreBlock];
   }
-
-  result.success(firebaseAppsArray);
 }
 
 - (void)deleteApp:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
@@ -253,6 +263,10 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 }
 
 #pragma mark - FLTFirebasePlugin
+
+- (void)didReinitializeFirebaseCore:(void (^)(void))completion {
+  completion();
+}
 
 - (NSDictionary *_Nonnull)pluginConstantsForFIRApp:(FIRApp *)firebase_app {
   return @{};

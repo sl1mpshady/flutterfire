@@ -21,7 +21,8 @@ typedef void (^FLTFirebaseMethodCallSuccessBlock)(id _Nullable result);
  * Block that is capable of sending an error response to a method call operation.
  * Use this for returning error information to a Method call.
  */
-typedef void (^FLTFirebaseMethodCallErrorBlock)(NSString *_Nonnull code, NSString *_Nonnull message,
+typedef void (^FLTFirebaseMethodCallErrorBlock)(NSString *_Nullable code,
+                                                NSString *_Nullable message,
                                                 NSDictionary *_Nullable details,
                                                 NSError *_Nullable error);
 
@@ -29,6 +30,16 @@ typedef void (^FLTFirebaseMethodCallErrorBlock)(NSString *_Nonnull code, NSStrin
  * A protocol that all FlutterFire plugins should implement.
  */
 @protocol FLTFirebasePlugin <NSObject>
+/**
+ * FlutterFire plugins implementing FLTFirebasePlugin should provide this method to be notified when
+ * FirebaseCore#initializeCore was called again (first time is ignored).
+ *
+ * This can be used by plugins to know when they might need to cleanup previous
+ * resources between Hot Restarts as `initializeCore` can only be called once in Dart.
+ */
+@required
+- (void)didReinitializeFirebaseCore:(void (^_Nonnull)(void))completion;
+
 /**
  * FlutterFire plugins implementing FLTFirebasePlugin must provide this method to provide it's
  * constants that are initialized during FirebaseCore.initializeApp in Dart.

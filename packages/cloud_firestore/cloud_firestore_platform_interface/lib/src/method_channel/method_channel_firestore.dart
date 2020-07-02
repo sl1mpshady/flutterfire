@@ -185,7 +185,7 @@ class MethodChannelFirestore extends FirestorePlatform {
 
   /// The [MethodChannel] used to communicate with the native plugin
   static MethodChannel channel = MethodChannel(
-    'plugins.flutter.io/cloud_firestore',
+    'plugins.flutter.io/firebase_firestore',
     StandardMethodCodec(FirestoreMessageCodec()),
   );
 
@@ -297,7 +297,7 @@ class MethodChannelFirestore extends FirestorePlatform {
   @override
   Future<T> runTransaction<T>(
     TransactionHandler transactionHandler, {
-    Duration timeout = const Duration(seconds: 5),
+    Duration timeout = const Duration(seconds: 30),
   }) async {
     assert(timeout.inMilliseconds > 0,
         'Transaction timeout must be more than 0 milliseconds');

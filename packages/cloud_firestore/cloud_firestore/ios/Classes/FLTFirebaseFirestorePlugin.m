@@ -8,7 +8,7 @@
 #import "Private/FLTFirebaseFirestoreUtils.h"
 #import "Public/FLTFirebaseFirestorePlugin.h"
 
-NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_firestore";
+NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/firebase_firestore";
 
 @interface FLTFirebaseFirestorePlugin ()
 @property(nonatomic, retain) FlutterMethodChannel *channel;
@@ -59,16 +59,21 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
 }
 
 - (void)cleanupWithCompletion:(void (^)(void))completion {
-  for (NSNumber *key in [self->_listeners allKeys]) {
-    id<FIRListenerRegistration> listener = self->_listeners[key];
-    [listener remove];
+  @synchronized(self->_listeners) {
+    for (NSNumber *key in [self->_listeners allKeys]) {
+      id<FIRListenerRegistration> listener = self->_listeners[key];
+      [listener remove];
+    }
+    [self->_listeners removeAllObjects];
   }
 
-  [self->_listeners removeAllObjects];
+  @synchronized(self->_transactions) {
+    [self->_transactions removeAllObjects];
+  }
 
   __block int instancesTerminated = 0;
-  __block NSUInteger numberOfApps = [[FIRApp allApps] count];
-  __block void (^firestoreTerminateInstanceCompletion)(NSError *) = ^void(NSError *error) {
+  NSUInteger numberOfApps = [[FIRApp allApps] count];
+  void (^firestoreTerminateInstanceCompletion)(NSError *) = ^void(NSError *error) {
     instancesTerminated++;
     if (instancesTerminated == numberOfApps && completion != nil) {
       completion();
@@ -76,7 +81,7 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
   };
 
   if (numberOfApps > 0) {
-    for (__block NSString *appName in [FIRApp allApps]) {
+    for (NSString *appName in [FIRApp allApps]) {
       FIRApp *app = [FIRApp appNamed:appName];
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         [[FIRFirestore firestoreForApp:app] terminateWithCompletion:^(NSError *error) {
@@ -107,6 +112,9 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
         @"code" : code,
         @"message" : message,
       };
+    }
+    if ([@"unknown" isEqualToString:code]) {
+      NSLog(@"FLTFirebaseFirestore: An error occurred while calling method %@", call.method);
     }
     flutterResult([FLTFirebasePlugin createFlutterErrorFromCode:code
                                                         message:message
@@ -183,7 +191,7 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
 - (void)addSnapshotsInSyncListener:(id)arguments
               withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
   __weak __typeof__(self) weakSelf = self;
-  __block NSNumber *handle = arguments[@"handle"];
+  NSNumber *handle = arguments[@"handle"];
   FIRFirestore *firestore = arguments[@"firestore"];
 
   id listener = ^() {
@@ -195,7 +203,9 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
 
   id<FIRListenerRegistration> listenerRegistration =
       [firestore addSnapshotsInSyncListener:listener];
-  _listeners[handle] = listenerRegistration;
+  @synchronized(_listeners) {
+    _listeners[handle] = listenerRegistration;
+  }
   result.success(nil);
 }
 
@@ -257,16 +267,97 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
 }
 
 - (void)transactionCreate:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
-  // TODO implement me
+  FIRFirestore *firestore = arguments[@"firestore"];
+  NSNumber *transactionId = arguments[@"transactionId"];
+  NSNumber *transactionTimeout = arguments[@"timeout"];
+
+  __weak __typeof__(self) weakSelf = self;
+  NSDictionary *transactionAttemptArguments = @{
+    @"transactionId" : transactionId,
+    @"appName" : [FLTFirebasePlugin firebaseAppNameFromIosName:firestore.app.name]
+  };
+
+  id transactionRunBlock = ^id(FIRTransaction *transaction, NSError **pError) {
+    @synchronized(self->_transactions) {
+      self->_transactions[transactionId] = transaction;
+    }
+
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    __block NSDictionary *attemptedTransactionResponse;
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      [weakSelf.channel invokeMethod:@"Transaction#attempt"
+                           arguments:transactionAttemptArguments
+                              result:^(id dartAttemptTransactionResult) {
+                                attemptedTransactionResponse = dartAttemptTransactionResult;
+                                dispatch_semaphore_signal(semaphore);
+                              }];
+    });
+
+    long timedOut = dispatch_semaphore_wait(
+        semaphore,
+        dispatch_time(DISPATCH_TIME_NOW, [transactionTimeout integerValue] * NSEC_PER_MSEC));
+    NSString *dartResponseType =
+        attemptedTransactionResponse ? attemptedTransactionResponse[@"type"] : @"ERROR";
+
+    if (timedOut) {
+      *pError = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                    code:FIRFirestoreErrorCodeDeadlineExceeded
+                                userInfo:@{}];
+      return nil;
+    }
+
+    if ([@"ERROR" isEqualToString:dartResponseType]) {
+      // Do nothing - already handled in Dart land.
+      return nil;
+    }
+
+    NSArray<NSDictionary *> *commands = attemptedTransactionResponse[@"commands"];
+    for (NSDictionary *command in commands) {
+      NSString *commandType = command[@"type"];
+      NSString *documentPath = command[@"path"];
+      FIRDocumentReference *reference = [firestore documentWithPath:documentPath];
+      if ([@"DELETE" isEqualToString:commandType]) {
+        [transaction deleteDocument:reference];
+      } else if ([@"UPDATE" isEqualToString:commandType]) {
+        NSDictionary *data = command[@"data"];
+        [transaction updateData:data forDocument:reference];
+      } else if ([@"SET" isEqualToString:commandType]) {
+        NSDictionary *data = command[@"data"];
+        NSDictionary *options = command[@"options"];
+        if ([options[@"merge"] isEqual:@YES]) {
+          [transaction setData:data forDocument:reference merge:YES];
+        } else if (![options[@"mergeFields"] isEqual:[NSNull null]]) {
+          [transaction setData:data forDocument:reference mergeFields:options[@"mergeFields"]];
+        } else {
+          [transaction setData:data forDocument:reference];
+        }
+      }
+    }
+
+    return nil;
+  };
+
+  id transactionCompleteBlock = ^(id transactionResult, NSError *error) {
+    if (error != nil) {
+      result.error(nil, nil, nil, error);
+    } else {
+      result.success(nil);
+    }
+    @synchronized(self->_transactions) {
+      [self->_transactions removeObjectForKey:transactionId];
+    }
+  };
+
+  [firestore runTransactionWithBlock:transactionRunBlock completion:transactionCompleteBlock];
 }
 
 - (void)transactionGet:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
-  // TODO update me
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    FIRFirestore *firestore = arguments[@"firestore"];
     NSNumber *transactionId = arguments[@"transactionId"];
+    FIRDocumentReference *document = arguments[@"reference"];
+
     FIRTransaction *transaction = self->_transactions[transactionId];
-    FIRDocumentReference *document = [firestore documentWithPath:arguments[@"reference"]];
 
     NSError *error = [[NSError alloc] init];
     FIRDocumentSnapshot *snapshot = [transaction getDocument:document error:&error];
@@ -356,7 +447,7 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
     return;
   }
 
-  __block NSNumber *handle = arguments[@"handle"];
+  NSNumber *handle = arguments[@"handle"];
   NSNumber *includeMetadataChanges = arguments[@"includeMetadataChanges"];
 
   id listener = ^(FIRQuerySnapshot *_Nullable snapshot, NSError *_Nullable error) {
@@ -381,7 +472,9 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
       [query addSnapshotListenerWithIncludeMetadataChanges:includeMetadataChanges.boolValue
                                                   listener:listener];
 
-  _listeners[handle] = listenerRegistration;
+  @synchronized(_listeners) {
+    _listeners[handle] = listenerRegistration;
+  }
   result.success(nil);
 }
 
@@ -389,7 +482,7 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
                withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
   __weak __typeof__(self) weakSelf = self;
 
-  __block NSNumber *handle = arguments[@"handle"];
+  NSNumber *handle = arguments[@"handle"];
   NSNumber *includeMetadataChanges = arguments[@"includeMetadataChanges"];
 
   FIRDocumentReference *document = arguments[@"reference"];
@@ -416,7 +509,9 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
       [document addSnapshotListenerWithIncludeMetadataChanges:includeMetadataChanges.boolValue
                                                      listener:listener];
 
-  _listeners[handle] = listenerRegistration;
+  @synchronized(_listeners) {
+    _listeners[handle] = listenerRegistration;
+  }
   result.success(nil);
 }
 
@@ -444,16 +539,50 @@ NSString *const kFLTFirebaseFirestoreChannelName = @"plugins.flutter.io/cloud_fi
 
 - (void)removeListener:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
   NSNumber *handle = arguments[@"handle"];
-  if (_listeners[handle] != nil) {
-    [_listeners[handle] remove];
-    [_listeners removeObjectForKey:handle];
+  @synchronized(_listeners) {
+    if (_listeners[handle] != nil) {
+      [_listeners[handle] remove];
+      [_listeners removeObjectForKey:handle];
+    }
   }
   result.success(nil);
 }
 
 - (void)batchCommit:(id)arguments withMethodCallResult:(FLTFirebaseMethodCallResult *)result {
-  // TODO implement
-  result.success(nil);
+  FIRFirestore *firestore = arguments[@"firestore"];
+  NSArray<NSDictionary *> *writes = arguments[@"writes"];
+  FIRWriteBatch *batch = [firestore batch];
+
+  for (NSDictionary *write in writes) {
+    NSString *type = write[@"type"];
+    NSString *path = write[@"path"];
+    FIRDocumentReference *reference = [firestore documentWithPath:path];
+
+    if ([@"DELETE" isEqualToString:type]) {
+      [batch deleteDocument:reference];
+    } else if ([@"UPDATE" isEqualToString:type]) {
+      NSDictionary *data = write[@"data"];
+      [batch updateData:data forDocument:reference];
+    } else if ([@"SET" isEqualToString:type]) {
+      NSDictionary *data = write[@"data"];
+      NSDictionary *options = write[@"options"];
+      if ([options[@"merge"] isEqual:@YES]) {
+        [batch setData:data forDocument:reference merge:YES];
+      } else if (![options[@"mergeFields"] isEqual:[NSNull null]]) {
+        [batch setData:data forDocument:reference mergeFields:options[@"mergeFields"]];
+      } else {
+        [batch setData:data forDocument:reference];
+      }
+    }
+  }
+
+  [batch commitWithCompletion:^(NSError *error) {
+    if (error != nil) {
+      result.error(nil, nil, nil, error);
+    } else {
+      result.success(nil);
+    }
+  }];
 }
 
 @end

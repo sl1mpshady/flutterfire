@@ -32,7 +32,7 @@ class Firestore extends FirebasePluginPlatform {
   FirebaseApp app;
 
   Firestore._({this.app})
-      : super(app.name, 'plugins.flutter.io/cloud_firestore');
+      : super(app.name, 'plugins.flutter.io/firebase_firestore');
 
   static final Map<String, Firestore> _cachedInstances = {};
 

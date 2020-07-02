@@ -181,7 +181,7 @@ NSString *const kFirebaseOptionsAppGroupId = @"appGroupId";
 }
 
 - (void)initializeCoreWithMethodCallResult:(FLTFirebaseMethodCallResult *)result {
-  __block void (^initializeCoreBlock)(void) = ^void() {
+  void (^initializeCoreBlock)(void) = ^void() {
     NSDictionary<NSString *, FIRApp *> *firebaseApps = [FIRApp allApps];
     NSMutableArray *firebaseAppsArray = [NSMutableArray arrayWithCapacity:firebaseApps.count];
 

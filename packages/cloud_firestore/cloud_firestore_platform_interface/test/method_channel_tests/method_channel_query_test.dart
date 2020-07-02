@@ -16,8 +16,6 @@ import '../utils/test_common.dart';
 void main() {
   initializeMethodChannel();
   MethodChannelQuery query;
-  final List<MethodCall> log = <MethodCall>[];
-
   const Map<String, dynamic> kMockSnapshotMetadata = <String, dynamic>{
     "hasPendingWrites": false,
     "isFromCache": false,

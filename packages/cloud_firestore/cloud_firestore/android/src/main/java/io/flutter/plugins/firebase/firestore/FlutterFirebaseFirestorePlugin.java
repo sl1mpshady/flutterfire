@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package io.flutter.plugins.firebase.cloudfirestore;
+package io.flutter.plugins.firebase.firestore;
 
 import android.app.Activity;
+import android.util.Log;
 import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
@@ -33,17 +33,17 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.StandardMethodCodec;
 import io.flutter.plugins.firebase.core.FlutterFirebasePlugin;
+import io.flutter.plugins.firebase.core.FlutterFirebasePluginRegistry;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
 
-public class CloudFirestorePlugin
+public class FlutterFirebaseFirestorePlugin
     implements FlutterFirebasePlugin, MethodCallHandler, FlutterPlugin, ActivityAware {
-  private static final WeakHashMap<String, WeakReference<FirebaseFirestore>>
+  protected static final WeakHashMap<String, WeakReference<FirebaseFirestore>>
       firestoreInstanceCache = new WeakHashMap<>();
   private static final SparseArray<ListenerRegistration> listenerRegistrations =
       new SparseArray<>();
@@ -82,88 +82,10 @@ public class CloudFirestorePlugin
     }
   }
 
-  @SuppressWarnings("unused")
   public static void registerWith(PluginRegistry.Registrar registrar) {
-    CloudFirestorePlugin instance = new CloudFirestorePlugin();
+    FlutterFirebaseFirestorePlugin instance = new FlutterFirebaseFirestorePlugin();
     instance.activity = registrar.activity();
     instance.initInstance(registrar.messenger());
-  }
-
-  // Converts a native DocumentSnapshot into a Map
-  static Map<String, Object> parseDocumentSnapshot(@NonNull DocumentSnapshot documentSnapshot) {
-    Map<String, Object> snapshotMap = new HashMap<>();
-    Map<String, Object> metadata = new HashMap<>();
-
-    metadata.put("hasPendingWrites", documentSnapshot.getMetadata().hasPendingWrites());
-    metadata.put("isFromCache", documentSnapshot.getMetadata().isFromCache());
-    snapshotMap.put("metadata", metadata);
-
-    snapshotMap.put("path", documentSnapshot.getReference().getPath());
-
-    if (documentSnapshot.getData() == null) {
-      // noinspection ConstantConditions
-      snapshotMap.put("data", null);
-    } else {
-      snapshotMap.put("data", documentSnapshot.getData());
-    }
-
-    return snapshotMap;
-  }
-
-  // Converts a native QuerySnapshot into a Map
-  static Map<String, Object> parseQuerySnapshot(QuerySnapshot querySnapshot) {
-    if (querySnapshot == null) return new HashMap<>();
-    Map<String, Object> data = new HashMap<>();
-    List<String> paths = new ArrayList<>();
-    List<Map<String, Object>> documents = new ArrayList<>();
-    List<Map<String, Object>> metadatas = new ArrayList<>();
-    for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-      paths.add(document.getReference().getPath());
-      documents.add(document.getData());
-      Map<String, Object> metadata = new HashMap<>();
-      metadata.put("hasPendingWrites", document.getMetadata().hasPendingWrites());
-      metadata.put("isFromCache", document.getMetadata().isFromCache());
-      metadatas.add(metadata);
-    }
-    data.put("paths", paths);
-    data.put("documents", documents);
-    data.put("metadatas", metadatas);
-
-    List<Map<String, Object>> documentChanges = new ArrayList<>();
-    for (DocumentChange documentChange : querySnapshot.getDocumentChanges()) {
-      Map<String, Object> change = new HashMap<>();
-      String type = null;
-      switch (documentChange.getType()) {
-        case ADDED:
-          type = "DocumentChangeType.added";
-          break;
-        case MODIFIED:
-          type = "DocumentChangeType.modified";
-          break;
-        case REMOVED:
-          type = "DocumentChangeType.removed";
-          break;
-      }
-      change.put("type", type);
-      change.put("oldIndex", documentChange.getOldIndex());
-      change.put("newIndex", documentChange.getNewIndex());
-      change.put("data", documentChange.getDocument().getData());
-      change.put("path", documentChange.getDocument().getReference().getPath());
-      Map<String, Object> metadata = new HashMap<>();
-      metadata.put(
-          "hasPendingWrites", documentChange.getDocument().getMetadata().hasPendingWrites());
-      metadata.put("isFromCache", documentChange.getDocument().getMetadata().isFromCache());
-      change.put("metadata", metadata);
-      documentChanges.add(change);
-    }
-    data.put("documentChanges", documentChanges);
-
-    Map<String, Object> metadata = new HashMap<>();
-    metadata.put("hasPendingWrites", querySnapshot.getMetadata().hasPendingWrites());
-    metadata.put("isFromCache", querySnapshot.getMetadata().isFromCache());
-    data.put("metadata", metadata);
-
-    return data;
   }
 
   @Override
@@ -200,11 +122,11 @@ public class CloudFirestorePlugin
   }
 
   private void attachToActivity(ActivityPluginBinding activityPluginBinding) {
-    this.activity = activityPluginBinding.getActivity();
+    activity = activityPluginBinding.getActivity();
   }
 
   private void detachToActivity() {
-    this.activity = null;
+    activity = null;
   }
 
   // Ensure any Firestore listeners are removed when the app
@@ -260,7 +182,7 @@ public class CloudFirestorePlugin
         });
   }
 
-  private Task<Object> createTransaction(Map<String, Object> arguments) {
+  private Task<Object> transactionCreate(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
@@ -279,12 +201,12 @@ public class CloudFirestorePlugin
             timeout = 5000L;
           }
 
-          TransactionResult transactionResult =
+          FlutterFirebaseFirestoreTransactionResult transactionResult =
               Tasks.await(
-                  new CloudFirestoreTransactionHandler(channel, activity, transactionId)
+                  new FlutterFirebaseFirestoreTransactionHandler(channel, activity, transactionId)
                       .create(firestore, timeout));
 
-          CloudFirestoreTransactionHandler.dispose(transactionId);
+          FlutterFirebaseFirestoreTransactionHandler.dispose(transactionId);
 
           if (transactionResult.exception != null) {
             throw transactionResult.exception;
@@ -294,20 +216,17 @@ public class CloudFirestorePlugin
         });
   }
 
-  private Task<Map<String, Object>> transactionGetDocumentData(Map<String, Object> arguments) {
+  private Task<DocumentSnapshot> transactionGet(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
           DocumentReference documentReference = (DocumentReference) arguments.get("reference");
-          DocumentSnapshot documentSnapshot =
-              CloudFirestoreTransactionHandler.getDocument(
-                  (int) Objects.requireNonNull(arguments.get("transactionId")), documentReference);
-
-          return parseDocumentSnapshot(documentSnapshot);
+          return FlutterFirebaseFirestoreTransactionHandler.getDocument(
+              (int) Objects.requireNonNull(arguments.get("transactionId")), documentReference);
         });
   }
 
-  private Task<Void> writeBatchCommit(Map<String, Object> arguments) {
+  private Task<Void> batchCommit(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
@@ -322,8 +241,7 @@ public class CloudFirestorePlugin
             String type = (String) Objects.requireNonNull(write.get("type"));
             String path = (String) Objects.requireNonNull(write.get("path"));
             // noinspection unchecked
-            Map<String, Object> data =
-                (Map<String, Object>) Objects.requireNonNull(write.get("data"));
+            Map<String, Object> data = (Map<String, Object>) write.get("data");
 
             DocumentReference documentReference = firestore.document(path);
 
@@ -332,7 +250,7 @@ public class CloudFirestorePlugin
                 batch = batch.delete(documentReference);
                 break;
               case "UPDATE":
-                batch = batch.update(documentReference, data);
+                batch = batch.update(documentReference, Objects.requireNonNull(data));
                 break;
               case "SET":
                 // noinspection unchecked
@@ -340,15 +258,20 @@ public class CloudFirestorePlugin
                     (Map<String, Object>) Objects.requireNonNull(write.get("options"));
 
                 if (options.get("merge") != null && (boolean) options.get("merge")) {
-                  batch = batch.set(documentReference, data, SetOptions.merge());
+                  batch =
+                      batch.set(
+                          documentReference, Objects.requireNonNull(data), SetOptions.merge());
                 } else if (options.get("mergeFields") != null) {
                   // noinspection unchecked
                   List<FieldPath> fieldPathList =
                       (List<FieldPath>) Objects.requireNonNull(options.get("mergeFields"));
                   batch =
-                      batch.set(documentReference, data, SetOptions.mergeFieldPaths(fieldPathList));
+                      batch.set(
+                          documentReference,
+                          Objects.requireNonNull(data),
+                          SetOptions.mergeFieldPaths(fieldPathList));
                 } else {
-                  batch = batch.set(documentReference, data);
+                  batch = batch.set(documentReference, Objects.requireNonNull(data));
                 }
                 break;
             }
@@ -362,9 +285,7 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          int handle = (int) Objects.requireNonNull(arguments.get("handle"));
-          CloudFirestoreQuerySnapshotObserver observer =
-              new CloudFirestoreQuerySnapshotObserver(channel, handle);
+          final int handle = (int) Objects.requireNonNull(arguments.get("handle"));
 
           MetadataChanges metadataChanges =
               (Boolean) Objects.requireNonNull(arguments.get("includeMetadataChanges"))
@@ -378,12 +299,36 @@ public class CloudFirestorePlugin
                 "An error occurred while parsing query arguments, see native logs for more information. Please report this issue.");
           }
 
-          listenerRegistrations.put(handle, query.addSnapshotListener(metadataChanges, observer));
+          ListenerRegistration listenerRegistration =
+              query.addSnapshotListener(
+                  metadataChanges,
+                  (querySnapshot, exception) -> {
+                    Map<String, Object> querySnapshotMap = new HashMap<>();
+
+                    querySnapshotMap.put("handle", handle);
+
+                    if (exception != null) {
+                      Map<String, Object> exceptionMap = new HashMap<>();
+                      FlutterFirebaseFirestoreException firestoreException =
+                          new FlutterFirebaseFirestoreException(exception, exception.getCause());
+                      exceptionMap.put("code", firestoreException.getCode());
+                      exceptionMap.put("message", firestoreException.getMessage());
+                      querySnapshotMap.put("error", exceptionMap);
+
+                      channel.invokeMethod("QuerySnapshot#error", querySnapshotMap);
+                    } else {
+                      //noinspection ConstantConditions
+                      querySnapshotMap.put("snapshot", querySnapshot);
+                      channel.invokeMethod("QuerySnapshot#event", querySnapshotMap);
+                    }
+                  });
+
+          listenerRegistrations.put(handle, listenerRegistration);
           return null;
         });
   }
 
-  private Task<Map<String, Object>> queryGetDocuments(Map<String, Object> arguments) {
+  private Task<QuerySnapshot> queryGet(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
@@ -395,18 +340,15 @@ public class CloudFirestorePlugin
                 "An error occurred while parsing query arguments, see native logs for more information. Please report this issue.");
           }
 
-          QuerySnapshot snapshot = Tasks.await(query.get(source));
-          return parseQuerySnapshot(snapshot);
+          return Tasks.await(query.get(source));
         });
   }
 
-  private Task<Void> documentReferenceAddSnapshotListener(Map<String, Object> arguments) {
+  private Task<Void> documentAddSnapshotListener(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          int handle = (int) Objects.requireNonNull(arguments.get("handle"));
-          CloudFirestoreDocumentSnapshotObserver observer =
-              new CloudFirestoreDocumentSnapshotObserver(channel, handle);
+          final int handle = (int) Objects.requireNonNull(arguments.get("handle"));
 
           MetadataChanges metadataChanges =
               (Boolean) Objects.requireNonNull(arguments.get("includeMetadataChanges"))
@@ -416,27 +358,48 @@ public class CloudFirestorePlugin
           DocumentReference documentReference =
               (DocumentReference) Objects.requireNonNull(arguments.get("reference"));
 
-          listenerRegistrations.put(
-              handle, documentReference.addSnapshotListener(metadataChanges, observer));
+          ListenerRegistration listenerRegistration =
+              documentReference.addSnapshotListener(
+                  metadataChanges,
+                  (documentSnapshot, exception) -> {
+                    Map<String, Object> eventMap = new HashMap<>();
+
+                    eventMap.put("handle", handle);
+
+                    if (exception != null) {
+                      Map<String, Object> exceptionMap = new HashMap<>();
+                      FlutterFirebaseFirestoreException firestoreException =
+                          new FlutterFirebaseFirestoreException(exception, exception.getCause());
+
+                      exceptionMap.put("code", firestoreException.getCode());
+                      exceptionMap.put("message", firestoreException.getMessage());
+                      eventMap.put("error", exceptionMap);
+                      channel.invokeMethod("DocumentSnapshot#error", eventMap);
+                    } else {
+                      // noinspection ConstantConditions
+                      eventMap.put("snapshot", documentSnapshot);
+                      channel.invokeMethod("DocumentSnapshot#event", eventMap);
+                    }
+                  });
+
+          listenerRegistrations.put(handle, listenerRegistration);
 
           return null;
         });
   }
 
-  private Task<Map<String, Object>> documentReferenceGetData(Map<String, Object> arguments) {
+  private Task<DocumentSnapshot> documentGet(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
           Source source = getSource(arguments);
           DocumentReference documentReference =
               (DocumentReference) Objects.requireNonNull(arguments.get("reference"));
-
-          DocumentSnapshot snapshot = Tasks.await(documentReference.get(source));
-          return parseDocumentSnapshot(snapshot);
+          return Tasks.await(documentReference.get(source));
         });
   }
 
-  private Task<Void> documentReferenceSetData(Map<String, Object> arguments) {
+  private Task<Void> documentSet(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
@@ -467,7 +430,7 @@ public class CloudFirestorePlugin
         });
   }
 
-  private Task<Void> documentReferenceUpdateData(Map<String, Object> arguments) {
+  private Task<Void> documentUpdate(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
@@ -481,7 +444,7 @@ public class CloudFirestorePlugin
         });
   }
 
-  private Task<Void> documentReferenceDelete(Map<String, Object> arguments) {
+  private Task<Void> documentDelete(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
@@ -505,11 +468,11 @@ public class CloudFirestorePlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          String appName = (String) arguments.get("appName");
           FirebaseFirestore firestore =
               (FirebaseFirestore) Objects.requireNonNull(arguments.get("firestore"));
-          destroyCachedFirebaseFirestoreInstanceForKey(appName);
-          return Tasks.await(firestore.terminate());
+          Tasks.await(firestore.terminate());
+          destroyCachedFirebaseFirestoreInstanceForKey(firestore.getApp().getName());
+          return null;
         });
   }
 
@@ -544,34 +507,34 @@ public class CloudFirestorePlugin
         methodCallTask = addSnapshotsInSyncListener(call.arguments());
         break;
       case "Transaction#create":
-        methodCallTask = createTransaction(call.arguments());
+        methodCallTask = transactionCreate(call.arguments());
         break;
       case "Transaction#get":
-        methodCallTask = transactionGetDocumentData(call.arguments());
+        methodCallTask = transactionGet(call.arguments());
         break;
       case "WriteBatch#commit":
-        methodCallTask = writeBatchCommit(call.arguments());
+        methodCallTask = batchCommit(call.arguments());
         break;
       case "Query#addSnapshotListener":
         methodCallTask = queryAddSnapshotListener(call.arguments());
         break;
       case "Query#get":
-        methodCallTask = queryGetDocuments(call.arguments());
+        methodCallTask = queryGet(call.arguments());
         break;
       case "DocumentReference#addSnapshotListener":
-        methodCallTask = documentReferenceAddSnapshotListener(call.arguments());
+        methodCallTask = documentAddSnapshotListener(call.arguments());
         break;
       case "DocumentReference#get":
-        methodCallTask = documentReferenceGetData(call.arguments());
+        methodCallTask = documentGet(call.arguments());
         break;
       case "DocumentReference#set":
-        methodCallTask = documentReferenceSetData(call.arguments());
+        methodCallTask = documentSet(call.arguments());
         break;
       case "DocumentReference#update":
-        methodCallTask = documentReferenceUpdateData(call.arguments());
+        methodCallTask = documentUpdate(call.arguments());
         break;
       case "DocumentReference#delete":
-        methodCallTask = documentReferenceDelete(call.arguments());
+        methodCallTask = documentDelete(call.arguments());
         break;
       case "Firestore#clearPersistence":
         methodCallTask = clearPersistence(call.arguments());
@@ -593,22 +556,32 @@ public class CloudFirestorePlugin
             result.success(task.getResult());
           } else {
             Exception exception = task.getException();
+            Map<String, String> exceptionDetails = getExceptionDetails(exception);
+            if (exceptionDetails.containsKey("code")
+                && Objects.requireNonNull(exceptionDetails.get("code")).equals("unknown")) {
+              Log.e(
+                  "FLTFirebaseFirestore",
+                  "An unknown error occurred calling method " + call.method,
+                  exception);
+            }
             result.error(
-                "cloud_firestore",
+                "firebase_firestore",
                 exception != null ? exception.getMessage() : null,
-                getExceptionDetails(exception));
+                exceptionDetails);
           }
         });
   }
 
   private void initInstance(BinaryMessenger messenger) {
+    String channelName = "plugins.flutter.io/firebase_firestore";
     channel =
         new MethodChannel(
             messenger,
-            "plugins.flutter.io/cloud_firestore",
-            new StandardMethodCodec(CloudFirestoreMessageCodec.INSTANCE));
+            "plugins.flutter.io/firebase_firestore",
+            new StandardMethodCodec(FlutterFirebaseFirestoreMessageCodec.INSTANCE));
 
     channel.setMethodCallHandler(this);
+    FlutterFirebasePluginRegistry.registerPlugin(channelName, this);
   }
 
   private Map<String, String> getExceptionDetails(Exception exception) {
@@ -618,15 +591,16 @@ public class CloudFirestorePlugin
       return details;
     }
 
-    CloudFirestoreException firestoreException = null;
+    FlutterFirebaseFirestoreException firestoreException = null;
 
     if (exception instanceof FirebaseFirestoreException) {
       firestoreException =
-          new CloudFirestoreException((FirebaseFirestoreException) exception, exception.getCause());
+          new FlutterFirebaseFirestoreException(
+              (FirebaseFirestoreException) exception, exception.getCause());
     } else if (exception.getCause() != null
         && exception.getCause() instanceof FirebaseFirestoreException) {
       firestoreException =
-          new CloudFirestoreException(
+          new FlutterFirebaseFirestoreException(
               (FirebaseFirestoreException) exception.getCause(),
               exception.getCause().getCause() != null
                   ? exception.getCause().getCause()
@@ -656,7 +630,7 @@ public class CloudFirestorePlugin
 
   @Override
   public Task<Map<String, Object>> getPluginConstantsForFirebaseApp(FirebaseApp firebaseApp) {
-    return null;
+    return Tasks.call(cachedThreadPool, () -> null);
   }
 
   @Override
@@ -670,7 +644,8 @@ public class CloudFirestorePlugin
           for (FirebaseApp app : FirebaseApp.getApps(null)) {
             FirebaseFirestore firestore = FirebaseFirestore.getInstance(app);
             Tasks.await(firestore.terminate());
-            CloudFirestorePlugin.destroyCachedFirebaseFirestoreInstanceForKey(app.getName());
+            FlutterFirebaseFirestorePlugin.destroyCachedFirebaseFirestoreInstanceForKey(
+                app.getName());
           }
           return null;
         });

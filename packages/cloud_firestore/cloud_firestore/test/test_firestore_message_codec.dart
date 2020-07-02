@@ -15,7 +15,7 @@ import 'package:cloud_firestore_platform_interface/src/method_channel/utils/fire
 class TestFirestoreMessageCodec extends FirestoreMessageCodec {
   /// Constructor.
   const TestFirestoreMessageCodec();
-
+  static const int _kDocumentReference = 130;
   static const int _kArrayUnion = 132;
   static const int _kArrayRemove = 133;
   static const int _kDelete = 134;
@@ -65,6 +65,10 @@ class TestFirestoreMessageCodec extends FirestoreMessageCodec {
       case _kFirestoreSettings:
         readValue(buffer);
         return Settings();
+      case _kDocumentReference:
+        MethodChannelFirestore firestore = readValue(buffer);
+        String path = readValue(buffer);
+        return firestore.doc(path);
       default:
         return super.readValueOfType(type, buffer);
     }

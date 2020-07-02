@@ -2,30 +2,36 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package io.flutter.plugins.firebase.cloudfirestore;
+package io.flutter.plugins.firebase.firestore;
 
 import android.util.Log;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Blob;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SnapshotMetadata;
 import io.flutter.plugin.common.StandardMessageCodec;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-class CloudFirestoreMessageCodec extends StandardMessageCodec {
-  public static final CloudFirestoreMessageCodec INSTANCE = new CloudFirestoreMessageCodec();
+class FlutterFirebaseFirestoreMessageCodec extends StandardMessageCodec {
+  public static final FlutterFirebaseFirestoreMessageCodec INSTANCE =
+      new FlutterFirebaseFirestoreMessageCodec();
   private static final byte DATA_TYPE_DATE_TIME = (byte) 128;
   private static final byte DATA_TYPE_GEO_POINT = (byte) 129;
   private static final byte DATA_TYPE_DOCUMENT_REFERENCE = (byte) 130;
@@ -64,6 +70,14 @@ class CloudFirestoreMessageCodec extends StandardMessageCodec {
       stream.write(DATA_TYPE_DOCUMENT_REFERENCE);
       writeValue(stream, ((DocumentReference) value).getFirestore().getApp().getName());
       writeValue(stream, ((DocumentReference) value).getPath());
+    } else if (value instanceof DocumentSnapshot) {
+      writeDocumentSnapshot(stream, (DocumentSnapshot) value);
+    } else if (value instanceof QuerySnapshot) {
+      writeQuerySnapshot(stream, (QuerySnapshot) value);
+    } else if (value instanceof DocumentChange) {
+      writeDocumentChange(stream, (DocumentChange) value);
+    } else if (value instanceof SnapshotMetadata) {
+      writeSnapshotMetadata(stream, (SnapshotMetadata) value);
     } else if (value instanceof Blob) {
       stream.write(DATA_TYPE_BLOB);
       writeBytes(stream, ((Blob) value).toBytes());
@@ -83,6 +97,78 @@ class CloudFirestoreMessageCodec extends StandardMessageCodec {
     }
   }
 
+  private void writeSnapshotMetadata(ByteArrayOutputStream stream, SnapshotMetadata value) {
+    Map<String, Boolean> metadataMap = new HashMap<>();
+    metadataMap.put("hasPendingWrites", value.hasPendingWrites());
+    metadataMap.put("isFromCache", value.isFromCache());
+    writeValue(stream, metadataMap);
+  }
+
+  private void writeDocumentChange(ByteArrayOutputStream stream, DocumentChange value) {
+    Map<String, Object> changeMap = new HashMap<>();
+
+    String type = null;
+    switch (value.getType()) {
+      case ADDED:
+        type = "DocumentChangeType.added";
+        break;
+      case MODIFIED:
+        type = "DocumentChangeType.modified";
+        break;
+      case REMOVED:
+        type = "DocumentChangeType.removed";
+        break;
+    }
+
+    changeMap.put("type", type);
+    changeMap.put("data", value.getDocument().getData());
+    changeMap.put("path", value.getDocument().getReference().getPath());
+    changeMap.put("oldIndex", value.getOldIndex());
+    changeMap.put("newIndex", value.getNewIndex());
+    changeMap.put("metadata", value.getDocument().getMetadata());
+
+    writeValue(stream, changeMap);
+  }
+
+  private void writeQuerySnapshot(ByteArrayOutputStream stream, QuerySnapshot value) {
+    List<String> paths = new ArrayList<>();
+    Map<String, Object> querySnapshotMap = new HashMap<>();
+    List<Map<String, Object>> documents = new ArrayList<>();
+    List<SnapshotMetadata> metadatas = new ArrayList<>();
+
+    for (DocumentSnapshot document : value.getDocuments()) {
+      paths.add(document.getReference().getPath());
+      documents.add(document.getData());
+      metadatas.add(document.getMetadata());
+    }
+
+    querySnapshotMap.put("paths", paths);
+    querySnapshotMap.put("documents", documents);
+    querySnapshotMap.put("metadatas", metadatas);
+    querySnapshotMap.put("documentChanges", value.getDocumentChanges());
+    querySnapshotMap.put("metadata", value.getMetadata());
+
+    writeValue(stream, querySnapshotMap);
+  }
+
+  private void writeDocumentSnapshot(ByteArrayOutputStream stream, DocumentSnapshot value) {
+    Map<String, Object> snapshotMap = new HashMap<>();
+
+    snapshotMap.put("path", value.getReference().getPath());
+
+    if (value.exists()) {
+      // noinspection ConstantConditions
+      snapshotMap.put("data", value.getData());
+    } else {
+      // noinspection ConstantConditions
+      snapshotMap.put("data", null);
+    }
+
+    snapshotMap.put("metadata", value.getMetadata());
+
+    writeValue(stream, snapshotMap);
+  }
+
   @Override
   protected Object readValueOfType(byte type, ByteBuffer buffer) {
     switch (type) {
@@ -94,9 +180,7 @@ class CloudFirestoreMessageCodec extends StandardMessageCodec {
         readAlignment(buffer, 8);
         return new GeoPoint(buffer.getDouble(), buffer.getDouble());
       case DATA_TYPE_DOCUMENT_REFERENCE:
-        String appName = (String) readValue(buffer);
-        final FirebaseFirestore firestore =
-            FirebaseFirestore.getInstance(FirebaseApp.getInstance(appName));
+        FirebaseFirestore firestore = (FirebaseFirestore) readValue(buffer);
         final String path = (String) readValue(buffer);
         return firestore.document(path);
       case DATA_TYPE_BLOB:
@@ -146,17 +230,20 @@ class CloudFirestoreMessageCodec extends StandardMessageCodec {
     String appName = (String) readValue(buffer);
     FirebaseFirestoreSettings settings = (FirebaseFirestoreSettings) readValue(buffer);
 
-    if (CloudFirestorePlugin.getCachedFirebaseFirestoreInstanceForKey(appName) != null) {
-      return CloudFirestorePlugin.getCachedFirebaseFirestoreInstanceForKey(appName);
+    synchronized (FlutterFirebaseFirestorePlugin.firestoreInstanceCache) {
+      if (FlutterFirebaseFirestorePlugin.getCachedFirebaseFirestoreInstanceForKey(appName)
+          != null) {
+        return FlutterFirebaseFirestorePlugin.getCachedFirebaseFirestoreInstanceForKey(appName);
+      }
+
+      FirebaseApp app = FirebaseApp.getInstance(appName);
+      FirebaseFirestore firestore = FirebaseFirestore.getInstance(app);
+
+      firestore.setFirestoreSettings(settings);
+
+      FlutterFirebaseFirestorePlugin.setCachedFirebaseFirestoreInstanceForKey(firestore, appName);
+      return firestore;
     }
-
-    FirebaseApp app = FirebaseApp.getInstance(appName);
-    FirebaseFirestore firestore = FirebaseFirestore.getInstance(app);
-
-    firestore.setFirestoreSettings(settings);
-
-    CloudFirestorePlugin.setCachedFirebaseFirestoreInstanceForKey(firestore, appName);
-    return firestore;
   }
 
   private FirebaseFirestoreSettings readFirestoreSettings(ByteBuffer buffer) {

@@ -9,8 +9,8 @@ flutter:
   plugin:
     platforms:
       android:
-        package: io.flutter.plugins.firebase.cloudfirestore
-        pluginClass: CloudFirestorePlugin
+        package: io.flutter.plugins.firebase.firestore
+        pluginClass: FlutterFirebaseFirestorePlugin
       ios:
         pluginClass: FLTFirebaseFirestorePlugin
       macos:

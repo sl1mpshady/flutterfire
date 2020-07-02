@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package io.flutter.plugins.firebase.cloudfirestore;
+package io.flutter.plugins.firebase.firestore;
 
 import androidx.annotation.Keep;
 import com.google.firebase.components.Component;
@@ -12,10 +12,10 @@ import java.util.Collections;
 import java.util.List;
 
 @Keep
-public class FlutterFirebaseAppRegistrar implements ComponentRegistrar {
+public class FlutterFirebaseFirestoreRegistrar implements ComponentRegistrar {
   @Override
   public List<Component<?>> getComponents() {
-    return Collections.<Component<?>>singletonList(
+    return Collections.singletonList(
         LibraryVersionComponent.create(BuildConfig.LIBRARY_NAME, BuildConfig.LIBRARY_VERSION));
   }
 }

@@ -133,7 +133,7 @@ abstract class FirestorePlatform extends PlatformInterface {
   /// By default transactions are limited to 5 seconds of execution time. This
   /// timeout can be adjusted by setting the [timeout] parameter.
   Future<T> runTransaction<T>(TransactionHandler transactionHandler,
-      {Duration timeout = const Duration(seconds: 5)}) {
+      {Duration timeout = const Duration(seconds: 30)}) {
     throw UnimplementedError('runTransaction() is not implemented');
   }
 

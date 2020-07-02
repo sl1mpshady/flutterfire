@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package io.flutter.plugins.firebase.cloudfirestore;
+package io.flutter.plugins.firebase.firestore;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -27,13 +27,14 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-class CloudFirestoreTransactionHandler {
+class FlutterFirebaseFirestoreTransactionHandler {
   static final SparseArray<Transaction> transactions = new SparseArray<>();
   private MethodChannel channel;
   private WeakReference<Activity> activityRef;
   private int transactionId;
 
-  CloudFirestoreTransactionHandler(MethodChannel channel, Activity activity, int transactionId) {
+  FlutterFirebaseFirestoreTransactionHandler(
+      MethodChannel channel, Activity activity, int transactionId) {
     this.channel = channel;
     this.activityRef = new WeakReference<>(activity);
     this.transactionId = transactionId;
@@ -57,7 +58,8 @@ class CloudFirestoreTransactionHandler {
     return transaction.get(documentReference);
   }
 
-  Task<TransactionResult> create(FirebaseFirestore firestore, Long timeout) {
+  Task<FlutterFirebaseFirestoreTransactionResult> create(
+      FirebaseFirestore firestore, Long timeout) {
     Map<String, Object> arguments = new HashMap<>();
     arguments.put("transactionId", transactionId);
     arguments.put("appName", firestore.getApp().getName());
@@ -71,60 +73,59 @@ class CloudFirestoreTransactionHandler {
           final Task<Map<String, Object>> sourceTask = completionSource.getTask();
 
           if (activityRef.get() == null) {
-            return TransactionResult.fromException(
+            return FlutterFirebaseFirestoreTransactionResult.failed(
                 new ActivityNotFoundException("Activity context no longer exists."));
           }
 
-          activityRef
-              .get()
-              .runOnUiThread(
-                  () ->
-                      channel.invokeMethod(
-                          "Transaction#attempt",
-                          arguments,
-                          new MethodChannel.Result() {
-                            @Override
-                            public void success(@Nullable Object result) {
-                              // noinspection unchecked
-                              completionSource.trySetResult((Map<String, Object>) result);
-                            }
+          Runnable runnable =
+              () ->
+                  channel.invokeMethod(
+                      "Transaction#attempt",
+                      arguments,
+                      new MethodChannel.Result() {
+                        @Override
+                        public void success(@Nullable Object result) {
+                          // noinspection unchecked
+                          completionSource.trySetResult((Map<String, Object>) result);
+                        }
 
-                            @Override
-                            public void error(
-                                String errorCode,
-                                @Nullable String errorMessage,
-                                @Nullable Object errorDetails) {
-                              completionSource.trySetException(
-                                  new FirebaseFirestoreException(
-                                      "Transaction#attempt error: " + errorMessage,
-                                      FirebaseFirestoreException.Code.ABORTED));
-                            }
+                        @Override
+                        public void error(
+                            String errorCode,
+                            @Nullable String errorMessage,
+                            @Nullable Object errorDetails) {
+                          completionSource.trySetException(
+                              new FirebaseFirestoreException(
+                                  "Transaction#attempt error: " + errorMessage,
+                                  FirebaseFirestoreException.Code.ABORTED));
+                        }
 
-                            @Override
-                            public void notImplemented() {
-                              completionSource.trySetException(
-                                  new FirebaseFirestoreException(
-                                      "Transaction#attempt: Not implemented",
-                                      FirebaseFirestoreException.Code.ABORTED));
-                            }
-                          }));
+                        @Override
+                        public void notImplemented() {
+                          completionSource.trySetException(
+                              new FirebaseFirestoreException(
+                                  "Transaction#attempt: Not implemented",
+                                  FirebaseFirestoreException.Code.ABORTED));
+                        }
+                      });
+
+          activityRef.get().runOnUiThread(runnable);
 
           Map<String, Object> response;
 
           try {
             response = Tasks.await(sourceTask, timeout, TimeUnit.MILLISECONDS);
             String responseType = (String) Objects.requireNonNull(response.get("type"));
-
-            // Something went wrong in dart - finish this transaction
+            // Do nothing - already handled in Dart land.
             if (responseType.equals("ERROR")) {
-              return TransactionResult.complete();
+              return FlutterFirebaseFirestoreTransactionResult.complete();
             }
           } catch (TimeoutException e) {
-            return TransactionResult.fromException(
+            return FlutterFirebaseFirestoreTransactionResult.failed(
                 new FirebaseFirestoreException(
-                    e.getMessage(), FirebaseFirestoreException.Code.ABORTED));
+                    e.getMessage(), FirebaseFirestoreException.Code.DEADLINE_EXCEEDED));
           } catch (Exception e) {
-            return TransactionResult.fromException(e);
+            return FlutterFirebaseFirestoreTransactionResult.failed(e);
           }
 
           // noinspection unchecked
@@ -137,15 +138,14 @@ class CloudFirestoreTransactionHandler {
             DocumentReference documentReference = firestore.document(path);
 
             // noinspection unchecked
-            Map<String, Object> data =
-                (Map<String, Object>) Objects.requireNonNull(command.get("data"));
+            Map<String, Object> data = (Map<String, Object>) command.get("data");
 
             switch (type) {
               case "DELETE":
                 transaction.delete(documentReference);
                 break;
               case "UPDATE":
-                transaction.update(documentReference, data);
+                transaction.update(documentReference, Objects.requireNonNull(data));
                 break;
               case "SET":
                 {
@@ -164,16 +164,17 @@ class CloudFirestoreTransactionHandler {
                   }
 
                   if (setOptions == null) {
-                    transaction.set(documentReference, data);
+                    transaction.set(documentReference, Objects.requireNonNull(data));
                   } else {
-                    transaction.set(documentReference, data, setOptions);
+                    transaction.set(documentReference, Objects.requireNonNull(data), setOptions);
                   }
+
+                  break;
                 }
-                break;
             }
           }
 
-          return TransactionResult.complete();
+          return FlutterFirebaseFirestoreTransactionResult.complete();
         });
   }
 }

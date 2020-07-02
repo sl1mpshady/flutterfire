@@ -21,7 +21,8 @@ typedef void (^FLTFirebaseMethodCallSuccessBlock)(id _Nullable result);
  * Block that is capable of sending an error response to a method call operation.
  * Use this for returning error information to a Method call.
  */
-typedef void (^FLTFirebaseMethodCallErrorBlock)(NSString *_Nonnull code, NSString *_Nonnull message,
+typedef void (^FLTFirebaseMethodCallErrorBlock)(NSString *_Nullable code,
+                                                NSString *_Nullable message,
                                                 NSDictionary *_Nullable details,
                                                 NSError *_Nullable error);
 

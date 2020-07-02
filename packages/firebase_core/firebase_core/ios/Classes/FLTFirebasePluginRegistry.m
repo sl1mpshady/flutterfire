@@ -51,8 +51,8 @@
 
 - (void)didReinitializeFirebaseCore:(void (^_Nonnull)(void))completion {
   __block int pluginsCompleted = 0;
-  __block NSUInteger pluginsCount = [self->registeredPlugins allKeys].count;
-  __block void (^allPluginsCompletion)(void) = ^void() {
+  NSUInteger pluginsCount = [self->registeredPlugins allKeys].count;
+  void (^allPluginsCompletion)(void) = ^void() {
     pluginsCompleted++;
     if (pluginsCompleted == pluginsCount) {
       completion();

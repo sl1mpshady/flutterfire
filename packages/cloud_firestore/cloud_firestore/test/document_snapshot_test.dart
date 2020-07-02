@@ -15,7 +15,7 @@ import './test_firestore_message_codec.dart';
 void main() {
   setupCloudFirestoreMocks();
   MethodChannelFirestore.channel = MethodChannel(
-    'plugins.flutter.io/cloud_firestore',
+    'plugins.flutter.io/firebase_firestore',
     StandardMethodCodec(TestFirestoreMessageCodec()),
   );
 

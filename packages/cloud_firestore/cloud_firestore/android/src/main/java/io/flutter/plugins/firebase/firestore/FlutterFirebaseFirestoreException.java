@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package io.flutter.plugins.firebase.cloudfirestore;
+package io.flutter.plugins.firebase.firestore;
 
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class CloudFirestoreException extends Exception {
+class FlutterFirebaseFirestoreException extends Exception {
   private static final String ERROR_ABORTED =
       "The operation was aborted, typically due to a concurrency issue like transaction aborts, etc.";
   private static final String ERROR_ALREADY_EXISTS =
@@ -42,7 +42,7 @@ class CloudFirestoreException extends Exception {
   private final String code;
   private final String message;
 
-  CloudFirestoreException(FirebaseFirestoreException nativeException, Throwable cause) {
+  FlutterFirebaseFirestoreException(FirebaseFirestoreException nativeException, Throwable cause) {
     super(nativeException != null ? nativeException.getMessage() : "", cause);
 
     String code = null;

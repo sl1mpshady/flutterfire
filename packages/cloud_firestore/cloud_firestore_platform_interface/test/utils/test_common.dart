@@ -29,7 +29,7 @@ int get nextMockHandleId => mockHandleId++;
 void initializeMethodChannel() {
   // Install the Codec that is able to decode FieldValues.
   MethodChannelFirestore.channel = MethodChannel(
-    'plugins.flutter.io/cloud_firestore',
+    'plugins.flutter.io/firebase_firestore',
     StandardMethodCodec(TestFirestoreMessageCodec()),
   );
 

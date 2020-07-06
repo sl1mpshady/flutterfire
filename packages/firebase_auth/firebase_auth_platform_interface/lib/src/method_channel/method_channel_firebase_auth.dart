@@ -101,13 +101,13 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   }
 
   /// Returns the current user, or `null` if the user is not signed in.
-  /// 
+  ///
   /// You should not use this getter to determine the users authentication state.
   /// Instead, use the [authStateChanges], [idTokenChanges] or [userChanges] streams.
   UserPlatform currentUser;
 
   /// The current language code for this instance.
-  /// 
+  ///
   /// If `null`, the language used will be that of your Firebase project. To change
   /// the language, see [setLanguage].
   String languageCode;
@@ -271,6 +271,10 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       _idTokenChangesListeners[app.name].stream;
 
   @override
+  Stream<UserPlatform> userChanges() =>
+      _userChangesListeners[app.name].stream;
+
+  @override
   Future<void> sendPasswordResetEmail(String email,
       [ActionCodeSettings actionCodeSettings]) {
     return channel
@@ -303,8 +307,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
 
   @override
   Future<void> setSettings({bool appVerificationDisabledForTesting}) async {
-    await channel
-        .invokeMethod<String>('Auth#setSettings', <String, dynamic>{
+    await channel.invokeMethod<String>('Auth#setSettings', <String, dynamic>{
       'appName': app.name,
       'appVerificationDisabledForTesting': appVerificationDisabledForTesting,
     }).catchError(catchPlatformException);

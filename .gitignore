@@ -1,7 +1,9 @@
 .DS_Store
 .atom/
 .idea/
-.vscode/
+.vscode/*
+!.vscode/tasks.json
+!.vscode/settings.json
 
 .packages
 .pub/
@@ -43,4 +45,4 @@ build/
 .project
 .classpath
 .settings
-pubspec.yaml
+/pubspec.yaml

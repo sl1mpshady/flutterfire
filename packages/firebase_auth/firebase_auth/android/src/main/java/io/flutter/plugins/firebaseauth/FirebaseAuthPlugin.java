@@ -1211,4 +1211,14 @@ public class FirebaseAuthPlugin
 
     return details;
   }
+
+  @Override
+  public Task<Void> didReinitializeFirebaseCore() {
+    return Tasks.call(
+            cachedThreadPool,
+            () -> {
+              // TODO(helenaford): logic here for didReinitializeFirebaseCore
+              return null;
+            });
+  }
 }

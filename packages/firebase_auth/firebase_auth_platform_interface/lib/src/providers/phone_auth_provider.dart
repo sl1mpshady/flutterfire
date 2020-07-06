@@ -25,7 +25,7 @@ class PhoneAuthProvider extends AuthProvider {
 
   /// Create a new [PhoneAuthCredential] from a provided [verificationId] and
   /// [smsCode].
-  static AuthCredential credential(String verificationId, String smsCode) {
+  static AuthCredential credential({String verificationId, String smsCode}) {
     assert(verificationId != null);
     assert(smsCode != null);
     return PhoneAuthCredential._credential(verificationId, smsCode);
@@ -44,7 +44,8 @@ class PhoneAuthProvider extends AuthProvider {
     @required String verificationId,
     @required String smsCode,
   }) {
-    return PhoneAuthProvider.credential(verificationId, smsCode);
+    return PhoneAuthProvider.credential(
+        verificationId: verificationId, smsCode: smsCode);
   }
 }
 

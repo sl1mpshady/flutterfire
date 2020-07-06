@@ -80,6 +80,17 @@ class FirebaseAuth extends FirebasePluginPlatform {
     return null;
   }
 
+  /// The current Auth instance's language code.
+  ///
+  /// See [setLanguageCode] to update the language code.
+  String get languageCode {
+    if (_delegate.languageCode != null) {
+      return _delegate.languageCode;
+    }
+
+    return null;
+  }
+
   /// Applies a verification code sent to the user by email or other out-of-band mechanism.
   ///
   /// A [FirebaseAuthException] maybe thrown with the following error code:
@@ -271,27 +282,14 @@ class FirebaseAuth extends FirebasePluginPlatform {
     return _delegate.setLanguageCode(languageCode);
   }
 
-  /// The current Auth instance's language code.
-  ///
-  /// See [setLanguageCode] to update the language code.
-  String get languageCode {
-    if (_delegate.languageCode != null) {
-      return _delegate.languageCode;
-    }
-
-    return null;
-  }
-
   /// Updates the current instance with the provided settings.
   ///
-  /// - [appVerificationDisabledForTesting]
-  ///
-  /// This setting only applies to iOS and web platforms. When set to `true`,
-  /// this property disables app verification for the purpose of testing
-  /// phone authentication. For this property to take effect, it needs to be set
-  /// before handling a reCAPTCHA app verifier. When this is disabled, a mock
-  /// reCAPTCHA is rendered instead. This is useful for manual testing during
-  /// development or for automated integration tests.
+  /// [appVerificationDisabledForTesting] This setting only applies to iOS and web platforms. When set to `true`,
+  ///   this property disables app verification for the purpose of testing
+  ///   phone authentication. For this property to take effect, it needs to be set
+  ///   before handling a reCAPTCHA app verifier. When this is disabled, a mock
+  ///   reCAPTCHA is rendered instead. This is useful for manual testing during
+  ///   development or for automated integration tests.
   ///
   /// In order to use this feature, you will need to
   /// [whitelist your phone number](https://firebase.google.com/docs/auth/web/phone-auth?authuser=0#test-with-whitelisted-phone-numbers)

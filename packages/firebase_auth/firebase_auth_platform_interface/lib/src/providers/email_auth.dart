@@ -9,6 +9,11 @@ import 'package:meta/meta.dart';
 const _kLinkProviderId = 'emailLink';
 const _kProviderId = 'password';
 
+/// A [EmailAuthCredential] can be created by calling [EmailAuthProvider.credentail]
+/// with an email and password.
+///
+/// Usage of [EmailAuthProvider] would be when you wish to sign a user in with a
+/// credential or reauthenticate a user.
 abstract class EmailAuthProvider extends AuthProvider {
   EmailAuthProvider() : super(_kProviderId);
 
@@ -24,12 +29,14 @@ abstract class EmailAuthProvider extends AuthProvider {
     return _kProviderId;
   }
 
+  /// Creates a new [EmailAuthCredential] from a given email and password.
   static AuthCredential credential(String email, String password) {
     assert(email != null);
     assert(password != null);
     return EmailAuthCredential._credential(email, password);
   }
 
+  /// Creates a new [EmailAuthCredential] from a given email and email link.
   static AuthCredential credentialWithLink(String email, String emailLink) {
     assert(email != null);
     assert(emailLink != null);
@@ -53,7 +60,7 @@ abstract class EmailAuthProvider extends AuthProvider {
   }
 }
 
-// TODO code docs
+/// The authentical credential returned from calling [EmailAuthProvider.credential].
 class EmailAuthCredential extends AuthCredential {
   EmailAuthCredential._(
     String _signInMethod, {
@@ -90,10 +97,5 @@ class EmailAuthCredential extends AuthCredential {
       'emailLink': emailLink,
       'secret': password,
     };
-  }
-
-  @override
-  Object toJSON() {
-    throw UnimplementedError();
   }
 }

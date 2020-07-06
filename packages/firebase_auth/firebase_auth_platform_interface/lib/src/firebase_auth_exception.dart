@@ -32,9 +32,9 @@ class FirebaseAuthException extends FirebaseException
   /// The [AuthCredential] that can be used to resolve the error.
   final AuthCredential credential;
 
-  /// The phone number of the user's account used for sign-in/linking. // TODO where from?
+  /// The phone number of the user's account used for sign-in/linking.
   final String phoneNumber;
 
-  /// The tenant ID being used for sign-in/linking. // TODO where from?
+  /// The tenant ID being used for sign-in/linking.
   final String tenantId;
 }

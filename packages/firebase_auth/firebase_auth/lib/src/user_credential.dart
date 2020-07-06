@@ -4,6 +4,7 @@
 
 part of firebase_auth;
 
+/// A UserCredential is returned from authentication requests such as [createUserWithEmailAndPassword].
 class UserCredential {
   UserCredentialPlatform _delegate;
 
@@ -13,14 +14,17 @@ class UserCredential {
     UserCredentialPlatform.verifyExtends(_delegate);
   }
 
+  /// Returns additional information about the user, such as whether they are a newly created one.
   AdditionalUserInfo get additionalUserInfo {
     return _delegate.additionalUserInfo;
   }
 
+  /// The users [AuthCredential].
   AuthCredential get credential {
     return _delegate.credential;
   }
 
+  /// Returns a [User] containing additional informationa and user specific methods.
   User get user {
     return User._(_auth, _delegate.user);
   }

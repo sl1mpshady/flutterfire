@@ -14,6 +14,10 @@ class FirebaseAuth extends FirebasePluginPlatform {
   // instance with the default app before a user specifies an app.
   FirebaseAuthPlatform _delegatePackingProperty;
 
+  /// Returns the underlying delegate implementation.
+  ///
+  /// If called and no [_delegatePackingProperty] exists, it will first be
+  /// created and assigned before returning the delegate.
   FirebaseAuthPlatform get _delegate {
     if (_delegatePackingProperty == null) {
       _delegatePackingProperty = FirebaseAuthPlatform.instanceFor(
@@ -67,7 +71,7 @@ class FirebaseAuth extends FirebasePluginPlatform {
   /// Returns the current [User] if they are currently signed-in, or `null` if not.
   ///
   /// You should not use this getter to determine the users current state, instead
-  /// use [authStateChanges] to subscribe to updates.
+  /// use [authStateChanges], [idTokenChanges] or [userChanges] to subscribe to updates.
   User get currentUser {
     if (_delegate.currentUser != null) {
       return User._(this, _delegate.currentUser);
@@ -77,6 +81,16 @@ class FirebaseAuth extends FirebasePluginPlatform {
   }
 
   /// Applies a verification code sent to the user by email or other out-of-band mechanism.
+  ///
+  /// A [FirebaseAuthException] maybe thrown with the following error code:
+  /// - **expired-action-code**:
+  ///  - Thrown if the action code has expired.
+  /// - **invalid-action-code**:
+  ///  - Thrown if the action code is invalid. This can happen if the code is malformed or has already been used.
+  /// - **user-disabled**:
+  ///  - Thrown if the user corresponding to the given action code has been disabled.
+  /// - **user-not-found**:
+  ///  - Thrown if there is no user corresponding to the action code. This may have happened if the user was deleted between when the action code was issued and when this method was called.
   Future<void> applyActionCode(String code) async {
     assert(code != null);
     await _delegate.applyActionCode(code);
@@ -84,13 +98,35 @@ class FirebaseAuth extends FirebasePluginPlatform {
 
   /// Checks a verification code sent to the user by email or other out-of-band mechanism.
   ///
-  /// Returns metadata about the code.
+  /// Returns [ActionCodeInfo] about the code.
+  ///
+  /// A [FirebaseAuthException] maybe thrown with the following error code:
+  /// - **expired-action-code**:
+  ///  - Thrown if the action code has expired.
+  /// - **invalid-action-code**:
+  ///  - Thrown if the action code is invalid. This can happen if the code is malformed or has already been used.
+  /// - **user-disabled**:
+  ///  - Thrown if the user corresponding to the given action code has been disabled.
+  /// - **user-not-found**:
+  ///  - Thrown if there is no user corresponding to the action code. This may have happened if the user was deleted between when the action code was issued and when this method was called.
   Future<ActionCodeInfo> checkActionCode(String code) {
     assert(code != null);
     return _delegate.checkActionCode(code);
   }
 
   /// Completes the password reset process, given a confirmation code and new password.
+  ///
+  /// A [FirebaseAuthException] maybe thrown with the following error code:
+  /// - **expired-action-code**:
+  ///  - Thrown if the action code has expired.
+  /// - **invalid-action-code**:
+  ///  - Thrown if the action code is invalid. This can happen if the code is malformed or has already been used.
+  /// - **user-disabled**:
+  ///  - Thrown if the user corresponding to the given action code has been disabled.
+  /// - **user-not-found**:
+  ///  - Thrown if there is no user corresponding to the action code. This may have happened if the user was deleted between when the action code was issued and when this method was called.
+  /// - **weak-password**:
+  ///  - Thrown if the new password is not strong enough.
   Future<void> confirmPasswordReset({String code, String newPassword}) async {
     assert(code != null);
     assert(newPassword != null);
@@ -98,6 +134,16 @@ class FirebaseAuth extends FirebasePluginPlatform {
   }
 
   /// Tries to create a new user account with the given email address and password.
+  ///
+  /// A [FirebaseAuthException] maybe thrown with the following error code:
+  /// - **email-already-in-use**:
+  ///  - Thrown if there already exists an account with the given email address.
+  /// - **invalid-email**:
+  ///  - Thrown if the email address is not valid.
+  /// - **operation-not-allowed**:
+  ///  - Thrown if email/password accounts are not enabled. Enable email/password accounts in the Firebase Console, under the Auth tab.
+  /// - **weak-password**:
+  ///  - Thrown if the password is not strong enough.
   Future<UserCredential> createUserWithEmailAndPassword({
     @required String email,
     @required String password,
@@ -115,6 +161,10 @@ class FirebaseAuth extends FirebasePluginPlatform {
   /// if you want to implement an email-first authentication flow.
   ///
   /// An empty `List` is returned if the user could not be found.
+  ///
+  /// A [FirebaseAuthException] maybe thrown with the following error code:
+  /// - **invalid-email**:
+  ///  - Thrown if the email address is not valid.
   Future<List<String>> fetchSignInMethodsForEmail(String email) {
     assert(email != null);
     return _delegate.fetchSignInMethodsForEmail(email);
@@ -136,6 +186,8 @@ class FirebaseAuth extends FirebasePluginPlatform {
     return _delegate.isSignInWithEmailLink(emailLink);
   }
 
+  /// Internal helper which pipes internal [Stream] events onto
+  /// a users own Stream.
   Stream<User> _pipeStreamChanges(Stream<UserPlatform> stream) {
     Stream<User> streamSync = stream.map((delegateUser) {
       if (delegateUser == null) {
@@ -165,6 +217,13 @@ class FirebaseAuth extends FirebasePluginPlatform {
   Stream<User> idTokenChanges() =>
       _pipeStreamChanges(_delegate.idTokenChanges());
 
+  /// Notifies about changes to any user updates.
+  ///
+  /// This is a superset of both [authStateChanges] and [idTokenChanges]. It provides
+  /// events on all user changes, such as when credentials are linked, unlinked and
+  /// when updates to the user profile are made. The purpose of this Stream is to
+  /// for listening to realtime updates to the user without manually having to call
+  /// [reload] and then rehydrating changes to your application.
   Stream<User> userChanges() => _pipeStreamChanges(_delegate.userChanges());
 
   /// Triggers the Firebase Authentication backend to send a password-reset
@@ -179,6 +238,15 @@ class FirebaseAuth extends FirebasePluginPlatform {
   }
 
   /// Sends a sign in with email link to provided email address.
+  ///
+  /// To complete the password reset, call [confirmPasswordReset] with the code
+  /// supplied in the email sent to the user, along with the new password specified by the user.
+  ///
+  /// A [FirebaseAuthException] maybe thrown with the following error code:
+  /// - **invalid-email**:
+  ///  - Thrown if the email address is not valid.
+  /// - **user-not-found**:
+  ///  - Thrown if there is no user corresponding to the email address.
   Future<void> sendSignInWithEmailLink({
     @required String email,
     @required ActionCodeSettings actionCodeSettings,
@@ -197,12 +265,15 @@ class FirebaseAuth extends FirebasePluginPlatform {
   /// code specified.
   ///
   /// On web platforms, if `null` is provided as the [languageCode] the Firebase
-  /// project default language will be used. On native platforms, the app language will be used.
+  /// project default language will be used. On native platforms, the device language
+  /// will be used.
   Future<void> setLanguageCode(String languageCode) {
     return _delegate.setLanguageCode(languageCode);
   }
 
-  /// TODO: code docs
+  /// The current Auth instance's language code.
+  ///
+  /// See [setLanguageCode] to update the language code.
   String get languageCode {
     if (_delegate.languageCode != null) {
       return _delegate.languageCode;
@@ -211,6 +282,22 @@ class FirebaseAuth extends FirebasePluginPlatform {
     return null;
   }
 
+  /// Updates the current instance with the provided settings.
+  ///
+  /// - [appVerificationDisabledForTesting]
+  ///
+  /// This setting only applies to iOS and web platforms. When set to `true`,
+  /// this property disables app verification for the purpose of testing
+  /// phone authentication. For this property to take effect, it needs to be set
+  /// before handling a reCAPTCHA app verifier. When this is disabled, a mock
+  /// reCAPTCHA is rendered instead. This is useful for manual testing during
+  /// development or for automated integration tests.
+  ///
+  /// In order to use this feature, you will need to
+  /// [whitelist your phone number](https://firebase.google.com/docs/auth/web/phone-auth?authuser=0#test-with-whitelisted-phone-numbers)
+  /// via the Firebase Console.
+  ///
+  /// The default value is false (app verification is enabled).
   Future<void> setSettings({bool appVerificationDisabledForTesting = false}) {
     assert(appVerificationDisabledForTesting != null);
     return _delegate.setSettings(
@@ -219,8 +306,9 @@ class FirebaseAuth extends FirebasePluginPlatform {
 
   /// Changes the current type of persistence on the current Auth instance for
   /// the currently saved Auth session and applies this type of persistence for
-  /// future sign-in requests, including sign-in with redirect requests. This
-  /// will return a promise that will resolve once the state finishes copying
+  /// future sign-in requests, including sign-in with redirect requests.
+  ///
+  /// This will return a promise that will resolve once the state finishes copying
   /// from one type of storage to the other. Calling a sign-in method after
   /// changing persistence will wait for that persistence change to complete
   /// before applying it on the new Auth state.
@@ -243,6 +331,10 @@ class FirebaseAuth extends FirebasePluginPlatform {
   ///
   /// **Important**: You must enable Anonymous accounts in the Auth section
   /// of the Firebase console before being able to use them.
+  ///
+  /// A [FirebaseAuthException] maybe thrown with the following error code:
+  /// - **operation-not-allowed**:
+  ///  - Thrown if anonymous accounts are not enabled. Enable anonymous accounts in the Firebase Console, under the Auth tab.
   Future<UserCredential> signInAnonymously() async {
     return UserCredential._(this, await _delegate.signInAnonymously());
   }
@@ -252,42 +344,78 @@ class FirebaseAuth extends FirebasePluginPlatform {
   /// etc.) and returns additional identity provider data.
   ///
   /// If successful, it also signs the user in into the app and updates
-  /// the [onAuthStateChanged] stream.
+  /// any [authStateChanges], [idTokenChanges] or [userChanges] stream listeners.
   ///
   /// If the user doesn't have an account already, one will be created automatically.
   ///
   /// **Important**: You must enable the relevant accounts in the Auth section
   /// of the Firebase console before being able to use them.
+  ///
+  /// A [FirebaseAuthException] maybe thrown with the following error code:
+  /// - **account-exists-with-different-credential**:
+  ///  - Thrown if there already exists an account with the email address asserted by the credential.
+  ///    Resolve this by calling [fetchSignInMethodsForEmail] and then asking the user to sign in using one of the returned providers.
+  ///    Once the user is signed in, the original credential can be linked to the user with [linkWithCredential].
+  /// - **invalid-credential**:
+  ///  - Thrown if the credential is malformed or has expired.
+  /// - **operation-not-allowed**:
+  ///  - Thrown if the type of account corresponding to the credential is not enabled. Enable the account type in the Firebase Console, under the Auth tab.
+  /// - **user-disabled**:
+  ///  - Thrown if the user corresponding to the given credential has been disabled.
+  /// - **user-not-found**:
+  ///  - Thrown if signing in with a credential from [EmailAuthProvider.credential] and there is no user corresponding to the given email.
+  /// - **wrong-password**:
+  ///  - Thrown if signing in with a credential from [EmailAuthProvider.credential] and the password is invalid for the given email, or if the account corresponding to the email does not have a password set.
+  /// - **invalid-verification-code**:
+  ///  - Thrown if the credential is a [PhoneAuthProvider.credential] and the verification code of the credential is not valid.
+  /// - **invalid-verification-id**:
+  ///  - Thrown if the credential is a [PhoneAuthProvider.credential] and the verification ID of the credential is not valid.id.
   Future<UserCredential> signInWithCredential(AuthCredential credential) async {
     assert(credential != null);
     return UserCredential._(
         this, await _delegate.signInWithCredential(credential));
   }
 
-  /// Tries to sign in a user with a given Custom Token [token].
+  /// Tries to sign in a user with a given custom token.
+  ///
+  /// Custom tokens are used to integrate Firebase Auth with existing auth systems, and must be generated by the auth backend.
   ///
   /// If successful, it also signs the user in into the app and updates
-  /// the [onAuthStateChanged] stream.
-  ///
-  /// Use this method after you retrieve a Firebase Auth Custom Token from your server.
+  /// any [authStateChanges], [idTokenChanges] or [userChanges] stream listeners.
   ///
   /// If the user identified by the [uid] specified in the token doesn't
   /// have an account already, one will be created automatically.
   ///
   /// Read how to use Custom Token authentication and the cases where it is
   /// useful in [the guides](https://firebase.google.com/docs/auth/android/custom-auth).
+  ///
+  /// A [FirebaseAuthException] maybe thrown with the following error code:
+  /// - **custom-token-mismatch**:
+  ///  - Thrown if the custom token is for a different Firebase App.
+  /// - **invalid-custom-token**:
+  ///  - Thrown if the custom token format is incorrect.
   Future<UserCredential> signInWithCustomToken(String token) async {
     assert(token != null);
     return UserCredential._(this, await _delegate.signInWithCustomToken(token));
   }
 
-  /// Tries to sign in a user with the given email address and password.
+  /// Attempts to sign in a user with the given email address and password.
   ///
   /// If successful, it also signs the user in into the app and updates
-  /// the [authStateChanges] stream.
+  /// any [authStateChanges], [idTokenChanges] or [userChanges] stream listeners.
   ///
   /// **Important**: You must enable Email & Password accounts in the Auth
   /// section of the Firebase console before being able to use them.
+  ///
+  /// A [FirebaseAuthException] maybe thrown with the following error code:
+  /// - **invalid-email**:
+  ///  - Thrown if the email address is not valid.
+  /// - **user-disabled**:
+  ///  - Thrown if the user corresponding to the given email has been disabled.
+  /// - **user-not-found**:
+  ///  - Thrown if there is no user corresponding to the given email.
+  /// - **wrong-password**:
+  ///  - Thrown if the password is invalid for the given email, or the account corresponding to the email does not have a password set.
   Future<UserCredential> signInWithEmailAndPassword({
     @required String email,
     @required String password,
@@ -300,6 +428,19 @@ class FirebaseAuth extends FirebasePluginPlatform {
   }
 
   /// Signs in using an email address and email sign-in link.
+  ///
+  /// Fails with an error if the email address is invalid or OTP in email link expires.
+  ///
+  /// Confirm the link is a sign-in email link before calling this method,
+  /// using [isSignInWithEmailLink].
+  ///
+  /// A [FirebaseAuthException] maybe thrown with the following error code:
+  /// - **expired-action-code**:
+  ///  - Thrown if OTP in email link expires.
+  /// - **invalid-email**:
+  ///  - Thrown if the email address is not valid.
+  /// - **user-disabled**:
+  ///  - Thrown if the user corresponding to the given email has been disabled.
   Future<UserCredential> signInWithEmailLink(
       {@required String email, @required String emailLink}) async {
     assert(email != null);
@@ -309,6 +450,7 @@ class FirebaseAuth extends FirebasePluginPlatform {
         this, await _delegate.signInWithEmailLink(email, emailLink));
   }
 
+  // TODO code docs
   Future<ConfirmationResult> signInWithPhoneNumber(
       String phoneNumber, RecaptchaVerifier verifier) async {
     assert(phoneNumber != null);
@@ -317,15 +459,28 @@ class FirebaseAuth extends FirebasePluginPlatform {
         this, await _delegate.signInWithPhoneNumber(phoneNumber, verifier));
   }
 
+  /// Authenticates a Firebase client using a popup-based OAuth authentication flow.
+  ///
+  /// If succeeds, returns the signed in user along with the provider's credential.
+  ///
+  /// This method is only available on web based platforms.
+  /// TODO errors
   Future<UserCredential> signInWithPopup(AuthProvider provider) async {
     return UserCredential._(this, await _delegate.signInWithPopup(provider));
   }
 
+  /// Authenticates a Firebase client using a full-page redirect flow.
+  ///
+  /// To handle the results and errors for this operation, refer to [getRedirectResult].
+  /// TODO errors
   Future<void> signInWithRedirect(AuthProvider provider) {
     return _delegate.signInWithRedirect(provider);
   }
 
   /// Signs out the current user.
+  ///
+  /// If successful, it also signs the user in into the app and updates
+  /// any [authStateChanges], [idTokenChanges] or [userChanges] stream listeners.
   Future<void> signOut() async {
     await _delegate.signOut();
   }
@@ -333,24 +488,34 @@ class FirebaseAuth extends FirebasePluginPlatform {
   /// Checks a password reset code sent to the user by email or other out-of-band mechanism.
   ///
   /// Returns the user's email address if valid.
+  ///
+  /// A [FirebaseAuthException] maybe thrown with the following error code:
+  /// - **expired-action-code**:
+  ///  - Thrown if the password reset code has expired.
+  /// - **invalid-action-code**:
+  ///  - Thrown if the password reset code is invalid. This can happen if the code is malformed or has already been used.
+  /// - **user-disabled**:
+  ///  - Thrown if the user corresponding to the given email has been disabled.
+  /// - **user-not-found**:
+  ///  - Thrown if there is no user corresponding to the password reset code. This may have happened if the user was deleted between when the code was issued and when this method was called.
   Future<String> verifyPasswordResetCode(String code) {
     assert(code != null);
     return _delegate.verifyPasswordResetCode(code);
   }
 
-  /// Starts the phone number verification process for the given phone number.
+  /// Starts a phone number verification process for the given phone number.
   ///
-  /// Either sends an SMS with a 6 digit code to the phone number specified,
-  /// or sign's the user in and [verificationCompleted] is called.
+  /// This method is used to verify that the user-provided phone number belongs
+  /// to the user. Firebase sends a code via SMS message to the phone number,
+  /// where you must then prompt the user to enter the code. The code can be
+  /// combined with the verification ID to create a [PhoneAuthProvider.credential]
+  /// which you can then use to sign the user in, or link with their account (
+  /// see [signInWithCredential] or [linkWithCredential]).
   ///
-  /// No duplicated SMS will be sent out upon re-entry (before timeout).
+  /// On some Android devices, auto-verification can be handled by the device and
+  /// a [PhoneAuthCredential] will be automatically provided.
   ///
-  /// Make sure to test all scenarios below:
-  ///
-  ///  * You directly get logged in if Google Play Services verified the phone
-  ///     number instantly or helped you auto-retrieve the verification code.
-  ///  * Auto-retrieve verification code timed out.
-  ///  * Error cases when you receive [verificationFailed] callback.
+  /// No duplicated SMS will be sent out unless a [forceResendingToken] is provided.
   ///
   /// [phoneNumber] The phone number for the account the user is signing up
   ///   for or signing into. Make sure to pass in a phone number with country
@@ -358,29 +523,23 @@ class FirebaseAuth extends FirebasePluginPlatform {
   ///
   /// [timeout] The maximum amount of time you are willing to wait for SMS
   ///   auto-retrieval to be completed by the library. Maximum allowed value
-  ///   is 2 minutes. Use 0 to disable SMS-auto-retrieval. Setting this to 0
-  ///   will also cause [codeAutoRetrievalTimeout] to be called immediately.
-  ///   If you specified a positive value less than 30 seconds, library will
-  ///   default to 30 seconds.
+  ///   is 2 minutes.
   ///
   /// [forceResendingToken] The [forceResendingToken] obtained from [codeSent]
   ///   callback to force re-sending another verification SMS before the
   ///   auto-retrieval timeout.
   ///
-  /// [verificationCompleted] This callback must be implemented.
-  ///   It will trigger when an SMS is auto-retrieved or the phone number has
-  ///   been instantly verified. The callback will receive an [AuthCredential]
+  /// [verificationCompleted] Triggered when an SMS is auto-retrieved or the phone number has
+  ///   been instantly verified. The callback will receive an [PhoneAuthCredential]
   ///   that can be passed to [signInWithCredential] or [linkWithCredential].
   ///
-  /// [verificationFailed] This callback must be implemented.
-  ///   Triggered when an error occurred during phone number verification.
+  /// [verificationFailed]  Triggered when an error occurred during phone number verification.
+  ///   A [FirebaseAuthException] is provided when this is triggered.
   ///
-  /// [codeSent] Optional callback.
-  ///   It will trigger when an SMS has been sent to the users phone,
+  /// [codeSent] Triggered when an SMS has been sent to the users phone,
   ///   and will include a [verificationId] and [forceResendingToken].
   ///
-  /// [codeAutoRetrievalTimeout] Optional callback.
-  ///   It will trigger when SMS auto-retrieval times out and provide a
+  /// [codeAutoRetrievalTimeout] Triggered when SMS auto-retrieval times out and provide a
   ///   [verificationId].
   Future<void> verifyPhoneNumber({
     @required String phoneNumber,
@@ -390,8 +549,6 @@ class FirebaseAuth extends FirebasePluginPlatform {
     @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
     Duration timeout = const Duration(seconds: 30),
     int forceResendingToken,
-    bool requireSmsValidation =
-        false, // TODO only applies on MFA so maybe skip for now
   }) {
     assert(phoneNumber != null);
     assert(timeout != null);
@@ -399,7 +556,6 @@ class FirebaseAuth extends FirebasePluginPlatform {
     assert(verificationFailed != null);
     assert(codeSent != null);
     assert(codeAutoRetrievalTimeout != null);
-    assert(requireSmsValidation != null);
 
     return _delegate.verifyPhoneNumber(
       phoneNumber: phoneNumber,
@@ -409,7 +565,6 @@ class FirebaseAuth extends FirebasePluginPlatform {
       verificationFailed: verificationFailed,
       codeSent: codeSent,
       codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
-      requireSmsValidation: requireSmsValidation,
     );
   }
 

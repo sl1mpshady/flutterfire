@@ -4,10 +4,10 @@
 
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'test_utils.dart';
 
@@ -17,7 +17,6 @@ void runInstanceTests() {
 
     // generate unique email address for test run
     String regularTestEmail = generateRandomEmail();
-    String testPassword = TEST_PASSWORD;
 
     void commonSuccessCallback(currentUserCredential) async {
       var currentUser = currentUserCredential.user;
@@ -39,11 +38,11 @@ void runInstanceTests() {
       if (auth.currentUser == null) {
         try {
           await auth.createUserWithEmailAndPassword(
-              email: regularTestEmail, password: testPassword);
+              email: regularTestEmail, password: TEST_PASSWORD);
         } catch (e) {
           if (e.code == 'email-already-in-use') {
             await auth.signInWithEmailAndPassword(
-                email: regularTestEmail, password: testPassword);
+                email: regularTestEmail, password: TEST_PASSWORD);
           }
         }
       }
@@ -238,7 +237,7 @@ void runInstanceTests() {
 
         await auth
             .createUserWithEmailAndPassword(
-                email: email, password: testPassword)
+                email: email, password: TEST_PASSWORD)
             .then(successCallback);
       });
 
@@ -333,7 +332,7 @@ void runInstanceTests() {
 
         try {
           await auth.createUserWithEmailAndPassword(
-              email: email, password: testPassword);
+              email: email, password: TEST_PASSWORD);
 
           await auth.sendPasswordResetEmail(email: email);
           await auth.currentUser.delete();
@@ -359,7 +358,7 @@ void runInstanceTests() {
       test('should not error', () async {
         var email = generateRandomEmail();
         await auth.createUserWithEmailAndPassword(
-            email: email, password: testPassword);
+            email: email, password: TEST_PASSWORD);
 
         var settings = ActionCodeSettings(url: 'http://localhost');
         try {
@@ -372,26 +371,26 @@ void runInstanceTests() {
         }
       });
 
-      //   test('throws if invalid continue url', () async {
-      //     var email = generateRandomEmail();
-      //     await auth.createUserWithEmailAndPassword(
-      //         email: email, password: testPassword);
+      test('throws if invalid continue url', () async {
+        var email = generateRandomEmail();
+        await auth.createUserWithEmailAndPassword(
+            email: email, password: TEST_PASSWORD);
 
-      //     var settings = ActionCodeSettings(url: '');
-      //     try {
-      //       await auth.sendSignInWithEmailLink(
-      //           email: email, actionCodeSettings: settings);
-      //       await auth.currentUser.delete();
-      //       fail('Should have thrown');
-      //     } on FirebaseException catch (e) {
-      //       await auth.currentUser.delete();
-      //       expect(e.code, isNotNull);
-      //       expect(e.message, isNotNull);
-      //     } catch (e) {
-      //       await auth.currentUser.delete();
-      //       fail(e.toString());
-      //     }
-      //   });
+        var settings = ActionCodeSettings(url: '');
+        try {
+          await auth.sendSignInWithEmailLink(
+              email: email, actionCodeSettings: settings);
+          await auth.currentUser.delete();
+          fail('Should have thrown');
+        } on FirebaseException catch (e) {
+          await auth.currentUser.delete();
+          expect(e.code, isNotNull);
+          expect(e.message, isNotNull);
+        } catch (e) {
+          await auth.currentUser.delete();
+          fail(e.toString());
+        }
+      });
     });
 
     group('languageCode', () {
@@ -438,7 +437,7 @@ void runInstanceTests() {
     group('signInWithCredential()', () {
       test('should login with email and password', () async {
         var credential =
-            EmailAuthProvider.credential(regularTestEmail, testPassword);
+            EmailAuthProvider.credential(regularTestEmail, TEST_PASSWORD);
         await auth.signInWithCredential(credential).then(commonSuccessCallback);
       });
 
@@ -479,7 +478,7 @@ void runInstanceTests() {
 
       test('throws if login user is not found', () async {
         var credential =
-            EmailAuthProvider.credential(generateRandomEmail(), testPassword);
+            EmailAuthProvider.credential(generateRandomEmail(), TEST_PASSWORD);
         try {
           await auth.signInWithCredential(credential);
           fail('Should have thrown');
@@ -495,34 +494,38 @@ void runInstanceTests() {
       });
     });
 
-    // group('signInWithCustomToken()', () {
-    //   test('signs in with custom auth token', () async {
-    //     var customUID = 'zdwHCjbpzraRoNK7d64FYWv5AH02';
-    //     // TODO: create custom token
-    //     var claims = {
-    //       'roles': [
-    //         {'role': 'member'},
-    //         {'role': 'admin'}
-    //       ]
-    //     };
-    //     var token = 'foo.bar.baz';
-    //     var userCredential = await auth.signInWithCustomToken(token);
+    group('signInWithCustomToken()', () {
+      test('signs in with custom auth token', () async {
+        // need an idtoken for authentication when requesting
+        // a custom token
+        var cred = await auth.signInAnonymously();
+        var authToken = await auth.currentUser.getIdToken();
+        var uid = cred.user.uid;
+        var claims = {
+          'roles': [
+            {'role': 'member'},
+            {'role': 'admin'}
+          ]
+        };
 
-    //     expect(userCredential.user.uid, equals(customUID));
-    //     expect(auth.currentUser.uid, equals(customUID));
+        var customToken = await getCustomToken(uid, claims, authToken);
+        // clear anon user
+        await auth.currentUser?.delete();
 
-    //     var idTokenResult = await auth.currentUser.getIdTokenResult(true);
-    //     expect(idTokenResult.claims['roles'], isList);
+        var userCredential = await auth.signInWithCustomToken(customToken);
 
-    //     await auth.signOut();
-    //   });
-    // });
+        expect(userCredential.user.uid, equals(uid));
+        expect(auth.currentUser.uid, equals(uid));
+
+        await ensureSignedOut();
+      });
+    });
 
     group('signInWithEmailAndPassword()', () {
       test('should login with email and password', () async {
         await auth
             .signInWithEmailAndPassword(
-                email: regularTestEmail, password: testPassword)
+                email: regularTestEmail, password: TEST_PASSWORD)
             .then(commonSuccessCallback);
       });
 
@@ -564,7 +567,7 @@ void runInstanceTests() {
       test('throws if login user is not found', () async {
         try {
           await auth.signInWithEmailAndPassword(
-              email: generateRandomEmail(), password: testPassword);
+              email: generateRandomEmail(), password: TEST_PASSWORD);
           fail('Should have thrown');
         } on FirebaseException catch (e) {
           expect(e.code, equals("user-not-found"));

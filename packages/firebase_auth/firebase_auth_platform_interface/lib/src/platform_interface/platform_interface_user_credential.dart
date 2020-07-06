@@ -28,6 +28,6 @@ abstract class UserCredentialPlatform extends PlatformInterface {
   /// The users [AuthCredential].
   final AuthCredential credential;
 
-  /// Returns a [UserPlatform] containing additional informationa and user specific methods.
+  /// Returns a [UserPlatform] containing additional information and user specific methods.
   final UserPlatform user;
 }

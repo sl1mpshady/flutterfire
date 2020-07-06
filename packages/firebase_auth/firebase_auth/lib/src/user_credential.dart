@@ -24,7 +24,7 @@ class UserCredential {
     return _delegate.credential;
   }
 
-  /// Returns a [User] containing additional informationa and user specific methods.
+  /// Returns a [User] containing additional information and user specific methods.
   User get user {
     return User._(_auth, _delegate.user);
   }

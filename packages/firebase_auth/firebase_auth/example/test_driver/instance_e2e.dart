@@ -321,6 +321,21 @@ void runInstanceTests() {
     }, skip: !kIsWeb);
 
     group('isSignInWithEmailLink()', () {
+      test('should return true or false', () {
+        const emailLink1 =
+            'https://www.example.com/action?mode=signIn&oobCode=oobCode';
+        const emailLink2 =
+            'https://www.example.com/action?mode=verifyEmail&oobCode=oobCode';
+        const emailLink3 = 'https://www.example.com/action?mode=signIn';
+        const emailLink4 =
+            'https://x59dg.app.goo.gl/?link=https://rnfirebase-b9ad4.firebaseapp.com/__/auth/action?apiKey%3Dfoo%26mode%3DsignIn%26oobCode%3Dbar';
+
+        expect(auth.isSignInWithEmailLink(emailLink1), equals(true));
+        expect(auth.isSignInWithEmailLink(emailLink2), equals(false));
+        expect(auth.isSignInWithEmailLink(emailLink3), equals(false));
+        expect(auth.isSignInWithEmailLink(emailLink4), equals(true));
+      });
+
       test('throws if email link is null', () {
         expect(() => auth.isSignInWithEmailLink(null), throwsAssertionError);
       });
@@ -355,7 +370,7 @@ void runInstanceTests() {
     });
 
     group('sendSignInWithEmailLink()', () {
-      test('should not error', () async {
+      test('should send email successfully', () async {
         var email = generateRandomEmail();
         await auth.createUserWithEmailAndPassword(
             email: email, password: TEST_PASSWORD);
@@ -581,9 +596,25 @@ void runInstanceTests() {
       });
     });
 
-    // group('signInWithEmailAndLink()', () {
-    //   // TODO: tests
-    // });
+    // For manual testing only
+    group('signInWithEmailAndLink()', () {
+      // see: sendSignInWithEmailLink test below
+      // to ensure an email is successfully sent using
+      // automated testing. Enable this manual test to
+      // ensure the link in the test email actually works
+      // and signs a user in.
+//      test('should sign in user using link', () async {
+//        const email = 'MANUAL TEST EMAIL HERE';
+//        const emailLink = 'MANUAL TEST CODE HERE';
+//
+//        var userCredential =
+//            await auth.signInWithEmailLink(email: email, emailLink: emailLink);
+//
+//        expect(userCredential.user.email, equals(email));
+//        // clean up
+//        ensureSignedOut();
+//      });
+    });
 
     group('signInWithPopup()', () {
       test('throws an unimplemented error', () async {
@@ -639,8 +670,23 @@ void runInstanceTests() {
       });
     });
 
-    // group('verifyPhoneNumber()', () {
-    //   // TODO: tests
-    // });
+    // TODO: Fix this test :(
+    // [E]: [firebase_auth/unknown] null
+    group('verifyPhoneNumber()', () {
+//      test('should verify phone number', () async {
+//        String testPhoneNumber = '+447444555666';
+//        var authCredential;
+//        await auth.signInAnonymously();
+//        await auth.verifyPhoneNumber(
+//            phoneNumber: testPhoneNumber,
+//            verificationCompleted: (PhoneAuthCredential credential) {
+//              authCredential = credential;
+//            },
+//            verificationFailed: (FirebaseException e) {},
+//            codeSent: (String verificationId, int resetToken) {},
+//            codeAutoRetrievalTimeout: (String foo) {});
+//        expect(authCredential, isInstanceOf<PhoneAuthCredential>());
+//      });
+    });
   });
 }

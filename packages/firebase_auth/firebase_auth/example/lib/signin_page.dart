@@ -194,28 +194,28 @@ class _EmailLinkSignInSectionState extends State<_EmailLinkSignInSection>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (state == AppLifecycleState.resumed) {
-      final Uri link = await _getInitialLink();
+    // if (state == AppLifecycleState.resumed) {
+    //   final Uri link = await _getInitialLink();
 
-      if (link != null) {
-        final User user = (await _auth.signInWithEmailAndLink(
-          email: _userEmail,
-          emailLink: link.toString(),
-        ))
-            .user;
+    //   if (link != null) {
+    //     final User user = (await _auth.signInWithEmailAndLink(
+    //       email: _userEmail,
+    //       emailLink: link.toString(),
+    //     ))
+    //         .user;
 
-        if (user != null) {
-          _userID = user.uid;
-          _success = true;
-        } else {
-          _success = false;
-        }
-      } else {
-        _success = false;
-      }
+    //     if (user != null) {
+    //       _userID = user.uid;
+    //       _success = true;
+    //     } else {
+    //       _success = false;
+    //     }
+    //   } else {
+    //     _success = false;
+    //   }
 
-      setState(() {});
-    }
+    //   setState(() {});
+    // }
   }
 
   Future<Uri> _getInitialLink() async {
@@ -522,42 +522,42 @@ class _PhoneSignInSectionState extends State<_PhoneSignInSection> {
       _message = '';
     });
     // TODO(helenaford): check this method
-    final PhoneVerificationCompleted verificationCompleted =
-        (AuthCredential phoneAuthCredential) {
-      _auth.signInWithCredential(phoneAuthCredential);
-      setState(() {
-        _message = 'Received phone auth credential: $phoneAuthCredential';
-      });
-    };
+    // final PhoneVerificationCompleted verificationCompleted =
+    //     (AuthCredential phoneAuthCredential) {
+    //   _auth.signInWithCredential(phoneAuthCredential);
+    //   setState(() {
+    //     _message = 'Received phone auth credential: $phoneAuthCredential';
+    //   });
+    // };
 
-    final PhoneVerificationFailed verificationFailed =
-        (AuthException authException) {
-      setState(() {
-        _message =
-            'Phone number verification failed. Code: ${authException.code}. Message: ${authException.message}';
-      });
-    };
+    // final PhoneVerificationFailed verificationFailed =
+    //     (AuthException authException) {
+    //   setState(() {
+    //     _message =
+    //         'Phone number verification failed. Code: ${authException.code}. Message: ${authException.message}';
+    //   });
+    // };
 
-    final PhoneCodeSent codeSent =
-        (String verificationId, [int forceResendingToken]) async {
-      widget._scaffold.showSnackBar(const SnackBar(
-        content: Text('Please check your phone for the verification code.'),
-      ));
-      _verificationId = verificationId;
-    };
+    // final PhoneCodeSent codeSent =
+    //     (String verificationId, [int forceResendingToken]) async {
+    //   widget._scaffold.showSnackBar(const SnackBar(
+    //     content: Text('Please check your phone for the verification code.'),
+    //   ));
+    //   _verificationId = verificationId;
+    // };
 
-    final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
-        (String verificationId) {
-      _verificationId = verificationId;
-    };
+    // final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
+    //     (String verificationId) {
+    //   _verificationId = verificationId;
+    // };
 
-    await _auth.verifyPhoneNumber(
-        phoneNumber: _phoneNumberController.text,
-        timeout: const Duration(seconds: 5),
-        verificationCompleted: verificationCompleted,
-        verificationFailed: verificationFailed,
-        codeSent: codeSent,
-        codeAutoRetrievalTimeout: codeAutoRetrievalTimeout);
+    // await _auth.verifyPhoneNumber(
+    //     phoneNumber: _phoneNumberController.text,
+    //     timeout: const Duration(seconds: 5),
+    //     verificationCompleted: verificationCompleted,
+    //     verificationFailed: verificationFailed,
+    //     codeSent: codeSent,
+    //     codeAutoRetrievalTimeout: codeAutoRetrievalTimeout);
   }
 
   // Example code of how to sign in with phone.

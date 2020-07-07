@@ -7,6 +7,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import '../../firebase_auth_platform_interface.dart';
 
+/// A UserCredential is returned from authentication requests such as [createUserWithEmailAndPassword].
 abstract class UserCredentialPlatform extends PlatformInterface {
   UserCredentialPlatform(
       {this.auth, this.additionalUserInfo, this.credential, this.user})
@@ -18,9 +19,15 @@ abstract class UserCredentialPlatform extends PlatformInterface {
     PlatformInterface.verifyToken(instance, _token);
   }
 
+  /// The current FirebaseAuth instance.
   final FirebaseAuthPlatform auth;
 
+  /// Returns additional information about the user, such as whether they are a newly created one.
   final AdditionalUserInfo additionalUserInfo;
+
+  /// The users [AuthCredential].
   final AuthCredential credential;
+
+  /// Returns a [UserPlatform] containing additional information and user specific methods.
   final UserPlatform user;
 }

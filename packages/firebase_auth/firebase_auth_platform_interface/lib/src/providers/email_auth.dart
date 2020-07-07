@@ -9,6 +9,11 @@ import 'package:meta/meta.dart';
 const _kLinkProviderId = 'emailLink';
 const _kProviderId = 'password';
 
+/// A [EmailAuthCredential] can be created by calling [EmailAuthProvider.credentail]
+/// with an email and password.
+///
+/// Usage of [EmailAuthProvider] would be when you wish to sign a user in with a
+/// credential or reauthenticate a user.
 abstract class EmailAuthProvider extends AuthProvider {
   EmailAuthProvider() : super(_kProviderId);
 
@@ -24,13 +29,17 @@ abstract class EmailAuthProvider extends AuthProvider {
     return _kProviderId;
   }
 
-  static AuthCredential credential(String email, String password) {
+  /// Creates a new [EmailAuthCredential] from a given email and password.
+  static AuthCredential credential(
+      {@required String email, @required String password}) {
     assert(email != null);
     assert(password != null);
     return EmailAuthCredential._credential(email, password);
   }
 
-  static AuthCredential credentialWithLink(String email, String emailLink) {
+  /// Creates a new [EmailAuthCredential] from a given email and email link.
+  static AuthCredential credentialWithLink(
+      {@required String email, @required String emailLink}) {
     assert(email != null);
     assert(emailLink != null);
     return EmailAuthCredential._credentialWithLink(email, emailLink);
@@ -41,7 +50,7 @@ abstract class EmailAuthProvider extends AuthProvider {
     @required String email,
     @required String password,
   }) {
-    return EmailAuthProvider.credential(email, password);
+    return EmailAuthProvider.credential(email: email, password: password);
   }
 
   @Deprecated('Deprecated in favor of `EmailAuthProvider.credentialWithLink()`')
@@ -49,11 +58,11 @@ abstract class EmailAuthProvider extends AuthProvider {
     @required String email,
     @required String link,
   }) {
-    return EmailAuthProvider.credentialWithLink(email, link);
+    return EmailAuthProvider.credentialWithLink(email: email, emailLink: link);
   }
 }
 
-// TODO code docs
+/// The authentical credential returned from calling [EmailAuthProvider.credential].
 class EmailAuthCredential extends AuthCredential {
   EmailAuthCredential._(
     String _signInMethod, {
@@ -90,10 +99,5 @@ class EmailAuthCredential extends AuthCredential {
       'emailLink': emailLink,
       'secret': password,
     };
-  }
-
-  @override
-  Object toJSON() {
-    throw UnimplementedError();
   }
 }

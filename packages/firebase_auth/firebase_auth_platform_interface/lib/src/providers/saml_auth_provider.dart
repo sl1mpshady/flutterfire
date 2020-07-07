@@ -4,6 +4,7 @@
 
 import 'package:firebase_auth_platform_interface/src/auth_provider.dart';
 
+/// Security Assertion Markup Language based provider.
 class SAMLAuthProvider extends AuthProvider {
   SAMLAuthProvider(this.providerId)
       : assert(providerId != null),

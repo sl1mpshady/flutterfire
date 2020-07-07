@@ -47,7 +47,7 @@ class TwitterAuthProvider extends AuthProvider {
     return _kProviderId;
   }
 
-  Map<dynamic, dynamic> _parameters;
+  Map<dynamic, dynamic> _parameters = {};
 
   Map<dynamic, dynamic> get parameters {
     return _parameters;
@@ -81,7 +81,7 @@ class TwitterAuthProvider extends AuthProvider {
   }
 }
 
-/// The authentical credential returned from calling [GoogleAuthProvider.credential].
+/// The authentical credential returned from calling [TwitterAuthProvider.credential].
 class TwitterAuthCredential extends OAuthCredential {
   TwitterAuthCredential._({
     String accessToken,

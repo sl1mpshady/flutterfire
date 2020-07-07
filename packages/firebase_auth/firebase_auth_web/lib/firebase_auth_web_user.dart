@@ -7,8 +7,11 @@ import 'dart:async';
 import 'package:firebase/firebase.dart' as firebase;
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:firebase_auth_web/firebase_auth_web_user_credential.dart';
+import 'package:intl/intl.dart';
 
 import 'utils.dart';
+
+final DateFormat _dateFormat = DateFormat('EEE, d MMM yyyy HH:mm:ss');
 
 class UserWeb extends UserPlatform {
   UserWeb(FirebaseAuthPlatform auth, this._webUser)
@@ -17,12 +20,24 @@ class UserWeb extends UserPlatform {
           'email': _webUser.email,
           'emailVerified': _webUser.emailVerified,
           'isAnonymous': _webUser.isAnonymous,
-          'metadata': convertWebUserMetadata(_webUser.metadata),
+          'metadata': <String, int>{
+            'creationTime': _dateFormat
+                .parse(_webUser.metadata.creationTime)
+                .millisecondsSinceEpoch,
+            'lastSignInTime': _dateFormat
+                .parse(_webUser.metadata.lastSignInTime)
+                .millisecondsSinceEpoch,
+          },
           'phoneNumber': _webUser.phoneNumber,
           'photoURL': _webUser.photoURL,
           'providerData': _webUser.providerData
-              .map((firebase.UserInfo webUserInfo) =>
-                  convertWebUserInfo(webUserInfo))
+              .map((firebase.UserInfo webUserInfo) => <String, dynamic>{
+                    'displayName': webUserInfo.displayName,
+                    'email': webUserInfo.email,
+                    'phoneNumber': webUserInfo.phoneNumber,
+                    'providerId': webUserInfo.providerId,
+                    'uid': webUserInfo.uid,
+                  })
               .toList(),
           'refreshToken': _webUser.refreshToken,
           'tenantId': null, // TODO: not supported on firebase-dart

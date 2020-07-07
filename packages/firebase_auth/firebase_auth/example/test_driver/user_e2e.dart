@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './test_utils.dart';
@@ -71,8 +73,8 @@ void runUserTests() {
         String currentUID = auth.currentUser.uid;
         String email = generateRandomEmail();
         UserCredential linkedUserCredential = await auth.currentUser
-            .linkWithCredential(
-                EmailAuthProvider.credential(email, TEST_PASSWORD));
+            .linkWithCredential(EmailAuthProvider.credential(
+                email: email, password: TEST_PASSWORD));
 
         User linkedUser = linkedUserCredential.user;
         expect(linkedUser.email, equals(email));
@@ -93,8 +95,8 @@ void runUserTests() {
         try {
           await auth.currentUser
               .linkWithCredential(EmailAuthProvider.credential(
-            email,
-            TEST_PASSWORD,
+            email: email,
+            password: TEST_PASSWORD,
           ));
         } on FirebaseException catch (e) {
           // Assertions
@@ -107,14 +109,39 @@ void runUserTests() {
         fail('should have thrown an error');
       });
 
-      // TODO(helenaford): test link phone account
-      // test('should link anonymous account <-> phone account', () async {
-      //   // Setup
-      //   await auth.signInAnonymously();
+      test('should link anonymous account <-> phone account', () async {
+        String testPhoneNumber = '+447111222333';
+        String testSMSCode = "123456";
+        String storedVerificationId;
 
-      //   UserCredential linkedUserCredential = await auth.currentUser
-      //       .linkWithCredential(PhoneAuthProvider.credential('test', 'test'));
-      // });
+        await auth.signInAnonymously();
+        await auth.verifyPhoneNumber(
+          phoneNumber: testPhoneNumber,
+          verificationCompleted: (PhoneAuthCredential credential) {
+            print("verificationCompleted");
+          },
+          verificationFailed: (FirebaseException e) {
+            print("verificationFailed $e");
+          },
+          codeSent: (String verificationId, int resetToken) {
+            storedVerificationId = verificationId;
+          },
+          codeAutoRetrievalTimeout: (String foo) {
+            print("codeAutoRetrievalTimeout $foo");
+          },
+        );
+        await Future.delayed(Duration(milliseconds: 500));
+        await auth.currentUser.linkWithCredential(PhoneAuthProvider.credential(
+            verificationId: storedVerificationId, smsCode: testSMSCode));
+        expect(auth.currentUser, equals(isA<User>()));
+        expect(auth.currentUser.phoneNumber, equals(testPhoneNumber));
+        expect(auth.currentUser.providerData, equals(isA<List<UserInfo>>()));
+        expect(auth.currentUser.providerData.length, equals(1));
+        expect(auth.currentUser.providerData[0], equals(isA<UserInfo>()));
+        expect(auth.currentUser.isAnonymous, isFalse);
+
+        expect(true, isTrue);
+      });
 
       test(
           'should error on link anonymous account <-> phone account if invalid credentials',
@@ -123,12 +150,15 @@ void runUserTests() {
         await auth.signInAnonymously();
 
         try {
-          await auth.currentUser
-              .linkWithCredential(PhoneAuthProvider.credential('test', 'test'));
+          await auth.currentUser.linkWithCredential(
+              PhoneAuthProvider.credential(
+                  verificationId: 'test', smsCode: 'test'));
         } on FirebaseException catch (e) {
-          expect(e.code, equals('unknown'));
-          // TODO(helenaford): update expected message
-          expect(e.message, isNull);
+          expect(e.code, equals("invalid-verification-id"));
+          expect(
+              e.message,
+              equals(
+                  "The verification ID used to create the phone auth credential is invalid."));
           return;
         }
 
@@ -146,7 +176,7 @@ void runUserTests() {
 
         // Test
         AuthCredential credential =
-            EmailAuthProvider.credential(email, TEST_PASSWORD);
+            EmailAuthProvider.credential(email: email, password: TEST_PASSWORD);
         await auth.currentUser.reauthenticateWithCredential(credential);
 
         // Assertions
@@ -207,7 +237,7 @@ void runUserTests() {
 
         String email = generateRandomEmail();
         AuthCredential credential =
-            EmailAuthProvider.credential(email, TEST_PASSWORD);
+            EmailAuthProvider.credential(email: email, password: TEST_PASSWORD);
         await auth.currentUser.linkWithCredential(credential);
 
         // verify user is linked

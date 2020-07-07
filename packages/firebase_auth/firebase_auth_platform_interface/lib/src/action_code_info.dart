@@ -2,15 +2,22 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+/// The type of operation that generated the action code from calling [checkActionCode].
 enum ActionCodeInfoOperation {
+  /// Email sign in code generated via [sendSignInLinkToEmail].
   emailSignIn,
+  /// Password reset code generated via [sendPasswordResetEmail].
   passwordReset,
+  /// Email change revocation code generated via [User.updateEmail].
   recoverEmail,
   revertSecondFactorAddition,
+  /// Verify and change email code generated via [User.verifyBeforeUpdateEmail].
   verifyAndChangeEmail,
+  /// Email verification code generated via [User.sendEmailVerification].
   verifyEmail,
 }
 
+/// A response from calling [checkActionCode].
 class ActionCodeInfo {
   ActionCodeInfo({
     int operation,
@@ -22,6 +29,7 @@ class ActionCodeInfo {
 
   Map<String, dynamic> _data;
 
+  /// The type of operation that generated the action code.
   ActionCodeInfoOperation get operation {
     switch (_operation) {
       case 4:
@@ -41,6 +49,10 @@ class ActionCodeInfo {
     }
   }
 
+  /// The data associated with the action code.
+  /// 
+  /// Depending on the [ActionCodeInfoOperation], `email` and `previousEmail`
+  /// may be available.
   Map<String, dynamic> get data {
     return <String, dynamic>{
       'email': _data['email'],

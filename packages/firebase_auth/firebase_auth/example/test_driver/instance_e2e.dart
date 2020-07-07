@@ -436,14 +436,14 @@ void runInstanceTests() {
 
     group('signInWithCredential()', () {
       test('should login with email and password', () async {
-        var credential =
-            EmailAuthProvider.credential(regularTestEmail, TEST_PASSWORD);
+        var credential = EmailAuthProvider.credential(
+            email: regularTestEmail, password: TEST_PASSWORD);
         await auth.signInWithCredential(credential).then(commonSuccessCallback);
       });
 
       test('throws if login user is disabled', () async {
-        var credential =
-            EmailAuthProvider.credential('disabled@account.com', 'test1234');
+        var credential = EmailAuthProvider.credential(
+            email: 'disabled@account.com', password: 'test1234');
 
         try {
           await auth.signInWithCredential(credential);
@@ -460,8 +460,8 @@ void runInstanceTests() {
       });
 
       test('throws if login password is incorrect', () async {
-        var credential =
-            EmailAuthProvider.credential(regularTestEmail, 'sowrong');
+        var credential = EmailAuthProvider.credential(
+            email: regularTestEmail, password: 'sowrong');
         try {
           await auth.signInWithCredential(credential);
           fail('Should have thrown');
@@ -477,8 +477,8 @@ void runInstanceTests() {
       });
 
       test('throws if login user is not found', () async {
-        var credential =
-            EmailAuthProvider.credential(generateRandomEmail(), TEST_PASSWORD);
+        var credential = EmailAuthProvider.credential(
+            email: generateRandomEmail(), password: TEST_PASSWORD);
         try {
           await auth.signInWithCredential(credential);
           fail('Should have thrown');

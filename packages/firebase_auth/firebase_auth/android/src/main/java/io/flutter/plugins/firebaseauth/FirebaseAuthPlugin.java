@@ -779,6 +779,17 @@ public class FirebaseAuthPlugin
                 }
               };
 
+          // Allows the auto-retrieval flow to be tested.
+          // See https://firebase.google.com/docs/auth/android/phone-auth#integration-testing
+          if (arguments.get("autoRetrievedSmsCodeForTesting") != null) {
+            String autoRetrievedSmsCodeForTesting =
+                (String) Objects.requireNonNull(arguments.get("autoRetrievedSmsCodeForTesting"));
+
+            firebaseAuth
+                .getFirebaseAuthSettings()
+                .setAutoRetrievedSmsCodeForPhoneNumber(phoneNumber, autoRetrievedSmsCodeForTesting);
+          }
+
           PhoneAuthOptions.Builder phoneAuthOptionsBuilder =
               new PhoneAuthOptions.Builder(firebaseAuth);
           phoneAuthOptionsBuilder.setActivity(getActivity());
@@ -1215,10 +1226,10 @@ public class FirebaseAuthPlugin
   @Override
   public Task<Void> didReinitializeFirebaseCore() {
     return Tasks.call(
-            cachedThreadPool,
-            () -> {
-              // TODO(helenaford): logic here for didReinitializeFirebaseCore
-              return null;
-            });
+        cachedThreadPool,
+        () -> {
+          // TODO(helenaford): logic here for didReinitializeFirebaseCore
+          return null;
+        });
   }
 }

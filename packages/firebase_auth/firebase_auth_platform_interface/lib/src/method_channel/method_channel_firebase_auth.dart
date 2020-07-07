@@ -434,6 +434,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     PhoneVerificationFailed verificationFailed,
     PhoneCodeSent codeSent,
     PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
+    String autoRetrievedSmsCodeForTesting,
     Duration timeout = const Duration(seconds: 30),
     int forceResendingToken,
     bool requireSmsValidation,
@@ -451,6 +452,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       'timeout': timeout.inMilliseconds,
       'forceResendingToken': forceResendingToken,
       'requireSmsValidation': requireSmsValidation,
+      'autoRetrievedSmsCodeForTesting': autoRetrievedSmsCodeForTesting,
     }).catchError(catchPlatformException);
   }
 }

@@ -545,6 +545,7 @@ class FirebaseAuth extends FirebasePluginPlatform {
     @required PhoneVerificationFailed verificationFailed,
     @required PhoneCodeSent codeSent,
     @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
+    @visibleForTesting String autoRetrievedSmsCodeForTesting,
     Duration timeout = const Duration(seconds: 30),
     int forceResendingToken,
   }) {
@@ -563,6 +564,8 @@ class FirebaseAuth extends FirebasePluginPlatform {
       verificationFailed: verificationFailed,
       codeSent: codeSent,
       codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
+      // ignore: invalid_use_of_visible_for_testing_member
+      autoRetrievedSmsCodeForTesting: autoRetrievedSmsCodeForTesting,
     );
   }
 

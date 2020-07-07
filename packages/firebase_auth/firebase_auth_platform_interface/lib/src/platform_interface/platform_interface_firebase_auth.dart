@@ -501,6 +501,7 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
       @required PhoneVerificationFailed verificationFailed,
       @required PhoneCodeSent codeSent,
       @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
+      @visibleForTesting String autoRetrievedSmsCodeForTesting,
       Duration timeout = const Duration(seconds: 30),
       int forceResendingToken,
       bool requireSmsValidation}) {

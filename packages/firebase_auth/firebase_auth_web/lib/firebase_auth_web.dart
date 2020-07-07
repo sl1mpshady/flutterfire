@@ -36,7 +36,13 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
     return FirebaseAuthWeb(app: app);
   }
 
-  // todo initial values
+  @override
+  FirebaseAuthWeb setInitialValues({
+    Map<String, dynamic> currentUser,
+    String languageCode,
+  }) {
+    return this;
+  }
 
   @override
   UserPlatform get currentUser {
@@ -79,6 +85,10 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
   @override
   Stream<UserPlatform> authStateChanges() {
     return _webAuth.onAuthStateChanged.map((firebase.User webUser) {
+      if (webUser == null) {
+        return null;
+      }
+
       return UserWeb(this, webUser);
     });
   }
@@ -86,6 +96,10 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
   @override
   Stream<UserPlatform> idTokenChanges() {
     return _webAuth.onIdTokenChanged.map((firebase.User webUser) {
+      if (webUser == null) {
+        return null;
+      }
+      
       return UserWeb(this, webUser);
     });
   }

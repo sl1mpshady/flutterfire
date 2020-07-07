@@ -24,6 +24,6 @@ class UserMetadata {
 
   @override
   String toString() {
-    return 'UserMetadata(creationTime: $creationTime, lastSignInTime: $lastSignInTime)';
+    return 'UserMetadata(creationTime: ${creationTime.toString()}, lastSignInTime: ${lastSignInTime.toString()})';
   }
 }

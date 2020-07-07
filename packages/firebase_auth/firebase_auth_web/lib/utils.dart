@@ -31,33 +31,6 @@ AdditionalUserInfo convertWebAdditionalUserInfo(
   );
 }
 
-UserMetadata convertWebUserMetadata(firebase.UserMetadata webMetadata) {
-  if (webMetadata == null) {
-    return null;
-  }
-
-  DateFormat dateFormat = DateFormat();
-
-  return UserMetadata(
-    dateFormat.parseUTC(webMetadata.creationTime).millisecond,
-    dateFormat.parseUTC(webMetadata.lastSignInTime).millisecond,
-  );
-}
-
-UserInfo convertWebUserInfo(firebase.UserInfo webUserInfo) {
-  if (webUserInfo == null) {
-    return null;
-  }
-
-  return UserInfo(<String, dynamic>{
-    'displayName': webUserInfo.displayName,
-    'email': webUserInfo.email,
-    'phoneNumber': webUserInfo.phoneNumber,
-    'providerId': webUserInfo.providerId,
-    'uid': webUserInfo.uid,
-  });
-}
-
 IdTokenResult convertWebIdTokenResult(firebase.IdTokenResult webIdTokenResult) {
   return IdTokenResult(<String, dynamic>{
     'claims': webIdTokenResult.claims,
@@ -112,7 +85,8 @@ firebase.AuthProvider convertPlatformAuthProvider(AuthProvider authProvider) {
 
     authProvider.scopes
         .forEach((String scope) => facebookAuthProvider.addScope(scope));
-    facebookAuthProvider.setCustomParameters(authProvider.parameters);
+    facebookAuthProvider.setCustomParameters(
+        Map<String, dynamic>.from(authProvider.parameters));
     return facebookAuthProvider;
   }
 
@@ -122,7 +96,8 @@ firebase.AuthProvider convertPlatformAuthProvider(AuthProvider authProvider) {
 
     authProvider.scopes
         .forEach((String scope) => githubAuthProvider.addScope(scope));
-    githubAuthProvider.setCustomParameters(authProvider.parameters);
+    githubAuthProvider.setCustomParameters(
+        Map<String, dynamic>.from(authProvider.parameters));
     return githubAuthProvider;
   }
 
@@ -132,7 +107,8 @@ firebase.AuthProvider convertPlatformAuthProvider(AuthProvider authProvider) {
 
     authProvider.scopes
         .forEach((String scope) => googleAuthProvider.addScope(scope));
-    googleAuthProvider.setCustomParameters(authProvider.parameters);
+    googleAuthProvider.setCustomParameters(
+        Map<String, dynamic>.from(authProvider.parameters));
     return googleAuthProvider;
   }
 
@@ -140,7 +116,8 @@ firebase.AuthProvider convertPlatformAuthProvider(AuthProvider authProvider) {
     firebase.TwitterAuthProvider twitterAuthProvider =
         firebase.TwitterAuthProvider();
 
-    twitterAuthProvider.setCustomParameters(authProvider.parameters);
+    twitterAuthProvider.setCustomParameters(
+        Map<String, dynamic>.from(authProvider.parameters));
     return twitterAuthProvider;
   }
 
@@ -154,7 +131,8 @@ firebase.AuthProvider convertPlatformAuthProvider(AuthProvider authProvider) {
 
     authProvider.scopes
         .forEach((String scope) => oAuthProvider.addScope(scope));
-    oAuthProvider.setCustomParameters(authProvider.parameters);
+    oAuthProvider.setCustomParameters(
+        Map<String, dynamic>.from(authProvider.parameters));
     return oAuthProvider;
   }
 

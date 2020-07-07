@@ -11,7 +11,9 @@ class RecaptchaVerifierFactoryWeb extends RecaptchaVerifierFactoryPlatform {
   firebase.RecaptchaVerifier _delegate;
 
   static RecaptchaVerifierFactoryWeb get instance =>
-      RecaptchaVerifierFactoryWeb();
+      RecaptchaVerifierFactoryWeb._();
+
+  RecaptchaVerifierFactoryWeb._();
 
   RecaptchaVerifierFactoryWeb(
       {String container, Map<String, dynamic> parameters})

@@ -48,7 +48,7 @@ class FacebookAuthProvider extends AuthProvider {
   }
 
   List<String> _scopes = [];
-  Map<dynamic, dynamic> _parameters;
+  Map<dynamic, dynamic> _parameters = {};
 
   List<String> get scopes {
     return _scopes;

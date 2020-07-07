@@ -47,7 +47,7 @@ class TwitterAuthProvider extends AuthProvider {
     return _kProviderId;
   }
 
-  Map<dynamic, dynamic> _parameters;
+  Map<dynamic, dynamic> _parameters = {};
 
   Map<dynamic, dynamic> get parameters {
     return _parameters;

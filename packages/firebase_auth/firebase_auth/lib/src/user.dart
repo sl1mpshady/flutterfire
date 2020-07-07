@@ -269,7 +269,7 @@ class User {
   }
 
   /// Sends a verification email to a new email address. The user's email will be updated to the new one after being verified.
-  /// 
+  ///
   /// If you have a custom email action handler, you can complete the verification process by calling [applyActionCode].
   Future<void> verifyBeforeUpdateEmail(String newEmail,
       [ActionCodeSettings actionCodeSettings]) async {

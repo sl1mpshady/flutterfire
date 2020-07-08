@@ -219,14 +219,16 @@ void runUserTests() {
 
       test('should throw user-not-found ', () async {
         // Setup
-        await auth.createUserWithEmailAndPassword(
-            email: email, password: TEST_PASSWORD);
-
+        UserCredential userCredential =
+            await auth.createUserWithEmailAndPassword(
+                email: email, password: TEST_PASSWORD);
+        User user = userCredential.user;
+        auth.currentUser.delete();
         try {
           // Test
           AuthCredential credential = EmailAuthProvider.credential(
-              email: generateRandomEmail(), password: TEST_PASSWORD);
-          await auth.currentUser.reauthenticateWithCredential(credential);
+              email: email, password: TEST_PASSWORD);
+          await user.reauthenticateWithCredential(credential);
         } on FirebaseAuthException catch (e) {
           // Assertions
           expect(e.code, equals("user-not-found"));

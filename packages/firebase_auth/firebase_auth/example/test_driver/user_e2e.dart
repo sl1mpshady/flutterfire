@@ -11,25 +11,30 @@ import './test_utils.dart';
 void runUserTests() {
   group('$User', () {
     FirebaseAuth auth;
+    String email = generateRandomEmail();
 
-    setUp(() async {
+    setUpAll(() async {
       auth = FirebaseAuth.instance;
       if (auth.currentUser != null) {
         await auth.signOut();
       }
     });
 
+    tearDownAll(() async {
+      // Clean up
+      await ensureSignedIn(email);
+      await auth.currentUser?.delete();
+    });
     tearDown(() async {
       // Clean up
       await auth.currentUser?.delete();
     });
 
-    group('getIdToken', () {
+    group('getIdToken()', () {
       test('should return a token', () async {
         // Setup
         User user;
         UserCredential userCredential;
-        String email = generateRandomEmail();
 
         userCredential = await auth.createUserWithEmailAndPassword(
             email: email, password: TEST_PASSWORD);
@@ -48,7 +53,6 @@ void runUserTests() {
         // Setup
         User user;
         UserCredential userCredential;
-        String email = generateRandomEmail();
 
         userCredential = await auth.createUserWithEmailAndPassword(
             email: email, password: TEST_PASSWORD);
@@ -71,7 +75,7 @@ void runUserTests() {
       test('should link anonymous account <-> email account', () async {
         await auth.signInAnonymously();
         String currentUID = auth.currentUser.uid;
-        String email = generateRandomEmail();
+
         UserCredential linkedUserCredential = await auth.currentUser
             .linkWithCredential(EmailAuthProvider.credential(
                 email: email, password: TEST_PASSWORD));
@@ -86,8 +90,8 @@ void runUserTests() {
       test('should error on link anon <-> email if email already exists',
           () async {
         // Setup
-        String email = generateRandomEmail();
-        auth.createUserWithEmailAndPassword(
+
+        await auth.createUserWithEmailAndPassword(
             email: email, password: TEST_PASSWORD);
         await auth.signInAnonymously();
 
@@ -110,13 +114,11 @@ void runUserTests() {
       });
 
       test('should link anonymous account <-> phone account', () async {
-        String testPhoneNumber = '+447111222333';
-        String testSMSCode = "123456";
         String storedVerificationId;
 
         await auth.signInAnonymously();
         await auth.verifyPhoneNumber(
-          phoneNumber: testPhoneNumber,
+          phoneNumber: TEST_PHONE_NUMBER,
           verificationCompleted: (PhoneAuthCredential credential) {
             print("verificationCompleted");
           },
@@ -132,9 +134,9 @@ void runUserTests() {
         );
         await Future.delayed(Duration(milliseconds: 500));
         await auth.currentUser.linkWithCredential(PhoneAuthProvider.credential(
-            verificationId: storedVerificationId, smsCode: testSMSCode));
+            verificationId: storedVerificationId, smsCode: TEST_SMS_CODE));
         expect(auth.currentUser, equals(isA<User>()));
-        expect(auth.currentUser.phoneNumber, equals(testPhoneNumber));
+        expect(auth.currentUser.phoneNumber, equals(TEST_PHONE_NUMBER));
         expect(auth.currentUser.providerData, equals(isA<List<UserInfo>>()));
         expect(auth.currentUser.providerData.length, equals(1));
         expect(auth.currentUser.providerData[0], equals(isA<UserInfo>()));
@@ -169,7 +171,6 @@ void runUserTests() {
     group('reauthenticateWithCredential()', () {
       test('should reauthenticate correctly', () async {
         // Setup
-        String email = generateRandomEmail();
         await auth.createUserWithEmailAndPassword(
             email: email, password: TEST_PASSWORD);
         User initialUser = auth.currentUser;
@@ -235,7 +236,6 @@ void runUserTests() {
         // Setup
         await auth.signInAnonymously();
 
-        String email = generateRandomEmail();
         AuthCredential credential =
             EmailAuthProvider.credential(email: email, password: TEST_PASSWORD);
         await auth.currentUser.linkWithCredential(credential);
@@ -259,22 +259,20 @@ void runUserTests() {
 
     group('updateEmail()', () {
       test('should update the email address', () async {
-        String email = generateRandomEmail();
-        String email2 = generateRandomEmail();
+        String emailBefore = generateRandomEmail();
         // Setup
         await auth.createUserWithEmailAndPassword(
-            email: email, password: TEST_PASSWORD);
-        expect(auth.currentUser.email, equals(email));
+            email: emailBefore, password: TEST_PASSWORD);
+        expect(auth.currentUser.email, equals(emailBefore));
 
         // Update user email
-        await auth.currentUser.updateEmail(email2);
-        expect(auth.currentUser.email, equals(email2));
+        await auth.currentUser.updateEmail(email);
+        expect(auth.currentUser.email, equals(email));
       });
     });
 
     group('updatePassword()', () {
       test('should update the password', () async {
-        String email = generateRandomEmail();
         String pass = '${TEST_PASSWORD}1';
         String pass2 = '${TEST_PASSWORD}2';
         // Setup
@@ -331,7 +329,6 @@ void runUserTests() {
 
     group('updateProfile()', () {
       test('should update the profile', () async {
-        String email = generateRandomEmail();
         String displayName = 'testName';
         String photoURL = 'http://photo.url/test.jpg';
 
@@ -356,10 +353,109 @@ void runUserTests() {
       });
     });
 
+    group('updatePhoneNumber()', () {
+      test('should update the phone number', () async {
+        // Setup
+        await auth.signInAnonymously();
+
+        String testPhoneNumber = TEST_PHONE_NUMBER;
+        String testSMSCode = TEST_SMS_CODE;
+        String storedVerificationId;
+
+        await auth.verifyPhoneNumber(
+          phoneNumber: testPhoneNumber,
+          verificationCompleted: (PhoneAuthCredential credential) {},
+          verificationFailed: (FirebaseException e) {},
+          codeSent: (String verificationId, int resetToken) {
+            print("code sent $verificationId");
+            storedVerificationId = verificationId;
+          },
+          codeAutoRetrievalTimeout: (String timeout) {},
+        );
+        await Future.delayed(Duration(milliseconds: 500));
+
+        // Update user profile
+        await auth.currentUser.updatePhoneNumber(PhoneAuthProvider.credential(
+            verificationId: storedVerificationId, smsCode: testSMSCode));
+
+        await auth.currentUser.reload();
+        User user = auth.currentUser;
+
+        // Assertions
+        expect(user, isA<Object>());
+        expect(user.phoneNumber, equals(testPhoneNumber));
+      });
+
+      test(
+          'should throw an FirebaseAuthException if verification id is invalid',
+          () async {
+        // Setup
+        await auth.createUserWithEmailAndPassword(
+            email: email, password: TEST_PASSWORD);
+
+        try {
+          // Update user profile
+          await auth.currentUser.updatePhoneNumber(PhoneAuthProvider.credential(
+              verificationId: "invalid", smsCode: TEST_SMS_CODE));
+        } on FirebaseAuthException catch (e) {
+          print("FirebaseAuth $e");
+          expect(e.code, "invalid-verification-id");
+          expect(e.message,
+              "The verification ID used to create the phone auth credential is invalid.");
+          return;
+        } catch (e) {
+          print("Error $e");
+          fail('should have thrown a AssertionError error');
+        }
+
+        fail('should have thrown an error');
+      });
+
+      // TODO(helenaford): 'should throw an FirebaseAuthException if verification code is invalid',
+
+      test('should throw an AssertionError if verification code is null',
+          () async {
+        // Setup
+        await auth.createUserWithEmailAndPassword(
+            email: email, password: TEST_PASSWORD);
+
+        try {
+          // Update phone number
+          await auth.currentUser.updatePhoneNumber(
+              PhoneAuthProvider.credential(verificationId: "", smsCode: null));
+        } on AssertionError catch (_) {
+          return;
+        } catch (_) {
+          fail('should have thrown a AssertionError error');
+        }
+
+        fail('should have thrown an error');
+      });
+      test('should throw an error when verification id is an empty string',
+          () async {
+        // Setup
+        await auth.createUserWithEmailAndPassword(
+            email: email, password: TEST_PASSWORD);
+
+        try {
+          // Test
+          await auth.currentUser.updatePhoneNumber(PhoneAuthProvider.credential(
+              verificationId: "", smsCode: TEST_SMS_CODE));
+        } on FirebaseAuthException catch (e) {
+          expect(e.code, "unknown");
+          expect(e.message,
+              "Cannot create PhoneAuthCredential without either verificationProof, sessionInfo, temporary proof, or enrollment ID.");
+          return;
+        } catch (e) {
+          fail('should have thrown an FirebaseAuthException error');
+        }
+
+        fail('should have thrown an error');
+      });
+    });
+
     group('verifyBeforeUpdateEmail()', () {
       test('should not error', () async {
-        String email = generateRandomEmail();
-
         // Setup
         await auth.createUserWithEmailAndPassword(
             email: email, password: TEST_PASSWORD);
@@ -377,8 +473,6 @@ void runUserTests() {
       });
 
       test('should error if email is null', () async {
-        String email = generateRandomEmail();
-
         // Setup
         await auth.createUserWithEmailAndPassword(
             email: email, password: TEST_PASSWORD);
@@ -394,6 +488,62 @@ void runUserTests() {
         }
 
         fail('should have thrown an error');
+      });
+    });
+
+    group('delete()', () {
+      test('should delete a user', () async {
+        // Setup
+        User user;
+        UserCredential userCredential;
+
+        userCredential = await auth.createUserWithEmailAndPassword(
+            email: email, password: TEST_PASSWORD);
+        user = userCredential.user;
+
+        // Test
+        await user.delete();
+
+        // Assertions
+        expect(auth.currentUser, equals(null));
+        await auth
+            .createUserWithEmailAndPassword(
+                email: email, password: TEST_PASSWORD)
+            .then((UserCredential userCredential) {
+          print("in ehreee");
+          expect(auth.currentUser.email, equals(email));
+          return;
+        }).catchError((Object error) {
+          fail('Should have succesfully created user after deletion');
+        });
+      });
+
+      test('should have throw a error on delete when no user is signed in',
+          () async {
+        // Setup
+        User user;
+        UserCredential userCredential;
+
+        userCredential = await auth.createUserWithEmailAndPassword(
+            email: email, password: TEST_PASSWORD);
+        user = userCredential.user;
+
+        await auth.signOut();
+
+        try {
+          // Test
+          await user.delete();
+        } on FirebaseAuthException catch (e) {
+          // Assertions
+          expect(e.code, 'no-current-user');
+          expect(e.message, 'No user currently signed in.');
+
+          return;
+        } catch (e) {
+          fail('Should have thrown an FirebaseAuthException error');
+        }
+
+        fail('Should have thrown an error');
       });
     });
   });

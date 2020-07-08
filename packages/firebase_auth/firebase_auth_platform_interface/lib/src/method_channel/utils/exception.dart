@@ -31,7 +31,7 @@ FirebaseException platformExceptionToFirebaseAuthException(
   Map<String, dynamic> details = platformException.details != null
       ? Map<String, dynamic>.from(platformException.details)
       : null;
-  
+
   String code = 'unknown';
   String message = platformException.message;
   String email;

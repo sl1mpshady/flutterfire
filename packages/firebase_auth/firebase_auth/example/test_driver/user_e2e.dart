@@ -20,12 +20,8 @@ void runUserTests() {
       }
     });
 
-    tearDownAll(() async {
-      // Clean up
-      await ensureSignedIn(email);
-      await auth.currentUser?.delete();
-    });
     tearDown(() async {
+      await ensureSignedIn(email);
       // Clean up
       await auth.currentUser?.delete();
     });
@@ -102,11 +98,14 @@ void runUserTests() {
             email: email,
             password: TEST_PASSWORD,
           ));
-        } on FirebaseException catch (e) {
+        } on FirebaseAuthException catch (e) {
           // Assertions
           expect(e.code, 'email-already-in-use');
           expect(e.message,
               'The email address is already in use by another account.');
+
+          // clean up
+          await auth.currentUser.delete();
           return;
         }
 
@@ -155,13 +154,15 @@ void runUserTests() {
           await auth.currentUser.linkWithCredential(
               PhoneAuthProvider.credential(
                   verificationId: 'test', smsCode: 'test'));
-        } on FirebaseException catch (e) {
+        } on FirebaseAuthException catch (e) {
           expect(e.code, equals("invalid-verification-id"));
           expect(
               e.message,
               equals(
                   "The verification ID used to create the phone auth credential is invalid."));
           return;
+        } catch (e) {
+          fail('should have thrown an FirebaseAuthException');
         }
 
         fail('should have thrown an error');
@@ -184,6 +185,108 @@ void runUserTests() {
         User currentUser = auth.currentUser;
         expect(currentUser.email, equals(email));
         expect(currentUser.uid, equals(initialUser.uid));
+      });
+
+      test('should throw user-mismatch ', () async {
+        // Setup
+        String emailAlready = generateRandomEmail();
+
+        await auth.createUserWithEmailAndPassword(
+            email: email, password: TEST_PASSWORD);
+        await auth.createUserWithEmailAndPassword(
+            email: emailAlready, password: TEST_PASSWORD);
+
+        try {
+          // Test
+          AuthCredential credential = EmailAuthProvider.credential(
+              email: email, password: TEST_PASSWORD);
+          await auth.currentUser.reauthenticateWithCredential(credential);
+        } on FirebaseAuthException catch (e) {
+          // Assertions
+          expect(e.code, equals("user-mismatch"));
+          expect(
+              e.message,
+              equals(
+                  "The supplied credentials do not correspond to the previously signed in user."));
+          await auth.currentUser.delete(); //clean up
+          return;
+        } catch (e) {
+          fail('should have thrown an FirebaseAuthException');
+        }
+
+        fail('should have thrown an error');
+      });
+
+      test('should throw user-not-found ', () async {
+        // Setup
+        await auth.createUserWithEmailAndPassword(
+            email: email, password: TEST_PASSWORD);
+
+        try {
+          // Test
+          AuthCredential credential = EmailAuthProvider.credential(
+              email: generateRandomEmail(), password: TEST_PASSWORD);
+          await auth.currentUser.reauthenticateWithCredential(credential);
+        } on FirebaseAuthException catch (e) {
+          // Assertions
+          expect(e.code, equals("user-not-found"));
+          expect(
+              e.message,
+              equals(
+                  "There is no user record corresponding to this identifier. The user may have been deleted."));
+          return;
+        } catch (e) {
+          fail('should have thrown an FirebaseAuthException');
+        }
+
+        fail('should have thrown an error');
+      });
+
+      test('should throw invalid-email ', () async {
+        // Setup
+        await auth.createUserWithEmailAndPassword(
+            email: email, password: TEST_PASSWORD);
+
+        try {
+          // Test
+          AuthCredential credential = EmailAuthProvider.credential(
+              email: 'invalid', password: TEST_PASSWORD);
+          await auth.currentUser.reauthenticateWithCredential(credential);
+        } on FirebaseAuthException catch (e) {
+          // Assertions
+          expect(e.code, equals("invalid-email"));
+          expect(e.message, equals("The email address is badly formatted."));
+          return;
+        } catch (e) {
+          fail('should have thrown an FirebaseAuthException');
+        }
+
+        fail('should have thrown an error');
+      });
+
+      test('should throw wrong-password ', () async {
+        // Setup
+        await auth.createUserWithEmailAndPassword(
+            email: email, password: TEST_PASSWORD);
+
+        try {
+          // Test
+          AuthCredential credential = EmailAuthProvider.credential(
+              email: email, password: "WRONG_TEST_PASSWORD");
+          await auth.currentUser.reauthenticateWithCredential(credential);
+        } on FirebaseAuthException catch (e) {
+          // Assertions
+          expect(e.code, equals("wrong-password"));
+          expect(
+              e.message,
+              equals(
+                  "The password is invalid or the user does not have a password."));
+          return;
+        } catch (e) {
+          fail('should have thrown an FirebaseAuthException');
+        }
+
+        fail('should have thrown an error');
       });
     });
 
@@ -255,6 +358,50 @@ void runUserTests() {
         expect(unlinkedUser.providerData, isA<List<UserInfo>>());
         expect(unlinkedUser.providerData.length, equals(0));
       });
+
+      test('should throw error if provider id given does not exist', () async {
+        // Setup
+        await auth.signInAnonymously();
+
+        AuthCredential credential =
+            EmailAuthProvider.credential(email: email, password: TEST_PASSWORD);
+        await auth.currentUser.linkWithCredential(credential);
+
+        // verify user is linked
+        User linkedUser = auth.currentUser;
+        expect(linkedUser.email, email);
+
+        // Test
+        try {
+          await auth.currentUser.unlink("invalid");
+        } on FirebaseAuthException catch (e) {
+          expect(e.code, 'no-such-provider');
+          expect(e.message,
+              'User was not linked to an account with the given provider.');
+          return;
+        } catch (e) {
+          fail('should have thrown an FirebaseAuthException error');
+        }
+        fail('should have thrown an error');
+      });
+
+      test('should throw error if user does not have this provider linked',
+          () async {
+        // Setup
+        await auth.signInAnonymously();
+        // Test
+        try {
+          await auth.currentUser.unlink(EmailAuthProvider.PROVIDER_ID);
+        } on FirebaseAuthException catch (e) {
+          expect(e.code, 'no-such-provider');
+          expect(e.message,
+              'User was not linked to an account with the given provider.');
+          return;
+        } catch (e) {
+          fail('should have thrown an FirebaseAuthException error');
+        }
+        fail('should have thrown an error');
+      });
     });
 
     group('updateEmail()', () {
@@ -290,6 +437,24 @@ void runUserTests() {
         // Assertions
         expect(auth.currentUser, isA<Object>());
         expect(auth.currentUser.email, equals(email));
+      });
+      test('should throw error if password is weak', () async {
+        // Setup
+        await auth.createUserWithEmailAndPassword(
+            email: email, password: TEST_PASSWORD);
+
+        // Test
+        try {
+          // Update user password
+          await auth.currentUser.updatePassword('weak');
+        } on FirebaseAuthException catch (e) {
+          expect(e.code, 'weak-password');
+          expect(e.message, 'Password should be at least 6 characters');
+          return;
+        } catch (e) {
+          fail('should have thrown an FirebaseAuthException error');
+        }
+        fail('should have thrown an error');
       });
     });
 

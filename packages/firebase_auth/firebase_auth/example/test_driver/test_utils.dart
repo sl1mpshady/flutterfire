@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-FirebaseAuth auth;
+FirebaseAuth auth = FirebaseAuth.instance;
 
 String TEST_PASSWORD = 'testpassword';
 

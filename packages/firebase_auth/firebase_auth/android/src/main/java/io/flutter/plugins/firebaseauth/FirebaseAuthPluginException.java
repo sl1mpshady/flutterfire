@@ -2,6 +2,8 @@ package io.flutter.plugins.firebaseauth;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.FirebaseNetworkException;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
@@ -25,24 +27,42 @@ public class FirebaseAuthPluginException extends Exception {
     this.message = message;
   }
 
-  FirebaseAuthPluginException(@NonNull FirebaseAuthException nativeException, Throwable cause) {
+  FirebaseAuthPluginException(@NonNull Exception nativeException, Throwable cause) {
     super(nativeException.getMessage(), cause);
 
-    String code = nativeException.getErrorCode();
+    String code = "UNKNOWN";
     String message = nativeException.getMessage();
     Map<String, Object> additionalData = new HashMap<>();
+
+    if (nativeException instanceof FirebaseAuthException) {
+      code = ((FirebaseAuthException) nativeException).getErrorCode();
+    }
 
     if (nativeException instanceof FirebaseAuthWeakPasswordException) {
       message = ((FirebaseAuthWeakPasswordException) nativeException).getReason();
     }
 
     if (nativeException instanceof FirebaseAuthUserCollisionException) {
-      additionalData.put(
-          "email", ((FirebaseAuthUserCollisionException) nativeException).getEmail());
+      String email = ((FirebaseAuthUserCollisionException) nativeException).getEmail();
+
+      if (email != null) {
+        additionalData.put("email", email);
+      }
 
       AuthCredential authCredential =
           ((FirebaseAuthUserCollisionException) nativeException).getUpdatedCredential();
-      additionalData.put("authCredential", parseAuthCredential(authCredential));
+
+      if (authCredential != null) {
+        additionalData.put("authCredential", parseAuthCredential(authCredential));
+      }
+    }
+
+    if ("UNKNOWN".equals(code)) {
+      if (nativeException instanceof FirebaseNetworkException) {
+        code = "NETWORK_REQUEST_FAILED";
+      } else if (nativeException instanceof FirebaseTooManyRequestsException) {
+        code = "TOO_MANY_REQUESTS";
+      }
     }
 
     this.code = code;
@@ -58,6 +78,11 @@ public class FirebaseAuthPluginException extends Exception {
     return new FirebaseAuthPluginException(
         "INVALID_CREDENTIAL",
         "The supplied auth credential is malformed, has expired or is not currently supported.");
+  }
+
+  static FirebaseAuthPluginException noSuchProvider() {
+    return new FirebaseAuthPluginException(
+        "NO_SUCH_PROVIDER", "User was not linked to an account with the given provider.");
   }
 
   public String getCode() {

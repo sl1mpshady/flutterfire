@@ -271,8 +271,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       _idTokenChangesListeners[app.name].stream;
 
   @override
-  Stream<UserPlatform> userChanges() =>
-      _userChangesListeners[app.name].stream;
+  Stream<UserPlatform> userChanges() => _userChangesListeners[app.name].stream;
 
   @override
   Future<void> sendPasswordResetEmail(String email,
@@ -437,7 +436,6 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     String autoRetrievedSmsCodeForTesting,
     Duration timeout = const Duration(seconds: 30),
     int forceResendingToken,
-    bool requireSmsValidation,
   }) {
     int handle = MethodChannelFirebaseAuth.nextMethodChannelHandleId;
 
@@ -451,7 +449,6 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       'phoneNumber': phoneNumber,
       'timeout': timeout.inMilliseconds,
       'forceResendingToken': forceResendingToken,
-      'requireSmsValidation': requireSmsValidation,
       'autoRetrievedSmsCodeForTesting': autoRetrievedSmsCodeForTesting,
     }).catchError(catchPlatformException);
   }

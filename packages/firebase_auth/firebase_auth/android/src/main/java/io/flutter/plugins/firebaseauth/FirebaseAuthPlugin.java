@@ -17,7 +17,6 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.ActionCodeEmailInfo;
 import com.google.firebase.auth.ActionCodeInfo;
-import com.google.firebase.auth.ActionCodeMultiFactorInfo;
 import com.google.firebase.auth.ActionCodeResult;
 import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.AdditionalUserInfo;
@@ -47,6 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -178,7 +178,7 @@ public class FirebaseAuthPlugin
   }
 
   private FirebaseAuth getAuth(Map<String, Object> arguments) {
-    String appName = (String) arguments.get("appName");
+    String appName = (String) Objects.requireNonNull(arguments.get("appName"));
     FirebaseApp app = FirebaseApp.getInstance(appName);
     return FirebaseAuth.getInstance(app);
   }
@@ -204,7 +204,7 @@ public class FirebaseAuthPlugin
   }
 
   private FirebaseUser getCurrentUser(Map<String, Object> arguments) {
-    String appName = (String) arguments.get("appName");
+    String appName = (String) Objects.requireNonNull(arguments.get("appName"));
     FirebaseApp app = FirebaseApp.getInstance(appName);
     return FirebaseAuth.getInstance(app).getCurrentUser();
   }
@@ -212,7 +212,8 @@ public class FirebaseAuthPlugin
   private AuthCredential getCredential(Map<String, Object> arguments)
       throws FirebaseAuthPluginException {
     //noinspection unchecked
-    Map<String, Object> credentialMap = (Map<String, Object>) arguments.get("credential");
+    Map<String, Object> credentialMap =
+        (Map<String, Object>) Objects.requireNonNull(arguments.get("credential"));
 
     // If the credential map contains a token, it means a native one has been stored
     if (credentialMap.get("token") != null) {
@@ -278,26 +279,20 @@ public class FirebaseAuthPlugin
     int operation = actionCodeResult.getOperation();
     output.put("operation", operation);
 
-    if (operation == ActionCodeResult.VERIFY_EMAIL
+    ActionCodeInfo actionCodeInfo = actionCodeResult.getInfo();
+
+    if (actionCodeInfo != null && operation == ActionCodeResult.VERIFY_EMAIL
         || operation == ActionCodeResult.PASSWORD_RESET) {
-      ActionCodeInfo actionCodeInfo = actionCodeResult.getInfo();
       data.put("email", actionCodeInfo.getEmail());
       data.put("previousEmail", null);
-      //      data.put("multiFactorInfo", null);
     } else if (operation == ActionCodeResult.REVERT_SECOND_FACTOR_ADDITION) {
-      ActionCodeMultiFactorInfo actionCodeMultiFactorInfo =
-          (ActionCodeMultiFactorInfo) actionCodeResult.getInfo();
       data.put("email", null);
       data.put("previousEmail", null);
-      //      data.put(
-      //          "multiFactorInfo",
-      // parseMultiFactorInfo(actionCodeMultiFactorInfo.getMultiFactorInfo()));
     } else if (operation == ActionCodeResult.RECOVER_EMAIL
         || operation == ActionCodeResult.VERIFY_BEFORE_CHANGE_EMAIL) {
       ActionCodeEmailInfo actionCodeEmailInfo = (ActionCodeEmailInfo) actionCodeResult.getInfo();
       data.put("email", actionCodeEmailInfo.getEmail());
       data.put("previousEmail", actionCodeEmailInfo.getPreviousEmail());
-      //      data.put("multiFactorInfo", null);
     }
 
     output.put("data", data);
@@ -405,22 +400,26 @@ public class FirebaseAuthPlugin
       @NonNull Map<String, Object> actionCodeSettingsMap) {
     ActionCodeSettings.Builder builder = ActionCodeSettings.newBuilder();
 
-    builder.setUrl((String) actionCodeSettingsMap.get("url"));
+    builder.setUrl((String) Objects.requireNonNull(actionCodeSettingsMap.get("url")));
 
     if (actionCodeSettingsMap.get("dynamicLinkDomain") != null) {
-      builder.setDynamicLinkDomain((String) actionCodeSettingsMap.get("dynamicLinkDomain"));
+      builder.setDynamicLinkDomain(
+          (String) Objects.requireNonNull(actionCodeSettingsMap.get("dynamicLinkDomain")));
     }
 
     if (actionCodeSettingsMap.get("handleCodeInApp") != null) {
-      builder.setHandleCodeInApp((Boolean) actionCodeSettingsMap.get("handleCodeInApp"));
+      builder.setHandleCodeInApp(
+          (Boolean) Objects.requireNonNull(actionCodeSettingsMap.get("handleCodeInApp")));
     }
 
     if (actionCodeSettingsMap.get("android") != null) {
       @SuppressWarnings("unchecked")
-      Map<String, Object> android = (Map<String, Object>) actionCodeSettingsMap.get("android");
-      Boolean installIfNotAvailable = false;
+      Map<String, Object> android =
+          (Map<String, Object>) Objects.requireNonNull(actionCodeSettingsMap.get("android"));
+
+      boolean installIfNotAvailable = false;
       if (android.get("installApp") != null) {
-        installIfNotAvailable = (Boolean) android.get("installApp");
+        installIfNotAvailable = (Boolean) Objects.requireNonNull(android.get("installApp"));
       }
       String minimumVersion = null;
       if (android.get("minimumVersion") != null) {
@@ -428,13 +427,15 @@ public class FirebaseAuthPlugin
       }
 
       builder.setAndroidPackageName(
-          (String) android.get("packageName"), installIfNotAvailable, minimumVersion);
+          (String) Objects.requireNonNull(android.get("packageName")),
+          installIfNotAvailable,
+          minimumVersion);
     }
 
     if (actionCodeSettingsMap.get("iOS") != null) {
       @SuppressWarnings("unchecked")
       Map<String, Object> iOS = (Map<String, Object>) actionCodeSettingsMap.get("iOS");
-      builder.setIOSBundleId((String) iOS.get("bundleId"));
+      builder.setIOSBundleId((String) Objects.requireNonNull(iOS.get("bundleId")));
     }
 
     return builder.build();
@@ -719,8 +720,6 @@ public class FirebaseAuthPlugin
           String phoneNumber = (String) Objects.requireNonNull(arguments.get("phoneNumber"));
           int handle = (int) Objects.requireNonNull(arguments.get("handle"));
           int timeout = (int) Objects.requireNonNull(arguments.get("timeout"));
-          boolean requireSmsValidation =
-              (boolean) Objects.requireNonNull(arguments.get("requireSmsValidation"));
 
           Map<String, Object> event = new HashMap<>();
           event.put("handle", handle);
@@ -796,7 +795,7 @@ public class FirebaseAuthPlugin
           phoneAuthOptionsBuilder.setPhoneNumber(phoneNumber);
           phoneAuthOptionsBuilder.setCallbacks(callbacks);
           phoneAuthOptionsBuilder.setTimeout((long) timeout, TimeUnit.MILLISECONDS);
-          phoneAuthOptionsBuilder.requireSmsValidation(requireSmsValidation);
+          //          phoneAuthOptionsBuilder.requireSmsValidation(requireSmsValidation);
 
           if (arguments.get("forceResendingToken") != null) {
             int forceResendingTokenHashCode =
@@ -944,8 +943,16 @@ public class FirebaseAuthPlugin
           }
 
           String providerId = (String) Objects.requireNonNull(arguments.get("providerId"));
-          AuthResult result = Tasks.await(firebaseUser.unlink(providerId));
-          return parseAuthResult(result);
+
+          try {
+            AuthResult result = Tasks.await(firebaseUser.unlink(providerId));
+            return parseAuthResult(result);
+          } catch (ExecutionException e) {
+            // If the provider ID was not found an ExecutionException is thrown.
+            // On web, this is automatically handled, so we catch the specific exception here
+            // to ensure consistency.
+            throw FirebaseAuthPluginException.noSuchProvider();
+          }
         });
   }
 

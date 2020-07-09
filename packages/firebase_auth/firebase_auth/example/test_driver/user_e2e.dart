@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pedantic/pedantic.dart';
 import './test_utils.dart';
 
 void runUserTests() {
@@ -113,25 +114,30 @@ void runUserTests() {
       });
 
       test('should link anonymous account <-> phone account', () async {
-        String storedVerificationId;
-
         await auth.signInAnonymously();
-        await auth.verifyPhoneNumber(
-          phoneNumber: TEST_PHONE_NUMBER,
-          verificationCompleted: (PhoneAuthCredential credential) {
-            print("verificationCompleted");
-          },
-          verificationFailed: (FirebaseException e) {
-            print("verificationFailed $e");
-          },
-          codeSent: (String verificationId, int resetToken) {
-            storedVerificationId = verificationId;
-          },
-          codeAutoRetrievalTimeout: (String foo) {
-            print("codeAutoRetrievalTimeout $foo");
-          },
-        );
-        await Future.delayed(Duration(milliseconds: 500));
+
+        Future<String> getVerificationId() {
+          Completer completer = Completer<String>();
+
+          unawaited(auth.verifyPhoneNumber(
+            phoneNumber: TEST_PHONE_NUMBER,
+            verificationCompleted: (PhoneAuthCredential credential) {
+              fail('Should not have auto resolved');
+            },
+            verificationFailed: (FirebaseException e) {
+              fail('Should not have errored');
+            },
+            codeSent: (String verificationId, int resetToken) {
+              completer.complete(verificationId);
+            },
+            codeAutoRetrievalTimeout: (String foo) {},
+          ));
+
+          return completer.future;
+        }
+
+        String storedVerificationId = await getVerificationId();
+
         await auth.currentUser.linkWithCredential(PhoneAuthProvider.credential(
             verificationId: storedVerificationId, smsCode: TEST_SMS_CODE));
         expect(auth.currentUser, equals(isA<User>()));
@@ -193,6 +199,7 @@ void runUserTests() {
 
         await auth.createUserWithEmailAndPassword(
             email: email, password: TEST_PASSWORD);
+
         await auth.createUserWithEmailAndPassword(
             email: emailAlready, password: TEST_PASSWORD);
 
@@ -223,11 +230,11 @@ void runUserTests() {
             await auth.createUserWithEmailAndPassword(
                 email: email, password: TEST_PASSWORD);
         User user = userCredential.user;
-        auth.currentUser.delete();
+
         try {
           // Test
           AuthCredential credential = EmailAuthProvider.credential(
-              email: email, password: TEST_PASSWORD);
+              email: 'userdoesnotexist@foobar.com', password: TEST_PASSWORD);
           await user.reauthenticateWithCredential(credential);
         } on FirebaseAuthException catch (e) {
           // Assertions
@@ -362,49 +369,49 @@ void runUserTests() {
       });
 
       // TODO(ehesp): parse no-such-provider error when calling unlink()
-      //   test('should throw error if provider id given does not exist', () async {
-      //     // Setup
-      //     await auth.signInAnonymously();
+      test('should throw error if provider id given does not exist', () async {
+        // Setup
+        await auth.signInAnonymously();
 
-      //     AuthCredential credential =
-      //         EmailAuthProvider.credential(email: email, password: TEST_PASSWORD);
-      //     await auth.currentUser.linkWithCredential(credential);
+        AuthCredential credential =
+            EmailAuthProvider.credential(email: email, password: TEST_PASSWORD);
+        await auth.currentUser.linkWithCredential(credential);
 
-      //     // verify user is linked
-      //     User linkedUser = auth.currentUser;
-      //     expect(linkedUser.email, email);
+        // verify user is linked
+        User linkedUser = auth.currentUser;
+        expect(linkedUser.email, email);
 
-      //     // Test
-      //     try {
-      //       await auth.currentUser.unlink("invalid");
-      //     } on FirebaseAuthException catch (e) {
-      //       expect(e.code, 'no-such-provider');
-      //       expect(e.message,
-      //           'User was not linked to an account with the given provider.');
-      //       return;
-      //     } catch (e) {
-      //       fail('should have thrown an FirebaseAuthException error');
-      //     }
-      //     fail('should have thrown an error');
-      //   });
+        // Test
+        try {
+          await auth.currentUser.unlink("invalid");
+        } on FirebaseAuthException catch (e) {
+          expect(e.code, 'no-such-provider');
+          expect(e.message,
+              'User was not linked to an account with the given provider.');
+          return;
+        } catch (e) {
+          fail('should have thrown an FirebaseAuthException error');
+        }
+        fail('should have thrown an error');
+      });
 
-      //   test('should throw error if user does not have this provider linked',
-      //       () async {
-      //     // Setup
-      //     await auth.signInAnonymously();
-      //     // Test
-      //     try {
-      //       await auth.currentUser.unlink(EmailAuthProvider.PROVIDER_ID);
-      //     } on FirebaseAuthException catch (e) {
-      //       expect(e.code, 'no-such-provider');
-      //       expect(e.message,
-      //           'User was not linked to an account with the given provider.');
-      //       return;
-      //     } catch (e) {
-      //       fail('should have thrown an FirebaseAuthException error');
-      //     }
-      //     fail('should have thrown an error');
-      //   });
+      test('should throw error if user does not have this provider linked',
+          () async {
+        // Setup
+        await auth.signInAnonymously();
+        // Test
+        try {
+          await auth.currentUser.unlink(EmailAuthProvider.PROVIDER_ID);
+        } on FirebaseAuthException catch (e) {
+          expect(e.code, 'no-such-provider');
+          expect(e.message,
+              'User was not linked to an account with the given provider.');
+          return;
+        } catch (e) {
+          fail('should have thrown an FirebaseAuthException error');
+        }
+        fail('should have thrown an error');
+      });
     });
 
     group('updateEmail()', () {
@@ -528,19 +535,28 @@ void runUserTests() {
 
         String testPhoneNumber = TEST_PHONE_NUMBER;
         String testSMSCode = TEST_SMS_CODE;
-        String storedVerificationId;
 
-        await auth.verifyPhoneNumber(
-          phoneNumber: testPhoneNumber,
-          verificationCompleted: (PhoneAuthCredential credential) {},
-          verificationFailed: (FirebaseException e) {},
-          codeSent: (String verificationId, int resetToken) {
-            print("code sent $verificationId");
-            storedVerificationId = verificationId;
-          },
-          codeAutoRetrievalTimeout: (String timeout) {},
-        );
-        await Future.delayed(Duration(milliseconds: 500));
+        Future<String> getVerificationId() {
+          Completer completer = Completer<String>();
+
+          unawaited(auth.verifyPhoneNumber(
+            phoneNumber: TEST_PHONE_NUMBER,
+            verificationCompleted: (PhoneAuthCredential credential) {
+              fail('Should not have auto resolved');
+            },
+            verificationFailed: (FirebaseException e) {
+              fail('Should not have errored');
+            },
+            codeSent: (String verificationId, int resetToken) {
+              completer.complete(verificationId);
+            },
+            codeAutoRetrievalTimeout: (String foo) {},
+          ));
+
+          return completer.future;
+        }
+
+        String storedVerificationId = await getVerificationId();
 
         // Update user profile
         await auth.currentUser.updatePhoneNumber(PhoneAuthProvider.credential(
@@ -566,13 +582,11 @@ void runUserTests() {
           await auth.currentUser.updatePhoneNumber(PhoneAuthProvider.credential(
               verificationId: "invalid", smsCode: TEST_SMS_CODE));
         } on FirebaseAuthException catch (e) {
-          print("FirebaseAuth $e");
           expect(e.code, "invalid-verification-id");
           expect(e.message,
               "The verification ID used to create the phone auth credential is invalid.");
           return;
         } catch (e) {
-          print("Error $e");
           fail('should have thrown a AssertionError error');
         }
 
@@ -678,7 +692,6 @@ void runUserTests() {
             .createUserWithEmailAndPassword(
                 email: email, password: TEST_PASSWORD)
             .then((UserCredential userCredential) {
-          print("in ehreee");
           expect(auth.currentUser.email, equals(email));
           return;
         }).catchError((Object error) {

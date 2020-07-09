@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pedantic/pedantic.dart';
 
 import 'test_utils.dart';
 
@@ -284,7 +285,6 @@ void runInstanceTests() {
     group('fetchSignInMethodsForEmail()', () {
       test('should return password provider for an email address', () async {
         var providers = await auth.fetchSignInMethodsForEmail(regularTestEmail);
-        print('PROVIDERS $providers');
         expect(providers, isList);
         expect(providers.contains('password'), isTrue);
       });
@@ -670,23 +670,65 @@ void runInstanceTests() {
       });
     });
 
-    // TODO: Fix this test :(
-    // [E]: [firebase_auth/unknown] null
     group('verifyPhoneNumber()', () {
-//      test('should verify phone number', () async {
-//        String testPhoneNumber = '+447444555666';
-//        var authCredential;
-//        await auth.signInAnonymously();
-//        await auth.verifyPhoneNumber(
-//            phoneNumber: testPhoneNumber,
-//            verificationCompleted: (PhoneAuthCredential credential) {
-//              authCredential = credential;
-//            },
-//            verificationFailed: (FirebaseException e) {},
-//            codeSent: (String verificationId, int resetToken) {},
-//            codeAutoRetrievalTimeout: (String foo) {});
-//        expect(authCredential, isInstanceOf<PhoneAuthCredential>());
-//      });
+      test('should fail with an invald phone number', () async {
+        Future<Exception> getError() async {
+          Completer completer = Completer<FirebaseAuthException>();
+
+          unawaited(auth.verifyPhoneNumber(
+              phoneNumber: 'foo',
+              verificationCompleted: (PhoneAuthCredential credential) {
+                fail("Should not have been called");
+              },
+              verificationFailed: (FirebaseAuthException e) {
+                completer.complete(e);
+              },
+              codeSent: (String verificationId, int resetToken) {
+                fail("Should not have been called");
+              },
+              codeAutoRetrievalTimeout: (String foo) {
+                fail("Should not have been called");
+              }));
+
+          return completer.future;
+        }
+
+        Exception e = await getError();
+        expect(e, isA<FirebaseAuthException>());
+        FirebaseAuthException exception = e as FirebaseAuthException;
+        expect(exception.code, equals('invalid-phone-number'));
+      });
+
+      test('should auto verify phone number', () async {
+        String testPhoneNumber = '+447444555666';
+        await auth.signInAnonymously();
+
+        Future<PhoneAuthCredential> getCredential() async {
+          Completer completer = Completer<PhoneAuthCredential>();
+
+          unawaited(auth.verifyPhoneNumber(
+              phoneNumber: testPhoneNumber,
+              // ignore: invalid_use_of_visible_for_testing_member
+              autoRetrievedSmsCodeForTesting: '123456',
+              verificationCompleted: (PhoneAuthCredential credential) {
+                completer.complete(credential);
+              },
+              verificationFailed: (FirebaseException e) {
+                fail("Should not have been called");
+              },
+              codeSent: (String verificationId, int resetToken) {
+                fail("Should not have been called");
+              },
+              codeAutoRetrievalTimeout: (String foo) {
+                fail("Should not have been called");
+              }));
+
+          return completer.future;
+        }
+
+        PhoneAuthCredential credential = await getCredential();
+        expect(credential, isA<PhoneAuthCredential>());
+      });
     });
   });
 }

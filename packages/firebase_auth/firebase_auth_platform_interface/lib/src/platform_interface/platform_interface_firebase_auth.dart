@@ -503,8 +503,7 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
       @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
       @visibleForTesting String autoRetrievedSmsCodeForTesting,
       Duration timeout = const Duration(seconds: 30),
-      int forceResendingToken,
-      bool requireSmsValidation}) {
+      int forceResendingToken}) {
     throw UnimplementedError('verifyPhoneNumber() is not implemented');
   }
 }

@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 /// Implementations specify the details about each auth provider's credential
 /// requirements.
 class AuthCredential {
+  // ignore: public_member_api_docs
   @protected
   const AuthCredential({
     @required this.providerId,

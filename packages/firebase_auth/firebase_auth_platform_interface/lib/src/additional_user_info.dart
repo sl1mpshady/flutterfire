@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 /// A structure containing additional user information from a federated identity provider.
 class AdditionalUserInfo {
+  // ignore: public_member_api_docs
   @protected
   AdditionalUserInfo(
       {this.isNewUser, this.profile, this.providerId, this.username});

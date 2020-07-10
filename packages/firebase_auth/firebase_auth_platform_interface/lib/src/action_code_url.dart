@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 
 /// A utility class to parse email action URLs.
 class ActionCodeURL {
+  // ignore: public_member_api_docs
+  @protected
   const ActionCodeURL(
       {@required this.apiKey,
       @required this.code,
@@ -36,7 +38,6 @@ class ActionCodeURL {
   /// the email action is from the parent project.
   final String tenantId;
 
-  // TODO: Implementation
   /// Parses the email action link string and returns an
   /// [ActionCodeURL] object if the link is vaid. Otherwise
   /// returns null.

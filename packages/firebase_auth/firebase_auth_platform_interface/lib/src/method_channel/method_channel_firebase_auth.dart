@@ -15,6 +15,7 @@ import 'method_channel_user_credential.dart';
 import 'utils/exception.dart';
 import 'utils/phone_auth_callbacks.dart';
 
+/// Method Channel delegate for [FirebaseAuthPlatform].
 class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   /// Keep an internal reference to whether the [MethodChannelFirebaseAuth] class
   ///  has already been initialized.
@@ -57,6 +58,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   /// then initialized via the [delegateFor] method.
   MethodChannelFirebaseAuth._() : super(appInstance: null);
 
+  /// Creates a new instance with a given [FirebaseApp].
   MethodChannelFirebaseAuth({FirebaseApp app}) : super(appInstance: app) {
     // Send a request to start listening to change listeners straight away
     channel
@@ -71,7 +73,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     _userChangesListeners[app.name] = createBroadcastStream<UserPlatform>();
 
     // The channel setMethodCallHandler callback is not app specific, so there is no
-    // need to register the caller twice.
+    // need to register the caller more than once.
     if (_initialized) return;
 
     channel.setMethodCallHandler((MethodCall call) async {

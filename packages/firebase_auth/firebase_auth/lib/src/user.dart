@@ -155,8 +155,6 @@ class User {
         _auth, await _delegate.linkWithCredential(credential));
   }
 
-  // TODO linkWithPhoneNumber
-
   /// Re-authenticates a user using a fresh credential.
   ///
   /// Use before operations such as [User.updatePassword] that require tokens from recent sign-in attempts.

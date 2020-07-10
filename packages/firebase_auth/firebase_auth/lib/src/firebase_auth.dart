@@ -59,11 +59,13 @@ class FirebaseAuth extends FirebasePluginPlatform {
   }
 
   @Deprecated('Deprecated in favor of `FirebaseAuth.instanceFor`')
+  // ignore: public_member_api_docs
   factory FirebaseAuth.fromApp(FirebaseApp app) {
     return FirebaseAuth.instanceFor(app: app);
   }
 
   @Deprecated('Deprecated in favor of `authStateChanges`')
+  // ignore: public_member_api_docs
   Stream<User> get onAuthStateChanged {
     return authStateChanges();
   }
@@ -448,7 +450,9 @@ class FirebaseAuth extends FirebasePluginPlatform {
         this, await _delegate.signInWithEmailLink(email, emailLink));
   }
 
-  // TODO code docs
+  /// Starts a sign-in flow for a phone number.
+  /// 
+  /// This method is only available on web based platforms.
   Future<ConfirmationResult> signInWithPhoneNumber(
       String phoneNumber, RecaptchaVerifier verifier) async {
     assert(phoneNumber != null);
@@ -462,7 +466,6 @@ class FirebaseAuth extends FirebasePluginPlatform {
   /// If succeeds, returns the signed in user along with the provider's credential.
   ///
   /// This method is only available on web based platforms.
-  /// TODO errors
   Future<UserCredential> signInWithPopup(AuthProvider provider) async {
     return UserCredential._(this, await _delegate.signInWithPopup(provider));
   }
@@ -470,7 +473,6 @@ class FirebaseAuth extends FirebasePluginPlatform {
   /// Authenticates a Firebase client using a full-page redirect flow.
   ///
   /// To handle the results and errors for this operation, refer to [getRedirectResult].
-  /// TODO errors
   Future<void> signInWithRedirect(AuthProvider provider) {
     return _delegate.signInWithRedirect(provider);
   }

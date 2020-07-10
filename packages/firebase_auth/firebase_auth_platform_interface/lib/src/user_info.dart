@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 /// User profile information, visible only to the Firebase project's apps.
 class UserInfo {
+  // ignore: public_member_api_docs
   @protected
   UserInfo(this._data);
 

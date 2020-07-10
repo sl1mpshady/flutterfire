@@ -13,6 +13,7 @@ import 'package:meta/meta.dart';
 /// Only server side verification can guarantee the integrity of the token
 /// claims.
 class IdTokenResult {
+  // ignore: public_member_api_docs
   @protected
   IdTokenResult(this._data);
 
@@ -23,6 +24,8 @@ class IdTokenResult {
   DateTime get authTime =>
       DateTime.fromMillisecondsSinceEpoch(_data['authTimestamp']);
 
+  /// The entire payload claims of the ID token including the standard reserved 
+  /// claims as well as the custom claims.
   Map<String, dynamic> get claims => _data['claims'] == null
       ? null
       : Map<String, dynamic>.from(_data['claims']);

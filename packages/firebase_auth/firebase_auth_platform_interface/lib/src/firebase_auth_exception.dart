@@ -9,8 +9,9 @@ import 'auth_credential.dart';
 
 /// Generic exception related to Firebase Authentication.
 /// Check the error code and message for more details.
-class FirebaseAuthException extends FirebaseException
-    implements Exception {
+class FirebaseAuthException extends FirebaseException implements Exception {
+  // ignore: public_member_api_docs
+  @protected
   FirebaseAuthException(
       {@required this.message,
       this.code,

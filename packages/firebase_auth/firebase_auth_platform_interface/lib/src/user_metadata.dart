@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 /// Interface representing a user's metadata.
 class UserMetadata {
+  // ignore: public_member_api_docs
   @protected
   UserMetadata(this._creationTimestamp, this._lastSignInTime);
 

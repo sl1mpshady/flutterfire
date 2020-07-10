@@ -36,6 +36,7 @@ const _kProviderId = 'twitter.com';
 ///   .then(...);
 /// ```
 class TwitterAuthProvider extends AuthProvider {
+  /// Creates a new instance.
   TwitterAuthProvider() : super(_kProviderId);
 
   /// This corresponds to the sign-in method identifier.
@@ -43,12 +44,14 @@ class TwitterAuthProvider extends AuthProvider {
     return _kProviderId;
   }
 
+  // ignore: public_member_api_docs
   static String get PROVIDER_ID {
     return _kProviderId;
   }
 
   Map<dynamic, dynamic> _parameters = {};
 
+  /// Returns the parameters for this provider instance.
   Map<dynamic, dynamic> get parameters {
     return _parameters;
   }
@@ -74,6 +77,7 @@ class TwitterAuthProvider extends AuthProvider {
   }
 
   @Deprecated('Deprecated in favor of `TwitterAuthProvider.credential()`')
+  // ignore: public_member_api_docs
   static AuthCredential getCredential(
       {@required String accessToken, @required String secret}) {
     return TwitterAuthProvider.credential(

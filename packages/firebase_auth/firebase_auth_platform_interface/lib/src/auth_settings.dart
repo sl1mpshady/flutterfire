@@ -5,7 +5,8 @@
 /// Interface representing an Auth instance's settings, currently used for
 /// enabling/disabling app verification for phone Auth testing.
 class AuthSettings {
-  const AuthSettings(this.appVerificationDisabledForTesting);
+  /// Constructs a new [AuthSettings] instance with given settings.
+  const AuthSettings({this.appVerificationDisabledForTesting});
 
   /// Default is false. When set, this property disabled app verification
   /// for the purpose of testing phone authentication. For this property to

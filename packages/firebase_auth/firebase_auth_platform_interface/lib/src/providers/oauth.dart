@@ -6,7 +6,12 @@ import 'package:firebase_auth_platform_interface/firebase_auth_platform_interfac
 import 'package:firebase_auth_platform_interface/src/auth_provider.dart';
 import 'package:meta/meta.dart';
 
+/// A generic provider instance.
+///
+/// This class is extended by other OAuth based providers, or can be used
+/// standalone for integration with other 3rd party providers.
 class OAuthProvider extends AuthProvider {
+  // ignore: public_member_api_docs
   OAuthProvider(this.providerId)
       : assert(providerId != null),
         super(providerId);
@@ -16,10 +21,12 @@ class OAuthProvider extends AuthProvider {
   List<String> _scopes = [];
   Map<dynamic, dynamic> _parameters;
 
+  /// Returns the currently assigned scopes to this provider instance.
   List<String> get scopes {
     return _scopes;
   }
 
+  /// Returns the parameters for this provider instance.
   Map<dynamic, dynamic> get parameters {
     return _parameters;
   }
@@ -53,12 +60,18 @@ class OAuthProvider extends AuthProvider {
   }
 
   @Deprecated('Deprecated in favor of `FacebookAuthProvider.credential()`')
+  // ignore: public_member_api_docs
   static AuthCredential getCredential(String token) {
     return FacebookAuthProvider.credential(token);
   }
 }
 
+/// A generic OAuth credential.
+///
+/// This class is extended by other OAuth based credentials, or can be returned
+/// when generating credentials from 3rd party OAuth providers.
 class OAuthCredential extends AuthCredential {
+  // ignore: public_member_api_docs
   @protected
   const OAuthCredential({
     @required String providerId,

@@ -15,16 +15,20 @@ const _kProviderId = 'password';
 /// Usage of [EmailAuthProvider] would be when you wish to sign a user in with a
 /// credential or reauthenticate a user.
 abstract class EmailAuthProvider extends AuthProvider {
+  /// Creates a new instance.
   EmailAuthProvider() : super(_kProviderId);
 
+  /// This corresponds to the sign-in method identifier for email-link sign-ins.
   static String get EMAIL_LINK_SIGN_IN_METHOD {
     return _kLinkProviderId;
   }
 
+  /// This corresponds to the sign-in method identifier for email-password sign-ins.
   static String get EMAIL_PASSWORD_SIGN_IN_METHOD {
     return _kProviderId;
   }
 
+  // ignore: public_member_api_docs
   static String get PROVIDER_ID {
     return _kProviderId;
   }
@@ -46,6 +50,7 @@ abstract class EmailAuthProvider extends AuthProvider {
   }
 
   @Deprecated('Deprecated in favor of `EmailAuthProvider.credential()`')
+  // ignore: public_member_api_docs
   static AuthCredential getCredential({
     @required String email,
     @required String password,
@@ -54,6 +59,7 @@ abstract class EmailAuthProvider extends AuthProvider {
   }
 
   @Deprecated('Deprecated in favor of `EmailAuthProvider.credentialWithLink()`')
+  // ignore: public_member_api_docs
   static AuthCredential getCredentialWithLink({
     @required String email,
     @required String link,

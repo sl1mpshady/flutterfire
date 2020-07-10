@@ -13,12 +13,15 @@ const _kProviderId = 'phone';
 /// Typically this provider will be used when calling [verifyPhoneNumber] to generate
 /// a new [PhoneAuthCredential] when a SMS code has been sent.
 class PhoneAuthProvider extends AuthProvider {
+  /// Creates a new instance.
   PhoneAuthProvider() : super(_kProviderId);
 
+  // ignore: public_member_api_docs
   static String get PHONE_SIGN_IN_METHOD {
     return _kProviderId;
   }
 
+  // ignore: public_member_api_docs
   static String get PROVIDER_ID {
     return _kProviderId;
   }
@@ -41,6 +44,7 @@ class PhoneAuthProvider extends AuthProvider {
   }
 
   @Deprecated('Deprecated in favor of `PhoneAuthProvider.credential()`')
+  // ignore: public_member_api_docs
   static AuthCredential getCredential({
     @required String verificationId,
     @required String smsCode,

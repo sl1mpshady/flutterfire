@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 /// Interface that defines the required continue/state URL with optional
 /// Android and iOS bundle identifiers.
 class ActionCodeSettings {
+  // ignore: public_member_api_docs
+  @protected
   ActionCodeSettings({
     this.android,
     this.dynamicLinkDomain,

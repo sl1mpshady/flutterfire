@@ -11,6 +11,7 @@ import 'package:firebase_auth_platform_interface/src/platform_interface/platform
 
 import 'utils/exception.dart';
 
+/// Method Channel delegate for [UserPlatform] instances.
 class MethodChannelUser extends UserPlatform {
   MethodChannelUser(FirebaseAuthPlatform auth, Map<String, dynamic> data)
       : super(auth, data);

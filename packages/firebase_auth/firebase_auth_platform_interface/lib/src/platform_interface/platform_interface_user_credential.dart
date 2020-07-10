@@ -9,12 +9,14 @@ import '../../firebase_auth_platform_interface.dart';
 
 /// A UserCredential is returned from authentication requests such as [createUserWithEmailAndPassword].
 abstract class UserCredentialPlatform extends PlatformInterface {
+  // ignore: public_member_api_docs
   UserCredentialPlatform(
       {this.auth, this.additionalUserInfo, this.credential, this.user})
       : super(token: _token);
 
   static final Object _token = Object();
 
+  /// Ensures that any delegate class has extended a [UserCredentialPlatform].
   static verifyExtends(UserCredentialPlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
   }

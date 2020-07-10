@@ -6,10 +6,19 @@ import 'package:firebase_auth_platform_interface/src/providers/phone_auth_provid
 
 import 'firebase_auth_exception.dart';
 
+/// Typedef for a automatic phone number resolution.
+/// 
+/// This handler can only be called on supported Android devices.
 typedef void PhoneVerificationCompleted(
     PhoneAuthCredential phoneAuthCredential);
+
+/// Typedef for handling errors via phone number verification.
 typedef void PhoneVerificationFailed(FirebaseAuthException error);
+
+/// Typedef for handling when Firebase sends a SMS code to the provided phone number.
 typedef void PhoneCodeSent(String verificationId, int forceResendingToken);
+
+/// Typedef for handling automatic phone number timeout resolution.
 typedef void PhoneCodeAutoRetrievalTimeout(String verificationId);
 
 /// An enumeration of the possible persistence mechanism types.

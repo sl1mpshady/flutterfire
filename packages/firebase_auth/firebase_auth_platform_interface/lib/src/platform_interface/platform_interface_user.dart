@@ -11,16 +11,19 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// A user account.
 abstract class UserPlatform extends PlatformInterface {
+  // ignore: public_member_api_docs
   UserPlatform(this.auth, Map<String, dynamic> user)
       : _user = user,
         super(token: _token);
 
   static final Object _token = Object();
 
+  /// Ensures that any delegate class has extended a [UserPlatform].
   static verifyExtends(UserPlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
   }
 
+  /// The [FirebaseAuthPlatform] instance.
   final FirebaseAuthPlatform auth;
 
   Map<String, dynamic> _user;

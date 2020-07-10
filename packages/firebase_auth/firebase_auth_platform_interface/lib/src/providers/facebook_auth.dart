@@ -36,6 +36,7 @@ const _kProviderId = 'facebook.com';
 ///   .then(...);
 /// ```
 class FacebookAuthProvider extends AuthProvider {
+  /// Creates a new instance.
   FacebookAuthProvider() : super(_kProviderId);
 
   /// This corresponds to the sign-in method identifier.
@@ -43,6 +44,7 @@ class FacebookAuthProvider extends AuthProvider {
     return _kProviderId;
   }
 
+  // ignore: public_member_api_docs
   static String get PROVIDER_ID {
     return _kProviderId;
   }
@@ -50,10 +52,12 @@ class FacebookAuthProvider extends AuthProvider {
   List<String> _scopes = [];
   Map<dynamic, dynamic> _parameters = {};
 
+  /// Returns the currently assigned scopes to this provider instance.
   List<String> get scopes {
     return _scopes;
   }
 
+  /// Returns the parameters for this provider instance.
   Map<dynamic, dynamic> get parameters {
     return _parameters;
   }
@@ -83,6 +87,7 @@ class FacebookAuthProvider extends AuthProvider {
   }
 
   @Deprecated('Deprecated in favor of `FacebookAuthProvider.credential()`')
+  // ignore: public_member_api_docs
   static AuthCredential getCredential(String token) {
     return FacebookAuthProvider.credential(token);
   }

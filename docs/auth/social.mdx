@@ -186,7 +186,7 @@ Future<UserCredential> signInWithFacebook() async {
 
 
 
-### Apple
+## Apple
 
 Apple has [announced](https://developer.apple.com/news/?id=09122019b) that any applications using 3rd party login
 services (such as Facebook, Twitter, Google etc) must have an Apple Sign-In method.  Apple Sign-In is not required for Android devices.secret
@@ -201,60 +201,84 @@ Once authentication is successful, a Firebase credential can then be used to sig
 final FirebaseUser user = (await FirebaseAuth.instance.signInWithCredential(credential)).user;
 ```
 
-### Twitter
+## Twitter
+
+
 
 Ensure the "Twitter" sign-in provider is enabled on the [Firebase Console](https://console.firebase.google.com/project/_/authentication/providers)
 with API Key and API Secret set.
 
-#### Installation
+<Tabs
+  defaultValue="native"
+  values={[
+    { label: 'Native', value: 'native', },
+    { label: 'Web', value: 'web', },
+  ]
+}>
+<TabItem value="native">
 
-1. Add dependency
+On native platforms, a 3rd party library is required to both install the Twitter SDK and trigger the authentication flow.
 
-```yaml {2} title="pubspec.yaml"
+Install the [`flutter_twitter`](https://pub.dev/packages/flutter_twitter) plugin:
+
+```yaml title="pubspec.yaml"
 dependencies:
   flutter_twitter: ^1.1.3
 ```
 
-2. Download dependency
+You will need to ensure that your application in the [Twitter Developer Portal](https://developer.twitter.com/) has
+a callback URL of `twittersdk://` for Android, and `twitterkit-CONSUMERKEY://` for iOS. Once complete, trigger the sign-in flow, create a Twitter credential and sign the user in:
 
-```
-$ flutter pub get
-```
+```dart
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
-#### Usage
+Future<UserCredential> signInWithTwitter() async {
+  // Create a TwitterLogin instance
+  final TwitterLogin twitterLogin = new TwitterLogin(
+    consumerKey: consumerKey,
+    consumerSecret: consumerSecret
+  );
 
-Once the plugin is installed, we first need to initialize the Twitter plugin using the consumer key and secret.
+  // Trigger the sign-in flow
+  final TwitterLoginResult loginResult = await twitterLogin.authorize();
 
-We can then trigger the Twitter login flow by calling the `authorize` method, and then generate an `AuthCredential` from
-the `TwitterAuthProvider`, passing in the accessToken and secrete from the session.
+  // Get the Logged In session
+  final TwitterSession twitterSession = loginResult.session
 
-We can then pass this `AuthCredential` to the `signInWithCredential` method to sign the user into Firebase
+  // Create a credential from the access token
+  final AuthCredential twitterAuthCredential =
+    TwitterAuthProvider.credential(accessToken: twitterSession.token, secret: twitterSession.secret);
 
-```dart title="NEEDS UPDATING/VALIDATING"
-import 'package:flutter_twitter/flutter_twitter.dart';
-
-Future<void> signInWithTwitter() async {
-  try {
-      final TwitterLogin twitterLogin = new TwitterLogin(
-          consumerKey: 'abc',
-          consumerSecret: '123'
-      );
-
-      final TwitterLoginResult loginResult = await twitterLogin.authorize();
-      final TwitterSession twitterSession = loginResult.session;
-
-      final AuthCredential authCredential = TwitterAuthProvider.credential(accessToken: twitterSession.token, secret: twitterSession.secret);
-
-      await FirebaseAuth.instance.signInWithCredential(authCredential);
-  } catch (e) {
-      // Handle Error
-  }
+  // Once signed in, return the UserCredential
+  return await FirebaseAuth.instance.signInWithCredential(twitterAuthCredential);
 }
 ```
 
-When the user has successfully signed in, any [`authStateChanges`](usage#authentication-state) listeners will trigger with the new authentication state
-of the user
+</TabItem>
+<TabItem value="web">
 
+On the web, the Twitter SDK provides support for automatically handling the authentication flow using the
+Twitter application details provided on the Firebase console.  Ensure that the callback URL in the Firebase console is added
+as a callback URL in your Twitter application on the developer console.
+
+For example:
+
+Create a Twitter provider and provide the credential to the [`signInWithPopup`](!firebase_auth.FirebaseAuth.signInWithPopup) method. This will trigger a new
+window to appear prompting the user to sign-in to your Twitter application:
+
+```dart
+Future<UserCredential> signInWithTwitter() async {
+  // Create a new provider
+  TwitterAuthProvider twitterProvider = TwitterAuthProvider();
+
+
+  // Once signed in, return the UserCredential
+  return await FirebaseAuth.instance.signInWithPopup(twitterProvider);
+}
+```
+
+</TabItem>
+</Tabs>
 
 ## GitHub
 

@@ -282,47 +282,75 @@ Future<UserCredential> signInWithTwitter() async {
 
 ## GitHub
 
-Ensure the "GitHub" sign-in provider is enabled on the [Firebase Console](https://console.firebase.google.com/project/_/authentication/providers)
-with the Client ID and secret set.
+Ensure that you have setup an OAuth App from your [GitHub Developer Settings](https://github.com/settings/developers) and
+that the "GitHub" sign-in provider is enabled on the [Firebase Console](https://console.firebase.google.com/project/_/authentication/providers)
+with the Client ID and Secret are set, with the callback URL set in the GitHub app.
 
-#### Installation
 
-1. Add dependency
+<Tabs
+  defaultValue="native"
+  values={[
+    { label: 'Native', value: 'native', },
+    { label: 'Web', value: 'web', },
+  ]
+}>
+<TabItem value="native">
 
-```yaml {2} title="pubspec.yaml"
+On native platforms, a 3rd party library is required to both install the GitHub SDK and trigger the authentication flow.
+
+Install the [`github_sign_in`](https://pub.dev/packages/github_sign_in) plugin:
+
+```yaml title="pubspec.yaml"
 dependencies:
   github_sign_in: ^0.0.1
 ```
 
-2. Download dependency
+You will need to create the GitHubSignIn instance with your GitHub ID and Secret, but also the Firebase callbackURL.
+Once complete trigger the sign-in flow, create a GitHub credential and sign the user in:
 
-```
-$ flutter pub get
-```
+```dart
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
-#### Usage
+Future<UserCredential> signInWithGitHub() async {
+  // Create a GitHubSignIn instance
+      final GitHubSignIn gitHubSignIn = GitHubSignIn(
+          clientId: clientId,
+          clientSecret: clientSecret,
+          redirectUrl: 'https://my-project.firebaseapp.com/__/auth/handler');
 
-```dart title="NEEDS UPDATING/VALIDATING"
-import 'package:github_sign_in/github_sign_in.dart';
+  // Trigger the sign-in flow
+  final result = await gitHubSignIn.signIn(context);
 
-Future<void> signInWithGitHub() async {
-  try {
-    final GitHubSignIn gitHubSignIn = GitHubSignIn(
-            clientId: clientId,
-            clientSecret: clientSecret,
-            redirectUrl: redirectUrl);
+  // Create a credential from the access token
+  final AuthCredential githubAuthCredential = GithubAuthProvider.credential(result.token);
 
-    var result = await gitHubSignIn.signIn(context);
-    final AuthCredential authCredential = GithubAuthProvider.credential(result.token);
-
-    await FirebaseAuth.instance.signInWithCredential(authCredential);
-
-  } catch (e) {
-      // Handle Error
-  }
+  // Once signed in, return the UserCredential
+  return await FirebaseAuth.instance.signInWithCredential(githubAuthCredential);
 }
 ```
 
-When the user has successfully signed in, any [`authStateChanges`](usage#authentication-state) listeners will trigger with the new authentication state
-of the user
+</TabItem>
+<TabItem value="web">
 
+On the web, the GitHub SDK provides support for automatically handling the authentication flow using the
+GitHub application details provided on the Firebase console.  Ensure that the callback URL in the Firebase console is added
+as a callback URL in your GitHub application on the developer console.
+
+For example:
+
+Create a GitHub provider and provide the credential to the [`signInWithPopup`](!firebase_auth.FirebaseAuth.signInWithPopup) method. This will trigger a new
+window to appear prompting the user to sign-in to your GitHub application:
+
+```dart
+Future<UserCredential> signInWithGitHub() async {
+  // Create a new provider
+  GithubAuthProvider githubProvider = GithubAuthProvider();
+
+
+  // Once signed in, return the UserCredential
+  return await FirebaseAuth.instance.signInWithPopup(githubProvider);
+}
+```
+
+</TabItem>
+</Tabs>

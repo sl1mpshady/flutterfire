@@ -563,8 +563,8 @@ class _PhoneSignInSectionState extends State<_PhoneSignInSection> {
   // Example code of how to sign in with phone.
   void _signInWithPhoneNumber() async {
     final AuthCredential credential = PhoneAuthProvider.credential(
-      _verificationId,
-      _smsController.text,
+      verificationId: _verificationId,
+      smsCode: _smsController.text,
     );
     final User user = (await _auth.signInWithCredential(credential)).user;
     final User currentUser = await _auth.currentUser;

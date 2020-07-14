@@ -144,6 +144,19 @@ firebase.AuthProvider convertPlatformAuthProvider(AuthProvider authProvider) {
   return null;
 }
 
+/// Converts a [firebase.OAuthCredential] into a [AuthCredential].
+AuthCredential convertWebOAuthCredential(
+    firebase.OAuthCredential oAuthCredential) {
+  if (oAuthCredential == null) {
+    return null;
+  }
+
+  return OAuthProvider(oAuthCredential.providerId).credential(
+    accessToken: oAuthCredential.accessToken,
+    idToken: oAuthCredential.idToken,
+  );
+}
+
 /// Converts a [AuthCredential] into a [firebase.OAuthCredential].
 firebase.OAuthCredential convertPlatformCredential(AuthCredential credential) {
   if (credential is EmailAuthCredential) {

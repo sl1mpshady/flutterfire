@@ -408,9 +408,9 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
     throw UnimplementedError('signInWithEmailLink() is not implemented');
   }
 
-  // TODO code docs
-  Future<ConfirmationResultPlatform> signInWithPhoneNumber(
-      String phoneNumber, RecaptchaVerifierFactoryPlatform applicationVerifier) async {
+  // ignore: public_member_api_docs
+  Future<ConfirmationResultPlatform> signInWithPhoneNumber(String phoneNumber,
+      RecaptchaVerifierFactoryPlatform applicationVerifier) async {
     throw UnimplementedError('signInWithPhoneNumber() is not implemented');
   }
 
@@ -419,7 +419,6 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
   /// If succeeds, returns the signed in user along with the provider's credential.
   ///
   /// This method is only available on web based platforms.
-  /// TODO errors
   Future<UserCredentialPlatform> signInWithPopup(AuthProvider provider) {
     throw UnimplementedError('signInWithPopup() is not implemented');
   }
@@ -427,7 +426,6 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
   /// Authenticates a Firebase client using a full-page redirect flow.
   ///
   /// To handle the results and errors for this operation, refer to [getRedirectResult].
-  /// TODO errors
   Future<void> signInWithRedirect(AuthProvider provider) {
     throw UnimplementedError('signInWithRedirect() is not implemented');
   }

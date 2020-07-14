@@ -451,14 +451,14 @@ class FirebaseAuth extends FirebasePluginPlatform {
   }
 
   /// Starts a sign-in flow for a phone number.
-  /// 
+  ///
   /// This method is only available on web based platforms.
   Future<ConfirmationResult> signInWithPhoneNumber(
       String phoneNumber, RecaptchaVerifier verifier) async {
     assert(phoneNumber != null);
     assert(verifier != null);
-    return ConfirmationResult._(
-        this, await _delegate.signInWithPhoneNumber(phoneNumber, verifier));
+    return ConfirmationResult._(this,
+        await _delegate.signInWithPhoneNumber(phoneNumber, verifier.delegate));
   }
 
   /// Authenticates a Firebase client using a popup-based OAuth authentication flow.

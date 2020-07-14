@@ -8,8 +8,9 @@ import 'package:firebase/firebase.dart' as firebase;
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:firebase_auth_web/firebase_auth_web_user_credential.dart';
 
-
+/// The web delegate implementation for [ConfirmationResultPlatform].
 class ConfirmationResultlWeb extends ConfirmationResultPlatform {
+  /// Creates a new [ConfirmationResultlWeb] instance.
   ConfirmationResultlWeb(this._auth, this._webConfirmationResult)
       : super(_webConfirmationResult.verificationId);
 

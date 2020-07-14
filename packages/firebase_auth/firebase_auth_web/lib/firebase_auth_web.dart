@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:firebase/firebase.dart' as firebase;
-import 'package:firebase_auth_web/firebase_auth_web_confirmation_result.dart';
+// import 'package:firebase_auth_web/firebase_auth_web_confirmation_result.dart';
 import 'package:firebase_auth_web/firebase_auth_web_user.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -49,8 +49,6 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
         super(appInstance: null);
 
   /// The entry point for the [FirebaseAuthWeb] class.
-  ///
-  /// During registration, a
   FirebaseAuthWeb({FirebaseApp app})
       : _webAuth = firebase.auth(firebase.app(app?.name)),
         super(appInstance: app) {
@@ -217,14 +215,15 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
         this, await _webAuth.signInWithEmailLink(email, emailLink));
   }
 
-  @override
-  Future<ConfirmationResultPlatform> signInWithPhoneNumber(
-      String phoneNumber, RecaptchaVerifierPlatform applicationVerifier) async {
-    return ConfirmationResultlWeb(
-        this,
-        await _webAuth.signInWithPhoneNumber(phoneNumber,
-            RecaptchaVerifierPlatform.getDelegate(applicationVerifier)));
-  }
+  // TODO(ehesp): This is currently unimplemented due to an underlying firebase.ApplicationVerifier issue on the firebase-dart repository.
+  // @override
+  // Future<ConfirmationResultPlatform> signInWithPhoneNumber(String phoneNumber,
+  //     RecaptchaVerifierFactoryPlatform applicationVerifier) async {
+  //   return ConfirmationResultlWeb(
+  //       this,
+  //       await _webAuth.signInWithPhoneNumber(phoneNumber,
+  //           applicationVerifier.getDelegate<firebase.ApplicationVerifier>()));
+  // }
 
   @override
   Future<UserCredentialPlatform> signInWithPopup(AuthProvider provider) async {

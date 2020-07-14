@@ -410,7 +410,7 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
 
   // TODO code docs
   Future<ConfirmationResultPlatform> signInWithPhoneNumber(
-      String phoneNumber, RecaptchaVerifierPlatform applicationVerifier) async {
+      String phoneNumber, RecaptchaVerifierFactoryPlatform applicationVerifier) async {
     throw UnimplementedError('signInWithPhoneNumber() is not implemented');
   }
 

@@ -2,10 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:intl/intl.dart';
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:firebase/firebase.dart' as firebase;
 
+/// Converts a [firebase.ActionCodeInfo] into a [ActionCodeInfo].
 ActionCodeInfo convertWebActionCodeInfo(
     firebase.ActionCodeInfo webActionCodeInfo) {
   if (webActionCodeInfo == null) {
@@ -17,6 +17,7 @@ ActionCodeInfo convertWebActionCodeInfo(
   });
 }
 
+/// Converts a [firebase.AdditionalUserInfo] into a [AdditionalUserInfo].
 AdditionalUserInfo convertWebAdditionalUserInfo(
     firebase.AdditionalUserInfo webAdditionalUserInfo) {
   if (webAdditionalUserInfo == null) {
@@ -31,6 +32,7 @@ AdditionalUserInfo convertWebAdditionalUserInfo(
   );
 }
 
+/// Converts a [firebase.IdTokenResult] into a [IdTokenResult].
 IdTokenResult convertWebIdTokenResult(firebase.IdTokenResult webIdTokenResult) {
   return IdTokenResult(<String, dynamic>{
     'claims': webIdTokenResult.claims,
@@ -42,6 +44,7 @@ IdTokenResult convertWebIdTokenResult(firebase.IdTokenResult webIdTokenResult) {
   });
 }
 
+/// Converts a [ActionCodeSettings] into a [firebase.ActionCodeSettings].
 firebase.ActionCodeSettings convertPlatformActionCodeSettings(
     ActionCodeSettings actionCodeSettings) {
   if (actionCodeSettings == null) {
@@ -62,6 +65,7 @@ firebase.ActionCodeSettings convertPlatformActionCodeSettings(
           : firebase.IosSettings(bundleId: actionCodeSettings.iOS['bundleId']));
 }
 
+/// Converts a [Persistence] enum into a web string persistence value.
 String convertPlatformPersistence(Persistence persistence) {
   switch (persistence) {
     case Persistence.SESSION:
@@ -74,6 +78,7 @@ String convertPlatformPersistence(Persistence persistence) {
   }
 }
 
+/// Converts a [AuthProvider] into a [firebase.AuthProvider].
 firebase.AuthProvider convertPlatformAuthProvider(AuthProvider authProvider) {
   if (authProvider is EmailAuthProvider) {
     return firebase.EmailAuthProvider();
@@ -139,6 +144,7 @@ firebase.AuthProvider convertPlatformAuthProvider(AuthProvider authProvider) {
   return null;
 }
 
+/// Converts a [AuthCredential] into a [firebase.OAuthCredential].
 firebase.OAuthCredential convertPlatformCredential(AuthCredential credential) {
   if (credential is EmailAuthCredential) {
     if (credential.emailLink != null) {

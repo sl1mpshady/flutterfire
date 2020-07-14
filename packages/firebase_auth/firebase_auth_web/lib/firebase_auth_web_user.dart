@@ -14,7 +14,9 @@ import 'utils.dart';
 /// The format of an incoming metadata string timestamp from the firebase-dart library
 final DateFormat _dateFormat = DateFormat('EEE, d MMM yyyy HH:mm:ss');
 
+/// Web delegate implementation of [UserPlatform].
 class UserWeb extends UserPlatform {
+  /// Creates a new [UserWeb] instance.
   UserWeb(FirebaseAuthPlatform auth, this._webUser)
       : super(auth, {
           'displayName': _webUser.displayName,

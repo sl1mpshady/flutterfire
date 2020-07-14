@@ -8,7 +8,9 @@ import 'package:firebase_auth_platform_interface/firebase_auth_platform_interfac
 import 'firebase_auth_web_user.dart';
 import 'utils.dart';
 
+/// Web delegate implementation of [UserCredentialPlatform].
 class UserCredentialWeb extends UserCredentialPlatform {
+  /// Creates a new [UserCredentialWeb] instance.
   UserCredentialWeb(
       FirebaseAuthPlatform auth, firebase.UserCredential webUserCredential)
       : super(

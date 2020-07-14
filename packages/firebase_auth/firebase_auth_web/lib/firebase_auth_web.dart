@@ -16,13 +16,14 @@ import 'firebase_auth_web_recaptcha_verifier_factory.dart';
 import 'firebase_auth_web_user_credential.dart';
 import 'utils.dart';
 
+/// The web delegate implementation for [FirebaseAuth].
 class FirebaseAuthWeb extends FirebaseAuthPlatform {
   /// instance of Auth from the web plugin
   final firebase.Auth _webAuth;
 
   /// Called by PluginRegistry to register this plugin for Flutter Web
   static void registerWith(Registrar registrar) {
-    FirebaseAuthPlatform.instance = FirebaseAuthWeb();
+    FirebaseAuthPlatform.instance = FirebaseAuthWeb.instance;
     RecaptchaVerifierFactoryPlatform.instance =
         RecaptchaVerifierFactoryWeb.instance;
   }
@@ -36,6 +37,20 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
   static Map<String, StreamController<UserPlatform>> _userChangesListeners =
       <String, StreamController<UserPlatform>>{};
 
+  /// Initializes a stub instance to allow the class to be registered.
+  static FirebaseAuthWeb get instance {
+    return FirebaseAuthWeb._();
+  }
+
+  /// Stub initializer to allow the [registerWith] to create an instance without
+  /// registering the web delegates or listeners.
+  FirebaseAuthWeb._()
+      : _webAuth = null,
+        super(appInstance: null);
+
+  /// The entry point for the [FirebaseAuthWeb] class.
+  ///
+  /// During registration, a
   FirebaseAuthWeb({FirebaseApp app})
       : _webAuth = firebase.auth(firebase.app(app?.name)),
         super(appInstance: app) {

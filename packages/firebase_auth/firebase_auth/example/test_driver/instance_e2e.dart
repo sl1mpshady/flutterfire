@@ -9,8 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pedantic/pedantic.dart';
-
-import 'test_utils.dart';
+import './test_utils.dart';
 
 void runInstanceTests() {
   group('$FirebaseAuth.instance', () {
@@ -35,40 +34,20 @@ void runInstanceTests() {
       await auth.signOut();
     }
 
-    void ensureSignedIn() async {
-      if (auth.currentUser == null) {
-        try {
-          await auth.createUserWithEmailAndPassword(
-              email: regularTestEmail, password: TEST_PASSWORD);
-        } catch (e) {
-          if (e.code == 'email-already-in-use') {
-            await auth.signInWithEmailAndPassword(
-                email: regularTestEmail, password: TEST_PASSWORD);
-          }
-        }
-      }
-    }
-
-    void ensureSignedOut() async {
-      if (auth.currentUser != null) {
-        await auth.signOut();
-      }
-    }
-
     setUpAll(() async {
       await Firebase.initializeApp();
       auth = FirebaseAuth.instance;
     });
 
     tearDownAll(() async {
-      await ensureSignedIn();
+      await ensureSignedIn(regularTestEmail);
       await auth.currentUser.delete();
     });
 
     group('authStateChanges()', () {
       test('calls callback with the current user and when auth state changes',
           () async {
-        await ensureSignedIn();
+        await ensureSignedIn(regularTestEmail);
         String uid = auth.currentUser.uid;
 
         Stream<User> stream = auth.authStateChanges();
@@ -108,7 +87,7 @@ void runInstanceTests() {
         StreamSubscription subscription2 =
             stream2.listen(expectAsync1((User user) {}, count: 3));
 
-        await ensureSignedIn();
+        await ensureSignedIn(regularTestEmail);
         await subscription.cancel();
         await ensureSignedOut();
         await subscription2.cancel();
@@ -118,7 +97,7 @@ void runInstanceTests() {
     group('idTokenChanges()', () {
       test('calls callback with the current user and when auth state changes',
           () async {
-        await ensureSignedIn();
+        await ensureSignedIn(regularTestEmail);
         String uid = auth.currentUser.uid;
 
         Stream<User> stream = auth.idTokenChanges();
@@ -158,16 +137,43 @@ void runInstanceTests() {
         StreamSubscription subscription2 =
             stream2.listen(expectAsync1((User user) {}, count: 3));
 
-        await ensureSignedIn();
+        await ensureSignedIn(regularTestEmail);
         await subscription.cancel();
         await ensureSignedOut();
         await subscription2.cancel();
       });
     });
 
+    group('userChanges()', () {
+      StreamSubscription subscription;
+      tearDown(() async {
+        await subscription.cancel();
+      });
+      test('calls callback with the current user and when user state changes',
+          () async {
+        await ensureSignedIn(regularTestEmail);
+
+        Stream<User> stream = auth.userChanges();
+        int call = 0;
+
+        subscription = stream.listen(expectAsync1((User user) {
+          call++;
+          if (call == 1) {
+            expect(user.displayName, isNull); // initial user
+          } else if (call == 2) {
+            expect(user.displayName, equals('updatedName')); // updated profile
+          } else {
+            fail("Should not have been called");
+          }
+        }, count: 2, reason: "Stream should only have been called 2 times"));
+
+        await auth.currentUser.updateProfile(displayName: 'updatedName');
+      });
+    });
+
     group('currentUser', () {
       test('should return currentUser', () async {
-        await ensureSignedIn();
+        await ensureSignedIn(regularTestEmail);
         var currentUser = auth.currentUser;
         expect(currentUser, isA<User>());
       });
@@ -243,7 +249,7 @@ void runInstanceTests() {
       });
 
       test('fails if creating a user which already exists', () async {
-        await ensureSignedIn();
+        await ensureSignedIn(regularTestEmail);
         try {
           await auth.createUserWithEmailAndPassword(
               email: regularTestEmail, password: '123456');
@@ -256,7 +262,7 @@ void runInstanceTests() {
       });
 
       test('fails if creating a user with an invalid email', () async {
-        await ensureSignedIn();
+        await ensureSignedIn(regularTestEmail);
         try {
           await auth.createUserWithEmailAndPassword(
               email: '!!!!!', password: '123456');
@@ -269,7 +275,7 @@ void runInstanceTests() {
       });
 
       test('fails if creating a user if providing a weak password', () async {
-        await ensureSignedIn();
+        await ensureSignedIn(regularTestEmail);
         try {
           await auth.createUserWithEmailAndPassword(
               email: generateRandomEmail(), password: '1');
@@ -650,7 +656,7 @@ void runInstanceTests() {
 
     group('signOut()', () {
       test('should sign out', () async {
-        await ensureSignedIn();
+        await ensureSignedIn(regularTestEmail);
         expect(auth.currentUser, isA<User>());
         await auth.signOut();
         expect(auth.currentUser, isNull);

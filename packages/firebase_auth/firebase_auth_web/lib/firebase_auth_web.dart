@@ -203,9 +203,9 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
       @required PhoneVerificationFailed verificationFailed,
       @required PhoneCodeSent codeSent,
       @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
+      String autoRetrievedSmsCodeForTesting,
       Duration timeout = const Duration(seconds: 30),
-      int forceResendingToken,
-      bool requireSmsValidation}) {
+      int forceResendingToken}) {
     throw UnimplementedError(
         'verifyPhoneNumber() is not supported on the web. Please use `signInWithPhoneNumber` instead.');
   }

@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 
 import 'utils.dart';
 
+/// The format of an incoming metadata string timestamp from the firebase-dart library
 final DateFormat _dateFormat = DateFormat('EEE, d MMM yyyy HH:mm:ss');
 
 class UserWeb extends UserPlatform {
@@ -81,8 +82,9 @@ class UserWeb extends UserPlatform {
   }
 
   @override
-  Future<void> reload() {
-    return _webUser.reload();
+  Future<void> reload() async {
+    await _webUser.reload();
+    auth.setCurrentUser(auth.currentUser);
   }
 
   @override
@@ -97,27 +99,35 @@ class UserWeb extends UserPlatform {
   }
 
   @override
-  Future<void> updateEmail(String newEmail) {
-    return _webUser.updateEmail(newEmail);
+  Future<void> updateEmail(String newEmail) async {
+    await _webUser.updateEmail(newEmail);
+    await _webUser.reload();
+    auth.setCurrentUser(auth.currentUser);
   }
 
   @override
-  Future<void> updatePassword(String newPassword) {
-    return _webUser.updatePassword(newPassword);
+  Future<void> updatePassword(String newPassword) async {
+    await _webUser.updatePassword(newPassword);
+    await _webUser.reload();
+    auth.setCurrentUser(auth.currentUser);
   }
 
   @override
-  Future<void> updatePhoneNumber(PhoneAuthCredential phoneCredential) {
-    return _webUser
+  Future<void> updatePhoneNumber(PhoneAuthCredential phoneCredential) async {
+    await _webUser
         .updatePhoneNumber(convertPlatformCredential(phoneCredential));
+    await _webUser.reload();
+    auth.setCurrentUser(auth.currentUser);
   }
 
   @override
-  Future<void> updateProfile(Map<String, String> profile) {
-    return _webUser.updateProfile(firebase.UserProfile(
+  Future<void> updateProfile(Map<String, String> profile) async {
+    await _webUser.updateProfile(firebase.UserProfile(
       displayName: profile['displayName'],
       photoURL: profile['photoURL'],
     ));
+    await _webUser.reload();
+    auth.setCurrentUser(auth.currentUser);
   }
 
   // TODO: not supported on firebase-dart

@@ -42,7 +42,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
 
   static Map<int, PhoneAuthCallbacks> _phoneAuthCallbacks = {};
 
-  StreamController<T> createBroadcastStream<T>() {
+  StreamController<T> _createBroadcastStream<T>() {
     return StreamController<T>.broadcast();
   }
 
@@ -66,11 +66,11 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       'appName': app.name,
     });
 
-    // Create a app instance broadcast stream for both native listener events
+    // Create a app instance broadcast stream for native listener events
     _authStateChangesListeners[app.name] =
-        createBroadcastStream<UserPlatform>();
-    _idTokenChangesListeners[app.name] = createBroadcastStream<UserPlatform>();
-    _userChangesListeners[app.name] = createBroadcastStream<UserPlatform>();
+        _createBroadcastStream<UserPlatform>();
+    _idTokenChangesListeners[app.name] = _createBroadcastStream<UserPlatform>();
+    _userChangesListeners[app.name] = _createBroadcastStream<UserPlatform>();
 
     // The channel setMethodCallHandler callback is not app specific, so there is no
     // need to register the caller more than once.

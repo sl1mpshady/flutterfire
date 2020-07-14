@@ -27,9 +27,51 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
         RecaptchaVerifierFactoryWeb.instance;
   }
 
+  static Map<String, StreamController<UserPlatform>>
+      _authStateChangesListeners = <String, StreamController<UserPlatform>>{};
+
+  static Map<String, StreamController<UserPlatform>> _idTokenChangesListeners =
+      <String, StreamController<UserPlatform>>{};
+
+  static Map<String, StreamController<UserPlatform>> _userChangesListeners =
+      <String, StreamController<UserPlatform>>{};
+
   FirebaseAuthWeb({FirebaseApp app})
       : _webAuth = firebase.auth(firebase.app(app?.name)),
-        super(appInstance: app);
+        super(appInstance: app) {
+    if (app != null) {
+      // Create a app instance broadcast stream for both delegate listener events
+      _userChangesListeners[app.name] = _createBroadcastStream<UserPlatform>();
+      _authStateChangesListeners[app.name] =
+          _createBroadcastStream<UserPlatform>();
+      _idTokenChangesListeners[app.name] =
+          _createBroadcastStream<UserPlatform>();
+
+      _webAuth.onAuthStateChanged.map((firebase.User webUser) {
+        if (webUser == null) {
+          _authStateChangesListeners[app.name].add(null);
+        } else {
+          _userChangesListeners[app.name].add(UserWeb(this, webUser));
+        }
+      });
+
+      // Also triggers `userChanged` events
+      _webAuth.onIdTokenChanged.map((firebase.User webUser) {
+        if (webUser == null) {
+          _idTokenChangesListeners[app.name].add(null);
+          _userChangesListeners[app.name].add(null);
+        } else {
+          UserWeb user = UserWeb(this, webUser);
+          _idTokenChangesListeners[app.name].add(user);
+          _userChangesListeners[app.name].add(user);
+        }
+      });
+    }
+  }
+
+  StreamController<T> _createBroadcastStream<T>() {
+    return StreamController<T>.broadcast();
+  }
 
   @override
   FirebaseAuthPlatform delegateFor({FirebaseApp app}) {
@@ -53,6 +95,11 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
     }
 
     return UserWeb(this, _webAuth.currentUser);
+  }
+
+  @override
+  void setCurrentUser(UserPlatform userPlatform) {
+    _userChangesListeners[app.name].add(userPlatform);
   }
 
   @override
@@ -83,26 +130,15 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
   }
 
   @override
-  Stream<UserPlatform> authStateChanges() {
-    return _webAuth.onAuthStateChanged.map((firebase.User webUser) {
-      if (webUser == null) {
-        return null;
-      }
-
-      return UserWeb(this, webUser);
-    });
-  }
+  Stream<UserPlatform> authStateChanges() =>
+      _authStateChangesListeners[app.name].stream;
 
   @override
-  Stream<UserPlatform> idTokenChanges() {
-    return _webAuth.onIdTokenChanged.map((firebase.User webUser) {
-      if (webUser == null) {
-        return null;
-      }
-      
-      return UserWeb(this, webUser);
-    });
-  }
+  Stream<UserPlatform> idTokenChanges() =>
+      _idTokenChangesListeners[app.name].stream;
+
+  @override
+  Stream<UserPlatform> userChanges() => _userChangesListeners[app.name].stream;
 
   @override
   Future<void> sendPasswordResetEmail(String email,

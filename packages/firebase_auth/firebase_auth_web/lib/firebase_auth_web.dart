@@ -117,7 +117,11 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
 
   @override
   Future<void> applyActionCode(String code) {
-    return _webAuth.applyActionCode(code);
+    try {
+      return _webAuth.applyActionCode(code);
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
@@ -128,18 +132,30 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
   @override
   Future<UserCredentialPlatform> createUserWithEmailAndPassword(
       String email, String password) async {
-    return UserCredentialWeb(
-        this, await _webAuth.createUserWithEmailAndPassword(email, password));
+    try {
+      return UserCredentialWeb(
+          this, await _webAuth.createUserWithEmailAndPassword(email, password));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<List<String>> fetchSignInMethodsForEmail(String email) {
-    return _webAuth.fetchSignInMethodsForEmail(email);
+    try {
+      return _webAuth.fetchSignInMethodsForEmail(email);
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<UserCredentialPlatform> getRedirectResult() async {
-    return UserCredentialWeb(this, await _webAuth.getRedirectResult());
+    try {
+      return UserCredentialWeb(this, await _webAuth.getRedirectResult());
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
@@ -156,15 +172,23 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
   @override
   Future<void> sendPasswordResetEmail(String email,
       [ActionCodeSettings actionCodeSettings]) {
-    return _webAuth.sendPasswordResetEmail(
-        email, convertPlatformActionCodeSettings(actionCodeSettings));
+    try {
+      return _webAuth.sendPasswordResetEmail(
+          email, convertPlatformActionCodeSettings(actionCodeSettings));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<void> sendSignInWithEmailLink(String email,
       [ActionCodeSettings actionCodeSettings]) {
-    return _webAuth.sendSignInLinkToEmail(
-        email, convertPlatformActionCodeSettings(actionCodeSettings));
+    try {
+      return _webAuth.sendSignInLinkToEmail(
+          email, convertPlatformActionCodeSettings(actionCodeSettings));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
@@ -180,39 +204,64 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
 
   @override
   Future<void> setPersistence(Persistence persistence) async {
-    return _webAuth.setPersistence(convertPlatformPersistence(persistence));
+    try {
+      return _webAuth.setPersistence(convertPlatformPersistence(persistence));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<UserCredentialPlatform> signInAnonymously() async {
-    return UserCredentialWeb(this, await _webAuth.signInAnonymously());
+    try {
+      return UserCredentialWeb(this, await _webAuth.signInAnonymously());
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   Future<UserCredentialPlatform> signInWithCredential(
       AuthCredential credential) async {
-    return UserCredentialWeb(
-        this,
-        await _webAuth
-            .signInWithCredential(convertPlatformCredential(credential)));
+    try {
+      return UserCredentialWeb(
+          this,
+          await _webAuth
+              .signInWithCredential(convertPlatformCredential(credential)));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<UserCredentialPlatform> signInWithCustomToken(String token) async {
-    return UserCredentialWeb(this, await _webAuth.signInWithCustomToken(token));
+    try {
+      return UserCredentialWeb(
+          this, await _webAuth.signInWithCustomToken(token));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<UserCredentialPlatform> signInWithEmailAndPassword(
       String email, String password) async {
-    return UserCredentialWeb(
-        this, await _webAuth.signInWithEmailAndPassword(email, password));
+    try {
+      return UserCredentialWeb(
+          this, await _webAuth.signInWithEmailAndPassword(email, password));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<UserCredentialPlatform> signInWithEmailLink(
       String email, String emailLink) async {
-    return UserCredentialWeb(
-        this, await _webAuth.signInWithEmailLink(email, emailLink));
+    try {
+      return UserCredentialWeb(
+          this, await _webAuth.signInWithEmailLink(email, emailLink));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   // TODO(ehesp): This is currently unimplemented due to an underlying firebase.ApplicationVerifier issue on the firebase-dart repository.
@@ -227,23 +276,41 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
 
   @override
   Future<UserCredentialPlatform> signInWithPopup(AuthProvider provider) async {
-    return UserCredentialWeb(this,
-        await _webAuth.signInWithPopup(convertPlatformAuthProvider(provider)));
+    try {
+      return UserCredentialWeb(
+          this,
+          await _webAuth
+              .signInWithPopup(convertPlatformAuthProvider(provider)));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<void> signInWithRedirect(AuthProvider provider) async {
-    return _webAuth.signInWithRedirect(convertPlatformAuthProvider(provider));
+    try {
+      return _webAuth.signInWithRedirect(convertPlatformAuthProvider(provider));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<void> signOut() {
-    return _webAuth.signOut();
+    try {
+      return _webAuth.signOut();
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<String> verifyPasswordResetCode(String code) {
-    return _webAuth.verifyPasswordResetCode(code);
+    try {
+      return _webAuth.verifyPasswordResetCode(code);
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override

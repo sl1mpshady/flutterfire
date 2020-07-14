@@ -6,19 +6,20 @@ import 'dart:async';
 
 import 'package:firebase/firebase.dart' as firebase;
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
+import 'package:firebase_auth_web/utils.dart';
 
 /// The delegate implementation for [RecaptchaVerifierFactoryPlatform].
-/// 
+///
 /// This factory class is implemented to the user facing code has no underlying knowledge
 /// of the delegate implementation.
 class RecaptchaVerifierFactoryWeb extends RecaptchaVerifierFactoryPlatform {
   firebase.RecaptchaVerifier _delegate;
 
   /// Returns a stub instance of the class.
-  /// 
-  /// This is used during initializtion of the plugin so the user-facing 
+  ///
+  /// This is used during initializtion of the plugin so the user-facing
   /// code has access to the class instance without directly knowing about it.
-  /// 
+  ///
   /// See the [registerWith] static method on the [FirebaseAuthWeb] class.
   static RecaptchaVerifierFactoryWeb get instance =>
       RecaptchaVerifierFactoryWeb._();
@@ -53,11 +54,19 @@ class RecaptchaVerifierFactoryWeb extends RecaptchaVerifierFactoryPlatform {
 
   @override
   Future<String> verify() {
-    return _delegate.verify();
+    try {
+      return _delegate.verify();
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<int> render() {
-    return _delegate.render();
+    try {
+      return _delegate.render();
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 }

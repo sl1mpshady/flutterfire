@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:firebase/firebase.dart' as firebase;
 import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart';
 import 'package:firebase_auth_web/firebase_auth_web_user_credential.dart';
+import 'package:firebase_auth_web/utils.dart';
 
 /// The web delegate implementation for [ConfirmationResultPlatform].
 class ConfirmationResultlWeb extends ConfirmationResultPlatform {
@@ -20,7 +21,11 @@ class ConfirmationResultlWeb extends ConfirmationResultPlatform {
 
   @override
   Future<UserCredentialPlatform> confirm(String verificationCode) async {
-    return UserCredentialWeb(
-        _auth, await _webConfirmationResult.confirm(verificationCode));
+    try {
+      return UserCredentialWeb(
+          _auth, await _webConfirmationResult.confirm(verificationCode));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 }

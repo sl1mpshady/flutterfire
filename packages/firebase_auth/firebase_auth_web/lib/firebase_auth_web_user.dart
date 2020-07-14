@@ -51,12 +51,20 @@ class UserWeb extends UserPlatform {
 
   @override
   Future<void> delete() {
-    return _webUser.delete();
+    try {
+      return _webUser.delete();
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<String> getIdToken(bool forceRefresh) {
-    return _webUser.getIdToken(forceRefresh);
+    try {
+      return _webUser.getIdToken(forceRefresh);
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
@@ -68,68 +76,104 @@ class UserWeb extends UserPlatform {
   @override
   Future<UserCredentialPlatform> linkWithCredential(
       AuthCredential credential) async {
-    return UserCredentialWeb(
-        auth,
-        await _webUser
-            .linkWithCredential(convertPlatformCredential(credential)));
+    try {
+      return UserCredentialWeb(
+          auth,
+          await _webUser
+              .linkWithCredential(convertPlatformCredential(credential)));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<UserCredentialPlatform> reauthenticateWithCredential(
       AuthCredential credential) async {
-    return UserCredentialWeb(
-        auth,
-        await _webUser.reauthenticateWithCredential(
-            convertPlatformCredential(credential)));
+    try {
+      return UserCredentialWeb(
+          auth,
+          await _webUser.reauthenticateWithCredential(
+              convertPlatformCredential(credential)));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<void> reload() async {
-    await _webUser.reload();
-    auth.setCurrentUser(auth.currentUser);
+    try {
+      await _webUser.reload();
+      auth.setCurrentUser(auth.currentUser);
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<void> sendEmailVerification(ActionCodeSettings actionCodeSettings) {
-    return _webUser.sendEmailVerification(
-        convertPlatformActionCodeSettings(actionCodeSettings));
+    try {
+      return _webUser.sendEmailVerification(
+          convertPlatformActionCodeSettings(actionCodeSettings));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<UserPlatform> unlink(String providerId) async {
-    return UserWeb(auth, await _webUser.unlink(providerId));
+    try {
+      return UserWeb(auth, await _webUser.unlink(providerId));
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<void> updateEmail(String newEmail) async {
-    await _webUser.updateEmail(newEmail);
-    await _webUser.reload();
-    auth.setCurrentUser(auth.currentUser);
+    try {
+      await _webUser.updateEmail(newEmail);
+      await _webUser.reload();
+      auth.setCurrentUser(auth.currentUser);
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<void> updatePassword(String newPassword) async {
-    await _webUser.updatePassword(newPassword);
-    await _webUser.reload();
-    auth.setCurrentUser(auth.currentUser);
+    try {
+      await _webUser.updatePassword(newPassword);
+      await _webUser.reload();
+      auth.setCurrentUser(auth.currentUser);
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<void> updatePhoneNumber(PhoneAuthCredential phoneCredential) async {
-    await _webUser
-        .updatePhoneNumber(convertPlatformCredential(phoneCredential));
-    await _webUser.reload();
-    auth.setCurrentUser(auth.currentUser);
+    try {
+      await _webUser
+          .updatePhoneNumber(convertPlatformCredential(phoneCredential));
+      await _webUser.reload();
+      auth.setCurrentUser(auth.currentUser);
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   @override
   Future<void> updateProfile(Map<String, String> profile) async {
-    await _webUser.updateProfile(firebase.UserProfile(
-      displayName: profile['displayName'],
-      photoURL: profile['photoURL'],
-    ));
-    await _webUser.reload();
-    auth.setCurrentUser(auth.currentUser);
+    try {
+      await _webUser.updateProfile(firebase.UserProfile(
+        displayName: profile['displayName'],
+        photoURL: profile['photoURL'],
+      ));
+      await _webUser.reload();
+      auth.setCurrentUser(auth.currentUser);
+    } catch (e) {
+      throw throwFirebaseAuthException(e);
+    }
   }
 
   // TODO: not supported on firebase-dart

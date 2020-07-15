@@ -102,7 +102,8 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
   }
 
   /// Allows delegates to set a current instance [UserPlatform].
-  void setCurrentUser(UserPlatform userPlatform) {
+  void setCurrentUser(UserPlatform userPlatform,
+      {bool triggerUserChangeEvent = false}) {
     throw UnimplementedError("setCurrentUser() is not implemented");
   }
 

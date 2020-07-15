@@ -13,6 +13,7 @@ import 'utils/exception.dart';
 
 /// Method Channel delegate for [UserPlatform] instances.
 class MethodChannelUser extends UserPlatform {
+  /// Constructs a new [MethodChannelUser] instance.
   MethodChannelUser(FirebaseAuthPlatform auth, Map<String, dynamic> data)
       : super(auth, data);
 
@@ -87,7 +88,8 @@ class MethodChannelUser extends UserPlatform {
       'appName': auth.app.name,
     }).catchError(catchPlatformException);
 
-    auth.setCurrentUser(MethodChannelUser(auth, data));
+    auth.setCurrentUser(MethodChannelUser(auth, data),
+        triggerUserChangeEvent: true);
   }
 
   @override
@@ -113,7 +115,7 @@ class MethodChannelUser extends UserPlatform {
         MethodChannelUserCredential(auth, data);
     MethodChannelUser user = userCredential.user;
 
-    auth.setCurrentUser(user);
+    auth.setCurrentUser(user, triggerUserChangeEvent: true);
     return user;
   }
 
@@ -125,7 +127,8 @@ class MethodChannelUser extends UserPlatform {
       'newEmail': newEmail,
     }).catchError(catchPlatformException);
 
-    auth.setCurrentUser(MethodChannelUser(auth, data));
+    auth.setCurrentUser(MethodChannelUser(auth, data),
+        triggerUserChangeEvent: true);
   }
 
   @override
@@ -137,7 +140,8 @@ class MethodChannelUser extends UserPlatform {
       'newPassword': newPassword,
     }).catchError(catchPlatformException);
 
-    auth.setCurrentUser(MethodChannelUser(auth, data));
+    auth.setCurrentUser(MethodChannelUser(auth, data),
+        triggerUserChangeEvent: true);
   }
 
   @override
@@ -149,7 +153,8 @@ class MethodChannelUser extends UserPlatform {
       'credential': phoneCredential.asMap(),
     }).catchError(catchPlatformException);
 
-    auth.setCurrentUser(MethodChannelUser(auth, data));
+    auth.setCurrentUser(MethodChannelUser(auth, data),
+        triggerUserChangeEvent: true);
   }
 
   @override
@@ -161,7 +166,8 @@ class MethodChannelUser extends UserPlatform {
       'profile': profile,
     }).catchError(catchPlatformException);
 
-    auth.setCurrentUser(MethodChannelUser(auth, data));
+    auth.setCurrentUser(MethodChannelUser(auth, data),
+        triggerUserChangeEvent: true);
   }
 
   @override

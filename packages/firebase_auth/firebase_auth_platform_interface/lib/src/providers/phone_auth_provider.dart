@@ -37,7 +37,6 @@ class PhoneAuthProvider extends AuthProvider {
 
   /// Create a [PhoneAuthCredential] from an internal token, where the ID relates
   /// to a natively stored credential.
-  @protected
   static AuthCredential credentialFromToken(int token) {
     assert(token != null);
     return PhoneAuthCredential._credentialFromToken(token);

@@ -27,6 +27,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   /// Increments and returns the next channel ID handler for Auth.
   static int get nextMethodChannelHandleId => _methodChannelHandleId++;
 
+  /// The [MethodChannelFirebaseAuth] method channel.
   static const MethodChannel channel = MethodChannel(
     'plugins.flutter.io/firebase_auth',
   );
@@ -82,10 +83,12 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       switch (call.method) {
         case 'Auth#authStateChanges':
           return _handleChangeListener(
-              _authStateChangesListeners[arguments['appName']], arguments);
+              _authStateChangesListeners[arguments['appName']],
+              false,
+              arguments);
         case 'Auth#idTokenChanges':
           return _handleChangeListener(
-              _idTokenChangesListeners[arguments['appName']], arguments);
+              _idTokenChangesListeners[arguments['appName']], true, arguments);
         case 'Auth#phoneVerificationCompleted':
           return _handlePhoneVerificationCompleted(arguments);
         case 'Auth#phoneVerificationFailed':
@@ -115,8 +118,17 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   String languageCode;
 
   @override
-  void setCurrentUser(UserPlatform userPlatform) {
-    _userChangesListeners[app.name].add(userPlatform);
+  void setCurrentUser(
+    UserPlatform userPlatform, {
+    bool triggerUserChangeEvent = false,
+  }) {
+    assert(triggerUserChangeEvent != null);
+
+    // Some events need to trigger the [userChanges] listener.
+    if (triggerUserChangeEvent) {
+      _userChangesListeners[app.name].add(userPlatform);
+    }
+
     currentUser = userPlatform;
   }
 
@@ -124,16 +136,19 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   /// fans out the result to any subscribers.
   Future<void> _handleChangeListener(
       StreamController<UserPlatform> streamController,
+      bool triggerUserChangeEvent,
       Map<dynamic, dynamic> arguments) async {
     if (arguments['user'] == null) {
-      setCurrentUser(null);
+      setCurrentUser(null,
+          triggerUserChangeEvent: triggerUserChangeEvent ?? false);
       streamController.add(null);
     } else {
       final Map<String, dynamic> userMap =
           Map<String, dynamic>.from(arguments['user']);
 
       MethodChannelUser methodChannelUser = MethodChannelUser(this, userMap);
-      setCurrentUser(methodChannelUser);
+      setCurrentUser(methodChannelUser,
+          triggerUserChangeEvent: triggerUserChangeEvent ?? false);
       streamController.add(methodChannelUser);
     }
   }

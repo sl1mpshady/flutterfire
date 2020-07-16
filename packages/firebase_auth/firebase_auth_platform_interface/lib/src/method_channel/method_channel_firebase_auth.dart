@@ -9,6 +9,8 @@ import 'package:firebase_auth_platform_interface/src/firebase_auth_exception.dar
 import 'package:firebase_auth_platform_interface/src/method_channel/method_channel_user.dart';
 import 'package:firebase_auth_platform_interface/src/platform_interface/platform_interface_user_credential.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'method_channel_user_credential.dart';
@@ -454,6 +456,11 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     Duration timeout = const Duration(seconds: 30),
     int forceResendingToken,
   }) {
+    if (defaultTargetPlatform == TargetPlatform.macOS) {
+      throw UnimplementedError(
+          "verifyPhoneNumber() is not available on MacOS platforms.");
+    }
+
     int handle = MethodChannelFirebaseAuth.nextMethodChannelHandleId;
 
     _phoneAuthCallbacks[handle] = PhoneAuthCallbacks(verificationCompleted,

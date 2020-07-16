@@ -239,7 +239,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
 
     return ActionCodeInfo(
       operation: result['operation'],
-      data: result['data'],
+      data: Map<String, dynamic>.from(result['data']),
     );
   }
 

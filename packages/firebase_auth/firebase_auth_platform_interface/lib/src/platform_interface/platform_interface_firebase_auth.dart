@@ -245,9 +245,9 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
   ///  - Thrown if the email address is not valid.
   /// - **user-not-found**:
   ///  - Thrown if there is no user corresponding to the email address.
-  Future<void> sendSignInWithEmailLink(
+  Future<void> sendSignInLinkToEmail(
       String email, ActionCodeSettings actionCodeSettings) {
-    throw UnimplementedError('sendSignInWithEmailLink() is not implemented');
+    throw UnimplementedError('sendSignInLinkToEmail() is not implemented');
   }
 
   /// When set to null, the default Firebase Console language setting is applied.

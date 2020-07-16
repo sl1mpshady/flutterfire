@@ -602,6 +602,22 @@ public class FirebaseAuthPlugin
         });
   }
 
+  private Task<Void> sendSignInLinkToEmail(Map<String, Object> arguments) {
+    return Tasks.call(
+        cachedThreadPool,
+        () -> {
+          FirebaseAuth firebaseAuth = getAuth(arguments);
+          String email = (String) Objects.requireNonNull(arguments.get("email"));
+
+          @SuppressWarnings("unchecked")
+          Map<String, Object> actionCodeSettings =
+              (Map<String, Object>) Objects.requireNonNull(arguments.get("actionCodeSettings"));
+
+          return Tasks.await(
+              firebaseAuth.sendSignInLinkToEmail(email, getActionCodeSettings(actionCodeSettings)));
+        });
+  }
+
   private Task<String> setLanguageCode(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
@@ -1087,6 +1103,9 @@ public class FirebaseAuthPlugin
         break;
       case "Auth#sendPasswordResetEmail":
         methodCallTask = sendPasswordResetEmail(call.arguments());
+        break;
+      case "Auth#sendSignInLinkToEmail":
+        methodCallTask = sendSignInLinkToEmail(call.arguments());
         break;
       case "Auth#signInWithCredential":
         methodCallTask = signInWithCredential(call.arguments());

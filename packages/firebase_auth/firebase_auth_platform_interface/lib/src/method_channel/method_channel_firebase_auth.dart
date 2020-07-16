@@ -302,10 +302,10 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   }
 
   @override
-  Future<void> sendSignInWithEmailLink(
+  Future<void> sendSignInLinkToEmail(
       String email, ActionCodeSettings actionCodeSettings) {
     return channel
-        .invokeMethod<void>('Auth#sendPasswordResetEmail', <String, dynamic>{
+        .invokeMethod<void>('Auth#sendSignInLinkToEmail', <String, dynamic>{
       'appName': app.name,
       'email': email,
       'actionCodeSettings': actionCodeSettings.asMap(),

@@ -111,7 +111,8 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
   }
 
   @override
-  void setCurrentUser(UserPlatform userPlatform) {
+  void setCurrentUser(UserPlatform userPlatform,
+      {bool triggerUserChangeEvent = false}) {
     _userChangesListeners[app.name].add(userPlatform);
   }
 
@@ -181,7 +182,7 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
   }
 
   @override
-  Future<void> sendSignInWithEmailLink(String email,
+  Future<void> sendSignInLinkToEmail(String email,
       [ActionCodeSettings actionCodeSettings]) {
     try {
       return _webAuth.sendSignInLinkToEmail(

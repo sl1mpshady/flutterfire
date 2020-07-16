@@ -255,18 +255,27 @@ class FirebaseAuth extends FirebasePluginPlatform {
   /// To complete the password reset, call [confirmPasswordReset] with the code
   /// supplied in the email sent to the user, along with the new password specified by the user.
   ///
+  /// The [handleCodeInApp] of [actionCodeSettings] must be set to `true` otherwise
+  /// an [ArgumentError] will be thrown.
+  ///
   /// A [FirebaseAuthException] maybe thrown with the following error code:
   /// - **invalid-email**:
   ///  - Thrown if the email address is not valid.
   /// - **user-not-found**:
   ///  - Thrown if there is no user corresponding to the email address.
-  Future<void> sendSignInWithEmailLink({
+  Future<void> sendSignInLinkToEmail({
     @required String email,
     @required ActionCodeSettings actionCodeSettings,
   }) async {
     assert(email != null);
     assert(actionCodeSettings != null);
-    await _delegate.sendSignInWithEmailLink(email, actionCodeSettings);
+
+    if (!actionCodeSettings.handleCodeInApp) {
+      throw ArgumentError(
+          "The [handleCodeInApp] value of [ActionCodeSettings] must be `true`.");
+    }
+
+    await _delegate.sendSignInLinkToEmail(email, actionCodeSettings);
   }
 
   /// When set to null, the default Firebase Console language setting is applied.

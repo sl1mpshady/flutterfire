@@ -34,6 +34,14 @@ class UserInfo {
     return _data['phoneNumber'];
   }
 
+  /// Returns a photo URL for the user.
+  ///
+  /// This property will be populated if the user has signed in or been linked
+  /// with a 3rd party OAuth provider (such as Google).
+  String get photoURL {
+    return _data['photoURL'];
+  }
+
   /// The federated provider ID.
   String get providerId {
     return _data['providerId'];

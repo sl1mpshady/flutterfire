@@ -324,10 +324,11 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
   }
 
   @override
-  Future<void> setSettings({bool appVerificationDisabledForTesting}) async {
+  Future<void> setSettings({bool appVerificationDisabledForTesting, String userAccessGroup}) async {
     await channel.invokeMethod<String>('Auth#setSettings', <String, dynamic>{
       'appName': app.name,
       'appVerificationDisabledForTesting': appVerificationDisabledForTesting,
+      'userAccessGroup': userAccessGroup,
     }).catchError(catchPlatformException);
   }
 

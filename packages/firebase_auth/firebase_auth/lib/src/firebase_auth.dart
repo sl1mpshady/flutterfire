@@ -302,15 +302,26 @@ class FirebaseAuth extends FirebasePluginPlatform {
   ///   reCAPTCHA is rendered instead. This is useful for manual testing during
   ///   development or for automated integration tests.
   ///
-  /// In order to use this feature, you will need to
-  /// [whitelist your phone number](https://firebase.google.com/docs/auth/web/phone-auth?authuser=0#test-with-whitelisted-phone-numbers)
-  /// via the Firebase Console.
+  ///   In order to use this feature, you will need to
+  ///   [whitelist your phone number](https://firebase.google.com/docs/auth/web/phone-auth?authuser=0#test-with-whitelisted-phone-numbers)
+  ///   via the Firebase Console.
   ///
-  /// The default value is false (app verification is enabled).
-  Future<void> setSettings({bool appVerificationDisabledForTesting = false}) {
-    assert(appVerificationDisabledForTesting != null);
+  ///   The default value is `false` (app verification is enabled).
+  ///
+  /// [userAccessGroup] This setting only applies to iOS and MacOS platforms.
+  ///   When set, it allows you to share authentication state between applications.
+  ///   Set the property to your team group ID or set to `null` to remove sharing
+  ///   capabilities.
+  ///
+  ///   Key Sharing capabilities must be enabled for your app via XCode (Project
+  ///   settings > Capabilities). To learn more, visit the
+  ///   [Apple documentation](https://developer.apple.com/documentation/security/keychain_services/keychain_items/sharing_access_to_keychain_items_among_a_collection_of_apps).
+  Future<void> setSettings(
+      {bool appVerificationDisabledForTesting, String userAccessGroup}) {
     return _delegate.setSettings(
-        appVerificationDisabledForTesting: appVerificationDisabledForTesting);
+      appVerificationDisabledForTesting: appVerificationDisabledForTesting,
+      userAccessGroup: userAccessGroup,
+    );
   }
 
   /// Changes the current type of persistence on the current Auth instance for

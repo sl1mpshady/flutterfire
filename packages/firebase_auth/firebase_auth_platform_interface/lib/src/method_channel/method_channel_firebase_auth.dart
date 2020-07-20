@@ -316,16 +316,19 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
 
   @override
   Future<void> setLanguageCode(String languageCode) async {
-    this.languageCode = await channel
-        .invokeMethod<String>('Auth#setLanguageCode', <String, dynamic>{
+    Map<String, dynamic> data = await channel.invokeMapMethod<String, dynamic>(
+        'Auth#setLanguageCode', <String, dynamic>{
       'appName': app.name,
       'languageCode': languageCode,
     }).catchError(catchPlatformException);
+
+    this.languageCode = data['languageCode'];
   }
 
   @override
-  Future<void> setSettings({bool appVerificationDisabledForTesting, String userAccessGroup}) async {
-    await channel.invokeMethod<String>('Auth#setSettings', <String, dynamic>{
+  Future<void> setSettings(
+      {bool appVerificationDisabledForTesting, String userAccessGroup}) async {
+    await channel.invokeMethod('Auth#setSettings', <String, dynamic>{
       'appName': app.name,
       'appVerificationDisabledForTesting': appVerificationDisabledForTesting,
       'userAccessGroup': userAccessGroup,

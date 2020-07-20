@@ -51,6 +51,10 @@ void main() {
     ],
   };
 
+  final Map<String, dynamic> kMockInitialProviders = <String, dynamic>{
+    'providers': ['facebook']
+  };
+
   const Map<String, dynamic> kMockActionCodeInfoData = <String, dynamic>{
     'email': regularTestEmail,
     'previousEmail': 'previous@email.com'
@@ -158,9 +162,14 @@ void main() {
               'data': kMockActionCodeInfoData,
             };
           case 'Auth#setLanguageCode':
-            return call.arguments['languageCode'];
+            return <String, dynamic>{
+              'languageCode': call.arguments['languageCode']
+            };
           case 'Auth#setSettings':
             return null;
+          case 'Auth#fetchSignInMethodsForEmail':
+            return kMockInitialProviders;
+
           default:
             return <String, dynamic>{'user': kMockUser};
         }
@@ -190,19 +199,6 @@ void main() {
       expect(auth.currentUser, isA<UserPlatform>());
       expect(auth.currentUser.uid, equals(kMockUid));
     });
-
-    // TODO: INTERNAL
-    // group('_handleChangeListener()', () {
-    //   test('returns result of a successful sign in', () async {});
-    // });
-    // group('_handlePhoneVerificationCompleted()', () {
-    //   test('returns result of a successful sign in', () async {});
-    // });
-    // group('_handlePhoneCodeSent()', () {
-    //   test('returns result of a successful sign in', () async {});
-    // });
-    // group('_handlePhoneCodeAutoRetrievalTimeout()', () {
-    //   test('returns result of a successful sign in', () async {});
 
     test('delegateFor()', () {
       final testAuth = TestMethodChannelFirebaseAuth(Firebase.app());
@@ -269,7 +265,6 @@ void main() {
     group('checkActionCode()', () {
       final String code = '12345';
 
-      // TODO: fix failing test
       test('invokes native method with correct args and returns correct result',
           () async {
         final result = await auth.checkActionCode(code);
@@ -345,10 +340,73 @@ void main() {
       });
     });
 
-    // TODO:
-    // group('createUserWithEmailAndPassword()', () {});
+    group('createUserWithEmailAndPassword()', () {
+      test('invokes native method with correct args', () async {
+        await auth.createUserWithEmailAndPassword(
+            regularTestEmail, testPassword);
 
-    // group('fetchSignInMethodsForEmail()', () {});
+        // check native method was called
+        expect(log, <Matcher>[
+          isMethodCall(
+            'Auth#createUserWithEmailAndPassword',
+            arguments: <String, dynamic>{
+              'appName': defaultFirebaseAppName,
+              'email': regularTestEmail,
+              'password': testPassword,
+            },
+          ),
+        ]);
+      });
+
+      test(
+          'catch a [PlatformException] error and throws a [FirebaseAuthException] error',
+          () async {
+        mockPlatformExceptionThrown = true;
+        Function callMethod = () =>
+            auth.createUserWithEmailAndPassword(regularTestEmail, testPassword);
+        await testExceptionHandling('PLATFORM', callMethod);
+      });
+
+      test('throws an [Exception] error', () async {
+        mockExceptionThrown = true;
+        Function callMethod = () =>
+            auth.createUserWithEmailAndPassword(regularTestEmail, testPassword);
+        await testExceptionHandling('EXCEPTION', callMethod);
+      });
+    });
+
+    group('fetchSignInMethodsForEmail()', () {
+      test('invokes native method with correct args', () async {
+        await auth.fetchSignInMethodsForEmail(regularTestEmail);
+
+        // check native method was called
+        expect(log, <Matcher>[
+          isMethodCall(
+            'Auth#fetchSignInMethodsForEmail',
+            arguments: <String, dynamic>{
+              'appName': defaultFirebaseAppName,
+              'email': regularTestEmail,
+            },
+          ),
+        ]);
+      });
+
+      test(
+          'catch a [PlatformException] error and throws a [FirebaseAuthException] error',
+          () async {
+        mockPlatformExceptionThrown = true;
+        Function callMethod =
+            () => auth.fetchSignInMethodsForEmail(regularTestEmail);
+        await testExceptionHandling('PLATFORM', callMethod);
+      });
+
+      test('throws an [Exception] error', () async {
+        mockExceptionThrown = true;
+        Function callMethod =
+            () => auth.fetchSignInMethodsForEmail(regularTestEmail);
+        await testExceptionHandling('EXCEPTION', callMethod);
+      });
+    });
 
     group('signInAnonymously()', () {
       test('returns result of a successful sign in', () async {
@@ -597,27 +655,25 @@ void main() {
       });
     });
 
-    group('sendSignInWithEmailLink()', () {
+    group('sendSignInLinkToEmail()', () {
       final ActionCodeSettings actionCodeSettings =
           ActionCodeSettings(url: 'test');
 
-      // TODO:
-      // test('invokes native method with correct args', () async {
-      //   await auth.sendSignInWithEmailLink(
-      //       regularTestEmail, actionCodeSettings);
+      test('invokes native method with correct args', () async {
+        await auth.sendSignInLinkToEmail(regularTestEmail, actionCodeSettings);
 
-      //   // check native method was called
-      //   expect(log, <Matcher>[
-      //     isMethodCall(
-      //       'Auth#sendSignInWithEmailLink',
-      //       arguments: <String, dynamic>{
-      //         'appName': defaultFirebaseAppName,
-      //         'email': regularTestEmail,
-      //         'actionCodeSettings': actionCodeSettings.asMap(),
-      //       },
-      //     ),
-      //   ]);
-      // });
+        // check native method was called
+        expect(log, <Matcher>[
+          isMethodCall(
+            'Auth#sendSignInLinkToEmail',
+            arguments: <String, dynamic>{
+              'appName': defaultFirebaseAppName,
+              'email': regularTestEmail,
+              'actionCodeSettings': actionCodeSettings.asMap(),
+            },
+          ),
+        ]);
+      });
 
       test(
           'catch a [PlatformException] error and throws a [FirebaseAuthException] error',
@@ -653,58 +709,55 @@ void main() {
         ]);
       });
 
-      // TODO: fix failing test
-      // test(
-      //     'catch a [PlatformException] error and throws a [FirebaseAuthException] error',
-      //     () async {
-      //   mockPlatformExceptionThrown = true;
-      //   Function callMethod = () => auth.setLanguageCode(languageCode);
-      //   await testExceptionHandling('PLATFORM', callMethod);
-      // });
+      test(
+          'catch a [PlatformException] error and throws a [FirebaseAuthException] error',
+          () async {
+        mockPlatformExceptionThrown = true;
+        Function callMethod = () => auth.setLanguageCode(languageCode);
+        await testExceptionHandling('PLATFORM', callMethod);
+      });
 
-      // TODO: fix failing test
-      // test('throws an [Exception] error', () async {
-      //   mockExceptionThrown = true;
-      //   Function callMethod = () => auth.setLanguageCode(languageCode);
-      //   await testExceptionHandling('EXCEPTION', callMethod);
-      // });
+      test('throws an [Exception] error', () async {
+        mockExceptionThrown = true;
+        Function callMethod = () => auth.setLanguageCode(languageCode);
+        await testExceptionHandling('EXCEPTION', callMethod);
+      });
     });
 
-    // group('setSettings()', () {
-    //   const bool isDisabled = true;
-    //   test('invokes native method with correct args', () async {
-    //     await auth.setSettings(appVerificationDisabledForTesting: isDisabled);
+    group('setSettings()', () {
+      const bool isDisabled = true;
+      test('invokes native method with correct args', () async {
+        await auth.setSettings(appVerificationDisabledForTesting: isDisabled);
 
-    //     // check native method was called
-    //     expect(log, <Matcher>[
-    //       isMethodCall(
-    //         'Auth#setSettings',
-    //         arguments: <String, dynamic>{
-    //           'appName': defaultFirebaseAppName,
-    //           'appVerificationDisabledForTesting': isDisabled,
-    //         },
-    //       ),
-    //     ]);
-    //   });
+        // check native method was called
+        expect(log, <Matcher>[
+          isMethodCall(
+            'Auth#setSettings',
+            arguments: <String, dynamic>{
+              'appName': defaultFirebaseAppName,
+              'appVerificationDisabledForTesting': isDisabled,
+              'userAccessGroup': null,
+            },
+          ),
+        ]);
+      });
 
-    //   // TODO: fix failing test
-    //   test(
-    //       'catch a [PlatformException] error and throws a [FirebaseAuthException] error',
-    //       () async {
-    //     mockPlatformExceptionThrown = true;
-    //     Function callMethod = () =>
-    //         auth.setSettings(appVerificationDisabledForTesting: isDisabled);
-    //     await testExceptionHandling('PLATFORM', callMethod);
-    //   });
+      test(
+          'catch a [PlatformException] error and throws a [FirebaseAuthException] error',
+          () async {
+        mockPlatformExceptionThrown = true;
+        Function callMethod = () =>
+            auth.setSettings(appVerificationDisabledForTesting: isDisabled);
+        await testExceptionHandling('PLATFORM', callMethod);
+      });
 
-    //   // TODO: fix failing test
-    //   test('throws an [Exception] error', () async {
-    //     mockExceptionThrown = true;
-    //     Function callMethod = () =>
-    //         auth.setSettings(appVerificationDisabledForTesting: isDisabled);
-    //     await testExceptionHandling('EXCEPTION', callMethod);
-    //   });
-    // });
+      test('throws an [Exception] error', () async {
+        mockExceptionThrown = true;
+        Function callMethod = () =>
+            auth.setSettings(appVerificationDisabledForTesting: isDisabled);
+        await testExceptionHandling('EXCEPTION', callMethod);
+      });
+    });
 
     group('setPersistence()', () {
       test('throw [UnimplementedError]', () async {
@@ -980,33 +1033,33 @@ void main() {
         expect(result, isA<Stream<UserPlatform>>());
       });
 
-      // test('listens to incoming changes', () async {
-      //   Stream<UserPlatform> stream = auth.userChanges();
-      //   int call = 0;
+      test('listens to incoming changes', () async {
+        Stream<UserPlatform> stream = auth.userChanges();
+        int call = 0;
 
-      //   subscription = stream.listen(
-      //     expectAsync1((UserPlatform user) {
-      //       call++;
-      //       if (call == 1) {
-      //         expect(user, isNull);
-      //         expect(auth.currentUser, equals(isNull));
-      //       } else if (call == 2) {
-      //         expect(user.uid, isA<String>());
-      //         expect(user.uid, equals(kMockUid));
-      //         expect(auth.currentUser.uid, equals(user.uid));
-      //       } else {
-      //         fail("Should not have been called");
-      //       }
-      //     }, count: 2, reason: "Stream should only have been called 2 times"),
-      //   );
+        subscription = stream.listen(
+          expectAsync1((UserPlatform user) {
+            call++;
+            if (call == 1) {
+              expect(user, isNull);
+              expect(auth.currentUser, equals(isNull));
+            } else if (call == 2) {
+              expect(user.uid, isA<String>());
+              expect(user.uid, equals(kMockUid));
+              expect(auth.currentUser.uid, equals(user.uid));
+            } else {
+              fail("Should not have been called");
+            }
+          }, count: 2, reason: "Stream should only have been called 2 times"),
+        );
 
-      //   // auth state change events will trigger setCurrentUser()
-      //   // and hence userChange events
-      //   await simulateEvent('Auth#authStateChanges', null);
-      //   await simulateEvent('Auth#authStateChanges', user);
+        // id token change events will trigger setCurrentUser()
+        // and hence userChange events
+        await simulateEvent('Auth#idTokenChanges', null);
+        await simulateEvent('Auth#idTokenChanges', user);
 
-      //   expect(log, equals([]));
-      // });
+        expect(log, equals([]));
+      });
     });
   });
 }

@@ -618,7 +618,7 @@ public class FirebaseAuthPlugin
         });
   }
 
-  private Task<String> setLanguageCode(Map<String, Object> arguments) {
+  private Task<Map<String, Object>> setLanguageCode(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
@@ -631,7 +631,7 @@ public class FirebaseAuthPlugin
             firebaseAuth.setLanguageCode(languageCode);
           }
 
-          return firebaseAuth.getLanguageCode();
+          return new HashMap<String, Object>() {{ put("languageCode", firebaseAuth.getLanguageCode()); }};
         });
   }
 

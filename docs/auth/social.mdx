@@ -81,7 +81,8 @@ googleProvider.setCustomParameters({
 ```
 
 Provide the credential to the [`signInWithPopup`](!firebase_auth.FirebaseAuth.signInWithPopup) method. This will trigger a new
-window to appear prompting the user to sign-in to your project:
+window to appear prompting the user to sign-in to your project. Alternatively you can use `signInWithRedirect` to keep the authentication
+process in the same window.
 
 ```dart
 Future<UserCredential> signInWithGoogle() async {
@@ -95,6 +96,9 @@ Future<UserCredential> signInWithGoogle() async {
 
   // Once signed in, return the UserCredential
   return await FirebaseAuth.instance.signInWithPopup(googleProvider);
+
+  // Or use signInWithRedirect
+  // return await FirebaseAuth.instance.signInWithRedirect(googleProvider);
 }
 ```
 
@@ -152,7 +156,10 @@ On the web, the Firebase SDK provides support for automatically handling the aut
 Facebook application details provided on the Firebase console. For example:
 
 Create a Facebook provider, providing any additional [permission scope](https://developers.facebook.com/docs/facebook-login/permissions/)
-you wish to obtain from the user:
+you wish to obtain from the user.
+
+Ensure that the OAuth redirect URI from the Firebase console is added as a Valid OAuth Redirect URIs
+in your Facebook App
 
 ```dart
 FacebookAuthProvider facebookProvider = FacebookAuthProvider();
@@ -178,6 +185,9 @@ Future<UserCredential> signInWithFacebook() async {
 
   // Once signed in, return the UserCredential
   return await FirebaseAuth.instance.signInWithPopup(facebookProvider);
+
+  // Or use signInWithRedirect
+  // return await FirebaseAuth.instance.signInWithRedirect(facebookProvider);
 }
 ```
 
@@ -274,6 +284,9 @@ Future<UserCredential> signInWithTwitter() async {
 
   // Once signed in, return the UserCredential
   return await FirebaseAuth.instance.signInWithPopup(twitterProvider);
+
+  // Or use signInWithRedirect
+  // return await FirebaseAuth.instance.signInWithRedirect(twitterProvider);
 }
 ```
 
@@ -348,6 +361,9 @@ Future<UserCredential> signInWithGitHub() async {
 
   // Once signed in, return the UserCredential
   return await FirebaseAuth.instance.signInWithPopup(githubProvider);
+
+  // Or use signInWithRedirect
+  // return await FirebaseAuth.instance.signInWithRedirect(githubProvider);
 }
 ```
 

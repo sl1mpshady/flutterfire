@@ -34,6 +34,10 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     'plugins.flutter.io/firebase_auth',
   );
 
+  static Map<String, MethodChannelFirebaseAuth>
+      _methodChannelFirebaseAuthInstances =
+      <String, MethodChannelFirebaseAuth>{};
+
   static Map<String, StreamController<UserPlatform>>
       _authStateChangesListeners = <String, StreamController<UserPlatform>>{};
 
@@ -84,13 +88,9 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
 
       switch (call.method) {
         case 'Auth#authStateChanges':
-          return _handleChangeListener(
-              _authStateChangesListeners[arguments['appName']],
-              false,
-              arguments);
+          return _handleAuthStateChangesListener(arguments);
         case 'Auth#idTokenChanges':
-          return _handleChangeListener(
-              _idTokenChangesListeners[arguments['appName']], true, arguments);
+          return _handleIdTokenChangesListener(arguments);
         case 'Auth#phoneVerificationCompleted':
           return _handlePhoneVerificationCompleted(arguments);
         case 'Auth#phoneVerificationFailed':
@@ -107,51 +107,72 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     _initialized = true;
   }
 
-  /// Returns the current user, or `null` if the user is not signed in.
-  ///
-  /// You should not use this getter to determine the users authentication state.
-  /// Instead, use the [authStateChanges], [idTokenChanges] or [userChanges] streams.
-  UserPlatform currentUser;
+  UserPlatform _currentUser;
 
-  /// The current language code for this instance.
-  ///
-  /// If `null`, the language used will be that of your Firebase project. To change
-  /// the language, see [setLanguage].
+  @override
+  UserPlatform get currentUser {
+    return _currentUser;
+  }
+
+  @override
+  set currentUser(UserPlatform userPlatform) {
+    _currentUser = userPlatform;
+  }
+
   String languageCode;
 
   @override
-  void setCurrentUser(
-    UserPlatform userPlatform, {
-    bool triggerUserChangeEvent = false,
-  }) {
-    assert(triggerUserChangeEvent != null);
+  void sendAuthChangesEvent(String appName, UserPlatform userPlatform) {
+    assert(appName != null);
+    assert(_userChangesListeners[appName] != null);
 
-    // Some events need to trigger the [userChanges] listener.
-    if (triggerUserChangeEvent) {
-      _userChangesListeners[app.name].add(userPlatform);
-    }
-
-    currentUser = userPlatform;
+    _userChangesListeners[appName].add(null);
   }
 
-  /// Handles an incoming change listener (authStateChanges or idTokenChanges) and
-  /// fans out the result to any subscribers.
-  Future<void> _handleChangeListener(
-      StreamController<UserPlatform> streamController,
-      bool triggerUserChangeEvent,
+  /// Handles any incoming [authChanges] listener events.
+  Future<void> _handleAuthStateChangesListener(
       Map<dynamic, dynamic> arguments) async {
+    String appName = arguments['appName'];
+    StreamController<UserPlatform> streamController =
+        _authStateChangesListeners[appName];
+
     if (arguments['user'] == null) {
-      setCurrentUser(null,
-          triggerUserChangeEvent: triggerUserChangeEvent ?? false);
       streamController.add(null);
     } else {
+      MethodChannelFirebaseAuth instance =
+          _methodChannelFirebaseAuthInstances[appName];
+      final Map<String, dynamic> userMap =
+          Map<String, dynamic>.from(arguments['user']);
+      streamController.add(MethodChannelUser(instance, userMap));
+    }
+  }
+
+  /// Handles any incoming [idTokenChanges] listener events.
+  ///
+  /// This handler also manages the [currentUser] along with sending events
+  /// to any [userChanges] stream subscribers.
+  Future<void> _handleIdTokenChangesListener(
+      Map<dynamic, dynamic> arguments) async {
+    String appName = arguments['appName'];
+    StreamController<UserPlatform> idTokenStreamController =
+        _idTokenChangesListeners[appName];
+    StreamController<UserPlatform> userChangesStreamController =
+        _userChangesListeners[appName];
+
+    if (arguments['user'] == null) {
+      currentUser = null;
+      idTokenStreamController.add(null);
+      userChangesStreamController.add(null);
+    } else {
+      MethodChannelFirebaseAuth instance =
+          _methodChannelFirebaseAuthInstances[appName];
       final Map<String, dynamic> userMap =
           Map<String, dynamic>.from(arguments['user']);
 
-      MethodChannelUser methodChannelUser = MethodChannelUser(this, userMap);
-      setCurrentUser(methodChannelUser,
-          triggerUserChangeEvent: triggerUserChangeEvent ?? false);
-      streamController.add(methodChannelUser);
+      MethodChannelUser user = MethodChannelUser(instance, userMap);
+      currentUser = user;
+      idTokenStreamController.add(user);
+      userChangesStreamController.add(user);
     }
   }
 
@@ -202,9 +223,16 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
 
   /// Gets a [FirebaseAuthPlatform] with specific arguments such as a different
   /// [FirebaseApp].
+  ///
+  /// Instances are cached and reused for incoming event handlers.
   @override
   FirebaseAuthPlatform delegateFor({FirebaseApp app}) {
-    return MethodChannelFirebaseAuth(app: app);
+    if (!_methodChannelFirebaseAuthInstances.containsKey(app.name)) {
+      _methodChannelFirebaseAuthInstances[app.name] =
+          MethodChannelFirebaseAuth(app: app);
+    }
+
+    return _methodChannelFirebaseAuthInstances[app.name];
   }
 
   @override
@@ -266,7 +294,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     MethodChannelUserCredential userCredential =
         MethodChannelUserCredential(this, data);
 
-    setCurrentUser(userCredential.user);
+    currentUser = userCredential.user;
     return userCredential;
   }
 
@@ -351,7 +379,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     MethodChannelUserCredential userCredential =
         MethodChannelUserCredential(this, data);
 
-    setCurrentUser(userCredential.user);
+    currentUser = userCredential.user;
     return userCredential;
   }
 
@@ -367,7 +395,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     MethodChannelUserCredential userCredential =
         MethodChannelUserCredential(this, data);
 
-    setCurrentUser(userCredential.user);
+    currentUser = userCredential.user;
     return userCredential;
   }
 
@@ -382,7 +410,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     MethodChannelUserCredential userCredential =
         MethodChannelUserCredential(this, data);
 
-    setCurrentUser(userCredential.user);
+    currentUser = userCredential.user;
     return userCredential;
   }
 
@@ -399,7 +427,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     MethodChannelUserCredential userCredential =
         MethodChannelUserCredential(this, data);
 
-    setCurrentUser(userCredential.user);
+    currentUser = userCredential.user;
     return userCredential;
   }
 
@@ -416,7 +444,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
     MethodChannelUserCredential userCredential =
         MethodChannelUserCredential(this, data);
 
-    setCurrentUser(userCredential.user);
+    currentUser = userCredential.user;
     return userCredential;
   }
 
@@ -437,7 +465,7 @@ class MethodChannelFirebaseAuth extends FirebaseAuthPlatform {
       'appName': app.name,
     }).catchError(catchPlatformException);
 
-    setCurrentUser(null);
+    currentUser = null;
   }
 
   Future<String> verifyPasswordResetCode(String code) async {

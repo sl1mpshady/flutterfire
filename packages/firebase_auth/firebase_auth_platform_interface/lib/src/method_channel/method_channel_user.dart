@@ -60,7 +60,7 @@ class MethodChannelUser extends UserPlatform {
     MethodChannelUserCredential userCredential =
         MethodChannelUserCredential(auth, data);
 
-    auth.setCurrentUser(userCredential.user);
+    auth.currentUser = userCredential.user;
     return userCredential;
   }
 
@@ -77,7 +77,7 @@ class MethodChannelUser extends UserPlatform {
     MethodChannelUserCredential userCredential =
         MethodChannelUserCredential(auth, data);
 
-    auth.setCurrentUser(userCredential.user);
+    auth.currentUser = userCredential.user;
     return userCredential;
   }
 
@@ -88,8 +88,9 @@ class MethodChannelUser extends UserPlatform {
       'appName': auth.app.name,
     }).catchError(catchPlatformException);
 
-    auth.setCurrentUser(MethodChannelUser(auth, data),
-        triggerUserChangeEvent: true);
+    MethodChannelUser user = MethodChannelUser(auth, data);
+    auth.currentUser = user;
+    auth.sendAuthChangesEvent(auth.app.name, user);
   }
 
   @override
@@ -115,7 +116,8 @@ class MethodChannelUser extends UserPlatform {
         MethodChannelUserCredential(auth, data);
     MethodChannelUser user = userCredential.user;
 
-    auth.setCurrentUser(user, triggerUserChangeEvent: true);
+    auth.currentUser = user;
+    auth.sendAuthChangesEvent(auth.app.name, user);
     return user;
   }
 
@@ -127,8 +129,9 @@ class MethodChannelUser extends UserPlatform {
       'newEmail': newEmail,
     }).catchError(catchPlatformException);
 
-    auth.setCurrentUser(MethodChannelUser(auth, data),
-        triggerUserChangeEvent: true);
+    MethodChannelUser user = MethodChannelUser(auth, data);
+    auth.currentUser = user;
+    auth.sendAuthChangesEvent(auth.app.name, user);
   }
 
   @override
@@ -140,8 +143,9 @@ class MethodChannelUser extends UserPlatform {
       'newPassword': newPassword,
     }).catchError(catchPlatformException);
 
-    auth.setCurrentUser(MethodChannelUser(auth, data),
-        triggerUserChangeEvent: true);
+    MethodChannelUser user = MethodChannelUser(auth, data);
+    auth.currentUser = user;
+    auth.sendAuthChangesEvent(auth.app.name, user);
   }
 
   @override
@@ -153,8 +157,9 @@ class MethodChannelUser extends UserPlatform {
       'credential': phoneCredential.asMap(),
     }).catchError(catchPlatformException);
 
-    auth.setCurrentUser(MethodChannelUser(auth, data),
-        triggerUserChangeEvent: true);
+    MethodChannelUser user = MethodChannelUser(auth, data);
+    auth.currentUser = user;
+    auth.sendAuthChangesEvent(auth.app.name, user);
   }
 
   @override
@@ -166,8 +171,9 @@ class MethodChannelUser extends UserPlatform {
       'profile': profile,
     }).catchError(catchPlatformException);
 
-    auth.setCurrentUser(MethodChannelUser(auth, data),
-        triggerUserChangeEvent: true);
+    MethodChannelUser user = MethodChannelUser(auth, data);
+    auth.currentUser = user;
+    auth.sendAuthChangesEvent(auth.app.name, user);
   }
 
   @override

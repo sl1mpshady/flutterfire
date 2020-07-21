@@ -111,9 +111,11 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
   }
 
   @override
-  void setCurrentUser(UserPlatform userPlatform,
-      {bool triggerUserChangeEvent = false}) {
-    _userChangesListeners[app.name].add(userPlatform);
+  void sendAuthChangesEvent(String appName, UserPlatform userPlatform) {
+    assert(appName != null);
+    assert(_userChangesListeners[appName] != null);
+
+    _userChangesListeners[appName].add(null);
   }
 
   @override

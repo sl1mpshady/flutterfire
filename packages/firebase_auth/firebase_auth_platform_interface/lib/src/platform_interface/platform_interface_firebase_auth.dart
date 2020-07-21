@@ -91,7 +91,12 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
   /// You should not use this getter to determine the users current state, instead
   /// use [authStateChanges], [idTokenChanges] or [userChanges] to subscribe to updates.
   UserPlatform get currentUser {
-    throw UnimplementedError("currentUser is not implemented");
+    throw UnimplementedError("get.currentUser is not implemented");
+  }
+
+  /// Sets the current user for the instance.
+  set currentUser(UserPlatform userPlatform) {
+    throw UnimplementedError("set.currentUser is not implemented");
   }
 
   /// The current Auth instance's language code.
@@ -101,10 +106,9 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
     throw UnimplementedError("languageCode is not implemented");
   }
 
-  /// Allows delegates to set a current instance [UserPlatform].
-  void setCurrentUser(UserPlatform userPlatform,
-      {bool triggerUserChangeEvent = false}) {
-    throw UnimplementedError("setCurrentUser() is not implemented");
+  /// Sends a Stream event to a [authStateChanges] stream controller.
+  void sendAuthChangesEvent(String appName, UserPlatform userPlatform) {
+    throw UnimplementedError("sendAuthChangesEvent() is not implemented");
   }
 
   /// Applies a verification code sent to the user by email or other out-of-band mechanism.

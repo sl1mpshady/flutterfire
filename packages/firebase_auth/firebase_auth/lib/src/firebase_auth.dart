@@ -270,7 +270,7 @@ class FirebaseAuth extends FirebasePluginPlatform {
     assert(email != null);
     assert(actionCodeSettings != null);
 
-    if (!actionCodeSettings.handleCodeInApp) {
+    if (actionCodeSettings.handleCodeInApp != true) {
       throw ArgumentError(
           "The [handleCodeInApp] value of [ActionCodeSettings] must be `true`.");
     }

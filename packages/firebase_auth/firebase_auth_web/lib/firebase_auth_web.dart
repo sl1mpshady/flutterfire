@@ -62,22 +62,24 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
 
       _webAuth.onAuthStateChanged.map((firebase.User webUser) {
         if (webUser == null) {
-          _authStateChangesListeners[app.name].add(null);
+          return null;
         } else {
-          _userChangesListeners[app.name].add(UserWeb(this, webUser));
+          return UserWeb(this, webUser);
         }
+      }).listen((UserWeb user) {
+        _authStateChangesListeners[app.name].add(null);
       });
 
       // Also triggers `userChanged` events
       _webAuth.onIdTokenChanged.map((firebase.User webUser) {
         if (webUser == null) {
-          _idTokenChangesListeners[app.name].add(null);
-          _userChangesListeners[app.name].add(null);
+          return null;
         } else {
-          UserWeb user = UserWeb(this, webUser);
-          _idTokenChangesListeners[app.name].add(user);
-          _userChangesListeners[app.name].add(user);
+          return UserWeb(this, webUser);
         }
+      }).listen((UserWeb webUser) {
+        _idTokenChangesListeners[app.name].add(webUser);
+        _userChangesListeners[app.name].add(webUser);
       });
     }
   }
@@ -96,6 +98,7 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
     Map<String, dynamic> currentUser,
     String languageCode,
   }) {
+    // Values are already set on web
     return this;
   }
 

@@ -66,8 +66,8 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
         } else {
           return UserWeb(this, webUser);
         }
-      }).listen((UserWeb user) {
-        _authStateChangesListeners[app.name].add(null);
+      }).listen((UserWeb webUser) {
+        _authStateChangesListeners[app.name].add(webUser);
       });
 
       // Also triggers `userChanged` events

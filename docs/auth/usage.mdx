@@ -321,3 +321,50 @@ Reauthentication also works if you are using an OAuth credential instead.
 
 ### Linking user accounts
 
+You can allow your users to sign into your application using multiple providers by linking authentication credentials to
+existing user accounts.  Users can then be identified using the Firebase UID, regardless of the provider they used to sign in.
+
+The user must first be logged in to one of the accounts you want to link. You can then log the user into the second provider,
+and pass that `AuthCredential` to the `linkWithCredential` method from the first UserCredential:
+
+```dart
+Future<void> linkGoogleandTwitter() async {
+  // Trigger the Google Authentication flow
+  final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+
+  // Obtain the auth details from the request
+  final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+  // Create a new credential
+  final GoogleAuthCredential googleCredential = GoogleAuthProvider.credential(
+    accessToken: googleAuth.accessToken,
+    idToken: googleAuth.idToken,
+  );
+
+  // Store the UserCredential for later use
+  final UserCredential googleUserCredential =
+    await FirebaseAuth.instance.signInWithCredential(googleCredential);
+
+  // Create a TwitterLogin instance
+  final TwitterLogin twitterLogin = new TwitterLogin(
+    consumerKey: consumerKey,
+    consumerSecret: consumerSecret
+  );
+
+  // Trigger the sign-in flow
+  final TwitterLoginResult loginResult = await twitterLogin.authorize();
+
+  // Get the Logged In session
+  final TwitterSession twitterSession = loginResult.session;
+
+  // Create a credential from the access token
+  final AuthCredential twitterAuthCredential =
+    TwitterAuthProvider.credential(
+      accessToken: twitterSession.token,
+      secret: twitterSession.secret
+     );
+
+  // Link the Twitter account with the Google account
+  await googleUserCredential.user.linkWithCredential(twitterAuthCredential);
+}
+```

@@ -27,12 +27,14 @@ class MethodChannelUser extends UserPlatform {
 
   @override
   Future<String> getIdToken(bool forceRefresh) async {
-    return MethodChannelFirebaseAuth.channel
-        .invokeMethod<String>('User#getIdToken', <String, dynamic>{
+    Map<String, dynamic> data = await MethodChannelFirebaseAuth.channel
+        .invokeMapMethod<String, dynamic>('User#getIdToken', <String, dynamic>{
       'appName': auth.app.name,
       'forceRefresh': forceRefresh,
       'tokenOnly': true,
     }).catchError(catchPlatformException);
+
+    return data['token'];
   }
 
   @override

@@ -381,9 +381,10 @@ void runInstanceTests() {
         await auth.createUserWithEmailAndPassword(
             email: email, password: TEST_PASSWORD);
 
-        var settings = ActionCodeSettings(url: 'http://localhost');
+        var settings =
+            ActionCodeSettings(url: 'http://localhost', handleCodeInApp: true);
         try {
-          await auth.sendSignInWithEmailLink(
+          await auth.sendSignInLinkToEmail(
               email: email, actionCodeSettings: settings);
           await auth.currentUser.delete();
         } catch (e) {
@@ -397,9 +398,9 @@ void runInstanceTests() {
         await auth.createUserWithEmailAndPassword(
             email: email, password: TEST_PASSWORD);
 
-        var settings = ActionCodeSettings(url: '');
+        var settings = ActionCodeSettings(url: '', handleCodeInApp: true);
         try {
-          await auth.sendSignInWithEmailLink(
+          await auth.sendSignInLinkToEmail(
               email: email, actionCodeSettings: settings);
           await auth.currentUser.delete();
           fail('Should have thrown');

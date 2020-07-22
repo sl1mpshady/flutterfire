@@ -28,7 +28,7 @@ class ActionCodeInfo {
   @protected
   ActionCodeInfo({
     int operation,
-    Map<String, dynamic> data,
+    @required Map<String, dynamic> data,
   })  : _operation = operation,
         _data = data;
 
@@ -59,6 +59,7 @@ class ActionCodeInfo {
   /// Depending on the [ActionCodeInfoOperation], `email` and `previousEmail`
   /// may be available.
   Map<String, dynamic> get data {
+    if (data == null) return null;
     return <String, dynamic>{
       'email': _data['email'],
       'previousEmail': _data['previousEmail'],

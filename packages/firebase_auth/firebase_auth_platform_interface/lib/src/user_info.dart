@@ -54,6 +54,6 @@ class UserInfo {
 
   @override
   String toString() {
-    return '$UserInfo(displayName: $displayName, email: $email, phoneNumber: $phoneNumber, providerId: $providerId, uid: $uid)';
+    return '$UserInfo(displayName: $displayName, email: $email, phoneNumber: $phoneNumber, photoURL: $photoURL, providerId: $providerId, uid: $uid)';
   }
 }

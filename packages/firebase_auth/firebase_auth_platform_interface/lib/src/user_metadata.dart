@@ -14,14 +14,16 @@ class UserMetadata {
   final int _lastSignInTime;
 
   /// When this account was created as dictated by the server clock.
-  DateTime get creationTime =>
-      DateTime.fromMillisecondsSinceEpoch(_creationTimestamp);
+  DateTime get creationTime => _creationTimestamp == null
+      ? null
+      : DateTime.fromMillisecondsSinceEpoch(_creationTimestamp);
 
   /// When the user last signed in as dictated by the server clock.
   ///
   /// This is only accurate up to a granularity of 2 minutes for consecutive sign-in attempts.
-  DateTime get lastSignInTime =>
-      DateTime.fromMillisecondsSinceEpoch(_lastSignInTime);
+  DateTime get lastSignInTime => _lastSignInTime == null
+      ? null
+      : DateTime.fromMillisecondsSinceEpoch(_lastSignInTime);
 
   @override
   String toString() {

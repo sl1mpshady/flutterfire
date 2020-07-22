@@ -136,7 +136,7 @@ abstract class FirebaseAuthPlatform extends PlatformInterface {
   /// - **user-not-found**:
   ///  - Thrown if there is no user corresponding to the action code. This may have happened if the user was deleted between when the action code was issued and when this method was called.
   Future<ActionCodeInfo> checkActionCode(String code) {
-    throw UnimplementedError("applyActionCode() is not implemented");
+    throw UnimplementedError("checkActionCode() is not implemented");
   }
 
   /// Completes the password reset process, given a confirmation code and new password.

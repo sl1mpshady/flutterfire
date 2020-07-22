@@ -19,7 +19,7 @@ class FirebaseAuthException extends FirebaseException implements Exception {
       this.credential,
       this.phoneNumber,
       this.tenantId})
-      : super(plugin: "firebase_auth", message: message, code: code);
+      : super(plugin: 'firebase_auth', message: message, code: code);
 
   /// Unique error code
   final String code;

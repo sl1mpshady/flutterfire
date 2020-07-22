@@ -43,6 +43,29 @@ void runUserTests() {
         // // Assertions
         expect(token.length, greaterThan(24));
       });
+
+      test('should catch error', () async {
+        // Setup
+        User user;
+        UserCredential userCredential;
+
+        userCredential = await auth.createUserWithEmailAndPassword(
+            email: email, password: TEST_PASSWORD);
+        user = userCredential.user;
+
+        // needed for method to throw an error
+        await auth.signOut();
+
+        try {
+          // Test
+          await user.getIdToken();
+        } on FirebaseAuthException catch (_) {
+          return;
+        } catch (e) {
+          fail('should have thrown a FirebaseAuthException error');
+        }
+        fail('should have thrown an error');
+      });
     });
 
     group('getIdTokenResult()', () {
@@ -368,7 +391,6 @@ void runUserTests() {
         expect(unlinkedUser.providerData.length, equals(0));
       });
 
-      // TODO(ehesp): parse no-such-provider error when calling unlink()
       test('should throw error if provider id given does not exist', () async {
         // Setup
         await auth.signInAnonymously();

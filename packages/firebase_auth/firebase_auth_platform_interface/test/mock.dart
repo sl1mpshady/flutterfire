@@ -11,6 +11,9 @@ import 'package:firebase_auth_platform_interface/src/method_channel/method_chann
 typedef MethodCallCallback = dynamic Function(MethodCall methodCall);
 typedef Callback(MethodCall call);
 
+// mock values
+final String TEST_PHONE_NUMBER = '+447111555666';
+
 int mockHandleId = 0;
 int get nextMockHandleId => mockHandleId++;
 

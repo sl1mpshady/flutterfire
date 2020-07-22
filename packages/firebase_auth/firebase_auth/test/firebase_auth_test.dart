@@ -136,7 +136,7 @@ void main() {
       when(mockAuthPlatform.signInWithPhoneNumber(any, any)).thenAnswer((_) =>
           Future<ConfirmationResultPlatform>.value(
               mockConfirmationResultPlatform));
-      when(mockVerifier.delegate).thenReturn(mockVerifier.getMockDelegate);
+      when(mockVerifier.delegate).thenReturn(mockVerifier.mockDelegate);
 
       when(mockAuthPlatform.signInWithPopup(any)).thenAnswer(
           (_) => Future<UserCredentialPlatform>.value(mockUserCredPlatform));
@@ -675,7 +675,7 @@ class MockRecaptchaVerifier extends Mock
     TestRecaptchaVerifier();
   }
 
-  RecaptchaVerifierFactoryPlatform get getMockDelegate {
+  RecaptchaVerifierFactoryPlatform get mockDelegate {
     return MockRecaptchaVerifierFactoryPlatform(); //this.delegate;
   }
 }

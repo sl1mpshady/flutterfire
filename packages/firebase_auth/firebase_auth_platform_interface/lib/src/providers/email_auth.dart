@@ -101,6 +101,7 @@ class EmailAuthCredential extends AuthCredential {
   Map<String, String> asMap() {
     return <String, String>{
       'providerId': providerId,
+      'signInMethod': signInMethod,
       'email': email,
       'emailLink': emailLink,
       'secret': password,

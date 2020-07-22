@@ -4,13 +4,13 @@
 
 package io.flutter.plugins.firebaseauth;
 
+import static io.flutter.plugins.firebase.core.FlutterFirebasePluginRegistry.registerPlugin;
+
 import android.app.Activity;
 import android.net.Uri;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.FirebaseApp;
@@ -39,16 +39,6 @@ import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.auth.TwitterAuthProvider;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -59,8 +49,14 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugins.firebase.core.FlutterFirebasePlugin;
-
-import static io.flutter.plugins.firebase.core.FlutterFirebasePluginRegistry.registerPlugin;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /** Flutter plugin for Firebase Auth. */
 public class FirebaseAuthPlugin
@@ -844,7 +840,7 @@ public class FirebaseAuthPlugin
         });
   }
 
-  private Task<Object> getIdToken(Map<String, Object> arguments) {
+  private Task<Map<String, Object>> getIdToken(Map<String, Object> arguments) {
     return Tasks.call(
         cachedThreadPool,
         () -> {
@@ -859,7 +855,9 @@ public class FirebaseAuthPlugin
           GetTokenResult tokenResult = Tasks.await(firebaseUser.getIdToken(forceRefresh));
 
           if (tokenOnly) {
-            return tokenResult.getToken();
+            Map<String, Object> output = new HashMap<>();
+            output.put("token", tokenResult.getToken());
+            return output;
           } else {
             return parseTokenResult(tokenResult);
           }

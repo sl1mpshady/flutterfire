@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 
 import '../../firebase_auth_exception.dart';
 
-/// Catches a [PlatformException] and converts it into a [FirebaseException] if
+/// Catches a [PlatformException] and converts it into a [FirebaseAuthException] if
 /// it was intentially caught on the native platform.
 FutureOr<Map<String, dynamic>> catchPlatformException(Object exception) async {
   if (exception is! Exception || exception is! PlatformException) {

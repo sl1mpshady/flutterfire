@@ -54,11 +54,12 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
         super(appInstance: app) {
     if (app != null) {
       // Create a app instance broadcast stream for both delegate listener events
-      _userChangesListeners[app.name] = _createBroadcastStream<UserPlatform>();
+      _userChangesListeners[app.name] =
+          StreamController<UserPlatform>.broadcast();
       _authStateChangesListeners[app.name] =
-          _createBroadcastStream<UserPlatform>();
+          StreamController<UserPlatform>.broadcast();
       _idTokenChangesListeners[app.name] =
-          _createBroadcastStream<UserPlatform>();
+          StreamController<UserPlatform>.broadcast();
 
       _webAuth.onAuthStateChanged.map((firebase.User webUser) {
         if (webUser == null) {
@@ -80,10 +81,6 @@ class FirebaseAuthWeb extends FirebaseAuthPlatform {
         }
       });
     }
-  }
-
-  StreamController<T> _createBroadcastStream<T>() {
-    return StreamController<T>.broadcast();
   }
 
   @override

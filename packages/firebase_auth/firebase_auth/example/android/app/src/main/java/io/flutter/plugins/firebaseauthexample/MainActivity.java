@@ -1,11 +1,10 @@
 package io.flutter.plugins.firebaseauthexample;
 
 import androidx.annotation.NonNull;
-import io.flutter.embedding.android.FlutterActivity;
 import dev.flutter.plugins.e2e.FlutterTestRunner;
+import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugins.GeneratedPluginRegistrant;
-import org.junit.Rule;
 import org.junit.runner.RunWith;
 
 @RunWith(FlutterTestRunner.class)

@@ -1,18 +1,16 @@
 package io.flutter.plugins.firebaseauth;
 
-import androidx.annotation.NonNull;
+import static io.flutter.plugins.firebaseauth.FirebaseAuthPlugin.parseAuthCredential;
 
+import androidx.annotation.NonNull;
 import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
-
 import java.util.HashMap;
 import java.util.Map;
-
-import static io.flutter.plugins.firebaseauth.FirebaseAuthPlugin.parseAuthCredential;
 
 public class FirebaseAuthPluginException extends Exception {
 

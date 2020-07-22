@@ -39,6 +39,7 @@ class UserWeb extends UserPlatform {
                     'email': webUserInfo.email,
                     'phoneNumber': webUserInfo.phoneNumber,
                     'providerId': webUserInfo.providerId,
+                    'photoURL': webUserInfo.photoURL,
                     'uid': webUserInfo.uid,
                   })
               .toList(),

@@ -16,8 +16,8 @@ class ConfirmationResult {
     ConfirmationResultPlatform.verifyExtends(_delegate);
   }
 
-  /// The phone number authentication operation's verification ID. 
-  /// 
+  /// The phone number authentication operation's verification ID.
+  ///
   /// This can be used along with the verification code to initialize a phone auth credential.
   String get verificationId {
     return _delegate.verificationId;

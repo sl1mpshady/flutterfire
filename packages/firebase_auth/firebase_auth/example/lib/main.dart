@@ -15,8 +15,8 @@ Future<void> main() async {
   runApp(MyApp());
 }
 
+/// App entry point
 class MyApp extends StatelessWidget {
-  MyApp();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(title: 'Firebase Auth Demo', home: Text("TODO"));

@@ -142,6 +142,8 @@ void main() {
           default:
             return <String, dynamic>{'user': user};
         }
+
+        return null;
       });
     });
 

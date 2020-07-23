@@ -116,9 +116,6 @@ void main() {
       test(
           'throws a [FallThroughError] when operation does not match a known type',
           () {
-        ActionCodeInfo testActionCodeInfo =
-            ActionCodeInfo(operation: -1, data: kMockData);
-
         expect(actionCodeInfo.operation, isA<ActionCodeInfoOperation>());
         expect(
             () => actionCodeInfo.operation, throwsA(isA<FallThroughError>()));

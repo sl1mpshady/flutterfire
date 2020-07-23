@@ -195,7 +195,7 @@ void main() {
     test('setCurrentUser()', () async {
       expect(auth.currentUser, isNull);
       MockUserPlatform userPlatform = MockUserPlatform(auth, user);
-      auth.setCurrentUser(userPlatform);
+      auth.currentUser = userPlatform;
       expect(auth.currentUser, isA<UserPlatform>());
       expect(auth.currentUser.uid, equals(kMockUid));
     });

@@ -57,6 +57,7 @@ void main() {
       'displayName': kMockDisplayName,
       'photoURL': kMockPhotoURL,
       'email': kMockEmail,
+      'phoneNumber': kMockPhoneNumber,
     },
   ];
 
@@ -90,9 +91,6 @@ void main() {
     setUpAll(() async {
       FirebaseApp app = await Firebase.initializeApp();
 
-      auth = MethodChannelFirebaseAuth(app: app);
-      user = kMockUser;
-
       handleMethodCall((call) async {
         log.add(call);
 
@@ -103,6 +101,8 @@ void main() {
         }
 
         switch (call.method) {
+          case 'Auth#registerChangeListeners':
+            return {};
           case 'Auth#signInAnonymously':
             return <String, dynamic>{'user': user};
           case 'Auth#signInWithEmailAndPassword':
@@ -145,6 +145,9 @@ void main() {
 
         return null;
       });
+
+      auth = MethodChannelFirebaseAuth(app: app);
+      user = kMockUser;
     });
 
     setUp(() async {

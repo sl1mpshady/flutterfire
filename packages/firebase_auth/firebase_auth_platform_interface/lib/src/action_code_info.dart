@@ -29,7 +29,8 @@ class ActionCodeInfo {
   ActionCodeInfo({
     int operation,
     @required Map<String, dynamic> data,
-  })  : _operation = operation,
+  })  : assert(data != null),
+        _operation = operation,
         _data = data;
 
   int _operation;

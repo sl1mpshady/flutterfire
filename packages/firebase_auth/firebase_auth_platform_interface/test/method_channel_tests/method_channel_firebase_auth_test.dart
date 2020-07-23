@@ -105,8 +105,6 @@ void main() {
 
     setUpAll(() async {
       FirebaseApp app = await Firebase.initializeApp();
-      auth = MethodChannelFirebaseAuth(app: app);
-      user = kMockUser;
 
       handleMethodCall((call) async {
         print(call);
@@ -121,6 +119,8 @@ void main() {
         }
 
         switch (call.method) {
+          case 'Auth#registerChangeListeners':
+            return {};
           case 'Auth#signInAnonymously':
             user = getUser(user, <String, dynamic>{
               'isAnonymous': true,
@@ -154,8 +154,6 @@ void main() {
             return <String, dynamic>{'code': call.arguments['code']};
           case "Auth#verifyPhoneNumber":
             return null;
-          case 'Auth#registerChangeListeners':
-            return null;
           case 'Auth#checkActionCode':
             return <String, dynamic>{
               'operation': 1,
@@ -174,6 +172,9 @@ void main() {
             return <String, dynamic>{'user': kMockUser};
         }
       });
+
+      auth = MethodChannelFirebaseAuth(app: app);
+      user = kMockUser;
     });
 
     setUp(() async {

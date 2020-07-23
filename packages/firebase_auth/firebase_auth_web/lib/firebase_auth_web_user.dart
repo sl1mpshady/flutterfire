@@ -174,7 +174,6 @@ class UserWeb extends UserPlatform {
       auth.sendAuthChangesEvent(auth.app.name, auth.currentUser);
     } catch (e) {
       throw throwFirebaseAuthException(e);
-      
     }
   }
 

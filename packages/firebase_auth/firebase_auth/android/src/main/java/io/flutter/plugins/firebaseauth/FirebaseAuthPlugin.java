@@ -627,7 +627,11 @@ public class FirebaseAuthPlugin
             firebaseAuth.setLanguageCode(languageCode);
           }
 
-          return new HashMap<String, Object>() {{ put("languageCode", firebaseAuth.getLanguageCode()); }};
+          return new HashMap<String, Object>() {
+            {
+              put("languageCode", firebaseAuth.getLanguageCode());
+            }
+          };
         });
   }
 

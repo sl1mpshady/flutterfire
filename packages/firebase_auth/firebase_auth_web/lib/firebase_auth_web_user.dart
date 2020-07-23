@@ -104,7 +104,7 @@ class UserWeb extends UserPlatform {
   Future<void> reload() async {
     try {
       await _webUser.reload();
-      auth.setCurrentUser(auth.currentUser);
+      auth.sendAuthChangesEvent(auth.app.name, auth.currentUser);
     } catch (e) {
       throw throwFirebaseAuthException(e);
     }
@@ -134,7 +134,7 @@ class UserWeb extends UserPlatform {
     try {
       await _webUser.updateEmail(newEmail);
       await _webUser.reload();
-      auth.setCurrentUser(auth.currentUser);
+      auth.sendAuthChangesEvent(auth.app.name, auth.currentUser);
     } catch (e) {
       throw throwFirebaseAuthException(e);
     }
@@ -145,7 +145,7 @@ class UserWeb extends UserPlatform {
     try {
       await _webUser.updatePassword(newPassword);
       await _webUser.reload();
-      auth.setCurrentUser(auth.currentUser);
+      auth.sendAuthChangesEvent(auth.app.name, auth.currentUser);
     } catch (e) {
       throw throwFirebaseAuthException(e);
     }
@@ -157,7 +157,7 @@ class UserWeb extends UserPlatform {
       await _webUser
           .updatePhoneNumber(convertPlatformCredential(phoneCredential));
       await _webUser.reload();
-      auth.setCurrentUser(auth.currentUser);
+      auth.sendAuthChangesEvent(auth.app.name, auth.currentUser);
     } catch (e) {
       throw throwFirebaseAuthException(e);
     }
@@ -171,9 +171,10 @@ class UserWeb extends UserPlatform {
         photoURL: profile['photoURL'],
       ));
       await _webUser.reload();
-      auth.setCurrentUser(auth.currentUser);
+      auth.sendAuthChangesEvent(auth.app.name, auth.currentUser);
     } catch (e) {
       throw throwFirebaseAuthException(e);
+      
     }
   }
 

@@ -26,6 +26,8 @@ class ActionCodeSettings {
 
   /// Sets the Android package name.
   final Map<String, dynamic> android;
+
+  /// Sets an optional Dynamic Link domain.
   final String dynamicLinkDomain;
 
   /// The default is false. When true, the action code link will be sent

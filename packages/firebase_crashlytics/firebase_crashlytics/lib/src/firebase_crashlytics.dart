@@ -112,7 +112,7 @@ class FirebaseCrashlytics extends FirebasePluginPlatform {
 
       return _delegate.recordError(
         exception: exception.toString(),
-        context: context.toString(),
+        context: context?.toString(),
         information: _information,
         stackTraceElements: stackTraceElements,
       );
@@ -176,6 +176,7 @@ class FirebaseCrashlytics extends FirebasePluginPlatform {
   /// Ensure you have collected permission to store any personal identifiable information
   /// from the user if required.
   Future<void> setUserIdentifier(String identifier) {
+    assert(identifier != null);
     return _delegate.setUserIdentifier(identifier);
   }
 
@@ -192,9 +193,11 @@ class FirebaseCrashlytics extends FirebasePluginPlatform {
   ///
   /// The value can only be a type [int], [num], [String] or [bool].
   Future<void> setCustomKey(String key, dynamic value) async {
+    assert(key != null);
+    assert(value != null);
     assert(value is int || value is num || value is String || value is bool);
     if (_shouldReportErrors) return;
-    return _delegate.setCustomKey(key, value);
+    return _delegate.setCustomKey(key, value.toString());
   }
 }
 
@@ -203,6 +206,7 @@ class FirebaseCrashlytics extends FirebasePluginPlatform {
 @Deprecated(
     "Class Crashlytics is deprecated. Use 'FirebaseCrashlytics' instead.")
 class Crashlytics extends FirebaseCrashlytics {
+  // ignore: public_member_api_docs
   @Deprecated(
       "Constructing Crashlytics is deprecated, use 'FirebaseCrashlytics.instance' instead")
   factory Crashlytics() {

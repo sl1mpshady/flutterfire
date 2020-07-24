@@ -5,10 +5,10 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../platform_interface/platform_interface_crashlytics.dart';
+import './utils/exception.dart';
 
 /// The entry point for accessing a Crashlytics.
 ///
@@ -27,7 +27,14 @@ class MethodChannelFirebaseCrashlytics extends FirebaseCrashlyticsPlatform {
     return channel.invokeMethod<bool>(
         'Crashlytics#checkForUnsentReports', <String, dynamic>{
       'appName': app.name,
-    });
+    }).catchError(catchPlatformException);
+  }
+
+  @override
+  void crash() {
+    channel.invokeMethod<bool>('Crashlytics#crash', <String, dynamic>{
+      'appName': app.name,
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -35,7 +42,7 @@ class MethodChannelFirebaseCrashlytics extends FirebaseCrashlyticsPlatform {
     return channel.invokeMethod<void>(
         'Crashlytics#deleteUnsentReports', <String, dynamic>{
       'appName': app.name,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -43,12 +50,24 @@ class MethodChannelFirebaseCrashlytics extends FirebaseCrashlyticsPlatform {
     return channel.invokeMethod<bool>(
         'Crashlytics#didCrashOnPreviousExecution', <String, dynamic>{
       'appName': app.name,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
-  Future<void> recordFlutterError(FlutterErrorDetails flutterErrorDetails) {
-    // TODO
+  Future<void> recordError({
+    String exception,
+    String context,
+    String information,
+    List<Map<String, String>> stackTraceElements,
+  }) {
+    return channel
+        .invokeMethod<void>('Crashlytics#recordError', <String, dynamic>{
+      'appName': app.name,
+      'exception': exception,
+      'context': context,
+      'information': information,
+      'stackTraceElements': stackTraceElements ?? [],
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -64,7 +83,7 @@ class MethodChannelFirebaseCrashlytics extends FirebaseCrashlyticsPlatform {
     return channel
         .invokeMethod<void>('Crashlytics#sendUnsentReports', <String, dynamic>{
       'appName': app.name,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -73,7 +92,7 @@ class MethodChannelFirebaseCrashlytics extends FirebaseCrashlyticsPlatform {
         'Crashlytics#setCrashlyticsCollectionEnabled', <String, dynamic>{
       'appName': app.name,
       'enabled': enabled,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
@@ -82,16 +101,16 @@ class MethodChannelFirebaseCrashlytics extends FirebaseCrashlyticsPlatform {
         .invokeMethod<void>('Crashlytics#setUserIdentifier', <String, dynamic>{
       'appName': app.name,
       'identifier': identifier,
-    });
+    }).catchError(catchPlatformException);
   }
 
   @override
-  Future<void> setCustomKey(String key, dynamic value) {
+  Future<void> setCustomKey(String key, String value) {
     return channel
         .invokeMethod<void>('Crashlytics#setCustomKey', <String, dynamic>{
       'appName': app.name,
       'key': key,
       'value': value,
-    });
+    }).catchError(catchPlatformException);
   }
 }

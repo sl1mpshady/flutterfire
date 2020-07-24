@@ -149,7 +149,7 @@ abstract class FirebaseCrashlyticsPlatform extends PlatformInterface {
   ///
   /// Accepts a maximum of 64 key/value pairs. New keys beyond that limit are
   /// ignored. Keys or values that exceed 1024 characters are truncated.
-  Future<void> setCustomKey(String key, dynamic value) {
+  Future<void> setCustomKey(String key, String value) {
     throw UnimplementedError('setCustomKey() is not implemented');
   }
 }

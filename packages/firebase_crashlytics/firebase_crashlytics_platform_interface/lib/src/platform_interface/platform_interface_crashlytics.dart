@@ -92,7 +92,7 @@ abstract class FirebaseCrashlyticsPlatform extends PlatformInterface {
 
   /// If automatic data collection is disabled, this method queues up all the 
   /// reports on a device to send to Crashlytics. Otherwise, this method is a no-op.
-  Future<void> sendUnsentReports(String message) {
+  Future<void> sendUnsentReports() {
     throw UnimplementedError('sendUnsentReports() is not implemented');
   }
 

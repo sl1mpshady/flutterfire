@@ -197,3 +197,20 @@ class FirebaseCrashlytics extends FirebasePluginPlatform {
     return _delegate.setCustomKey(key, value);
   }
 }
+
+/// Extends the [FirebaseCrashlytics] class to allow for deprecated usage of
+/// using [Crashlytics] directly.
+@Deprecated(
+    "Class Crashlytics is deprecated. Use 'FirebaseCrashlytics' instead.")
+class Crashlytics extends FirebaseCrashlytics {
+  @Deprecated(
+      "Constructing Crashlytics is deprecated, use 'FirebaseCrashlytics.instance' instead")
+  factory Crashlytics() {
+    return FirebaseCrashlytics.instance;
+  }
+
+  // ignore: public_member_api_docs
+  @Deprecated(
+      "Accessing Crashlytics.instance is deprecated, use 'FirebaseCrashlytics.instance' instead")
+  static FirebaseCrashlytics get instance => FirebaseCrashlytics.instance;
+}

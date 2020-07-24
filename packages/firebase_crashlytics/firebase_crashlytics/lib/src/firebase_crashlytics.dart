@@ -29,6 +29,8 @@ class FirebaseCrashlytics extends FirebasePluginPlatform {
     );
   }
 
+  /// A flag to control whether logs and custom keys are uploaded to Crashlytics
+  /// during development.
   bool enableInDevMode = false;
 
   bool get _shouldReportErrors => !kDebugMode || enableInDevMode;

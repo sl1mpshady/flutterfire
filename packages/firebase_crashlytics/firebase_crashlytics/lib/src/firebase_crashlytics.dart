@@ -11,8 +11,7 @@ class FirebaseCrashlytics extends FirebasePluginPlatform {
 
   FirebaseCrashlyticsPlatform get _delegate {
     if (_delegatePackingProperty == null) {
-      _delegatePackingProperty =
-          FirebaseCrashlyticsPlatform.instance;
+      _delegatePackingProperty = FirebaseCrashlyticsPlatform.instance;
     }
     return _delegatePackingProperty;
   }
@@ -33,6 +32,11 @@ class FirebaseCrashlytics extends FirebasePluginPlatform {
   bool enableInDevMode = false;
 
   bool get _shouldReportErrors => !kDebugMode || enableInDevMode;
+
+  Future<void> log(String message) async {
+    assert(message != null);
+    await _delegate.log(message);
+  }
 }
 
 // /// The entry point for accessing Crashlytics.
